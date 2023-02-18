@@ -17,6 +17,7 @@ public:
 	f32 curZoom;
 	f32 zoomAmount;
 	i8 zoomDir;
+	f32 zoomSnapTimer = 0;
 	bool isReceivingInputs;
 	ax::Vec2 movementDirection;
 	bool isMovingLeft, isMovingRight, isMovingUp, isMovingDown;

@@ -82,9 +82,22 @@ void Player::update(f32 dt)
 	chaseNode->setPositionX(round(playerPosX));
 	chaseNode->setPositionY(round(playerPosY));
 
-	curZoom += zoomDir * zoomAmount * dt;
-	curZoom = clampf(curZoom, 0.5f, 3);
-	cam->setZoom(curZoom);
+	zoomSnapTimer += dt;
+
+	if (zoomDir != 0)
+		zoomSnapTimer = 0;
+
+	if (zoomDir == 0 && curZoom > 0.9 && curZoom < 1.1 && zoomSnapTimer > 1.0)
+		curZoom = 1;
+
+	curZoom += (zoomAmount + tweenfunc::quadEaseIn(curZoom)) * zoomDir * dt;
+	curZoom = clampf(curZoom, 0.5f, 30);
+
+	if (zoomDir != 0)
+		cam->setZoom(LERP(cam->getZoom(), curZoom, 0.1));
+	else
+		cam->setZoom(LERP(cam->getZoom(), curZoom, 0.05));
+	cam->applyZoom();
 }
 
 void Player::setInputState(bool isReceivingInputs)

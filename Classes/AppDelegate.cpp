@@ -88,6 +88,7 @@ static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
     Darkness::getInstance()->gameWindow.windowSize = Size(width, height);
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
+    if (!glview) return;
     f32 aspect = 16.0f / 9.0f;
     glview->setFrameSize(width, height);
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);
@@ -371,8 +372,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //            smallResolutionSize.width / designResolutionSize.width));
     //}
 
-    Director::getInstance()->getRenderer()->setDepthTest(false);
-    Director::getInstance()->getRenderer()->setDepthWrite(false);
+    Director::getInstance()->setProjection(ax::Director::Projection::_3D);
 
     register_all_packages();
 
