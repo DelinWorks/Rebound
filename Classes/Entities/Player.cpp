@@ -48,29 +48,29 @@ void Player::update(f32 dt)
 	auto joystickY = Darkness::getInstance()->getKeyState(ax::Controller::Key::JOYSTICK_LEFT_Y).value;
 
 	if (!isMovingRight && !isMovingLeft && abs(joystickX) < 0.1)
-		movementDirection.x = LERP(movementDirection.x, 0, playerMoveStopEase);
+		movementDirection.x = LERP(movementDirection.x, 0, playerMoveStopEase * dt);
 	if (!isMovingUp && !isMovingDown && abs(joystickY) < 0.1)
-		movementDirection.y = LERP(movementDirection.y, 0, playerMoveStopEase);
+		movementDirection.y = LERP(movementDirection.y, 0, playerMoveStopEase * dt);
 
 	auto triggerRight = (Darkness::getInstance()->getKeyState(ax::Controller::Key::AXIS_RIGHT_TRIGGER).value + 1) / 2.0;
 	auto triggerLeft = (Darkness::getInstance()->getKeyState(ax::Controller::Key::AXIS_LEFT_TRIGGER).value + 1) / 2.0;
 
 	if (abs(joystickX) >= 0.1)
-		movementDirection.x = LERP(movementDirection.x, clampf(joystickX * 1.5 * tweenfunc::easeIn(abs(joystickX), 1), -1, 1), playerMoveBeginEase);
+		movementDirection.x = LERP(movementDirection.x, clampf(joystickX * 1.5 * tweenfunc::easeIn(abs(joystickX), 1), -1, 1), playerMoveBeginEase * dt);
 	if (abs(joystickY) >= 0.1)
-	movementDirection.y = LERP(movementDirection.y, clampf(joystickY * -1.5 * tweenfunc::easeIn(abs(joystickY), 1), -1, 1), playerMoveBeginEase);
+	movementDirection.y = LERP(movementDirection.y, clampf(joystickY * -1.5 * tweenfunc::easeIn(abs(joystickY), 1), -1, 1), playerMoveBeginEase * dt);
 
 	curZoom += triggerRight * zoomAmount * dt;
 	curZoom -= triggerLeft * zoomAmount * dt;
 
 	if (isMovingRight && !isMovingLeft)
-		movementDirection.x = LERP(movementDirection.x, 1.0, playerMoveBeginEase);
+		movementDirection.x = LERP(movementDirection.x, 1.0, playerMoveBeginEase * dt);
 	if (isMovingLeft && !isMovingRight)
-		movementDirection.x = LERP(movementDirection.x, -1.0, playerMoveBeginEase);
+		movementDirection.x = LERP(movementDirection.x, -1.0, playerMoveBeginEase * dt);
 	if (isMovingUp && !isMovingDown)
-		movementDirection.y = LERP(movementDirection.y, 1.0, playerMoveBeginEase);
+		movementDirection.y = LERP(movementDirection.y, 1.0, playerMoveBeginEase * dt);
 	if (isMovingDown && !isMovingUp)
-		movementDirection.y = LERP(movementDirection.y, -1.0, playerMoveBeginEase);
+		movementDirection.y = LERP(movementDirection.y, -1.0, playerMoveBeginEase * dt);
 
 	auto normalized = movementDirection;
 	if (movementDirection.length() > 1)
@@ -154,4 +154,10 @@ void Player::onMouseUp(ax::Event* event)
 		zoomDir = 0;
 	else if (e->getMouseButton() == button::BUTTON_5)
 		zoomDir = 0;
+}
+
+void Player::onMouseScroll(ax::Event* event)
+{
+	EventMouse* e = (EventMouse*)event;
+	zoomDir = e->getScrollY();
 }

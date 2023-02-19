@@ -69,12 +69,12 @@ bool GameplayScene::init()
 
     float yPosSpwn = visibleSize.y / 2;
 
-    for (size_t i = 0; i < 1024; i++)
+    for (size_t i = 0; i < 100000; i++)
     {
-        if (yPosSpwn <= visibleSize.y / -2)
-            yPosSpwn = visibleSize.y / 2;
+        if (yPosSpwn <= visibleSize.y / -2 * 10)
+            yPosSpwn = visibleSize.y / 2 * 10;
         yPosSpwn -= 10;
-        InsertGrass(r.rangef(visibleSize.x / -2, visibleSize.x / 2), yPosSpwn, 32);
+        InsertGrass(r.rangef(visibleSize.x / -2 * 10, visibleSize.x / 2 * 10), yPosSpwn, 32);
     }
 
     std::vector<MeshVertexAttrib> attribs;
@@ -191,6 +191,7 @@ void GameplayScene::onMouseMove(cocos2d::Event* event)
 
 void GameplayScene::onMouseScroll(cocos2d::Event* event)
 {
+    p->onMouseScroll(event);
 }
 
 bool GameplayScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)

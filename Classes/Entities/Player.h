@@ -34,8 +34,8 @@ public:
 		isReceivingInputs = false;
 		movementDirection = ax::Vec2::ZERO;
 		isMovingLeft = isMovingRight = isMovingUp = isMovingDown = false;
-		playerMoveBeginEase = 0.05;
-		playerMoveStopEase = 0.07;
+		playerMoveBeginEase = 0.5 * 5;
+		playerMoveStopEase = 0.7 * 5;
 	}
 
 	void setInputState(bool isReceivingInputs);
@@ -43,5 +43,6 @@ public:
 	void onKeyReleased(ax::EventKeyboard::KeyCode keyCode);
 	void onMouseDown(ax::Event* event);
 	void onMouseUp(ax::Event* event);
+	void onMouseScroll(ax::Event* event);
 
 };
