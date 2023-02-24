@@ -173,8 +173,6 @@ namespace GameUtils
     {
         static void GLFW_ClipCursor(bool unset = false)
         {
-            return;
-
             auto mWindow = glfwGetWin32Window(Darkness::getInstance()->gameWindow.window);
 
             RECT rect;
@@ -197,9 +195,7 @@ namespace GameUtils
             rect.right = lr.x;
             rect.bottom = lr.y;
 
-            ClipCursor(&rect);
-
-            //ClipCursor(unset ? nullptr : (Darkness::getInstance()->isCursorLockedToWindow ? &rect : nullptr));
+            ClipCursor(unset ? nullptr : (Darkness::getInstance()->gameWindow.isCursorLockedToWindow ? &rect : nullptr));
         }
 
         inline void GLFW_SetCursorNormal()
@@ -359,6 +355,11 @@ namespace GameUtils
 
             Document d;
             d.Parse(FileUtils::getInstance()->getStringFromFile(json_path).c_str());
+
+            const rapidjson::Value& meta = d["meta"];
+
+            if (meta.IsObject() && meta.FindMember("alias")->value.GetBool())
+                tex->setAliasTexParameters();
 
             const rapidjson::Value& frames = d["frames"];
             if (frames.IsArray())
@@ -686,6 +687,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                                 glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
                                 glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
                                 glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
+                                GameUtils::CursorsAndWindows::GLFW_ClipCursor(true);
                                 return;
                             }
                             else if (Darkness::getInstance()->gameWindow.isFullscreen) {
@@ -697,8 +699,10 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                                 auto rect = Darkness::getInstance()->gameWindow.lastKnownWindowRect;
                                 glfwSetWindowMonitor(Darkness::getInstance()->gameWindow.window, nullptr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, mode->refreshRate);
                             }
-                            GameUtils::CursorsAndWindows::GLFW_ClipCursor();
                         }
+
+                        if (!Darkness::getInstance()->gameWindow.isFullscreen)
+                            GameUtils::CursorsAndWindows::GLFW_ClipCursor(false);
 
                         if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
                             Darkness::destroyInstance();

@@ -1,6 +1,9 @@
 #include "axmol.h"
 #include "Helper/short_types.h"
 
+#ifndef __H_FOLLOWNODETRANSFORMCOMPONENT__
+#define __H_FOLLOWNODETRANSFORMCOMPONENT__
+
 #define LERP ax::MathUtil::lerp
 
 class FollowNodeTransformComponent : public ax::Component {
@@ -14,3 +17,5 @@ public:
 
     void update(f32 dt);
 };
+
+#endif

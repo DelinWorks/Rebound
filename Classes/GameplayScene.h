@@ -7,7 +7,8 @@
 #include "AppDelegate.h"
 #include "Helper/win32_error.h"
 #include "Helper/short_types.h"
-#include "Entities/Player.h"
+#include "Entities/CatPlayer.h"
+#include "Entities/Wall.h"
 
 class GameplayScene : public cocos2d::Scene
 {
@@ -16,7 +17,7 @@ public:
 
     virtual bool init();
 
-    Player* p;
+    CatPlayer* p;
 
     float elapsedDt;
     void awake();
@@ -25,6 +26,8 @@ public:
     ax::ui::Slider* slider;
     ax::backend::ProgramState* ps1;
     ax::MeshRenderer* renderer;
+
+    ax::Label* lb;
 
     CREATE_FUNC(GameplayScene);
 

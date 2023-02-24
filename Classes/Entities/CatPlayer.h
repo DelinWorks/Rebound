@@ -2,11 +2,19 @@
 #include "shared_scenes/ProtectedTypes.hpp"
 #include "axmol.h"
 
-class Player : public ax::Node {
+class CatPlayer : public ax::Node {
 public:
-	static Player* createPlayer();
-	ax::Node* chaseNode;
-	ax::Node* base;
+	static CatPlayer* createEntity();
+	ax::Node* player_sprite_parent;
+	ax::Sprite* player_sprite;
+	ax::PhysicsBody* player_body;
+
+	std::string currentAnim;
+
+	float idleAnimCurrentIndex = 0;
+	int idleAnimDir = 1;
+	std::vector<std::string> idleAnimationFrames;
+
 	ax::Camera* cam;
 	bool init();
 	void attachCamera(ax::Camera* camera);
@@ -22,12 +30,13 @@ public:
 	ax::Vec2 movementDirection;
 	bool isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
 	PROTECTED(f32) playerMoveBeginEase, playerMoveStopEase;
+	bool actionButtonPress = false;
+	int numberOfFlips = 0;
 
-
-	Player() {
+	CatPlayer() {
 		playerPosX = 0;
 		playerPosY = 0;
-		speed = 400;
+		speed = 300;
 		curZoom = 1.0f;
 		zoomAmount = 1;
 		zoomDir = 0;
@@ -45,4 +54,5 @@ public:
 	void onMouseUp(ax::Event* event);
 	void onMouseScroll(ax::Event* event);
 
+	void jump(bool ignoreCond = false);
 };

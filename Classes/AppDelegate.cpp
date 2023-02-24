@@ -98,7 +98,6 @@ static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
     long Style = GetWindowLong(windowHandle, GWL_STYLE);
     //Style &= ~WS_MAXIMIZEBOX;
     SetWindowLong(windowHandle, GWL_STYLE, Style);
-    GameUtils::CursorsAndWindows::GLFW_ClipCursor(true);
     glfwSwapInterval(1);
 }
 
@@ -131,9 +130,8 @@ static void window_focus_callback(GLFWwindow* window, i32 focused)
                 glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
                 glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
                 glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
+                GameUtils::CursorsAndWindows::GLFW_ClipCursor(true);
         }
-
-        GameUtils::CursorsAndWindows::GLFW_ClipCursor();
         FMODAudioEngine::getInstance()->resumeAllSounds();
     } else {
         FMODAudioEngine::getInstance()->pauseAllSounds();
@@ -319,7 +317,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
         GLFWcursor* cursor = glfwCreateCursor(icon, 0, 0);
         glfwSetCursor(window->getWindow(), cursor);
         Darkness::getInstance()->gameWindow.window = window->getWindow();
-        GameUtils::CursorsAndWindows::GLFW_ClipCursor();
 #else
         glview = GLViewImpl::create("Darkness Among Us");
 #endif
@@ -387,7 +384,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->runWithScene(scene);
     }
 
-    Director::getInstance()->setStatsDisplay(true);
+    //Director::getInstance()->setStatsDisplay(true);
 
     return true;
 }

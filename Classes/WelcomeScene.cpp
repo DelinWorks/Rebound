@@ -85,8 +85,7 @@ void WelcomeScene::update(f32 dt)
 
     if (animTime > _maxTime && cnOpacity <= 0)
     {
-        GameUtils::CocosExt::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
-        GameUtils::CocosExt::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
+        GameUtils::CocosExt::addSpriteFramesFromJson("player/idle/player_atlas.png", "player/idle/player_atlas.json");
         auto scene = GameplayScene::createScene();
         Director::getInstance()->pushScene(scene);
     }
