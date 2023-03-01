@@ -173,6 +173,8 @@ namespace GameUtils
     {
         static void GLFW_ClipCursor(bool unset = false)
         {
+            return;
+
             auto mWindow = glfwGetWin32Window(Darkness::getInstance()->gameWindow.window);
 
             RECT rect;

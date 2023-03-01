@@ -115,8 +115,59 @@ static void window_maximize_callback(GLFWwindow* window, i32 maximized)
     //}
 }
 
+#ifdef WIN32
+inline wchar_t* strcasestr(wchar_t* haystack, const wchar_t* needle)
+{
+    do {
+        wchar_t* h = haystack;
+        const wchar_t* n = needle;
+        while (towlower((wchar_t)*h) == towlower((wchar_t)*n) && *n) {
+            h++;
+            n++;
+        }
+        if (*n == 0) {
+            return (wchar_t*)haystack;
+        }
+    } while (*haystack++);
+    return 0;
+}
+#endif
+
+#if WIN32
+bool IsCheatEngineProcessRunning()
+{
+    bool exists = false;
+    PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+    if (Process32First(snapshot, &entry)) {
+        while (Process32Next(snapshot, &entry)) {
+            if (!strcasestr(entry.szExeFile, L"Cheat Engine") && 
+                strcasestr(entry.szExeFile, L"CheatEngine")) {
+                exists = true; break;
+            }
+        }
+    }
+
+    CloseHandle(snapshot); return exists;
+}
+#endif
+
 static void window_focus_callback(GLFWwindow* window, i32 focused)
 {
+#if WIN32
+    if (Darkness::getInstance()->isAntiCheatReady && IsCheatEngineProcessRunning()) {
+        MessageBoxA(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window),
+            "third-party software detected, please close cheat engine or any of the like and start the game again.",
+            "anti-cheat engine",
+            0x00000010L | 0x00004000L | 0x00000000L);
+        while (true) {}
+        std::exit(0);
+    }
+#endif WIN32
+
     if (focused)
     {
         Darkness::getInstance()->setupController();
@@ -341,13 +392,15 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #endif
 
     //director->setAnimationInterval(1.0f / 60);
-    //director->setAnimationInterval(0);
+    director->setAnimationInterval(0);
     // Set the design resolution
     if (!Darkness::getInstance()->console.isHeadless)
         glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);
 
     if (Darkness::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / 30);
+
+    Darkness::getInstance()->initAntiCheat();
 
     //auto frameSize = glview->getFrameSize();
     ////// If the frame's height is larger than the height of medium size.

@@ -29,6 +29,11 @@ public:
 
     ax::Label* lb;
 
+    float currentPhysicsDt = 0;
+    float lastPhysicsDt = 0;
+
+    ax::TMXLayer* layerSolid;
+
     CREATE_FUNC(GameplayScene);
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);

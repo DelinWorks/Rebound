@@ -5,6 +5,8 @@
 #include <Psapi.h>
 #include <string.h>
 #include <stdlib.h>
+#include <windows.h>
+#include <tlhelp32.h>
 #endif
 #include <string.h>
 
@@ -48,7 +50,7 @@ void Darkness::init()
         gameWindow.isCursorLockedToWindow = true;
         gameWindow.isAllowedToLeave = false;
         gameWindow.lastKnownWindowRect = cocos2d::Rect(20, 40, 1280, 720);
-        gameWindow.windowPolicy = ResolutionPolicy::FIXED_HEIGHT;
+        gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
         gameWindow.currentWindowCursor = 0;
     }
 }
@@ -94,7 +96,7 @@ void Darkness::restartInstance()
 void Darkness::update(float delta)
 {
 //#ifndef _DEBUG
-    checkAntiCheat(delta);
+    updateAntiCheat(delta);
 //#endif
 }
 
@@ -247,15 +249,15 @@ void Darkness::initAntiCheat()
     isAntiCheatReady = true;
 }
 
-void Darkness::checkAntiCheat(float delta)
+void Darkness::updateAntiCheat(float delta)
 {
     if (exit_thread_flag)
     {
-        //MessageBoxA(glfwGetWin32Window(gameWindow.window),
-        //    "external software detected",
-        //    "anti-cheat agent",
-        //    0x00000010L | 0x00004000L | 0x00000000L);
-        //while (true) {}
+        MessageBoxA(glfwGetWin32Window(gameWindow.window),
+            "third-party software detected, please close cheat engine or any of the like and start the game again.",
+            "anti-cheat engine",
+            0x00000010L | 0x00004000L | 0x00000000L);
+        while (true) {}
         std::exit(0);
     }
 
@@ -273,20 +275,15 @@ void Darkness::checkAntiCheat(float delta)
 
     f32 timeDiff = abs(elapsedGameTime - float(currentTime - timeSinceStart));
 
-    if (timeDiff > 1.001F)
+    if (timeDiff > 3)
     {
-        currentTime = time(0);
-        timeDiff = abs(elapsedGameTime - float(currentTime - timeSinceStart));
-        if (timeDiff > 1.001F)
-        {
 #ifdef WIN32
-            MessageBoxA(glfwGetWin32Window(gameWindow.window),
-                "game clock is not steady",
-                "anti-cheat agent",
-                0x00000010L | 0x00004000L | 0x00000000L);
+        MessageBoxA(glfwGetWin32Window(gameWindow.window),
+            "game clock is not steady, possibly a third-party program is modifying the clock speed.",
+            "anti-cheat engine",
+            0x00000010L | 0x00004000L | 0x00000000L);
 #endif
-            while (true) {}
-        }
+        while (true) {}
     }
 
     currentTime = time(0);

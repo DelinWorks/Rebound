@@ -85,7 +85,7 @@ public:
 
     bool isAntiCheatReady = false;
     void initAntiCheat();
-    void checkAntiCheat(float delta);
+    void updateAntiCheat(float delta);
 };
 
 #endif

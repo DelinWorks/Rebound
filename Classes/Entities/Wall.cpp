@@ -2,10 +2,12 @@
 #include "shared_scenes/GameUtils.h"
 #include "2d/CCTweenFunction.h"
 
-Wall* Wall::createEntity()
+#include "chipmunk/chipmunk_private.h"
+
+Wall* Wall::createEntity(ax::Vec2 size, ax::Vec2 offset)
 {
 	Wall* p = new Wall();
-	if (p->init())
+	if (p->init(size, offset))
 	{
 		p->autorelease();
 	}
@@ -16,13 +18,18 @@ Wall* Wall::createEntity()
 	return p;
 }
 
-bool Wall::init()
+bool Wall::init(ax::Vec2 size, ax::Vec2 offset)
 {
-	wall_body = ax::PhysicsBody::createBox({ 32, 32 });
+	wall_body = ax::PhysicsBody::createBox(size, PHYSICSBODY_MATERIAL_DEFAULT, offset);
 	wall_body->setDynamic(false);
+	wall_body->setGroup(9);
+	wall_body->setContactTestBitmask(9);
+
+	wall_body->getFirstShape()->_cpShapes[0]->filter = cpShapeFilterNew(1, 1, 1);
 
 	sprite = Sprite::create("player/player.png");
 	sprite->setPhysicsBody(wall_body);
+	sprite->setVisible(false);
 
 	addChild(sprite);
 

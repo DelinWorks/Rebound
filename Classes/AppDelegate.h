@@ -28,11 +28,14 @@
 
 #ifdef WIN32
 #include "rapidjson/document.h"
+#include <windows.h>
+#include <tlhelp32.h>
 using namespace rapidjson;
 #elif ANDROID
 #include "rapidjson/document.h"
 using namespace rapidjson;
 #endif
+#include <string.h>
 
 #ifndef  _APP_DELEGATE_H_
 #define  _APP_DELEGATE_H_
