@@ -36,7 +36,7 @@ bool GameplayScene::init()
 
     initPhysicsWorld();
     getPhysicsWorld()->setGravity(Vec2(0, -2479));
-    //getPhysicsWorld()->setDebugDrawMask(0xffff);
+    getPhysicsWorld()->setDebugDrawMask(0xffff);
     getPhysicsWorld()->setPreUpdateCallback([&] {
         p->physicsTick(getPhysicsWorld());
     });
@@ -92,12 +92,25 @@ bool GameplayScene::init()
     int solidTileCount = 0;
     int solidCollCount = 0;
 
+    bool useColliderBatching = false;
+
     for (size_t y = 0; y < size.y; y += 1)
     {
         for (size_t x = 0; x < size.x; x += 1)
         {
             if (IS_SOLID(x, y))
                 solidTileCount++;
+
+            if (!useColliderBatching) {
+                if (IS_SOLID(x, y)) {
+                    auto w1 = Wall::createEntity({tile.x, tile.y}, {0, 0});
+                    w1->setPositionX((x * tile.x + tile.x / 2));
+                    w1->setPositionY((size.y - y) * tile.x - tile.x / 2);
+                    layerSolid->addChild(w1);
+                    solidCollCount++;
+                }
+                continue;
+            }
 
             if (IS_SOLID_AND_NOT_BLOCKED(x, y))
             {
