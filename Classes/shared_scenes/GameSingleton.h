@@ -86,6 +86,7 @@ public:
     bool isAntiCheatReady = false;
     void initAntiCheat();
     void updateAntiCheat(float delta);
+    void MessageBoxWin32(std::string caption, std::string text);
 };
 
 #endif

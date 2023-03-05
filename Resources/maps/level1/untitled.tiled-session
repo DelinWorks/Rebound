@@ -20,12 +20,16 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "test.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "untitled.tmx": {
-            "scale": 3,
-            "selectedLayer": 0,
+            "scale": 2,
+            "selectedLayer": -1,
             "viewCenter": {
-                "x": 122.33333333333331,
-                "y": 222
+                "x": 543.75,
+                "y": 523.5
             }
         }
     },
@@ -36,13 +40,15 @@
     "openFiles": [
         "untitled.tmx",
         "atlas_001.tsx",
-        "E:/dev/DarkDimensions/Resources/textures/test.tsx"
+        "test.tsx"
     ],
     "project": "untitled.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
-        "E:/dev/DarkDimensions/Resources/textures/test.tsx",
-        "atlas_001.tsx",
         "untitled.tmx",
+        "test.tsx",
+        "atlas_001.tsx",
+        "E:/dev/DarkDimensions/Resources/textures/test.tsx",
         "grass.tsx"
     ],
     "resizeMap.removeObjects": false,

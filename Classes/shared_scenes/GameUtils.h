@@ -934,7 +934,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 float* ref_float;
                 int* ref_int;
                 uint8_t* ref_uint8;
-                f32 start, end;
+                f32 start, end, finish;
                 i32 type;
 
                 void onAdd() {
@@ -945,13 +945,13 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     switch (type)
                     {
                     case 0:
-                        *ref_float = getOwner()->getPositionX();
+                        *ref_float = actionNode->getPositionX();
                         break;
                     case 1:
-                        *ref_int = getOwner()->getPositionX();
+                        *ref_int = actionNode->getPositionX();
                         break;
                     case 2:
-                        *ref_uint8 = getOwner()->getPositionX();
+                        *ref_uint8 = actionNode->getPositionX();
                         break;
                     default:
                         break;
@@ -963,69 +963,26 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     _owner->addChild(actionNode);
                     setName(__func__);
                     setEnabled(true);
-                    setOwner(actionNode);
+                    setOwner(_owner);
                     owner = _owner;
                 }
 
-                LerpPropertyActionComponent* initComponent(f32* _ref, f32 _duration, f32 _start, f32 _end) {
+                LerpPropertyActionComponent* initFloat(f32* _ref, f32 _duration, f32 _start, f32 _end, f32 _finish) {
                     type = 0;
                     ref_float = _ref;
-                    getOwner()->setPositionX(start = _start);
-                    auto actionTo = MoveTo::create(_duration, Vec2(end = _end, 0));
-                    auto finish = CallFunc::create([&]() {
-                        *ref_float = getOwner()->getPositionX();
-                        actionNode->removeComponent(this);
+                    actionNode->setPositionX(start = _start);
+                    auto actionTo = MoveTo::create(_duration, Vec2(end = _end, _finish));
+                    auto finishFunc = CallFunc::create([&]() {
+                        *ref_float = actionNode->getPositionX();
+                        *ref_float = actionNode->getPositionY();
+                        owner->removeComponent(this);
                         owner->removeChild(actionNode);
-                        delete this;
+                        this->release();
                     });
-                    action = Sequence::create(actionTo, finish, nullptr);
-                    getOwner()->runAction(action);
-                    actionNode->addComponent(this);
+                    action = Sequence::create(actionTo, finishFunc, nullptr);
+                    actionNode->runAction(action);
                     return this;
                 }
-
-                LerpPropertyActionComponent* initComponent(i32* _ref, f32 _duration, f32 _start, f32 _end) {
-                    type = 1;
-                    ref_int = _ref;
-                    getOwner()->setPositionX(start = _start);
-                    auto actionTo = MoveTo::create(_duration, Vec2(end = _end, 0));
-                    auto finish = CallFunc::create([&]() {
-                        *ref_int = getOwner()->getPositionX();
-                        actionNode->removeComponent(this);
-                        owner->removeChild(actionNode);
-                        delete this;
-                        });
-                    action = Sequence::create(actionTo, finish, nullptr);
-                    getOwner()->runAction(action);
-                    actionNode->addComponent(this);
-                    return this;
-                }
-
-                LerpPropertyActionComponent* initComponent(u8* _ref, f32 _duration, f32 _start, f32 _end) {
-                    type = 2;
-                    ref_uint8 = _ref;
-                    getOwner()->setPositionX(start = _start);
-                    auto actionTo = MoveTo::create(_duration, Vec2(end = _end, 0));
-                    auto finish = CallFunc::create([&]() {
-                        *ref_uint8 = getOwner()->getPositionX();
-                        actionNode->removeComponent(this);
-                        owner->removeChild(actionNode);
-                        delete this;
-                        });
-                    action = Sequence::create(actionTo, finish, nullptr);
-                    getOwner()->runAction(action);
-                    actionNode->addComponent(this);
-                    return this;
-                }
-
-                //LerpFloatAction(float* _ref, f32 duration, f32 by) {
-                //    ref = _ref;
-                //    node = Node::create();
-                //    node->retain();
-                //    node->setPositionX(*ref);
-                //    actionBy = MoveTo::create(duration, Vec2(by, 0));
-                //    isBy = true;
-                //}
             };
 
             class LerpFuncCallFloatShaderComponent : public Component {

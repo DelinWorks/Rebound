@@ -3,6 +3,19 @@
 #include "Wall.h"
 #include "axmol.h"
 
+#ifndef __H_CATPLAYER__
+#define __H_CATPLAYER__
+
+#define WALL_JUMP_COLLISION_INDEX			(1 << 4)
+#define ONE_WAY_COLLISION_INDEX				(1 << 5)
+#define OPPOSITE_WAY_COLLISION_INDEX		(1 << 6)
+#define RIGHT_ONLY_COLLISION_INDEX			(1 << 7)
+#define LEFT_ONLY_COLLISION_INDEX			(1 << 8)
+#define DISABLE_JUMP_COLLISION_INDEX		(1 << 9)
+#define DISABLE_TURN_COLLISION_INDEX		(1 << 10)
+
+#define C_OR_C(INDEX) (contact.getShapeA()->getBody()->getTag() & INDEX || contact.getShapeB()->getBody()->getTag() & INDEX)
+
 class CatPlayer : public ax::Node {
 public:
 	static CatPlayer* createEntity();
@@ -30,8 +43,9 @@ public:
 	void attachCamera(ax::Camera* camera);
 
 	void update(f32 dt);
-	PROTECTED(f32) playerPosX, playerPosY;
+	f32 camPosX, camPosY;
 	f32 speed;
+	i8 playerDirection;
 	f32 curZoom;
 	f32 zoomAmount;
 	i8 zoomDir;
@@ -50,9 +64,10 @@ public:
 	float playerStuckDuration = 0;
 
 	CatPlayer() {
-		playerPosX = 0;
-		playerPosY = 0;
+		camPosX = 0;
+		camPosY = 0;
 		speed = 0;
+		playerDirection = 1;
 		curZoom = 1.0f;
 		zoomAmount = 1;
 		zoomDir = 0;
@@ -83,11 +98,24 @@ public:
 	int onGroundIndex = 0;
 	bool isOnGround();
 
-	void physicsTick(ax::PhysicsWorld* world);
+	void physicsPreTick(ax::PhysicsWorld* world);
+	void physicsPostTick(ax::PhysicsWorld* world);
 
-	ax::Vec2 startVec, endVec;
+	void jump();
+
+	ax::Vec2 startVec1, endVec1;
+	ax::Vec2 startVec2, endVec2;
 	ax::DrawNode* rayCastDebug = nullptr;
-	ax::PhysicsRayCastCallbackFunc rayCastFunc;
+	ax::PhysicsRayCastCallbackFunc rayCastFunc1;
+	ax::PhysicsRayCastCallbackFunc rayCastFunc2;
+	f32 playerYSpeed;
+	bool teleportPlayer = false;
 
-	void jump(bool ignoreCond = false);
+	bool didRayCastsHit = false;
+	int checkOtherRayCastsIndex = 0;
+	f32 checkOtherRayCasts[2];
+
+	int lastCollisionIndex = 1;
 };
+
+#endif

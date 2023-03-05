@@ -437,7 +437,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->runWithScene(scene);
     }
 
-    //Director::getInstance()->setStatsDisplay(true);
+    Director::getInstance()->setStatsDisplay(true);
 
     return true;
 }

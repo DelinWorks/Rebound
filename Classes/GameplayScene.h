@@ -9,6 +9,7 @@
 #include "Helper/short_types.h"
 #include "Entities/CatPlayer.h"
 #include "Entities/Wall.h"
+#include "Nodes/TiledMap.h"
 
 class GameplayScene : public cocos2d::Scene
 {

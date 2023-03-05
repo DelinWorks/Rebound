@@ -40,8 +40,8 @@ bool CatPlayer::init()
 	material.restitution = 0;
 	material.friction = 0;
 
-	player_body = ax::PhysicsBody::createBox({ 8, 9.1 }, material);
-	player_body->setPositionOffset({ 0, -1.25 });
+	player_body = ax::PhysicsBody::createBox({ 7.8, 7 }, material);
+	player_body->setPositionOffset({ 0, -5.25 });
 	player_body->setTag(4);
 	player_body->setRotationEnable(false);
 	player_body->setTag(3);
@@ -57,7 +57,7 @@ bool CatPlayer::init()
 	//player_turn_hitbox->getFirstShape()->_cpShapes[0]->filter = cpShapeFilterNew(2, 1, 1);
 
 	trail = ax::MotionStreak::create(10, 10, 100, Color3B::BLACK, "streak.png");
-	player_sprite->addChild(trail);
+	player_sprite_parent->addChild(trail);
 
 	contactor = EventListenerPhysicsContactWithGroup::create(9);
 	contactor->onContactBegin = AX_CALLBACK_1(CatPlayer::onContactBegin, this);
@@ -93,15 +93,26 @@ bool CatPlayer::init()
 	jumpAnimationFrames.push_back("player_jump_2");
 	jumpAnimationFrames.push_back("player_jump_3");
 
-	rayCastFunc = [&] (PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
-		isHeadBlocked = true;
-		return true;
+	rayCastFunc1 = [&] (PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
+		if (~info.shape->getBody()->getTag() & ONE_WAY_COLLISION_INDEX)
+			isHeadBlocked = true;
+		return false;
+	};
+
+	rayCastFunc2 = [&](PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
+		checkOtherRayCasts[checkOtherRayCastsIndex] = info.contact.y;
+		if (~info.shape->getBody()->getTag() & OPPOSITE_WAY_COLLISION_INDEX)
+			didRayCastsHit = true;
+		else return true;
+		return false;
 	};
 
 	runAction(ax::Sequence::create(
 		ax::DelayTime::create(1),
 		ax::CallFunc::create([&] {
-			speed = 300;
+			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
+			->initFloat(&speed, .3f, .0f, 300.0f, 300.0f));
+			player_body->setVelocity({ speed * playerDirection, player_body->getVelocity().y });
 		}),
 		_NOTHING
 	));
@@ -121,13 +132,19 @@ void CatPlayer::attachCamera(ax::Camera* camera)
 
 void CatPlayer::update(f32 dt)
 {
-	if (!rayCastDebug) {
-		rayCastDebug = ax::DrawNode::create();
-		Director::getInstance()->getRunningScene()->addChild(rayCastDebug);
-	}
+	Node::update(dt);
 
-	rayCastDebug->clear();
-	rayCastDebug->drawLine(startVec, endVec, Color4B::RED);
+	cam->setPosition(camPosX, camPosY);
+
+	//if (!rayCastDebug) {
+	//	rayCastDebug = ax::DrawNode::create();
+	//	Director::getInstance()->getRunningScene()->addChild(rayCastDebug, 99);
+	//}
+
+	//rayCastDebug->clear();
+	//rayCastDebug->drawLine(startVec1, endVec1, Color4B::GREEN);
+	//rayCastDebug->drawLine(Vec2(startVec2.x + 12, startVec2.y), Vec2(endVec2.x + 12, endVec2.y), Color4B::GREEN);
+	//rayCastDebug->drawLine(Vec2(startVec2.x - 12, startVec2.y), Vec2(endVec2.x - 12, endVec2.y), Color4B::GREEN);
 
 	if (currentAnim == "idle") {
 		idleAnimCurrentIndex += idleAnimDir * dt * 7;
@@ -146,7 +163,7 @@ void CatPlayer::update(f32 dt)
 
 		idleAnimCurrentIndex = clampf(idleAnimCurrentIndex, 0, 2.999);
 
-		if (speed > 0)
+		if (playerDirection > 0)
 			player_sprite->setSpriteFrame(idleRightAnimationFrames[floor(idleAnimCurrentIndex)]);
 		else
 			player_sprite->setSpriteFrame(idleLeftAnimationFrames[floor(idleAnimCurrentIndex)]);
@@ -189,6 +206,9 @@ void CatPlayer::onKeyPressed(ax::EventKeyboard::KeyCode keyCode)
 		stopAction(jumpActionDelay);
 		actionButtonPress = true;
 	}
+
+	//if (keyCode == key::KEY_J)
+	//	teleportPlayer = true;
 }
 
 void CatPlayer::onKeyReleased(ax::EventKeyboard::KeyCode keyCode)
@@ -243,65 +263,129 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 {
 	if (isReceivingInputs)
 		onGroundIndex++;
+
+	if (C_OR_C(ONE_WAY_COLLISION_INDEX) && player_body->getVelocity().y > 1)
+	{
+		lastCollisionIndex |= ONE_WAY_COLLISION_INDEX;
+		return false;
+	}
+
+	if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX) && player_body->getVelocity().y < -1)
+	{
+		lastCollisionIndex |= OPPOSITE_WAY_COLLISION_INDEX;
+		return false;
+	}
+
+	if (C_OR_C(DISABLE_TURN_COLLISION_INDEX) && player_body->getVelocity().y > -1)
+	{
+		lastCollisionIndex |= DISABLE_TURN_COLLISION_INDEX;
+		return false;
+	}
+
+	if (C_OR_C(RIGHT_ONLY_COLLISION_INDEX) && playerDirection < 0)
+	{
+		lastCollisionIndex |= RIGHT_ONLY_COLLISION_INDEX;
+		return false;
+	}
+
+	if (C_OR_C(LEFT_ONLY_COLLISION_INDEX) && playerDirection > 0)
+	{
+		lastCollisionIndex |= LEFT_ONLY_COLLISION_INDEX;
+		return false;
+	}
+
+	if (C_OR_C(WALL_JUMP_COLLISION_INDEX))
+	{
+		lastCollisionIndex |= WALL_JUMP_COLLISION_INDEX;
+		return true;
+	}
+
+	if (C_OR_C(DISABLE_JUMP_COLLISION_INDEX))
+	{
+		lastCollisionIndex |= DISABLE_JUMP_COLLISION_INDEX;
+		return true;
+	}
+
+	lastCollisionIndex = 1;
+
 	return true;
 }
 
 bool CatPlayer::onContactSeperate(ax::PhysicsContact& contact)
 {
+	lastCollisionIndex &= ~DISABLE_JUMP_COLLISION_INDEX;
+	lastCollisionIndex &= ~DISABLE_TURN_COLLISION_INDEX;
+	lastCollisionIndex &= ~RIGHT_ONLY_COLLISION_INDEX;
+	lastCollisionIndex &= ~LEFT_ONLY_COLLISION_INDEX;
+
 	if (isReceivingInputs)
 		onGroundIndex--;
 	return true;
 }
 
-void CatPlayer::physicsTick(ax::PhysicsWorld* world)
+void CatPlayer::physicsPreTick(ax::PhysicsWorld* world)
 {
 	float dt = world->deltaTime;
 
 	auto pos = player_sprite_parent->getWorldPosition();
 
-	startVec = Vec2(pos.x, pos.y);
-	endVec = Vec2(pos.x, pos.y + 20);
+	f32 prevPlayerYSpeed = playerYSpeed;
+	playerYSpeed = pos.y;
+
+	startVec1 = Vec2(pos.x, pos.y);
+	endVec1 = Vec2(pos.x, pos.y + 20);
+
+	startVec2 = Vec2(pos.x, pos.y - 12);
+	endVec2 = Vec2(pos.x, pos.y - 12 - clampf((prevPlayerYSpeed - playerYSpeed) * 2, 0, 99999));
 
 	isHeadBlocked = false;
-	world->rayCast(rayCastFunc, cpShapeFilterNew(2, 1, 1), startVec, endVec, nullptr);
+	world->rayCast(rayCastFunc1, cpShapeFilterNew(2, 1, 1), startVec1, endVec1, nullptr);
+
+	if (!isOnGround())
+	{
+		checkOtherRayCastsIndex = 0;
+		didRayCastsHit = false;
+
+		checkOtherRayCasts[0] = pos.y;
+		checkOtherRayCasts[1] = pos.y;
+
+		world->rayCast(rayCastFunc2, cpShapeFilterNew(2, 1, 1), Vec2(startVec2.x + 12, startVec2.y), Vec2(endVec2.x + 12, endVec2.y), nullptr);
+		checkOtherRayCastsIndex++;
+		world->rayCast(rayCastFunc2, cpShapeFilterNew(2, 1, 1), Vec2(startVec2.x - 12, startVec2.y), Vec2(endVec2.x - 12, endVec2.y), nullptr);
+
+		float contactY = 0;
+		if (checkOtherRayCasts[0] < checkOtherRayCasts[1])
+			contactY = checkOtherRayCasts[0];
+		else contactY = checkOtherRayCasts[1];
+
+		if (didRayCastsHit) {
+			player_sprite_parent->setPositionY(contactY + 18);
+			player_body->setVelocity({ speed * playerDirection, 0 });
+		}
+	}
 
 	if (cam)
 		cam->setPosition(0, 0);
 
-	if (abs(player_body->getVelocity().x) < abs(speed))
+	if (abs(player_body->getVelocity().x) < 1 && speed >= 300)
 	{
-		numberOfFlips+=1;
-		speed *= -1;
-		//player_turn_dir->setScaleX(speed < 0 ? -1 : 1);
-		if (actionButtonPress)
-			jump(true);
-		if (isOnGround())
-			changeAnimation("wall_turn");
+		numberOfFlips += 1;
+		playerDirection *= -1;
+		changeAnimation("wall_turn");
 	}
-
-	//auto worldPos = player_sprite_parent->getWorldPosition();
-	//if (worldPos.distanceSquared(lastColliderTogglePos) > 512) {
-	//	lastColliderTogglePos = worldPos;
-	//	for (auto& wall : Colliders) {
-	//		auto distance = worldPos.distanceSquared(wall->getPosition() + wall->contourPos);
-	//		if (distance > 1024 * 8 * pow(wall->contourSize, 0.6))
-	//			wall->wall_body->setEnabled(false);
-	//		else {
-	//			wall->wall_body->setEnabled(true);
-	//		}
-	//	}
-
-	player_sprite->setPositionX(round(player_sprite_parent->getPositionX()));
-	player_sprite->setPositionY(ceil(player_sprite_parent->getPositionY()));
+	
+	player_body->setVelocity({ speed * playerDirection, player_body->getVelocity().y });
 
 	actionRecoveryTime += dt;
 
-	player_body->setVelocity({ speed, player_body->getVelocity().y });
-
 	if (actionButtonPress)
 		jump();
+}
 
-	//player_turn->setPosition(4.5, 0);
+void CatPlayer::physicsPostTick(ax::PhysicsWorld* world)
+{
+	player_sprite->setPositionX(round(player_sprite_parent->getPositionX()));
+	player_sprite->setPositionY(ceil(player_sprite_parent->getPositionY()));
 }
 
 bool CatPlayer::isOnGround()
@@ -309,19 +393,29 @@ bool CatPlayer::isOnGround()
 	return onGroundIndex > 0;
 }
 
-void CatPlayer::jump(bool ignoreCond)
+void CatPlayer::jump()
 {
-	if (isOnGround() || ignoreCond)
-	{
-		if (actionRecoveryTime > 0.05f)
-		{
-			if (!isHeadBlocked) {
-				changeAnimation("jump");
-				player_body->setVelocity({ player_body->getVelocity().x, 0 });
-				player_body->applyImpulse({ 0, 795 });
-				actionButtonPress = false;
-			}
-			actionRecoveryTime = 0;
-		}
-	}
+	if ((lastCollisionIndex != 1 && ~lastCollisionIndex & WALL_JUMP_COLLISION_INDEX) || speed < 1)
+		return;
+
+	if (lastCollisionIndex & DISABLE_JUMP_COLLISION_INDEX)
+		return;
+
+	if (!isOnGround())
+		return;
+
+	if (abs(player_body->getVelocity().y) > 1 && ~lastCollisionIndex & WALL_JUMP_COLLISION_INDEX)
+		return;
+
+	if (actionRecoveryTime <= 0.05f)
+		return;
+
+	if (!isHeadBlocked) {
+		player_body->setVelocity({ player_body->getVelocity().x, 0 });
+		player_body->applyImpulse({ 0, 797 });
+	};
+
+	actionButtonPress = false;
+	changeAnimation("jump");
+	actionRecoveryTime = 0;
 }

@@ -7,10 +7,10 @@
 
 class Wall : public ax::Node {
 public:
-	static Wall* createEntity(ax::Vec2 size, ax::Vec2 offset);
+	static Wall* createEntity(ax::Vec2 size, ax::Vec2 offset, int collision);
 	ax::PhysicsBody* wall_body;
 	ax::Sprite* sprite;
-	bool init(ax::Vec2 size, ax::Vec2 offset);
+	bool init(ax::Vec2 size, ax::Vec2 offset, int collision);
 
 	void update(f32 dt);
 

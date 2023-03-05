@@ -275,6 +275,7 @@ void Darkness::updateAntiCheat(float delta)
 
     f32 timeDiff = abs(elapsedGameTime - float(currentTime - timeSinceStart));
 
+#ifndef _DEBUG
     if (timeDiff > 3)
     {
 #ifdef WIN32
@@ -285,8 +286,16 @@ void Darkness::updateAntiCheat(float delta)
 #endif
         while (true) {}
     }
+#endif
 
     currentTime = time(0);
 
     ///////////////////////////////////////////////////////////////////////////
+}
+
+void Darkness::MessageBoxWin32(std::string caption, std::string text)
+{
+#ifdef WIN32
+    MessageBoxA(glfwGetWin32Window(gameWindow.window), text.c_str(), caption.c_str(), 0x00000010L | 0x00004000L | 0x00000000L);
+#endif
 }
