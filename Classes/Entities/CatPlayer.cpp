@@ -306,14 +306,13 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 		return true;
 	}
 
-	lastCollisionIndex = 1;
-
 	return true;
 }
 
 bool CatPlayer::onContactSeperate(ax::PhysicsContact& contact)
 {
-	lastCollisionIndex &= ~DISABLE_JUMP_COLLISION_INDEX;
+	if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX))
+		lastCollisionIndex &= ~DISABLE_JUMP_COLLISION_INDEX;
 	lastCollisionIndex &= ~DISABLE_TURN_COLLISION_INDEX;
 	lastCollisionIndex &= ~RIGHT_ONLY_COLLISION_INDEX;
 	lastCollisionIndex &= ~LEFT_ONLY_COLLISION_INDEX;
@@ -395,8 +394,11 @@ bool CatPlayer::isOnGround()
 
 void CatPlayer::jump()
 {
-	if ((lastCollisionIndex != 1 && ~lastCollisionIndex & WALL_JUMP_COLLISION_INDEX) || speed < 1)
+	if (speed < 1)
 		return;
+
+	//if ((~lastCollisionIndex & WALL_JUMP_COLLISION_INDEX && ~lastCollisionIndex & ONE_WAY_COLLISION_INDEX))
+	//	return;
 
 	if (lastCollisionIndex & DISABLE_JUMP_COLLISION_INDEX)
 		return;
