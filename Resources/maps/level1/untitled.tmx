@@ -10,6 +10,7 @@
  <layer id="22" name="CollisionLayer1" width="64" height="64">
   <properties>
    <property name="camera_center_layer" type="bool" value="true"/>
+   <property name="can_wall_jump" type="bool" value="true"/>
    <property name="layer_type" value="collision"/>
    <property name="visible" type="bool" value="true"/>
   </properties>

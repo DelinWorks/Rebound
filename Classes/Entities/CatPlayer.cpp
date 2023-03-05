@@ -313,6 +313,7 @@ bool CatPlayer::onContactSeperate(ax::PhysicsContact& contact)
 {
 	if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX))
 		lastCollisionIndex &= ~DISABLE_JUMP_COLLISION_INDEX;
+	lastCollisionIndex &= ~WALL_JUMP_COLLISION_INDEX;
 	lastCollisionIndex &= ~DISABLE_TURN_COLLISION_INDEX;
 	lastCollisionIndex &= ~RIGHT_ONLY_COLLISION_INDEX;
 	lastCollisionIndex &= ~LEFT_ONLY_COLLISION_INDEX;
