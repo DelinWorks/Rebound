@@ -209,6 +209,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
 //#ifdef WIN32
     FileUtils::getInstance()->addSearchPath("resources"sv, true);
+    FileUtils::getInstance()->addSearchPath("content"sv, true);
 //#endif
 
     PROTECTED(f32) t;
@@ -348,10 +349,12 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #ifdef AX_PLATFORM_PC
         GLViewImpl* window;
 #ifdef _DEBUG
-        glview = window = GLViewImpl::createWithRect(FMT("Dark Dimensions (DEBUG) (%s) BUILD: %s BUILD TIME: %s %s", (AX_USE_COMPAT_GL_CHK ? "D3D11" : "OpenGL"), "1.0.0a", __DATE__, __TIME__), cocos2d::Rect(0, 0, resolutionSize.width, resolutionSize.height), 1.0F, true);
+        const char* buildType = "DEBUG";
 #else
-        glview = window = GLViewImpl::createWithRect(FMT("Dark Dimensions (RELEASE) (%s) BUILD: %s BUILD TIME: %s %s", (AX_USE_COMPAT_GL_CHK ? "D3D11" : "OpenGL"), "1.0.0a", __DATE__, __TIME__), cocos2d::Rect(0, 0, resolutionSize.width, resolutionSize.height), 1.0F, true);
+        const char* buildType = "RELEASE";
 #endif
+        if (Darkness::getInstance()->gameWindow.isFullscreen) resolutionSize = { 1,1 };
+        glview = window = GLViewImpl::createWithRect(FMT("Dark Dimensions (%s) (%s) BUILD: %s TIMESTAMP: %s %s", buildType, "D3D11", "1.0.0-alpha", __DATE__, __TIME__), cocos2d::Rect(0, 0, resolutionSize.width, resolutionSize.height), 1.0F, true);
         Darkness::getInstance()->gameWindow.windowSize = Size(resolutionSize.width, resolutionSize.height);
         //glfwSetInputMode(window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwSetWindowSizeCallback(window->getWindow(), window_size_callback);
@@ -392,13 +395,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #endif
 
     //director->setAnimationInterval(1.0f / 60);
+#ifdef _DEBUG
     director->setAnimationInterval(0);
+#endif
     // Set the design resolution
     if (!Darkness::getInstance()->console.isHeadless)
         glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);
 
     if (Darkness::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / 30);
+
+    window_focus_callback(Darkness::getInstance()->gameWindow.window, true);
 
     Darkness::getInstance()->initAntiCheat();
 

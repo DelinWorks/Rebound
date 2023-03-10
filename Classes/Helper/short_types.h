@@ -67,4 +67,37 @@ typedef std::string_view strv;
 
 #define _NOTHING nullptr
 
+#include <list>
+
+template<typename T>
+class MaxPushList {
+public:
+    MaxPushList() {}
+    MaxPushList(size_t max_push_count) : _max_push_count(max_push_count) {}
+
+    T& at(int _i) {
+        auto it = _list.begin();
+        for (int i = 0; i < _i; i++) {
+            ++it;
+        }
+        return *it;
+    }
+
+    void push_back(const T& value) {
+        if (_list.size() == _max_push_count) {
+            _list.pop_front();
+        }
+        _list.push_back(value);
+    }
+
+    void fill(const T& value) {
+        for (int i = 0; i < _max_push_count; i++) {
+            push_back(value);
+        }
+    }
+
+    size_t _max_push_count;
+    std::list<T> _list;
+};
+
 #endif

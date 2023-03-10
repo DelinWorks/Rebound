@@ -1,6 +1,7 @@
 #include "Components/FollowNodeTransformComponent.h"
 #include "shared_scenes/ProtectedTypes.hpp"
 #include "Wall.h"
+#include "Helper/ChangeValue.h"
 #include "axmol.h"
 
 #ifndef __H_CATPLAYER__
@@ -14,6 +15,8 @@
 #define DISABLE_JUMP_COLLISION_INDEX		(1 << 9)
 #define DISABLE_TURN_COLLISION_INDEX		(1 << 10)
 
+#define HIT_DETECTION_TOLERANCE 6
+
 #define C_OR_C(INDEX) (contact.getShapeA()->getBody()->getTag() & INDEX || contact.getShapeB()->getBody()->getTag() & INDEX)
 
 class CatPlayer : public ax::Node {
@@ -23,6 +26,7 @@ public:
 	ax::Node* player_turn_dir;
 	ax::Node* player_turn;
 	ax::Sprite* player_sprite;
+	ax::Sprite* player_shadow_sprite;
 	ax::PhysicsBody* player_body;
 	ax::PhysicsBody* player_turn_hitbox;
 	bool isTurnLocked = false;
@@ -42,8 +46,12 @@ public:
 	bool init();
 	void attachCamera(ax::Camera* camera);
 
+	bool debugMode = false;
+
 	void update(f32 dt);
-	f32 camPosX, camPosY;
+	ax::Vec2 camPos, camWobbleSpeed, camWobbleAmount;
+	f32 camWobbleTime = 0;
+	ax::Vec2 camDisplaceVector = ax::Vec2::ZERO;
 	f32 speed;
 	i8 playerDirection;
 	f32 curZoom;
@@ -56,16 +64,16 @@ public:
 	PROTECTED(f32) playerMoveBeginEase, playerMoveStopEase;
 	bool actionButtonPress = false;
 	PROTECTED(int) numberOfFlips;
-
 	ax::Sequence* jumpActionDelay;
-
 	bool isHeadBlocked = false;
-
 	float playerStuckDuration = 0;
+	ax::Vec2 contactDebug[4];
+	MaxPushList<ax::Vec2> debugLineTraceY;
+	ChangeValueBool controllerJump;
 
 	CatPlayer() {
-		camPosX = 0;
-		camPosY = 0;
+		debugLineTraceY = MaxPushList<ax::Vec2>(10);
+		camPos = ax::Vec2::ZERO;
 		speed = 0;
 		playerDirection = 1;
 		curZoom = 1.0f;
@@ -98,18 +106,23 @@ public:
 	int onGroundIndex = 0;
 	bool isOnGround();
 
-	void physicsPreTick(ax::PhysicsWorld* world);
-	void physicsPostTick(ax::PhysicsWorld* world);
+	ax::PhysicsWorld* world;
+	void physicsPreTick();
+	void physicsPostTick();
 
 	void jump();
 
 	ax::Vec2 startVec1, endVec1;
 	ax::Vec2 startVec2, endVec2;
-	ax::DrawNode* rayCastDebug = nullptr;
+	ax::Vec2 startVec3, endVec3;
+	ax::DrawNode* debugDrawNode = nullptr;
 	ax::PhysicsRayCastCallbackFunc rayCastFunc1;
 	ax::PhysicsRayCastCallbackFunc rayCastFunc2;
+	ax::PhysicsRayCastCallbackFunc rayCastFunc3;
 	f32 playerYSpeed;
 	bool teleportPlayer = false;
+	bool isPlayerOnGroundRayCast = false;
+	bool isStartUpAnimationDone = false;
 
 	bool didRayCastsHit = false;
 	int checkOtherRayCastsIndex = 0;

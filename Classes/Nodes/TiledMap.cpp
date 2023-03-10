@@ -1,5 +1,5 @@
 #include "TiledMap.h"
-#include "shared_scenes/GameSingleton.h"
+#include "ccCArray.h"
 
 #define IS_SOLID(L,X,Y) getTileGIDAt(L, { float(X),float(Y) }) != 0
 #define IS_NOT_SOLID(L,X,Y) getTileGIDAt(L, { float(X),float(Y) }) == 0
@@ -19,7 +19,8 @@ enum LayerType {
     SET_VELOCITY_ZONE,
     APPLY_IMPULSE_ZONE,
     SET_DIRECTION_ZONE,
-    DECORATION
+    DECORATION,
+    PARALLAX,
 };
 
 const char* LayerTypeLabel[] = { 
@@ -34,22 +35,34 @@ const char* LayerTypeLabel[] = {
     "apply_impulse_zone",
     "set_direction_zone",
     "decoration",
+    "parallax",
 };
 
 #define IS_PROP_NOT_NULL_AND_FALSE(L,P) (!L->getProperty(P).isNull() && !L->getProperty(P).asBool())
 #define IS_PROP_NOT_NULL_AND_TRUE(L,P) (!L->getProperty(P).isNull() && L->getProperty(P).asBool())
 
-bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPlayer* player)
+bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlayer* _player)
 {
+    player = _player;
+
     int relativeSize = 32;
 
-    auto tmx = ax::FastTMXTiledMap::create(file);
+    auto tmx = tiledMap = ax::FastTMXTiledMap::create(file);
 
-    if (!tmx) Darkness::getInstance()->MessageBoxWin32("Failed to load tmx map!", StringUtils::format("Map 'resources/%s' coudln't be loaded\nMake sure the map export format is set to CSV", std::string(file).c_str()));
+    if (!tmx) {
+        tiledMap = nullptr;
+        Darkness::getInstance()->MessageBoxWin32("Failed to load tmx map!", StringUtils::format("Map 'resources/%s' couldn't be loaded\nMake sure the map export format is set to CSV", std::string(file).c_str()));
+        return false;
+    }
+    tiledMap->retain();
 
     //layerSolid = tmx->getLayer("Solid");
     //auto layerPlayerSpawn = tmx->getLayer("PlayerSpawn");
     //addChild(layerSolid);
+
+    cam = scene->getDefaultCamera();
+
+    tmx->setTileAnimEnabled(true);
 
     auto mapSize = tmx->getMapSize();
     auto tile = tmx->getTileSize();
@@ -75,8 +88,10 @@ bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPl
     auto cameraZoom = tmx->getProperty("camera_zoom");
     if (!cameraZoom.isNull()) player->cam->setZoom(cameraZoom.asFloat());
 
-    if (IS_PROP_NOT_NULL_AND_TRUE(tmx, "debug_show_collision"))
+    if (IS_PROP_NOT_NULL_AND_TRUE(tmx, "debug_show_collision")) {
         scene->getPhysicsWorld()->setDebugDrawMask(0xffff);
+        player->debugMode = true;
+    }
 
     int renderOrder = 0;
 
@@ -84,6 +99,17 @@ bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPl
     {
         auto layer = DCAST(ax::FastTMXLayer, n);
         if (!layer) continue;
+
+        //if (layer->getLayerName().length() > 0 && layer->_isSubLayer) {
+        //    auto type = layer->getProperty("layer_type");
+        //    if (!type.isNull()) {
+        //        if (type.asString() != LayerTypeLabel[DECORATION])
+        //        {
+        //            //Darkness::getInstance()->MessageBoxWin32("Failed to load tmx map!", StringUtils::format("Layer '%s' with type '%s' cannot have multiple tilesets\nonly decoration layers can render multiple tilesets", std::string(layer->getLayerName()).c_str(), std::string(type.asString()).c_str()));
+        //            continue;
+        //        }
+        //    }
+        //}
 
         if (IS_PROP_NOT_NULL_AND_TRUE(layer, "camera_center_layer"))
         {
@@ -106,8 +132,7 @@ bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPl
             float offsetX = Math::map(((minX + maxX) / 2.0), 0.0, mapSize.x, -mapSizeInPixels.x, mapSizeInPixels.x);
             float offsetY = Math::map(((mapSize.y - minY) + (mapSize.y - maxY)) / 2.0, 0.0, mapSize.y, -mapSizeInPixels.y, mapSizeInPixels.y);
 
-            player->camPosX = offsetX * (relativeSize / tile.x) + (relativeSize / 2.0);
-            player->camPosY = offsetY * (relativeSize / tile.y) - (relativeSize / 2.0);
+            player->camPos = Vec2(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0), offsetY * (relativeSize / tile.y) - (relativeSize / 2.0));
         }
 
         auto type = layer->getProperty("layer_type").asString();
@@ -216,15 +241,40 @@ bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPl
                         float offsetY = Math::map(mapSize.y - y, 0.0, mapSize.y, -mapSizeInPixels.y, mapSizeInPixels.y);
                         player->player_sprite_parent->setPositionX(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0));
                         player->player_sprite_parent->setPositionY(offsetY * (relativeSize / tile.y) - (relativeSize / 2.0));
+                        player->debugLineTraceY.fill(player->player_sprite_parent->getPosition());
                         addChild(player, renderOrder++);
                         player->setVisible(visible);
                     }
                 }
             }
+
+            auto camWobbleSpeed = layer->getProperty("camera_wobble_speed_vector");
+            auto camWobbleAmount = layer->getProperty("camera_wobble_amount_vector");
+            auto camDisplaceVector = layer->getProperty("camera_displacement_vector");
+
+            if (!camWobbleSpeed.isNull())
+                player->camWobbleSpeed = GameUtils::Parser::parseVector2D(camWobbleSpeed.asString());
+
+            if (!camWobbleAmount.isNull())
+                player->camWobbleAmount = GameUtils::Parser::parseVector2D(camWobbleAmount.asString());
+
+            if (!camDisplaceVector.isNull())
+                player->camDisplaceVector = GameUtils::Parser::parseVector2D(camDisplaceVector.asString());
         }
         else if (type == LayerTypeLabel[DECORATION]) {
             layer->setAnchorPoint({ 0.5, 0.5 });
             addChild(layer, renderOrder++);
+        }
+        else if (type == LayerTypeLabel[PARALLAX]) {
+            layer->setAnchorPoint({ 0.5, 0.5 });
+
+            auto parallax = ParallaxNode::create();
+            addChild(parallax, renderOrder++);
+
+            auto parallaxRatioProp = layer->getProperty("parallax_ratio_vector");
+            Vec2 parallaxRatio = parallaxRatioProp.isNull() ? Vec2::ZERO : 
+                GameUtils::Parser::parseVector2D(parallaxRatioProp.asString());
+            parallax->addChild(layer, 0, parallaxRatio, Vec2::ZERO);
         }
 
         layer->setEditorColor(ColorConversion::hex2argb(layer->getEditorRawTint()));
@@ -239,7 +289,30 @@ bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPl
             layer->setColor(ColorConversion::hex2argb(colorVect));
         }
         else layer->setColor(Color4B::WHITE);
+
+        auto tileAnimVariance = layer->getProperty("layer_anim_variance");
+        if (!tileAnimVariance.isNull())
+            if (layer->getTileAnimManager())
+                for (auto& t : layer->getTileAnimManager()->getTasks())
+                    t->update(Random::maxFloat(tileAnimVariance.asFloat()));
+
+        auto tileAnimSpeedVariance = layer->getProperty("layer_anim_time_variance");
+        if (!tileAnimSpeedVariance.isNull())
+            if (layer->getTileAnimManager())
+                for (auto& t : layer->getTileAnimManager()->getTasks())
+                    t->setTimeScale(1.0 + Random::maxFloat(tileAnimSpeedVariance.asFloat()));
+
+        layer->setProgramState(GameUtils::CocosExt::createGPUProgram());
     }
+
+    long version = _MSVC_LANG;
+
+    if      (version == 202002L) std::cout << "C++20\n";
+    else if (version == 201703L) std::cout << "C++17\n";
+    else if (version == 201402L) std::cout << "C++14\n";
+    else if (version == 201103L) std::cout << "C++11\n";
+    else if (version == 199711L) std::cout << "C++98\n";
+    else                         std::cout << "pre-standard C++";
 
     int batchingPercentage = (1.0 - float(solidCollCount - 1) / solidTileCount) * 100.0;
     AXLOG("physics_shape_batch: %d shapes / %d tiles (%d%%) of all tile collision shapes have been batched.\nGrid-Based Shape Batching Algorithm. More percentage = Better performance\nBatching may break raycasting so consider seperating solid type layers\nwhen the player glitches or teleports outside the map.\n", solidCollCount, solidTileCount, batchingPercentage);
@@ -249,4 +322,24 @@ bool TiledMap::createWithFilename(ax::Scene* scene, std::string_view file, CatPl
     setScaleY((relativeSize / tile.y));
 
 	return true;
+}
+
+TiledMap::~TiledMap() {
+    if (tiledMap)
+        tiledMap->release();
+}
+
+void TiledMap::update(f32 dt) {
+
+    for (auto&& c : _children)
+    {
+        auto p = DCAST(ax::ParallaxNode, c);
+        if (p) {
+            ax::PointObject* point = (ax::PointObject*)p->getParallaxArray()->arr[0];
+            point->setOffset(player->camPos / -1.5);
+            p->setPosition(cam->getPosition().x, cam->getPosition().y);
+        }
+    }
+
+    tiledMap->update(dt);
 }

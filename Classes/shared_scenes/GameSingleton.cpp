@@ -45,11 +45,11 @@ void Darkness::init()
     server_path = "https://delingames.xyz/";
 
     {
-        gameWindow.isFullscreen = false;
+        gameWindow.isFullscreen = true;
         gameWindow.isScreenSizeDirty = false;
         gameWindow.isCursorLockedToWindow = true;
         gameWindow.isAllowedToLeave = false;
-        gameWindow.lastKnownWindowRect = cocos2d::Rect(20, 40, 1280, 720);
+        gameWindow.lastKnownWindowRect = cocos2d::Rect(0, 0, 1280, 720);
         gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
         gameWindow.currentWindowCursor = 0;
     }

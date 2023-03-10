@@ -32,34 +32,37 @@ bool GameplayScene::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
 
     _defaultCamera->setPosition({ 0,0 });
-    //_defaultCamera->setZoom(3);
-
-    initPhysicsWorld();
-    getPhysicsWorld()->setGravity(Vec2(0, -2479));
-    getPhysicsWorld()->setPreUpdateCallback([&] { p->physicsPreTick(getPhysicsWorld()); });
-    getPhysicsWorld()->setPostUpdateCallback([&] { p->physicsPostTick(getPhysicsWorld()); });
-
-    getPhysicsWorld()->setAutoStep(false);
 
     p = CatPlayer::createEntity();
     _eventDispatcher->addEventListenerWithSceneGraphPriority(p->contactor, this);
     p->attachCamera(_defaultCamera);
 
-    cpSpaceSetCollisionSlop(getPhysicsWorld()->_cpSpace, 0);
-    cpSpaceSetCollisionBias(getPhysicsWorld()->_cpSpace, 0);
-
     visibleSize = { 1280, 720 };
 
-    lb = ax::Label::createWithSystemFont("0x0", "arial", 24);
-    addChild(lb, 10);
+    initPhysicsWorld();
+    map = new TiledMap();
+    if (map->initWithFilename(this, "maps/level1/untitled.tmx", p))
+    {
+        getPhysicsWorld()->setGravity(Vec2(0, -2479));
+        getPhysicsWorld()->setPreUpdateCallback([&] { p->physicsPreTick(); });
+        getPhysicsWorld()->setPostUpdateCallback([&] { p->physicsPostTick(); });
+        getPhysicsWorld()->setAutoStep(false);
 
-    auto comp = new GameUtils::CocosExt::CustomComponents::UiRescaleComponent(visibleSize);
-    comp->enableDesignScaleIgnoring();
-    lb->addComponent(comp);
+        cpSpaceSetCollisionSlop(getPhysicsWorld()->_cpSpace, 0);
+        cpSpaceSetCollisionBias(getPhysicsWorld()->_cpSpace, 0);
 
-    auto tiledMap = new TiledMap();
-    tiledMap->createWithFilename(this, "maps/level1/untitled.tmx", p);
-    addChild(tiledMap);
+        addChild(map);
+    }
+    else {
+        AX_SAFE_DELETE(map);
+
+        lb = ax::Label::createWithSystemFont("Press F5 to reload the map or ESC to quit.", "arial", 24);
+        addChild(lb, 10);
+
+        auto comp = new GameUtils::CocosExt::CustomComponents::UiRescaleComponent(visibleSize);
+        comp->enableDesignScaleIgnoring();
+        lb->addComponent(comp);
+    }
 
     return true;
 }
@@ -67,6 +70,7 @@ bool GameplayScene::init()
 void GameplayScene::awake()
 {
     if (Node::isAwake()) {
+        p->world = getPhysicsWorld();
         p->setInputState(true);
         currentPhysicsDt = lastPhysicsDt = 0;
     }
@@ -75,6 +79,11 @@ void GameplayScene::awake()
 void GameplayScene::update(f32 dt)
 {
     currentPhysicsDt += dt;
+
+    if (!map)
+        return;
+
+    map->update(dt);
 
     awake();
 
@@ -97,18 +106,18 @@ void GameplayScene::update(f32 dt)
         lastPhysicsDt += 1.0 / physicsTPS;
         world->update(1.0 / physicsTPS, true);
     }
-
-    lb->setString((""));
 }
 
 void GameplayScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
 {
-    p->onKeyPressed(keyCode);
+    if (map)
+        p->onKeyPressed(keyCode);
 }
 
 void GameplayScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
 {
-    p->onKeyReleased(keyCode);
+    if (map)
+        p->onKeyReleased(keyCode);
 }
 
 void GameplayScene::onKeyHold(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
@@ -117,12 +126,14 @@ void GameplayScene::onKeyHold(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::
 
 void GameplayScene::onMouseDown(cocos2d::Event* event)
 {
-    p->onMouseDown(event);
+    if (map)
+        p->onMouseDown(event);
 }
 
 void GameplayScene::onMouseUp(cocos2d::Event* event)
 {
-    p->onMouseUp(event);
+    if (map)
+        p->onMouseUp(event);
 }
 
 void GameplayScene::onMouseMove(cocos2d::Event* event)
@@ -131,7 +142,8 @@ void GameplayScene::onMouseMove(cocos2d::Event* event)
 
 void GameplayScene::onMouseScroll(cocos2d::Event* event)
 {
-    p->onMouseScroll(event);
+    if (map)
+        p->onMouseScroll(event);
 }
 
 bool GameplayScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)

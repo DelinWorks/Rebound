@@ -35,6 +35,8 @@ public:
 
     ax::TMXLayer* layerSolid;
 
+    TiledMap* map;
+
     CREATE_FUNC(GameplayScene);
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);

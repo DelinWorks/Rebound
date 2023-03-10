@@ -1,13 +1,12 @@
-// This class is designed to stop calling functions over and over
-// and detect if a value is changed and if so only call the function when
-// the change happened to avoid memory leaks and function multiple calls
-
 
 #ifndef __CHANGE_VALUE_H__
 #define __CHANGE_VALUE_H__
 
 #include "CCRef.h"
 
+// This class is designed to stop calling functions over and over
+// and detect if a value is changed and if so only call the function when
+// the change happened to avoid memory leaks and function multiple calls
 class ChangeValueBool : public axmol::Ref {
 private:
 	bool oldValue;
@@ -37,6 +36,9 @@ public:
 	}
 };
 
+// This class is designed to stop calling functions over and over
+// and detect if a value is changed and if so only call the function when
+// the change happened to avoid memory leaks and function multiple calls
 class ChangeValueFloat : public axmol::Ref {
 private:
 	float oldValue;
@@ -66,6 +68,9 @@ public:
 	}
 };
 
+// This class is designed to stop calling functions over and over
+// and detect if a value is changed and if so only call the function when
+// the change happened to avoid memory leaks and function multiple calls
 class ChangeValueInt {
 private:
 	int oldValue = 0;

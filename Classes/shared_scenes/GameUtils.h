@@ -284,7 +284,10 @@ namespace GameUtils
             std::string token, strX, strY;
             strX = value.substr(0, value.find(","));
             value.erase(0, value.substr(0, value.find(",")).length());
-            strY = value.substr(1, value.length());
+            if (value.length() != 0)
+                strY = value.substr(1, value.length());
+            if (strX.length() == 0) strX = "0";
+            if (strY.length() == 0) strY = strX;
             return Vec2(std::stof(strX), std::stof(strY));
         }
 

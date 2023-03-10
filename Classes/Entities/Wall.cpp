@@ -20,7 +20,7 @@ Wall* Wall::createEntity(ax::Vec2 size, ax::Vec2 offset, int collision)
 
 bool Wall::init(ax::Vec2 size, ax::Vec2 offset, int collision)
 {
-	wall_body = ax::PhysicsBody::createBox(size, PHYSICSBODY_MATERIAL_DEFAULT, offset);
+	wall_body = ax::PhysicsBody::createBox(size, { 0, 0, 0 }, offset);
 	wall_body->setDynamic(false);
 	wall_body->setTag(collision);
 	wall_body->setGroup(9);
@@ -29,11 +29,7 @@ bool Wall::init(ax::Vec2 size, ax::Vec2 offset, int collision)
 	wall_body->getFirstShape()->_cpShapes[0]->filter = cpShapeFilterNew(1, 1, 1);
 	cpBodySetType(wall_body->getCPBody(), CP_BODY_TYPE_STATIC);
 
-	sprite = Sprite::create("player/player.png");
-	sprite->setPhysicsBody(wall_body);
-	sprite->setVisible(false);
-
-	addChild(sprite);
+	setPhysicsBody(wall_body);
 
 	return true;
 }
