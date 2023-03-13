@@ -80,7 +80,7 @@
         "atlas_002.tsx"
     ],
     "project": "untitled.tiled-project",
-    "property.type": "string",
+    "property.type": "float",
     "recentFiles": [
         "untitled.tmx",
         "atlas_001.tsx",

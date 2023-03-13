@@ -159,6 +159,7 @@ void CatPlayer::update(f32 dt)
 	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x, camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
 	//camPosT = Vec2(round(camPosT.x), round(camPosT.y));
 	Vec2 fCamPos = camPosW + player_sprite_parent->getPosition() * (camDisplaceVector / 100.0);
+	fCamPos = player_sprite_parent->getPosition();
 	cam->setPosition(fCamPos.x, fCamPos.y);
 
 	if (debugMode) {
@@ -421,6 +422,18 @@ void CatPlayer::physicsPreTick()
 	startVec3 = Vec2(pos.x, pos.y - 12);
 	endVec3 = Vec2(pos.x, pos.y - 20);
 
+	if (player_body->getVelocity().y < -4000)
+	{
+		playerDirection = lastValidDirection;
+		player_body->setVelocity(Vec2(player_body->getVelocity().x, 0));
+		player_sprite_parent->setPosition(lastValidPosition);
+	}
+
+	if (isOnGround()) {
+		lastValidDirection = playerDirection * -1;
+		lastValidPosition = player_sprite_parent->getPosition();
+	}
+
 	if (!isOnGround())
 	{
 		checkOtherRayCastsIndex = 0;
@@ -467,6 +480,9 @@ void CatPlayer::physicsPreTick()
 
 void CatPlayer::physicsPostTick()
 {
+	Vec2 fCamPos = player_sprite_parent->getPosition();
+	cam->setPosition(fCamPos.x, fCamPos.y);
+
 	player_shadow_sprite->setSpriteFrame(player_sprite->getSpriteFrame());
 	player_shadow_sprite->setPosition(player_sprite->getPosition());
 

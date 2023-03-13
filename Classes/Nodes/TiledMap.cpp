@@ -83,7 +83,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
     int solidTileCount = 0;
     int solidCollCount = 0;
 
-    auto dontCollideIfInvisible = tmx->getProperty("no_invisible_collision").isNull() ? false : tmx->getProperty("no_invisible_collision").asBool();
+    auto collideIfInvisible = tmx->getProperty("invisible_collision").isNull() ? true : tmx->getProperty("invisible_collision").asBool();
 
     auto cameraZoom = tmx->getProperty("camera_zoom");
     if (!cameraZoom.isNull()) player->cam->setZoom(cameraZoom.asFloat());
@@ -141,7 +141,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
 
         if ((type == LayerTypeLabel[COLLISION] || type == LayerTypeLabel[ONE_WAY_COLLISION] || type == LayerTypeLabel[OPPOSITE_WAY_COLLISION]
             || type == LayerTypeLabel[RIGHT_ONLY_COLLISION] || type == LayerTypeLabel[LEFT_ONLY_COLLISION])
-            && (dontCollideIfInvisible && layer->isVisible())) {
+            && (collideIfInvisible && layer->isVisible())) {
             for (size_t y = 0; y < mapSize.y; y += 1)
             {
                 for (size_t x = 0; x < mapSize.x; x += 1)
@@ -156,30 +156,30 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
                         int mostRightX = x;
                         int mostDownY = y;
 
-                        for (size_t i = y; i <= mapSize.y; i++)
+                        for (size_t i = x; i <= mapSize.x; i++)
                         {
-                            if (IS_SOLID_AND_NOT_BLOCKED(layer, x, i)) {
-                                blocked.push_back(ax::Vec2(x, i));
-                                mostDownY = i;
+                            if (IS_SOLID_AND_NOT_BLOCKED(layer, i, y)) {
+                                blocked.push_back(ax::Vec2(i, y));
+                                mostRightX = i;
                             }
                             else break;
                         }
 
                         int shiftCount = 0;
-                        int columnYCount = y;
-                        if (y == mostDownY)
-                            columnYCount++;
+                        int columnXCount = x;
+                        if (x == mostRightX)
+                            columnXCount++;
                         while (true) {
                             shiftCount++;
-                            for (size_t i = y; i <= mostDownY; i++)
-                                if (IS_NOT_SOLID_OR_BLOCKED(layer, x + shiftCount, i))
+                            for (size_t i = x; i <= mostRightX; i++)
+                                if (IS_NOT_SOLID_OR_BLOCKED(layer, i, y + shiftCount))
                                     goto main_sub2;
-                            for (size_t i = y; i <= mostDownY; i++)
-                                blocked.push_back(ax::Vec2(x + shiftCount, i));
+                            for (size_t i = x; i <= mostRightX; i++)
+                                blocked.push_back(ax::Vec2(i, y + shiftCount));
                         }
 
                     main_sub2:
-                        mostRightX = currentX + shiftCount - 1;
+                        mostDownY = currentY + shiftCount - 1;
 
                         auto size = ax::Vec2(relativeSize + (mostRightX - currentX) * relativeSize, relativeSize + (mostDownY - currentY) * relativeSize);
 

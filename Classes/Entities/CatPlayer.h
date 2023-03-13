@@ -42,6 +42,9 @@ public:
 	std::vector<std::string> wallTurnAnimationFrames;
 	std::vector<std::string> jumpAnimationFrames;
 
+	i8 lastValidDirection = 0;
+	ax::Vec2 lastValidPosition = ax::Vec2::ZERO;
+
 	ax::Camera* cam;
 	bool init();
 	void attachCamera(ax::Camera* camera);
