@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 
-#include "ntcvt/ntcvt.hpp"
+//#include "ntcvt/ntcvt.hpp"
 
 void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line) {
     if (result != FMOD_OK)
@@ -275,7 +275,7 @@ FMOD::Sound* FMODAudioEngine::load(const std::wstring &filename)
         wprintf(L"FMOD: preload file not found %s\n", filename.c_str());
         return NULL;
     }
-    result = _system->createSound(Strings::narrow(filename.c_str()), FMOD_DEFAULT, 0, &sound);
+    result = _system->createSound(Strings::narrow(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
     wprintf(L"FMOD: preload file %s was loaded to memory.\n", Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str());
     return sound;
@@ -290,7 +290,7 @@ FMOD::Sound* FMODAudioEngine::loadStream(const std::wstring& filename)
         wprintf(L"FMOD: stream file not found %s\n", filename.c_str());
         return NULL;
     }
-    result = _system->createStream(Strings::narrow(filename.c_str()), FMOD_DEFAULT, 0, &sound);
+    result = _system->createStream(Strings::narrow(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
     wprintf(L"FMOD: preload file %s was streamed.\n", Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str());
     return sound;

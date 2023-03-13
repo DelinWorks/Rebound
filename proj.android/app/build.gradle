@@ -107,6 +107,7 @@ android.applicationVariants.all { variant ->
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':libaxmol')
+    implementation files('lib\\fmod.jar')
 }
 
 project.afterEvaluate {

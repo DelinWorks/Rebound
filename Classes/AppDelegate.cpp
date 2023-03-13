@@ -40,7 +40,7 @@
 #include "Helper/PlatDefines.h"
 #include "shared_scenes/ProtectedTypes.hpp"
 
-using namespace tINI::unicode;
+//using namespace tINI::unicode;
 
 // #define USE_AUDIO_ENGINE 1
 
@@ -98,7 +98,7 @@ static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
     long Style = GetWindowLong(windowHandle, GWL_STYLE);
     //Style &= ~WS_MAXIMIZEBOX;
     SetWindowLong(windowHandle, GWL_STYLE, Style);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 }
 
 static void window_maximize_callback(GLFWwindow* window, i32 maximized)
@@ -221,20 +221,20 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     Device::setKeepScreenOn(true);
 
-#if (AX_TARGET_PLATFORM == AX_PLATFORM_WIN32)
+#if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32
     std::wstring ws(Darkness::getInstance()->console.args);
     std::string str(ws.begin(), ws.end());
-#elif
+#else
     std::string str = "";
 #endif
 
     std::wstring filename = L"settings.ini";
     std::wstring filepath = L"settings.ini";
-#if (AX_TARGET_PLATFORM == AX_PLATFORM_WIN32)
+#if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32
     filepath = getCurrentDirectoryW() + L"\\" + filename;
 #endif
-#if (AX_TARGET_PLATFORM == AX_PLATFORM_ANDROID)
-    filepath = FileUtils::getInstance()->getWritablePath() + Strings::narrow(filename);
+#if AX_TARGET_PLATFORM == AX_PLATFORM_ANDROID
+    filepath = Strings::widen(FileUtils::getInstance()->getWritablePath() + Strings::narrow(filename));
 #endif
     //if (!FileUtils::getInstance()->isFileExist(Strings::WC2MB(filepath))) {
         std::string commentStart = "this file contains default setings that the user may want to edit to fit their needs\nremoving this file will make it regenerate with defaults on next launch\n\n"
@@ -340,7 +340,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto glview = director->getOpenGLView();
 
 #ifdef AX_USE_COMPAT_GL
-    bool AX_USE_COMPAT_GL_CHK = FALSE;
+    bool AX_USE_COMPAT_GL_CHK = false;
 #else
     bool AX_USE_COMPAT_GL_CHK = TRUE;
 #endif
@@ -383,10 +383,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
 #ifdef AX_PLATFORM_MOBILE
-    Darkness::getInstance()->windowSize = Size(glview->getFrameSize().x, glview->getFrameSize().y);
+    Darkness::getInstance()->gameWindow.windowSize = Size(glview->getFrameSize().x, glview->getFrameSize().y);
+    director->setAnimationInterval(0);
 #endif
-
-    director->setAnimationInterval(1.0f / 60);
 
 #if (AX_TARGET_PLATFORM == AX_PLATFORM_WIN32) || (AX_TARGET_PLATFORM == AX_PLATFORM_MAC) || (AX_TARGET_PLATFORM == AX_PLATFORM_LINUX)
     if (!Darkness::getInstance()->console.isHeadless)
@@ -398,6 +397,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #ifdef _DEBUG
     director->setAnimationInterval(0);
 #endif
+    director->setAnimationInterval(0);
     // Set the design resolution
     if (!Darkness::getInstance()->console.isHeadless)
         glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);
@@ -405,7 +405,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     if (Darkness::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / 30);
 
+#ifdef WIN32
     window_focus_callback(Darkness::getInstance()->gameWindow.window, true);
+#endif
 
     Darkness::getInstance()->initAntiCheat();
 

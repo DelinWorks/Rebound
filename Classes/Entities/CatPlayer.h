@@ -95,6 +95,8 @@ public:
 	void onMouseDown(ax::Event* event);
 	void onMouseUp(ax::Event* event);
 	void onMouseScroll(ax::Event* event);
+	bool onTouchBegan(ax::Touch* touch, ax::Event* event);
+	void onTouchEnded(ax::Touch* touch, ax::Event* event);
 
 	void changeAnimation(std::string_view name, bool enforce = false);
 

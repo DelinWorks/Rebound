@@ -148,7 +148,10 @@ void GameplayScene::onMouseScroll(cocos2d::Event* event)
 
 bool GameplayScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
-    return false;
+    if (map)
+        p->onTouchBegan(touch, event);
+
+    return true;
 }
 
 void GameplayScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
@@ -157,6 +160,8 @@ void GameplayScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 
 void GameplayScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 {
+    if (map)
+        p->onTouchEnded(touch, event);
 }
 
 void GameplayScene::onTouchCancelled(cocos2d::Touch* touch, cocos2d::Event* event)

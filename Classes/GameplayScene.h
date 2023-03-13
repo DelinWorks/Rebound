@@ -39,17 +39,17 @@ public:
 
     CREATE_FUNC(GameplayScene);
 
-    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
-    void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
-    void onKeyHold(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
-    void onMouseDown(cocos2d::Event* event);
-    void onMouseUp(cocos2d::Event* event);
-    void onMouseMove(cocos2d::Event* event);
-    void onMouseScroll(cocos2d::Event* event);
-    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchCancelled(cocos2d::Touch* touch, cocos2d::Event* event);
+    void onKeyPressed(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    void onKeyReleased(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    void onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    void onMouseDown(ax::Event* event);
+    void onMouseUp(ax::Event* event);
+    void onMouseMove(ax::Event* event);
+    void onMouseScroll(ax::Event* event);
+    bool onTouchBegan(ax::Touch* touch, ax::Event* event);
+    void onTouchMoved(ax::Touch* touch, ax::Event* event);
+    void onTouchEnded(ax::Touch* touch, ax::Event* event);
+    void onTouchCancelled(ax::Touch* touch, ax::Event* event);
 };
 
 #endif

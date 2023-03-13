@@ -36,7 +36,9 @@ void Darkness::init()
 
     console.isHeadless = false;
 
+#ifdef WIN32
     res_path = getCurrentResourcesDirectoryW();
+#endif
 
 #ifdef _DEBUG
     res_path = L"C:/Users/turky/Documents/GitHub/DarknessAmongUs/Resources/";
@@ -251,6 +253,7 @@ void Darkness::initAntiCheat()
 
 void Darkness::updateAntiCheat(float delta)
 {
+#ifdef WIN32
     if (exit_thread_flag)
     {
         MessageBoxA(glfwGetWin32Window(gameWindow.window),
@@ -260,6 +263,7 @@ void Darkness::updateAntiCheat(float delta)
         while (true) {}
         std::exit(0);
     }
+#endif
 
     if (!isAntiCheatReady)
         return;
@@ -283,8 +287,8 @@ void Darkness::updateAntiCheat(float delta)
             "game clock is not steady, possibly a third-party program is modifying the clock speed.",
             "anti-cheat engine",
             0x00000010L | 0x00004000L | 0x00000000L);
-#endif
         while (true) {}
+#endif
     }
 #endif
 

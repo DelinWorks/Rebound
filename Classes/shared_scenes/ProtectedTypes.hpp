@@ -1,7 +1,10 @@
 #ifndef __PROTECTED_TYPES_H__
 #define __PROTECTED_TYPES_H__
 
+#ifdef WIN32
 #include <memoryapi.h>
+#endif
+
 #include <algorithm>
 #include <string>
 

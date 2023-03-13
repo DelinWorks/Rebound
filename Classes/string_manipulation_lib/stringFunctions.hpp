@@ -1,5 +1,6 @@
 ﻿#include "cocos2d.h"
 #include <string>
+#include <codecvt>
 
 #define VECTOR_STRING std::vector<std::string>
 #define VECTOR_WSTRING std::vector<std::wstring>
@@ -7,7 +8,7 @@
 #define CCP(d) (const char*)d
 #define CWCP(d) (const wchar_t*)d
 
-#include "ntcvt/ntcvt.hpp"
+//#include "ntcvt/ntcvt.hpp"
 
 #ifndef __STRINGS_H__
 #define __STRINGS_H__
@@ -102,42 +103,20 @@ namespace Strings {
     //    return std::string(WC2MB(data.c_str()));
     //}
 
-    inline const wchar_t* widen(const char* str)
+    inline std::wstring widen(const std::string& utf8)
     {
-        int str_len = (int)strlen(str);
-        int num_chars = MultiByteToWideChar(CP_UTF8, 0, str, str_len, NULL, 0);
-        wchar_t* wstrTo = (wchar_t*)malloc((num_chars + 1) * sizeof(WCHAR));
-        if (wstrTo)
-        {
-            MultiByteToWideChar(CP_UTF8, 0, str, str_len, wstrTo, num_chars);
-            wstrTo[num_chars] = L'\0';
-        }
-        return wstrTo;
+        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+        std::u16string utf16 = convert.from_bytes(utf8);
+        std::wstring wstr(utf16.begin(), utf16.end());
+        return wstr;
     }
 
-    inline const char* narrow(const wchar_t* wstr)
-    {
-        int wstr_len = (int)wcslen(wstr);
-        int num_chars = WideCharToMultiByte(CP_UTF8, 0, wstr, wstr_len, NULL, 0, NULL, NULL);
-        char* strTo = (char*)malloc((num_chars + 1) * sizeof(char));
-        if (strTo)
-        {
-            WideCharToMultiByte(CP_UTF8, 0, wstr, wstr_len, strTo, num_chars, NULL, NULL);
-            strTo[num_chars] = '\0';
-        }
-        return strTo;
+    inline std::string narrow(const std::wstring& utf16) {
+        std::u16string u16str(utf16.begin(), utf16.end());
+        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+        std::string utf8 = convert.to_bytes(u16str);
+        return utf8;
     }
-
-    inline std::wstring widen(std::string data)
-    {
-        return std::wstring(widen(data.c_str()));
-    }
-
-    inline std::string narrow(std::wstring data)
-    {
-        return std::string(narrow(data.c_str()));
-    }
-
 }
 
 #endif

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "untitled.tmx",
+    "activeFile": "atlas_002.tsx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
         "."
@@ -61,11 +61,11 @@
             "scaleInEditor": 5.5
         },
         "untitled.tmx": {
-            "scale": 0.75,
-            "selectedLayer": 0,
+            "scale": 1.5,
+            "selectedLayer": 15,
             "viewCenter": {
-                "x": 480,
-                "y": 353.3333333333333
+                "x": 322.6666666666667,
+                "y": 264
             }
         }
     },
@@ -82,9 +82,9 @@
     "project": "untitled.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "atlas_002.tsx",
-        "atlas_001.tsx",
         "untitled.tmx",
+        "atlas_001.tsx",
+        "atlas_002.tsx",
         "Sprite-0001.tsx",
         "E:/dev/axmol/tests/cpp-tests/Content/TileMaps/tile_animation_test_2.tmx",
         "E:/dev/axmol/tests/cpp-tests/Content/TileMaps/tile_animation_test.tmx",

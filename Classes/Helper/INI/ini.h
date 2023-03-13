@@ -1,3 +1,5 @@
+#ifdef INI_DISCARD_USELESS_FUCK
+
 #include <string>
 #include <unordered_map>
 #include <fstream>
@@ -508,5 +510,7 @@ namespace tINI {
 		std::vector<std::string> sectionsInsertionOrder;
 	};
 }
+
+#endif
 
 #endif

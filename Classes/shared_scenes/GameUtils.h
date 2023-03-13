@@ -762,7 +762,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     std::function<void(Touch*, Event*)> _onTouchesEnded,
                     std::function<void(Touch*, Event*)> _onTouchesCancelled
                 ) {
-#if AX_TARGET_PLATFORM == AX_PLATFORM_MOBILE
+#ifdef AX_PLATFORM_MOBILE
                     _touchListener = EventListenerTouchOneByOne::create();
                     _touchListener->onTouchBegan     = _onTouchesBegan;
                     _touchListener->onTouchMoved     = _onTouchesMoved;
@@ -779,7 +779,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(_mouseListener, owner);
 #endif
 
-#if AX_TARGET_PLATFORM == AX_PLATFORM_MOBILE
+#ifdef AX_PLATFORM_MOBILE
                     Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(_touchListener, owner);
 #endif
 

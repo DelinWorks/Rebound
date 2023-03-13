@@ -156,6 +156,19 @@ else()
     # whole archive for jni
     target_link_libraries(${APP_NAME} -Wl,--whole-archive cpp_android_spec -Wl,--no-whole-archive)
     config_android_shared_libs("org.axmol.lib" "${CMAKE_CURRENT_SOURCE_DIR}/proj.android/app/src")
+
+    include_directories(proj.win32/external/fmod/include/android)
+
+    set(libfmod ext_fmod)
+
+    add_library(${libfmod} STATIC IMPORTED GLOBAL)
+
+    set_target_properties(${libfmod} PROPERTIES
+            IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/proj.win32/external/fmod/prebuilt/android/${ANDROID_ABI}/libfmod.so"
+            )
+
+    target_link_libraries(${APP_NAME} ${libfmod})
+
 endif()
 
 if (NOT _AX_USE_PREBUILT)

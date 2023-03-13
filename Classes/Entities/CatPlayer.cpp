@@ -293,6 +293,20 @@ void CatPlayer::onMouseScroll(ax::Event* event)
 	EventMouse* e = (EventMouse*)event;
 }
 
+bool CatPlayer::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
+{
+	stopAction(jumpActionDelay);
+	actionButtonPress = true;
+
+	return true;
+}
+
+void CatPlayer::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
+{
+	stopAction(jumpActionDelay);
+	runAction(jumpActionDelay);
+}
+
 void CatPlayer::changeAnimation(std::string_view name, bool enforce)
 {
 	if (currentAnim == "jump" && !enforce)

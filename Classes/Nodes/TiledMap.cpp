@@ -305,15 +305,6 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
         layer->setProgramState(GameUtils::CocosExt::createGPUProgram());
     }
 
-    long version = _MSVC_LANG;
-
-    if      (version == 202002L) std::cout << "C++20\n";
-    else if (version == 201703L) std::cout << "C++17\n";
-    else if (version == 201402L) std::cout << "C++14\n";
-    else if (version == 201103L) std::cout << "C++11\n";
-    else if (version == 199711L) std::cout << "C++98\n";
-    else                         std::cout << "pre-standard C++";
-
     int batchingPercentage = (1.0 - float(solidCollCount - 1) / solidTileCount) * 100.0;
     AXLOG("physics_shape_batch: %d shapes / %d tiles (%d%%) of all tile collision shapes have been batched.\nGrid-Based Shape Batching Algorithm. More percentage = Better performance\nBatching may break raycasting so consider seperating solid type layers\nwhen the player glitches or teleports outside the map.\n", solidCollCount, solidTileCount, batchingPercentage);
 
