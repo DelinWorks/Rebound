@@ -14,21 +14,26 @@
 #define LEFT_ONLY_COLLISION_INDEX			(1 << 8)
 #define DISABLE_JUMP_COLLISION_INDEX		(1 << 9)
 #define DISABLE_TURN_COLLISION_INDEX		(1 << 10)
-
-#define HIT_DETECTION_TOLERANCE 6
+#define ACTION_HAS_JUMPED_THIS_FRAME		(1 << 11)
 
 #define C_OR_C(INDEX) (contact.getShapeA()->getBody()->getTag() & INDEX || contact.getShapeB()->getBody()->getTag() & INDEX)
+
+#define IS_PROP_NOT_NULL_AND_FALSE(L,P) (!L->getProperty(P).isNull() && !L->getProperty(P).asBool())
+#define IS_PROP_NOT_NULL_AND_TRUE(L,P) (!L->getProperty(P).isNull() && L->getProperty(P).asBool())
 
 class CatPlayer : public ax::Node {
 public:
 	static CatPlayer* createEntity();
-	ax::Node* player_sprite_parent;
+	ax::Node* body;
 	ax::Node* player_turn_dir;
 	ax::Node* player_turn;
 	ax::Sprite* player_sprite;
 	ax::Sprite* player_shadow_sprite;
-	ax::PhysicsBody* player_body;
+	ax::PhysicsBody* physics_body;
 	ax::PhysicsBody* player_turn_hitbox;
+	ax::ParticleSystem* jump_particles;
+	ax::ParticleSystem* wall_jump_particles;
+
 	bool isTurnLocked = false;
 	ax::MotionStreak* trail;
 	ax::EventListenerPhysicsContactWithGroup* contactor;
@@ -36,11 +41,10 @@ public:
 	std::string currentAnim;
 
 	float idleAnimCurrentIndex = 0;
-	int idleAnimDir = 1;
-	std::vector<std::string> idleRightAnimationFrames;
-	std::vector<std::string> idleLeftAnimationFrames;
+	std::vector<std::string> idleAnimationFrames;
 	std::vector<std::string> wallTurnAnimationFrames;
 	std::vector<std::string> jumpAnimationFrames;
+	std::vector<std::string> staggerAnimationFrames;
 
 	i8 lastValidDirection = 0;
 	ax::Vec2 lastValidPosition = ax::Vec2::ZERO;
@@ -51,10 +55,13 @@ public:
 
 	bool debugMode = false;
 
-	void update(f32 dt);
+	void tick(f32 dt);
 	ax::Vec2 camPos, camWobbleSpeed, camWobbleAmount;
 	f32 camWobbleTime = 0;
 	ax::Vec2 camDisplaceVector = ax::Vec2::ZERO;
+	ax::Vec2 camSnapFactorVector = ax::Vec2::ZERO;
+	ax::Vec2 camSnapPixelVector = ax::Vec2::ZERO;
+	ax::Vec2 camSnapLerpVector = ax::Vec2::ZERO;
 	f32 speed;
 	i8 playerDirection;
 	f32 curZoom;
@@ -63,6 +70,7 @@ public:
 	f32 zoomSnapTimer = 0;
 	bool isReceivingInputs;
 	ax::Vec2 movementDirection;
+	ax::Vec2 playerSnapPlane;
 	bool isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
 	PROTECTED(f32) playerMoveBeginEase, playerMoveStopEase;
 	bool actionButtonPress = false;
@@ -108,14 +116,14 @@ public:
 
 	float actionRecoveryTime = 0;
 
-	int onGroundIndex = 0;
+	bool hasTouchedGround = false;
 	bool isOnGround();
 
 	ax::PhysicsWorld* world;
 	void physicsPreTick();
 	void physicsPostTick();
 
-	void jump();
+	void jump(bool noEffect = false);
 
 	ax::Vec2 startVec1, endVec1;
 	ax::Vec2 startVec2, endVec2;

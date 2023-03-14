@@ -372,7 +372,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         glfwSetCursor(window->getWindow(), cursor);
         Darkness::getInstance()->gameWindow.window = window->getWindow();
 #else
-        glview = GLViewImpl::create("Darkness Among Us");
+        glview = GLViewImpl::create("Dark Dimensions");
 #endif
         director->setOpenGLView(glview);
 

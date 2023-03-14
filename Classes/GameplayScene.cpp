@@ -40,6 +40,7 @@ bool GameplayScene::init()
     visibleSize = { 1280, 720 };
 
     initPhysicsWorld();
+    p->world = getPhysicsWorld();
     map = new TiledMap();
     if (map->initWithFilename(this, "maps/level1/untitled.tmx", p))
     {
@@ -70,7 +71,6 @@ bool GameplayScene::init()
 void GameplayScene::awake()
 {
     if (Node::isAwake()) {
-        p->world = getPhysicsWorld();
         p->setInputState(true);
         currentPhysicsDt = lastPhysicsDt = 0;
     }
@@ -83,15 +83,13 @@ void GameplayScene::update(f32 dt)
     if (!map)
         return;
 
-    map->update(dt);
-
     awake();
 
     if (lastPhysicsDt < 1 && dt > 0.1)
         lastPhysicsDt = currentPhysicsDt;
 
     int physicsTPS = 1.0 / dt;
-
+    
     physicsTPS = physicsTPS < 120 ? 120 : physicsTPS;
     physicsTPS = physicsTPS > 240 ? 240 : physicsTPS;
 
@@ -106,6 +104,8 @@ void GameplayScene::update(f32 dt)
         lastPhysicsDt += 1.0 / physicsTPS;
         world->update(1.0 / physicsTPS, true);
     }
+
+    map->update(dt);
 }
 
 void GameplayScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)

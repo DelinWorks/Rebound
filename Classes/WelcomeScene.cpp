@@ -57,6 +57,12 @@ bool WelcomeScene::init()
     }
     Director::getInstance()->getTextureCache()->removeTexture(textureCompanyLogo);
 
+    auto tex = Director::getInstance()->getTextureCache()->addImage("pixel.png");
+    tex->setAliasTexParameters();
+
+    tex = Director::getInstance()->getTextureCache()->addImage("star.png");
+    tex->setAliasTexParameters();
+
     //Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     //Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
     //cn->setScaleX(actualWinSize.width / actualFrameSize.width);

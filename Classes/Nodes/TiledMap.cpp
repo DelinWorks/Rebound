@@ -38,9 +38,6 @@ const char* LayerTypeLabel[] = {
     "parallax",
 };
 
-#define IS_PROP_NOT_NULL_AND_FALSE(L,P) (!L->getProperty(P).isNull() && !L->getProperty(P).asBool())
-#define IS_PROP_NOT_NULL_AND_TRUE(L,P) (!L->getProperty(P).isNull() && L->getProperty(P).asBool())
-
 bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlayer* _player)
 {
     player = _player;
@@ -227,9 +224,10 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
             layer->setAnchorPoint({ 0.5, 0.5 });
             addChild(layer, renderOrder++);
         }
-        else if (type == LayerTypeLabel[PLAYER_SPAWN]) {
+        else if (type == LayerTypeLabel[PLAYER_SPAWN] && player->getParent() != this) {
+            player->lastValidDirection = 1;
             if (layer->getProperty("player_direction").asString() == "left")
-                player->playerDirection *= -1;
+                player->playerDirection *= player->lastValidDirection = -1;
 
             for (size_t y = 0; y < mapSize.y; y += 1)
             {
@@ -239,9 +237,10 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
                     {
                         float offsetX = Math::map(x, 0.0, mapSize.x, -mapSizeInPixels.x, mapSizeInPixels.x);
                         float offsetY = Math::map(mapSize.y - y, 0.0, mapSize.y, -mapSizeInPixels.y, mapSizeInPixels.y);
-                        player->player_sprite_parent->setPositionX(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0));
-                        player->player_sprite_parent->setPositionY(offsetY * (relativeSize / tile.y) - (relativeSize / 2.0));
-                        player->debugLineTraceY.fill(player->player_sprite_parent->getPosition());
+                        player->body->setPositionX(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0));
+                        player->body->setPositionY(offsetY * (relativeSize / tile.y) - (relativeSize / 2.0));
+                        player->lastValidPosition = player->body->getPosition();
+                        player->debugLineTraceY.fill(player->body->getPosition());
                         addChild(player, renderOrder++);
                         player->setVisible(visible);
                     }
@@ -251,6 +250,9 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
             auto camWobbleSpeed = layer->getProperty("camera_wobble_speed_vector");
             auto camWobbleAmount = layer->getProperty("camera_wobble_amount_vector");
             auto camDisplaceVector = layer->getProperty("camera_displacement_vector");
+            auto camSnapFactorVector = layer->getProperty("camera_snap_factor_vector");
+            auto camSnapPixelVector = layer->getProperty("camera_snap_pixel_vector");
+            auto camSnapLerpVector = layer->getProperty("camera_snap_lerp_vector");
 
             if (!camWobbleSpeed.isNull())
                 player->camWobbleSpeed = GameUtils::Parser::parseVector2D(camWobbleSpeed.asString());
@@ -260,6 +262,15 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
 
             if (!camDisplaceVector.isNull())
                 player->camDisplaceVector = GameUtils::Parser::parseVector2D(camDisplaceVector.asString());
+
+            if (!camSnapFactorVector.isNull())
+                player->camSnapFactorVector = GameUtils::Parser::parseVector2D(camSnapFactorVector.asString());
+
+            if (!camSnapPixelVector.isNull())
+                player->camSnapPixelVector = GameUtils::Parser::parseVector2D(camSnapPixelVector.asString());
+
+            if (!camSnapLerpVector.isNull())
+                player->camSnapLerpVector = GameUtils::Parser::parseVector2D(camSnapLerpVector.asString());
         }
         else if (type == LayerTypeLabel[DECORATION]) {
             layer->setAnchorPoint({ 0.5, 0.5 });
@@ -322,13 +333,15 @@ TiledMap::~TiledMap() {
 
 void TiledMap::update(f32 dt) {
 
+    player->tick(dt);
+
     for (auto&& c : _children)
     {
         auto p = DCAST(ax::ParallaxNode, c);
         if (p) {
             ax::PointObject* point = (ax::PointObject*)p->getParallaxArray()->arr[0];
-            point->setOffset(player->camPos / -1.5);
-            p->setPosition(cam->getPosition().x, cam->getPosition().y);
+            point->setOffset((player->camPos - cam->getPosition()) / -1.5);
+            p->setPosition(player->camPos - cam->getPosition());
         }
     }
 
