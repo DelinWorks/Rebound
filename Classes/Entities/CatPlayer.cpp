@@ -68,6 +68,7 @@ bool CatPlayer::init()
 	wall_jump_particles->setEmissionRate(0);
 	wall_jump_particles->setEmissionShapes(true);
 	wall_jump_particles->setBlendAdditive(false);
+	wall_jump_particles->setSpawnScaleIn(1);
 	wall_jump_particles->addEmissionShape(ParticleSystem::createRectShape({ 0, 0 }, { 0,20 }));
 	addChild(wall_jump_particles);
 
@@ -162,6 +163,9 @@ bool CatPlayer::init()
 			}
 			jump_particles->setBlendAdditive(IS_PROP_NOT_NULL_AND_TRUE(layer, "jump_particle_blend"));
 		}
+
+		if (info.shape->getBody()->getTag() & DISABLE_JUMP_COLLISION_INDEX)
+			lastCollisionIndex |= DISABLE_JUMP_COLLISION_INDEX;
 
 		isPlayerOnGroundRayCast = true;
 		return false;
@@ -375,6 +379,9 @@ void CatPlayer::changeAnimation(std::string_view name, bool enforce)
 	idleAnimCurrentIndex = 0;
 }
 
+#define DISCARD { return false; }
+#define COLLIDE { return true;  }
+
 bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 {
 	ax::Vec2 avg{};
@@ -393,9 +400,7 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 		lastCollisionIndex |= ONE_WAY_COLLISION_INDEX;
 
 		if (avg.fuzzyEquals(body->getPosition(), 16) && physics_body->getVelocity().y > 1)
-			return false;
-		else if (!avg.fuzzyEquals(body->getPosition(), 16)) return true;
-		else return false;
+			DISCARD else if (!avg.fuzzyEquals(body->getPosition(), 16)) COLLIDE else DISCARD
 	}
 
 	if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX))
@@ -403,53 +408,44 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 		lastCollisionIndex |= OPPOSITE_WAY_COLLISION_INDEX;
 
 		if (avg.fuzzyEquals(body->getPosition(), 20) && physics_body->getVelocity().y < -1)
-			return false;
-		else return true;
+			DISCARD else COLLIDE
+	}
+
+	if (C_OR_C(RIGHT_ONLY_COLLISION_INDEX) && playerDirection < 0)
+	{
+		lastCollisionIndex |= RIGHT_ONLY_COLLISION_INDEX; DISCARD
+	}
+
+	if (C_OR_C(LEFT_ONLY_COLLISION_INDEX) && playerDirection > 0)
+	{
+		lastCollisionIndex |= LEFT_ONLY_COLLISION_INDEX; DISCARD
+	}
+
+	if (C_OR_C(DISABLE_JUMP_COLLISION_INDEX))
+	{
+		lastCollisionIndex |= DISABLE_JUMP_COLLISION_INDEX; COLLIDE
 	}
 
 	if (C_OR_C(DISABLE_TURN_COLLISION_INDEX))
 	{
 		lastCollisionIndex |= DISABLE_TURN_COLLISION_INDEX;
 
-		if (avg.fuzzyEquals(body->getPosition(), 0))
-			return false;
-		else return true;
-	}
-
-	if (C_OR_C(RIGHT_ONLY_COLLISION_INDEX) && playerDirection < 0)
-	{
-		lastCollisionIndex |= RIGHT_ONLY_COLLISION_INDEX;
-
-		return false;
-	}
-
-	if (C_OR_C(LEFT_ONLY_COLLISION_INDEX) && playerDirection > 0)
-	{
-		lastCollisionIndex |= LEFT_ONLY_COLLISION_INDEX;
-		
-		return false;
+		if (avg.fuzzyEquals(body->getPosition(), 16))
+			DISCARD else COLLIDE
 	}
 
 	if (C_OR_C(WALL_JUMP_COLLISION_INDEX))
 	{
-		lastCollisionIndex |= WALL_JUMP_COLLISION_INDEX;
-
-		return true;
+		lastCollisionIndex |= WALL_JUMP_COLLISION_INDEX; COLLIDE
 	}
 
-	if (C_OR_C(DISABLE_JUMP_COLLISION_INDEX))
-	{
-		lastCollisionIndex |= DISABLE_JUMP_COLLISION_INDEX;
-		return true;
-	}
-
-	return true;
+	COLLIDE
 }
 
 bool CatPlayer::onContactSeperate(ax::PhysicsContact& contact)
 {
-	if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX))
-		lastCollisionIndex &= ~DISABLE_JUMP_COLLISION_INDEX;
+	//if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX))
+	lastCollisionIndex &= ~DISABLE_JUMP_COLLISION_INDEX;
 	lastCollisionIndex &= ~WALL_JUMP_COLLISION_INDEX;
 	lastCollisionIndex &= ~DISABLE_TURN_COLLISION_INDEX;
 	lastCollisionIndex &= ~RIGHT_ONLY_COLLISION_INDEX;
@@ -528,8 +524,7 @@ void CatPlayer::physicsPreTick()
 	isHeadBlocked = false;
 	world->rayCast(rayCastFunc1, cpShapeFilterNew(2, 1, 1), startVec1, endVec1, nullptr);
 
-	if (actionButtonPress)
-		jump();
+	if (actionButtonPress) jump();
 }
 
 void CatPlayer::physicsPostTick()
