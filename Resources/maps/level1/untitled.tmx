@@ -2,7 +2,7 @@
 <map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="79" nextobjectid="1">
  <properties>
   <property name="camera_zoom" type="file" value="1"/>
-  <property name="debug_show_collision" type="bool" value="false"/>
+  <property name="debug_show_collision" type="bool" value="true"/>
   <property name="invisible_collision" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="atlas_001.tsx"/>

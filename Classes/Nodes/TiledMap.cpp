@@ -38,7 +38,7 @@ const char* LayerTypeLabel[] = {
     "parallax",
 };
 
-bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlayer* _player)
+bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, std::string_view file, CatPlayer* _player)
 {
     player = _player;
 
@@ -86,7 +86,6 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
     if (!cameraZoom.isNull()) player->cam->setZoom(cameraZoom.asFloat());
 
     if (IS_PROP_NOT_NULL_AND_TRUE(tmx, "debug_show_collision")) {
-        scene->getPhysicsWorld()->setDebugDrawMask(0xffff);
         player->debugMode = true;
     }
 
@@ -214,9 +213,23 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
                         if (IS_PROP_NOT_NULL_AND_FALSE(layer, "can_turn"))
                             collisionGroup |= DISABLE_TURN_COLLISION_INDEX;
 
-                        auto w1 = Wall::createEntity(size, contourShift, collisionGroup);
-                        layer->addChild(w1);
-                        solidCollCount++;
+                        {
+                            b2BodyDef bodyDef;
+                            bodyDef.type = b2_staticBody;
+                            bodyDef.position.Set(TO_B2_C(contourShift.x), TO_B2_C(contourShift.y));
+
+                            auto body = world->CreateBody(&bodyDef);
+
+                            b2PolygonShape staticBox;
+                            staticBox.SetAsBox((size.x / 2) / B2_PTM, (size.y / 2) / B2_PTM);
+
+                            b2FixtureDef fixtureDef;
+                            fixtureDef.shape = &staticBox;
+                            fixtureDef.density = 0;
+                            fixtureDef.friction = 0;
+                            fixtureDef.restitution = 0;
+                            body->CreateFixture(&fixtureDef);
+                        }
                     }
                 }
             }
@@ -237,10 +250,11 @@ bool TiledMap::initWithFilename(ax::Scene* scene, std::string_view file, CatPlay
                     {
                         float offsetX = Math::map(x, 0.0, mapSize.x, -mapSizeInPixels.x, mapSizeInPixels.x);
                         float offsetY = Math::map(mapSize.y - y, 0.0, mapSize.y, -mapSizeInPixels.y, mapSizeInPixels.y);
-                        player->body->setPositionX(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0));
-                        player->body->setPositionY(offsetY * (relativeSize / tile.y) - (relativeSize / 2.0));
-                        player->lastValidPosition = player->body->getPosition();
-                        player->debugLineTraceY.fill(player->body->getPosition());
+                        auto transform = PTM_VEC2_2_B2(Vec2(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0),
+                            offsetY * (relativeSize / tile.y) - (relativeSize / 2.0)));
+                        player->body->SetTransform(transform, 0);
+                        player->lastValidPosition = PTM_B2_2_VEC2(player->body->GetPosition());
+                        player->debugLineTraceY.fill(PTM_B2_2_VEC2(player->body->GetPosition()));
                         addChild(player, renderOrder++);
                         player->setVisible(visible);
                     }

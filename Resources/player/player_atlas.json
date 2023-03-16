@@ -230,7 +230,7 @@
     "app": "http://free-tex-packer.com",
     "version": "0.6.7",
     "image": "player_atlas.png",
-	"alias": true,
+    "alias": true,
     "format": "RGBA8888",
     "size": {
       "w": 48,

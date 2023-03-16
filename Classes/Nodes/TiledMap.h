@@ -19,7 +19,7 @@ public:
 	ax::Camera* cam;
 	ax::TMXTiledMap* tiledMap;
 	void update(f32 dt) override;
-	bool initWithFilename(ax::Scene* scene, std::string_view file, CatPlayer* _player);
+	bool initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, std::string_view file, CatPlayer* _player);
 };
 
 #endif

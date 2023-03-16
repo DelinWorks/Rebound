@@ -1,5 +1,4 @@
 #include "GameplayScene.h"
-#include "chipmunk/chipmunk_private.h"
 
 #define LERP MathUtil::lerp
 
@@ -33,28 +32,25 @@ bool GameplayScene::init()
 
     _defaultCamera->setPosition({ 0,0 });
 
-    p = CatPlayer::createEntity();
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(p->contactor, this);
-    p->attachCamera(_defaultCamera);
-
     visibleSize = { 1280, 720 };
 
-    initPhysicsWorld();
-    p->world = getPhysicsWorld();
+    physics = new DarknessPhysicsWorld();
+    if (physics->init({ 0, -24.79 * 2 }))
+        addChild(physics, 10);
+    physics->SetContinuousPhysics(false);
+    physics->debug(true);
+
+    physics->preStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPreStep(world, dt); };
+    physics->postStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPostStep(world, dt); };
+
+    p = CatPlayer::createPhysicalEntity(physics);
+    p->attachCamera(_defaultCamera);
+
     map = new TiledMap();
-    if (map->initWithFilename(this, "maps/level1/untitled.tmx", p))
-    {
-        getPhysicsWorld()->setGravity(Vec2(0, -2479));
-        getPhysicsWorld()->setPreUpdateCallback([&] { p->physicsPreTick(); });
-        getPhysicsWorld()->setPostUpdateCallback([&] { p->physicsPostTick(); });
-        getPhysicsWorld()->setAutoStep(false);
-
-        cpSpaceSetCollisionSlop(getPhysicsWorld()->_cpSpace, 0);
-        cpSpaceSetCollisionBias(getPhysicsWorld()->_cpSpace, 0);
-
+    if (map->initWithFilename(this, physics, "maps/level1/untitled.tmx", p))
         addChild(map);
-    }
-    else {
+    else
+    {
         AX_SAFE_DELETE(map);
 
         lb = ax::Label::createWithSystemFont("Press F5 to reload the map or ESC to quit.", "arial", 24);
@@ -83,6 +79,8 @@ void GameplayScene::update(f32 dt)
     if (!map)
         return;
 
+    map->update(dt);
+
     awake();
 
     if (lastPhysicsDt < 1 && dt > 0.1)
@@ -93,19 +91,16 @@ void GameplayScene::update(f32 dt)
     physicsTPS = physicsTPS < 120 ? 120 : physicsTPS;
     physicsTPS = physicsTPS > 240 ? 240 : physicsTPS;
 
-    physicsTPS *= 2;
+    physicsTPS *= 1;
 
-    if (lastPhysicsDt + 1 < currentPhysicsDt)
+    if (lastPhysicsDt + 10 < currentPhysicsDt)
         lastPhysicsDt = currentPhysicsDt;
 
     while (lastPhysicsDt < currentPhysicsDt)
     {
-        auto world = getPhysicsWorld();
         lastPhysicsDt += 1.0 / physicsTPS;
-        world->update(1.0 / physicsTPS, true);
+        physics->update(1.0 / physicsTPS);
     }
-
-    map->update(dt);
 }
 
 void GameplayScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)

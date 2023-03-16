@@ -2,11 +2,10 @@
 #include "shared_scenes/GameUtils.h"
 #include "2d/CCTweenFunction.h"
 
-#include "chipmunk/chipmunk_private.h"
-
-CatPlayer* CatPlayer::createEntity()
+CatPlayer* CatPlayer::createPhysicalEntity(b2World* world)
 {
 	CatPlayer* p = new CatPlayer();
+	p->world = world;
 	if (p->init())
 	{
 		p->autorelease();
@@ -20,17 +19,35 @@ CatPlayer* CatPlayer::createEntity()
 
 bool CatPlayer::init()
 {
-	body = Node::create();
-	player_turn = Node::create();
+	{
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_dynamicBody;
+		body = world->CreateBody(&bodyDef);
+		b2PolygonShape staticBox;
+		staticBox.SetAsBox(TO_B2_C(14), TO_B2_C(15));
+		b2FixtureDef fixtureDef;
+		fixtureDef.shape = &staticBox;
+		fixtureDef.density = 1;
+		fixtureDef.friction = 0;
+		fixtureDef.restitution = 0;
+		body->SetFixedRotation(true);
+		b2MassData massData;
+		massData.center = b2Vec2_zero;
+		massData.I = 0;
+		massData.mass = 0;
+		body->SetMassData(&massData);
+		body->CreateFixture(&fixtureDef);
+	}
+
+	body_anchor = Node::create();
 	//player_turn_dir = Node::create();
 	player_sprite = Sprite::createWithSpriteFrameName("player_idle_1");
 	player_shadow_sprite = Sprite::createWithSpriteFrameName("player_idle_1");
 	player_shadow_sprite->setColor(Color3B::BLACK);
 	player_shadow_sprite->setOpacity(30);
+	addChild(body_anchor);
 	addChild(player_shadow_sprite);
 	addChild(player_sprite);
-	body->setScale(3.5);
-	addChild(body);
 
 	jump_particles = ax::ParticleSystemQuad::createWithTotalParticles(100);
 	jump_particles->setTexture(Director::getInstance()->getTextureCache()->addImage("pixel.png"));
@@ -72,16 +89,16 @@ bool CatPlayer::init()
 	wall_jump_particles->addEmissionShape(ParticleSystem::createRectShape({ 0, 0 }, { 0,20 }));
 	addChild(wall_jump_particles);
 
-	auto material = ax::PhysicsMaterial();
-	material.density = 0;
-	material.restitution = 0;
-	material.friction = 0;
+	//auto material = ax::PhysicsMaterial();
+	//material.density = 0;
+	//material.restitution = 0;
+	//material.friction = 0;
 
-	physics_body = ax::PhysicsBody::createBox({ 7.8, 7 }, material);
-	physics_body->setPositionOffset({ 0, -5.25 });
-	physics_body->setTag(4);
-	physics_body->setRotationEnable(false);
-	physics_body->setTag(3);
+	//physics_body = ax::PhysicsBody::createBox({ 7.8, 7 }, material);
+	//physics_body->setPositionOffset({ 0, -5.25 });
+	//physics_body->setTag(4);
+	//physics_body->setRotationEnable(false);
+	//physics_body->setTag(3);
 
 	//player_turn_hitbox = ax::PhysicsBody::createBox({ 0.1, 3 }, material);
 	//player_turn_hitbox->setVelocityLimit(0);
@@ -90,20 +107,16 @@ bool CatPlayer::init()
 	//player_turn_hitbox->setGroup(4);
 	//player_turn_hitbox->setContactTestBitmask(9);
 
-	physics_body->getFirstShape()->_cpShapes[0]->filter = cpShapeFilterNew(2, 1, 1);
+	//physics_body->getFirstShape()->_cpShapes[0]->filter = cpShapeFilterNew(2, 1, 1);
 	//player_turn_hitbox->getFirstShape()->_cpShapes[0]->filter = cpShapeFilterNew(2, 1, 1);
 
 	trail = ax::MotionStreak::create(10, 10, 100, Color3B::BLACK, "streak.png");
-	body->addChild(trail);
+	body_anchor->addChild(trail);
 
-	contactor = EventListenerPhysicsContactWithGroup::create(9);
-	contactor->onContactBegin = AX_CALLBACK_1(CatPlayer::onContactBegin, this);
-	contactor->onContactSeparate = AX_CALLBACK_1(CatPlayer::onContactSeperate, this);
-
-	physics_body->setContactTestBitmask(8);
+	//physics_body->setContactTestBitmask(8);
 
 	jumpActionDelay = ax::Sequence::create(
-		ax::DelayTime::create(.1),
+		ax::DelayTime::create(.25),
 		ax::CallFunc::create([&] {
 			actionButtonPress = false;
 		}),
@@ -111,7 +124,7 @@ bool CatPlayer::init()
 	);
 	jumpActionDelay->retain();
 
-	body->setPhysicsBody(physics_body);
+	//body->setPhysicsBody(physics_body);
 	//player_turn->setPhysicsBody(player_turn_hitbox);
 
 	currentAnim = "idle";
@@ -175,8 +188,8 @@ bool CatPlayer::init()
 		ax::DelayTime::create(1),
 		ax::CallFunc::create([&] {
 			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
-			->initFloat(&speed, .3f, .0f, 300.0f, 300.0f));
-			physics_body->setVelocity({ speed * playerDirection, physics_body->getVelocity().y });
+			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C(300.0f)));
+			body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 		}),
 		ax::DelayTime::create(.3f),
 			ax::CallFunc::create([&] { isStartUpAnimationDone = true; }),
@@ -200,8 +213,8 @@ void CatPlayer::tick(f32 dt)
 {
 	Node::update(dt);
 
-	jump_particles->setPosition(player_sprite->getPosition());
-	wall_jump_particles->setPosition(player_sprite->getPosition());
+	jump_particles->setPosition(body_anchor->getPosition());
+	wall_jump_particles->setPosition(body_anchor->getPosition());
 
 	player_sprite->setScale(3 * playerDirection, 3);
 	player_shadow_sprite->setScale(3.33 * playerDirection, 3.33);
@@ -209,13 +222,6 @@ void CatPlayer::tick(f32 dt)
 	controllerJump.setValue(Darkness::getInstance()->getKeyState(ax::Controller::Key::BUTTON_A).isPressed);
 	if (controllerJump.isChanged() && !actionButtonPress)
 		actionButtonPress = controllerJump.getValue();
-
-	camWobbleTime += dt;
-	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x, camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
-	Vec2 fCamPos = camPosW + (body->getPosition() - camPos) * (camDisplaceVector / 100.0);
-	playerSnapPlane = Vec2(LERP(playerSnapPlane.x, Math::snap(body->getPositionX() * camSnapFactorVector.x, camSnapPixelVector.x), camSnapLerpVector.x * dt),
-		LERP(playerSnapPlane.y, Math::snap(body->getPositionY() * camSnapFactorVector.y, camSnapPixelVector.y), camSnapLerpVector.y * dt));
-	cam->setPosition(fCamPos + playerSnapPlane);
 
 	if (debugMode) {
 		if (!debugDrawNode) {
@@ -231,17 +237,14 @@ void CatPlayer::tick(f32 dt)
 		debugDrawNode->drawLine(Vec2(startVec3.x + 12, startVec3.y), Vec2(endVec3.x + 12, endVec3.y), Color4B::MAGENTA);
 		debugDrawNode->drawLine(Vec2(startVec3.x - 12, startVec3.y), Vec2(endVec3.x - 12, endVec3.y), Color4B::MAGENTA);
 
-		ax::Vec2 avg{};
-		Math::getVec2Average(avg, contactDebug, 2);
-
 		for (int i = 0; i < debugLineTraceY._list.size() - 1; i++) {
-			auto fuzzyVec2 = Vec2(body->getPositionX(), debugLineTraceY.at(i).y);
-			debugDrawNode->drawDot(debugLineTraceY.at(i), 3, fuzzyVec2.fuzzyEquals(body->getPosition(), 64) ? Color4B::RED : Color4B::BLUE);
-			debugDrawNode->drawLine(debugLineTraceY.at(i), debugLineTraceY.at(i + 1), Color4B::GREEN);
+			auto fuzzyVec2 = Vec2(body_anchor->getPositionX(), FROM_B2_C(debugLineTraceY.at(i).y));
+			debugDrawNode->drawDot(debugLineTraceY.at(i), 3, fuzzyVec2.fuzzyEquals(body_anchor->getPosition(), 32) ? Color4B::RED : Color4B::BLUE);
+			debugDrawNode->drawLine(debugLineTraceY.at(i), (debugLineTraceY.at(i + 1)), Color4B::GREEN);
 		}
-		debugDrawNode->drawLine(debugLineTraceY.at(debugLineTraceY._list.size() - 1), body->getPosition(), Color4B::GREEN);
-		avg.x = body->getPositionX();
-		debugDrawNode->drawDot(debugLineTraceY.at(debugLineTraceY._list.size() - 1), 3, avg.fuzzyEquals(body->getPosition(), 64) ? Color4B::RED : Color4B::BLUE);
+		debugDrawNode->drawLine(debugLineTraceY.at(debugLineTraceY._list.size() - 1), body_anchor->getPosition(), Color4B::GREEN);
+		auto fuzzyVec2 = Vec2(body_anchor->getPositionX(), debugLineTraceY.at(debugLineTraceY._list.size() - 1).y);
+		debugDrawNode->drawDot(debugLineTraceY.at(debugLineTraceY._list.size() - 1), 3, fuzzyVec2.fuzzyEquals(body_anchor->getPosition(), 64) ? Color4B::RED : Color4B::BLUE);
 	}
 
 	if (!hasTouchedGround && !isOnGround()) {
@@ -258,7 +261,7 @@ void CatPlayer::tick(f32 dt)
 		player_sprite->setSpriteFrame(idleAnimationFrames[floor(idleAnimCurrentIndex)]);
 	}
 	else if (currentAnim == "wall_turn") {
-		idleAnimCurrentIndex += dt * 14;
+		idleAnimCurrentIndex += dt * 10;
 
 		if (idleAnimCurrentIndex >= 2)
 		{
@@ -390,7 +393,7 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 		contactDebug[i] = points[i];
 
 	Math::getVec2Average(avg, contactDebug, 2);
-	avg.x = body->getPositionX();
+	avg.x = body_anchor->getPositionX();
 
 	if (debugMode)
 		debugLineTraceY.push_back(avg);
@@ -399,15 +402,15 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 	{
 		lastCollisionIndex |= ONE_WAY_COLLISION_INDEX;
 
-		if (avg.fuzzyEquals(body->getPosition(), 16) && physics_body->getVelocity().y > 1)
-			DISCARD else if (!avg.fuzzyEquals(body->getPosition(), 16)) COLLIDE else DISCARD
+		if (avg.fuzzyEquals(body_anchor->getPosition(), 16) && body->GetLinearVelocity().y > 1)
+			DISCARD else if (!avg.fuzzyEquals(body_anchor->getPosition(), 16)) COLLIDE else DISCARD
 	}
 
 	if (C_OR_C(OPPOSITE_WAY_COLLISION_INDEX))
 	{
 		lastCollisionIndex |= OPPOSITE_WAY_COLLISION_INDEX;
 
-		if (avg.fuzzyEquals(body->getPosition(), 20) && physics_body->getVelocity().y < -1)
+		if (avg.fuzzyEquals(body_anchor->getPosition(), 20) && body->GetLinearVelocity().y < -1)
 			DISCARD else COLLIDE
 	}
 
@@ -430,7 +433,7 @@ bool CatPlayer::onContactBegin(ax::PhysicsContact& contact)
 	{
 		lastCollisionIndex |= DISABLE_TURN_COLLISION_INDEX;
 
-		if (avg.fuzzyEquals(body->getPosition(), 16))
+		if (avg.fuzzyEquals(body_anchor->getPosition(), 16))
 			DISCARD else COLLIDE
 	}
 
@@ -452,18 +455,16 @@ bool CatPlayer::onContactSeperate(ax::PhysicsContact& contact)
 	lastCollisionIndex &= ~LEFT_ONLY_COLLISION_INDEX;
 
 	lastValidDirection = playerDirection * -1;
-	lastValidPosition = body->getPosition();
+	lastValidPosition = PTM_B2_2_VEC2(body->GetPosition());
 
 	return true;
 }
 
-void CatPlayer::physicsPreTick()
+void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 {
 	lastCollisionIndex &= ~ACTION_HAS_JUMPED_THIS_FRAME;
 
-	float dt = world->deltaTime;
-
-	auto pos = body->getWorldPosition();
+	auto pos = body_anchor->getWorldPosition();
 
 	f32 prevPlayerYSpeed = playerYSpeed;
 	playerYSpeed = pos.y;
@@ -477,74 +478,84 @@ void CatPlayer::physicsPreTick()
 	startVec3 = Vec2(pos.x, pos.y - 12);
 	endVec3 = Vec2(pos.x, pos.y - 18);
 
-	if (physics_body->getVelocity().y < -4000)
-	{
-		playerDirection = lastValidDirection;
-		physics_body->setVelocity(Vec2(physics_body->getVelocity().x, 0));
-		body->setPosition(lastValidPosition);
-	}
+	//if (body->GetLinearVelocity().y < -4000)
+	//{
+	//	playerDirection = lastValidDirection;
+	//	body->SetLinearVelocity(b2Vec2(body->GetLinearVelocity().x, 0));
+	//	body->setPosition(lastValidPosition);
+	//}
 
-	if (!isOnGround())
-	{
-		checkOtherRayCastsIndex = 0;
-		didRayCastsHit = false;
+	//if (!isOnGround())
+	//{
+	//	checkOtherRayCastsIndex = 0;
+	//	didRayCastsHit = false;
 
-		checkOtherRayCasts[0] = pos.y;
-		checkOtherRayCasts[1] = pos.y;
+	//	checkOtherRayCasts[0] = pos.y;
+	//	checkOtherRayCasts[1] = pos.y;
 
-		world->rayCast(rayCastFunc2, cpShapeFilterNew(2, 1, 1), Vec2(startVec2.x + 12, startVec2.y), Vec2(endVec2.x + 12, endVec2.y), nullptr);
-		checkOtherRayCastsIndex++;
-		world->rayCast(rayCastFunc2, cpShapeFilterNew(2, 1, 1), Vec2(startVec2.x - 12, startVec2.y), Vec2(endVec2.x - 12, endVec2.y), nullptr);
+	//	world->rayCast(rayCastFunc2, cpShapeFilterNew(2, 1, 1), Vec2(startVec2.x + 12, startVec2.y), Vec2(endVec2.x + 12, endVec2.y), nullptr);
+	//	checkOtherRayCastsIndex++;
+	//	world->rayCast(rayCastFunc2, cpShapeFilterNew(2, 1, 1), Vec2(startVec2.x - 12, startVec2.y), Vec2(endVec2.x - 12, endVec2.y), nullptr);
 
-		float contactY = 0;
-		if (checkOtherRayCasts[0] < checkOtherRayCasts[1])
-			contactY = checkOtherRayCasts[0];
-		else contactY = checkOtherRayCasts[1];
+	//	float contactY = 0;
+	//	if (checkOtherRayCasts[0] < checkOtherRayCasts[1])
+	//		contactY = checkOtherRayCasts[0];
+	//	else contactY = checkOtherRayCasts[1];
 
-		if (didRayCastsHit) {
-			body->setPositionY(contactY + 18);
-			physics_body->setVelocity({ speed * playerDirection, 0 });
-		}
-	}
+	//	if (didRayCastsHit) {
+	//		body_anchor->setPositionY(contactY + 18);
+	//		physics_body->setVelocity({ speed * playerDirection, 0 });
+	//	}
+	//}
 
 	if (cam)
 		cam->setPosition(0, 0);
 
-	if (abs(physics_body->getVelocity().x) < 1 && isStartUpAnimationDone)
+	if (abs(body->GetLinearVelocity().x) < 1 && isStartUpAnimationDone)
 	{
 		numberOfFlips += 1;
 		playerDirection *= -1;
 		changeAnimation("wall_turn");
 	}
 	
-	physics_body->setVelocity({ speed * playerDirection, physics_body->getVelocity().y });
+	body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 
 	actionRecoveryTime += dt;
 
 	isHeadBlocked = false;
-	world->rayCast(rayCastFunc1, cpShapeFilterNew(2, 1, 1), startVec1, endVec1, nullptr);
+	//world->rayCast(rayCastFunc1, cpShapeFilterNew(2, 1, 1), startVec1, endVec1, nullptr);
 
-	if (actionButtonPress) jump();
+	if (actionButtonPress) jump(dt);
 }
 
-void CatPlayer::physicsPostTick()
+void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 {
+	body_anchor->setPosition(PTM_B2_2_VEC2(body->GetPosition()));
+	body_anchor->setPositionY(body_anchor->getPositionY() + 2);
+
 	player_shadow_sprite->setSpriteFrame(player_sprite->getSpriteFrame());
 	player_shadow_sprite->setPosition(player_sprite->getPosition());
 
-	player_sprite->setPositionX(round(body->getPositionX()));
-	player_sprite->setPositionY(ceil(body->getPositionY()));
+	player_sprite->setPositionX(round(body_anchor->getPositionX()));
+	player_sprite->setPositionY(ceil(body_anchor->getPositionY()));
+
+	camWobbleTime += dt;
+	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x, camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
+	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);
+	playerSnapPlane = Vec2(LERP(playerSnapPlane.x, Math::snap(body_anchor->getPositionX() * camSnapFactorVector.x, camSnapPixelVector.x), camSnapLerpVector.x * dt),
+		LERP(playerSnapPlane.y, Math::snap(body_anchor->getPositionY() * camSnapFactorVector.y, camSnapPixelVector.y), camSnapLerpVector.y * dt));
+	cam->setPosition(fCamPos + playerSnapPlane);
 }
 
 bool CatPlayer::isOnGround()
 {
-	isPlayerOnGroundRayCast = false;
-	world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x - 12, startVec3.y), endVec3, nullptr);
-	world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x + 12, startVec3.y), endVec3, nullptr);
+	isPlayerOnGroundRayCast = true;
+	//world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x - 12, startVec3.y), endVec3, nullptr);
+	//world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x + 12, startVec3.y), endVec3, nullptr);
 	return isPlayerOnGroundRayCast;
 }
 
-void CatPlayer::jump(bool noEffect)
+void CatPlayer::jump(f32 dt, bool noEffect)
 {
 	if (speed < 1)
 		return;
@@ -574,8 +585,8 @@ void CatPlayer::jump(bool noEffect)
 		return;
 
 	if (!isHeadBlocked) {
-		physics_body->setVelocity({ physics_body->getVelocity().x, 0 });
-		physics_body->applyImpulse({ 0, 797 });
+		body->SetLinearVelocity({ body->GetLinearVelocity().x, 0 });
+		body->ApplyLinearImpulseToCenter({0, TO_B2_C(188)}, true);
 	};
 
 	actionButtonPress = false;

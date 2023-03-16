@@ -8,8 +8,8 @@
 #include "Helper/win32_error.h"
 #include "Helper/short_types.h"
 #include "Entities/CatPlayer.h"
-#include "Entities/Wall.h"
 #include "Nodes/TiledMap.h"
+#include "Nodes/PhysicsWorld.h"
 
 class GameplayScene : public cocos2d::Scene
 {
@@ -35,6 +35,7 @@ public:
 
     ax::TMXLayer* layerSolid;
 
+    DarknessPhysicsWorld* physics;
     TiledMap* map;
 
     CREATE_FUNC(GameplayScene);

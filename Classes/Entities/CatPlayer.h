@@ -1,8 +1,8 @@
 #include "Components/FollowNodeTransformComponent.h"
 #include "shared_scenes/ProtectedTypes.hpp"
-#include "Wall.h"
 #include "Helper/ChangeValue.h"
 #include "axmol.h"
+#include "Nodes/PhysicsWorld.h"
 
 #ifndef __H_CATPLAYER__
 #define __H_CATPLAYER__
@@ -21,22 +21,19 @@
 #define IS_PROP_NOT_NULL_AND_FALSE(L,P) (!L->getProperty(P).isNull() && !L->getProperty(P).asBool())
 #define IS_PROP_NOT_NULL_AND_TRUE(L,P) (!L->getProperty(P).isNull() && L->getProperty(P).asBool())
 
-class CatPlayer : public ax::Node {
+class CatPlayer : public ax::Node, public b2ContactListener {
 public:
-	static CatPlayer* createEntity();
-	ax::Node* body;
-	ax::Node* player_turn_dir;
-	ax::Node* player_turn;
+	static CatPlayer* createPhysicalEntity(b2World* world);
+
+	b2Body* body;
+	ax::Node* body_anchor;
 	ax::Sprite* player_sprite;
 	ax::Sprite* player_shadow_sprite;
-	ax::PhysicsBody* physics_body;
-	ax::PhysicsBody* player_turn_hitbox;
 	ax::ParticleSystem* jump_particles;
 	ax::ParticleSystem* wall_jump_particles;
 
 	bool isTurnLocked = false;
 	ax::MotionStreak* trail;
-	ax::EventListenerPhysicsContactWithGroup* contactor;
 
 	std::string currentAnim;
 
@@ -47,7 +44,7 @@ public:
 	std::vector<std::string> staggerAnimationFrames;
 
 	i8 lastValidDirection = 0;
-	ax::Vec2 lastValidPosition = ax::Vec2::ZERO;
+	ax::Vec2 lastValidPosition = {0, 0};
 
 	ax::Camera* cam;
 	bool init();
@@ -83,7 +80,7 @@ public:
 	ChangeValueBool controllerJump;
 
 	CatPlayer() {
-		debugLineTraceY = MaxPushList<ax::Vec2>(10);
+		debugLineTraceY = MaxPushList<ax::Vec2>(i8(10));
 		camPos = ax::Vec2::ZERO;
 		speed = 0;
 		playerDirection = 1;
@@ -119,11 +116,11 @@ public:
 	bool hasTouchedGround = false;
 	bool isOnGround();
 
-	ax::PhysicsWorld* world;
-	void physicsPreTick();
-	void physicsPostTick();
+	b2World* world;
+	void physicsPreStep(DarknessPhysicsWorld* world, f32 dt);
+	void physicsPostStep(DarknessPhysicsWorld* world, f32 dt);
 
-	void jump(bool noEffect = false);
+	void jump(f32 dt, bool noEffect = false);
 
 	ax::Vec2 startVec1, endVec1;
 	ax::Vec2 startVec2, endVec2;
