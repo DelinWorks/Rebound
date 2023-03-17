@@ -544,7 +544,8 @@ void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);
 	playerSnapPlane = Vec2(LERP(playerSnapPlane.x, Math::snap(body_anchor->getPositionX() * camSnapFactorVector.x, camSnapPixelVector.x), camSnapLerpVector.x * dt),
 		LERP(playerSnapPlane.y, Math::snap(body_anchor->getPositionY() * camSnapFactorVector.y, camSnapPixelVector.y), camSnapLerpVector.y * dt));
-	cam->setPosition(fCamPos + playerSnapPlane);
+	cam->setPosition(body_anchor->getPosition());
+	cam->setZoom(0.1);
 }
 
 bool CatPlayer::isOnGround()

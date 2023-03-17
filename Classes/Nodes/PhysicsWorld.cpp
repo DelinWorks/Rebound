@@ -62,6 +62,14 @@ void DarknessPhysicsWorld::EndContact(b2Contact* contact)
 
 void DarknessPhysicsWorld::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 {
+	b2Body* body = nullptr;
+
+	if (contact->GetFixtureA()->GetBody()->GetType() == b2_dynamicBody)
+		body = contact->GetFixtureA()->GetBody();
+
+	if (body) {
+		body->SetTransform({body->GetPosition().x, float(body->GetPosition().y + 0.001)}, 0);
+	}
 }
 
 void DarknessPhysicsWorld::PostSolve(b2Contact* contact, const b2Manifold* oldManifold)

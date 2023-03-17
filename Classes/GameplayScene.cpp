@@ -37,7 +37,7 @@ bool GameplayScene::init()
     physics = new DarknessPhysicsWorld();
     if (physics->init({ 0, -24.79 * 2 }))
         addChild(physics, 10);
-    physics->SetContinuousPhysics(false);
+    physics->SetContinuousPhysics(true);
     physics->debug(true);
 
     physics->preStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPreStep(world, dt); };
