@@ -62,13 +62,24 @@ void DarknessPhysicsWorld::EndContact(b2Contact* contact)
 
 void DarknessPhysicsWorld::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 {
-	b2Body* body = nullptr;
+	// This portion of code fixes a bug that plagues every physics engine in the world,
+	// This is mainly a work-around and is only suitable for fixed rotation bodies.
+	// 
+	// It prevents the player from colliding in the corner of another box that the player
+	// has just touched only if that box happens to be non-batched or is on another layer.
+	// 
+	// It simply works by shifting the body of the player up by 0.001 before the collision
+	// solver does anything, and that prevents the player from turning because it got
+	// caught on a corner, this value is choosen such that it has a significant numerical
+	// value that the solver ignores, but has little to no visual/physical impact!
 
-	if (contact->GetFixtureA()->GetBody()->GetType() == b2_dynamicBody)
-		body = contact->GetFixtureA()->GetBody();
-
-	if (body) {
-		body->SetTransform({body->GetPosition().x, float(body->GetPosition().y + 0.001)}, 0);
+	{
+		b2Body* body = nullptr;
+		if (contact->GetFixtureA()->GetBody()->GetType() == b2_dynamicBody)
+			body = contact->GetFixtureA()->GetBody();
+		if (body) {
+			body->SetTransform({ body->GetPosition().x, float(body->GetPosition().y + 0.001) }, 0);
+		}
 	}
 }
 
