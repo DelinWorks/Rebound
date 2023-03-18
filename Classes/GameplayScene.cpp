@@ -89,9 +89,8 @@ void GameplayScene::update(f32 dt)
     int physicsTPS = 1.0 / dt;
     
     physicsTPS = physicsTPS < 120 ? 120 : physicsTPS;
-    physicsTPS = physicsTPS > 240 ? 240 : physicsTPS;
 
-    physicsTPS *= 1;
+    physicsTPS *= 2;
 
     if (lastPhysicsDt + 10 < currentPhysicsDt)
         lastPhysicsDt = currentPhysicsDt;
@@ -101,6 +100,8 @@ void GameplayScene::update(f32 dt)
         lastPhysicsDt += 1.0 / physicsTPS;
         physics->update(1.0 / physicsTPS);
     }
+
+    p->tick(dt);
 }
 
 void GameplayScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)

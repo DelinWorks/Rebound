@@ -229,6 +229,8 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
                             fixtureDef.friction = 0;
                             fixtureDef.restitution = 0;
                             body->CreateFixture(&fixtureDef);
+
+                            solidCollCount++;
                         }
                     }
                 }
@@ -251,7 +253,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
                         float offsetX = Math::map(x, 0.0, mapSize.x, -mapSizeInPixels.x, mapSizeInPixels.x);
                         float offsetY = Math::map(mapSize.y - y, 0.0, mapSize.y, -mapSizeInPixels.y, mapSizeInPixels.y);
                         auto transform = PTM_VEC2_2_B2(Vec2(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0),
-                            offsetY * (relativeSize / tile.y) - (relativeSize / 2.0)));
+                            (offsetY * (relativeSize / tile.y) - (relativeSize / 2.0)) - 6));
                         player->body->SetTransform(transform, 0);
                         player->lastValidPosition = PTM_B2_2_VEC2(player->body->GetPosition());
                         player->debugLineTraceY.fill(PTM_B2_2_VEC2(player->body->GetPosition()));
@@ -346,9 +348,6 @@ TiledMap::~TiledMap() {
 }
 
 void TiledMap::update(f32 dt) {
-
-    player->tick(dt);
-
     for (auto&& c : _children)
     {
         auto p = DCAST(ax::ParallaxNode, c);

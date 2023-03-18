@@ -21,6 +21,18 @@
 #define IS_PROP_NOT_NULL_AND_FALSE(L,P) (!L->getProperty(P).isNull() && !L->getProperty(P).asBool())
 #define IS_PROP_NOT_NULL_AND_TRUE(L,P) (!L->getProperty(P).isNull() && L->getProperty(P).asBool())
 
+class CatPlayer;
+
+class RayCastJumpCallback : public b2RayCastCallback
+{
+public:
+	RayCastJumpCallback(CatPlayer* player) : player(player) {}
+
+	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
+
+	CatPlayer* player;
+};
+
 class CatPlayer : public ax::Node, public b2ContactListener {
 public:
 	static CatPlayer* createPhysicalEntity(b2World* world);
@@ -79,7 +91,7 @@ public:
 	MaxPushList<ax::Vec2> debugLineTraceY;
 	ChangeValueBool controllerJump;
 
-	CatPlayer() {
+	CatPlayer() : jumpCallback(this) {
 		debugLineTraceY = MaxPushList<ax::Vec2>(i8(10));
 		camPos = ax::Vec2::ZERO;
 		speed = 0;
@@ -129,6 +141,7 @@ public:
 	ax::PhysicsRayCastCallbackFunc rayCastFunc1;
 	ax::PhysicsRayCastCallbackFunc rayCastFunc2;
 	ax::PhysicsRayCastCallbackFunc rayCastFunc3;
+	RayCastJumpCallback jumpCallback;
 	f32 playerYSpeed;
 	bool teleportPlayer = false;
 	bool isPlayerOnGroundRayCast = false;

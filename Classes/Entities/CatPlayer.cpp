@@ -22,21 +22,25 @@ bool CatPlayer::init()
 	{
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
+		b2BodyUserData d;
+		d.pointer = RCAST<uintptr_t>(this);
+		bodyDef.userData = d;
 		body = world->CreateBody(&bodyDef);
 		b2PolygonShape staticBox;
-		staticBox.SetAsBox(TO_B2_C(14), TO_B2_C(15));
+		staticBox.SetAsBox(TO_B2_C(16.1), TO_B2_C(10));
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &staticBox;
 		fixtureDef.density = 1;
 		fixtureDef.friction = 0;
 		fixtureDef.restitution = 0;
-		body->SetFixedRotation(true);
 		b2MassData massData;
 		massData.center = b2Vec2_zero;
 		massData.I = 0;
 		massData.mass = 0;
+		body->SetFixedRotation(true);
 		body->SetMassData(&massData);
 		body->CreateFixture(&fixtureDef);
+		body->SetEnabled(false);
 	}
 
 	body_anchor = Node::create();
@@ -144,55 +148,56 @@ bool CatPlayer::init()
 	staggerAnimationFrames.push_back("player_jump_2");
 	staggerAnimationFrames.push_back("player_jump_1");
 
-	rayCastFunc1 = [&] (PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
-		if (
-			~info.shape->getBody()->getTag() & ONE_WAY_COLLISION_INDEX
-			&& ~info.shape->getBody()->getTag() & DISABLE_TURN_COLLISION_INDEX
-			&& ~info.shape->getBody()->getTag() & RIGHT_ONLY_COLLISION_INDEX
-			&& ~info.shape->getBody()->getTag() & LEFT_ONLY_COLLISION_INDEX
-			)
-			isHeadBlocked = true;
-		return false;
-	};
+	//rayCastFunc1 = [&] (PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
+	//	if (
+	//		~info.shape->getBody()->getTag() & ONE_WAY_COLLISION_INDEX
+	//		&& ~info.shape->getBody()->getTag() & DISABLE_TURN_COLLISION_INDEX
+	//		&& ~info.shape->getBody()->getTag() & RIGHT_ONLY_COLLISION_INDEX
+	//		&& ~info.shape->getBody()->getTag() & LEFT_ONLY_COLLISION_INDEX
+	//		)
+	//		isHeadBlocked = true;
+	//	return false;
+	//};
 
-	rayCastFunc2 = [&](PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
-		checkOtherRayCasts[checkOtherRayCastsIndex] = info.contact.y;
-		if (~info.shape->getBody()->getTag() & OPPOSITE_WAY_COLLISION_INDEX)
-			didRayCastsHit = true;
-		else return true;
-		return false;
-	};
+	//rayCastFunc2 = [&](PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
+	//	checkOtherRayCasts[checkOtherRayCastsIndex] = info.contact.y;
+	//	if (~info.shape->getBody()->getTag() & OPPOSITE_WAY_COLLISION_INDEX)
+	//		didRayCastsHit = true;
+	//	else return true;
+	//	return false;
+	//};
 
-	rayCastFunc3 = [&](PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
+	//rayCastFunc3 = [&](PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data) -> bool {
 
-		auto layer = DCAST(ax::FastTMXLayer, info.shape->getBody()->getOwner()->getParent());
-		if (layer) {
-			auto prop = layer->getProperty("jump_particle_tint");
-			if (!prop.isNull()) {
-				auto color = Color4F(ColorConversion::hex2argb(prop.asString()));
-				jump_particles->setStartColor(color);
-				color.a = 0;
-				jump_particles->setEndColor(color);
-			}
-			jump_particles->setBlendAdditive(IS_PROP_NOT_NULL_AND_TRUE(layer, "jump_particle_blend"));
-		}
+	//	auto layer = DCAST(ax::FastTMXLayer, info.shape->getBody()->getOwner()->getParent());
+	//	if (layer) {
+	//		auto prop = layer->getProperty("jump_particle_tint");
+	//		if (!prop.isNull()) {
+	//			auto color = Color4F(ColorConversion::hex2argb(prop.asString()));
+	//			jump_particles->setStartColor(color);
+	//			color.a = 0;
+	//			jump_particles->setEndColor(color);
+	//		}
+	//		jump_particles->setBlendAdditive(IS_PROP_NOT_NULL_AND_TRUE(layer, "jump_particle_blend"));
+	//	}
 
-		if (info.shape->getBody()->getTag() & DISABLE_JUMP_COLLISION_INDEX)
-			lastCollisionIndex |= DISABLE_JUMP_COLLISION_INDEX;
+	//	if (info.shape->getBody()->getTag() & DISABLE_JUMP_COLLISION_INDEX)
+	//		lastCollisionIndex |= DISABLE_JUMP_COLLISION_INDEX;
 
-		isPlayerOnGroundRayCast = true;
-		return false;
-	};
+	//	isPlayerOnGroundRayCast = true;
+	//	return false;
+	//};
 
 	runAction(ax::Sequence::create(
 		ax::DelayTime::create(1),
+		ax::CallFunc::create([&] { body->SetEnabled(true); }),
 		ax::CallFunc::create([&] {
 			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
-			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C(300.0f)));
+			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C(300)));
 			body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 		}),
 		ax::DelayTime::create(.3f),
-			ax::CallFunc::create([&] { isStartUpAnimationDone = true; }),
+		ax::CallFunc::create([&] { isStartUpAnimationDone = true; }),
 		_NOTHING
 	));
 
@@ -234,8 +239,8 @@ void CatPlayer::tick(f32 dt)
 		debugDrawNode->drawLine(startVec1, endVec1, Color4B::GREEN);
 		debugDrawNode->drawLine(Vec2(startVec2.x + 12, startVec2.y), Vec2(endVec2.x + 12, endVec2.y), Color4B::GREEN);
 		debugDrawNode->drawLine(Vec2(startVec2.x - 12, startVec2.y), Vec2(endVec2.x - 12, endVec2.y), Color4B::GREEN);
-		debugDrawNode->drawLine(Vec2(startVec3.x + 12, startVec3.y), Vec2(endVec3.x + 12, endVec3.y), Color4B::MAGENTA);
-		debugDrawNode->drawLine(Vec2(startVec3.x - 12, startVec3.y), Vec2(endVec3.x - 12, endVec3.y), Color4B::MAGENTA);
+		debugDrawNode->drawLine(Vec2(startVec3.x + 14, startVec3.y), Vec2(endVec3.x + 14, endVec3.y), Color4B::RED);
+		debugDrawNode->drawLine(Vec2(startVec3.x - 14, startVec3.y), Vec2(endVec3.x - 14, endVec3.y), Color4B::RED);
 
 		for (int i = 0; i < debugLineTraceY._list.size() - 1; i++) {
 			auto fuzzyVec2 = Vec2(body_anchor->getPositionX(), FROM_B2_C(debugLineTraceY.at(i).y));
@@ -469,14 +474,14 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 	f32 prevPlayerYSpeed = playerYSpeed;
 	playerYSpeed = pos.y;
 
-	startVec1 = Vec2(pos.x, pos.y);
-	endVec1 = Vec2(pos.x, pos.y + 20);
+	//startVec1 = Vec2(pos.x, pos.y);
+	//endVec1 = Vec2(pos.x, pos.y + 20);
 
-	startVec2 = Vec2(pos.x, pos.y - 12);
-	endVec2 = Vec2(pos.x, pos.y - 12 - clampf((prevPlayerYSpeed - playerYSpeed) * 2, 0, 99999));
+	//startVec2 = Vec2(pos.x, pos.y - 12);
+	//endVec2 = Vec2(pos.x, pos.y - 12 - clampf((prevPlayerYSpeed - playerYSpeed) * 2, 0, 99999));
 
-	startVec3 = Vec2(pos.x, pos.y - 12);
-	endVec3 = Vec2(pos.x, pos.y - 18);
+	startVec3 = Vec2(pos.x, pos.y);
+	endVec3 = Vec2(pos.x, pos.y - 16);
 
 	//if (body->GetLinearVelocity().y < -4000)
 	//{
@@ -531,7 +536,7 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 {
 	body_anchor->setPosition(PTM_B2_2_VEC2(body->GetPosition()));
-	body_anchor->setPositionY(body_anchor->getPositionY() + 2);
+	body_anchor->setPositionY(body_anchor->getPositionY() + 6);
 
 	player_shadow_sprite->setSpriteFrame(player_sprite->getSpriteFrame());
 	player_shadow_sprite->setPosition(player_sprite->getPosition());
@@ -539,20 +544,27 @@ void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 	player_sprite->setPositionX(round(body_anchor->getPositionX()));
 	player_sprite->setPositionY(ceil(body_anchor->getPositionY()));
 
+	cam->setZoom(3);
 	camWobbleTime += dt;
 	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x, camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
 	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);
 	playerSnapPlane = Vec2(LERP(playerSnapPlane.x, Math::snap(body_anchor->getPositionX() * camSnapFactorVector.x, camSnapPixelVector.x), camSnapLerpVector.x * dt),
 		LERP(playerSnapPlane.y, Math::snap(body_anchor->getPositionY() * camSnapFactorVector.y, camSnapPixelVector.y), camSnapLerpVector.y * dt));
-	cam->setPosition(body_anchor->getPosition());
-	cam->setZoom(0.1);
+	cam->setPosition(fCamPos + playerSnapPlane);
 }
 
 bool CatPlayer::isOnGround()
 {
-	isPlayerOnGroundRayCast = true;
+	auto pos = body->GetPosition();
+	b2Vec2 p1 = b2Vec2(pos.x, pos.y);
+	b2Vec2 p2 = b2Vec2(pos.x, pos.y - TO_B2_C(12));
+
+	isPlayerOnGroundRayCast = false;
 	//world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x - 12, startVec3.y), endVec3, nullptr);
 	//world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x + 12, startVec3.y), endVec3, nullptr);
+	world->RayCast(&jumpCallback, p1, b2Vec2(p2.x + TO_B2_C(14), p2.y));
+	if (!isPlayerOnGroundRayCast)
+		world->RayCast(&jumpCallback, p1, b2Vec2(p2.x - TO_B2_C(14), p2.y));
 	return isPlayerOnGroundRayCast;
 }
 
@@ -586,8 +598,7 @@ void CatPlayer::jump(f32 dt, bool noEffect)
 		return;
 
 	if (!isHeadBlocked) {
-		body->SetLinearVelocity({ body->GetLinearVelocity().x, 0 });
-		body->ApplyLinearImpulseToCenter({0, TO_B2_C(188)}, true);
+		body->SetLinearVelocity({ body->GetLinearVelocity().x, TO_B2_C(820)});
 	};
 
 	actionButtonPress = false;
@@ -595,4 +606,13 @@ void CatPlayer::jump(f32 dt, bool noEffect)
 	if (!noEffect)
 		jump_particles->addParticles(6);
 	actionRecoveryTime = 0;
+}
+
+float RayCastJumpCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
+{
+	if (fixture->GetBody() != player->body) {
+		player->isPlayerOnGroundRayCast = true;
+		return 0;
+	} else
+		return 1;
 }

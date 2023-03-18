@@ -36,7 +36,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
     Darkness::getInstance()->console.args = lpCmdLine;
 
     // create the application instance
-#ifdef _DEBUG
+#ifdef NULL
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
