@@ -90,7 +90,7 @@ void GameplayScene::update(f32 dt)
     
     physicsTPS = physicsTPS < 120 ? 120 : physicsTPS;
 
-    physicsTPS *= 2;
+    physicsTPS *= 1;
 
     if (lastPhysicsDt + 10 < currentPhysicsDt)
         lastPhysicsDt = currentPhysicsDt;

@@ -193,7 +193,7 @@ bool CatPlayer::init()
 		ax::CallFunc::create([&] { body->SetEnabled(true); }),
 		ax::CallFunc::create([&] {
 			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
-			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C(300)));
+			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C(3000)));
 			body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 		}),
 		ax::DelayTime::create(.3f),
@@ -544,7 +544,6 @@ void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 	player_sprite->setPositionX(round(body_anchor->getPositionX()));
 	player_sprite->setPositionY(ceil(body_anchor->getPositionY()));
 
-	cam->setZoom(3);
 	camWobbleTime += dt;
 	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x, camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
 	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);

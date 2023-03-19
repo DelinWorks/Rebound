@@ -30,7 +30,7 @@ public:
 
 	bool init(ax::Vec2 gravity);
 
-	void update(f32 dt, int v = 16, int p = 6);
+	void update(f32 dt, int v = 1, int p = 1);
 
 	void debug(bool enabled);
 

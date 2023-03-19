@@ -68,7 +68,7 @@ void DarknessPhysicsWorld::PreSolve(b2Contact* contact, const b2Manifold* oldMan
 	// It prevents the player from colliding in the corner of another box that the player
 	// has just touched only if that box happens to be non-batched or is on another layer.
 	// 
-	// It simply works by shifting the body of the player up by 0.003 before the collision
+	// It simply works by shifting the body of the player up by 0.006 before the collision
 	// solver does anything, and that prevents the player from turning because it got
 	// caught on a corner, this value is choosen such that it has a significant numerical
 	// value that the solver ignores, but has little to no visual/physical impact!
