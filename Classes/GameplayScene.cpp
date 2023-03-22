@@ -42,6 +42,8 @@ bool GameplayScene::init()
     physics->preStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPreStep(world, dt); };
     physics->postStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPostStep(world, dt); };
 
+    physics->endContactCallback = [&](b2Contact* contact) -> void { p->EndContact(contact); };
+
     p = CatPlayer::createPhysicalEntity(physics);
     p->attachCamera(_defaultCamera);
     p->retain();

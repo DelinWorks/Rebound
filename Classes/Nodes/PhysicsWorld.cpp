@@ -25,8 +25,13 @@ bool DarknessPhysicsWorld::init(ax::Vec2 gravity) {
 
 	SetContactListener(this);
 
-	preStepCallback  = [] (DarknessPhysicsWorld * world, f32 dt) -> void {};
-	postStepCallback = [] (DarknessPhysicsWorld * world, f32 dt) -> void {};
+	preStepCallback  = [] (DarknessPhysicsWorld*, f32) -> void {};
+	postStepCallback = [] (DarknessPhysicsWorld*, f32) -> void {};
+
+	beginContactCallback = [] (b2Contact*) -> void {};
+	endContactCallback   = [] (b2Contact*) -> void {};
+	preSolveCallback     = [] (b2Contact*, const b2Manifold*) -> void {};
+	postSolveCallback    = [] (b2Contact*, const b2Manifold*) -> void {};
 
 	autorelease();
 	return true;
@@ -58,6 +63,7 @@ void DarknessPhysicsWorld::BeginContact(b2Contact* contact)
 
 void DarknessPhysicsWorld::EndContact(b2Contact* contact)
 {
+	endContactCallback(contact);
 }
 
 void DarknessPhysicsWorld::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)

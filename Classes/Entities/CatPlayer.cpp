@@ -193,7 +193,7 @@ bool CatPlayer::init()
 		ax::CallFunc::create([&] { body->SetEnabled(true); }),
 		ax::CallFunc::create([&] {
 			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
-			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C((32 * tileRatio / (0.3429 / 10) * 46))));
+			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C((300 * tileRatio/* / (0.3429 / 10) * 46*/))));
 			body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 		}),
 		ax::DelayTime::create(.3f),
@@ -324,8 +324,8 @@ void CatPlayer::onKeyPressed(ax::EventKeyboard::KeyCode keyCode)
 		actionButtonPress = true;
 	}
 
-	//if (keyCode == key::KEY_J)
-	//	teleportPlayer = true;
+	if (keyCode == key::KEY_J)
+		teleportPlayer = true;
 }
 
 void CatPlayer::onKeyReleased(ax::EventKeyboard::KeyCode keyCode)
@@ -516,6 +516,17 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 	//	}
 	//}
 
+	if (teleportPlayer) {
+
+		auto pos = body->GetPosition();
+		b2Vec2 p1 = b2Vec2(pos.x, pos.y);
+		b2Vec2 p2 = b2Vec2(pos.x, pos.y - TO_B2_C(999));
+
+		world->RayCast(&teleportCallback, p1, p2);
+
+		teleportPlayer = false;
+	}
+	
 	if (cam)
 		cam->setPosition(0, 0);
 
@@ -563,6 +574,12 @@ void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 		LERP(playerSnapPlaneLerp.y, playerSnapPlane.y, camSnapLerpVector.y * dt));
 	cam->setZoom(camZoomValue * tileRatio);
 	cam->setPosition(fCamPos + playerSnapPlaneLerp);
+}
+
+void CatPlayer::EndContact(b2Contact* contact)
+{
+	if (contact->GetFixtureB()->GetBody() == body && body->GetLinearVelocity().y < 1)
+		teleportPlayer = true;
 }
 
 bool CatPlayer::isOnGround()
@@ -627,4 +644,10 @@ float RayCastJumpCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point
 		return 0;
 	} else
 		return 1;
+}
+
+float RayCastTeleportCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
+{
+	player->body->SetTransform(point, 0);
+	return 0;
 }

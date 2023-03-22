@@ -33,6 +33,16 @@ public:
 	CatPlayer* player;
 };
 
+class RayCastTeleportCallback : public b2RayCastCallback
+{
+public:
+	RayCastTeleportCallback(CatPlayer* player) : player(player) {}
+
+	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
+
+	CatPlayer* player;
+};
+
 class CatPlayer : public ax::Node, public b2ContactListener {
 public:
 	static CatPlayer* createPhysicalEntity(b2World* world);
@@ -95,7 +105,7 @@ public:
 	MaxPushList<ax::Vec2> debugLineTraceY;
 	ChangeValueBool controllerJump;
 
-	CatPlayer() : jumpCallback(this) {
+	CatPlayer() : jumpCallback(this), teleportCallback(this) {
 		debugLineTraceY = MaxPushList<ax::Vec2>(i8(10));
 		camPos = ax::Vec2::ZERO;
 		speed = 0;
@@ -136,6 +146,11 @@ public:
 	void physicsPreStep(DarknessPhysicsWorld* world, f32 dt);
 	void physicsPostStep(DarknessPhysicsWorld* world, f32 dt);
 
+	//virtual void BeginContact(b2Contact* contact);
+	virtual void EndContact(b2Contact* contact);
+	//virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+	//virtual void PostSolve(b2Contact* contact, const b2Manifold* oldManifold);
+
 	void jump(f32 dt, bool noEffect = false);
 
 	ax::Vec2 startVec1, endVec1;
@@ -146,6 +161,7 @@ public:
 	ax::PhysicsRayCastCallbackFunc rayCastFunc2;
 	ax::PhysicsRayCastCallbackFunc rayCastFunc3;
 	RayCastJumpCallback jumpCallback;
+	RayCastTeleportCallback teleportCallback;
 	f32 playerYSpeed;
 	bool teleportPlayer = false;
 	bool isPlayerOnGroundRayCast = false;

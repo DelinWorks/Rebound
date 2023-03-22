@@ -34,8 +34,13 @@ public:
 
 	void debug(bool enabled);
 
-	std::function<void(DarknessPhysicsWorld* world, f32 dt)> preStepCallback;
-	std::function<void(DarknessPhysicsWorld* world, f32 dt)> postStepCallback;
+	std::function<void(DarknessPhysicsWorld*, f32)> preStepCallback;
+	std::function<void(DarknessPhysicsWorld*, f32)> postStepCallback;
+
+	std::function<void(b2Contact*)> beginContactCallback;
+	std::function<void(b2Contact*)> endContactCallback;
+	std::function<void(b2Contact*, const b2Manifold*)> preSolveCallback;
+	std::function<void(b2Contact*, const b2Manifold*)> postSolveCallback;
 
 protected:
 	virtual void BeginContact(b2Contact* contact);
