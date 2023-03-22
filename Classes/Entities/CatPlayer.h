@@ -64,13 +64,16 @@ public:
 
 	bool debugMode = false;
 
+	float tileRatio = 32;
+
 	void tick(f32 dt);
 	ax::Vec2 camPos, camWobbleSpeed, camWobbleAmount;
 	f32 camWobbleTime = 0;
 	ax::Vec2 camDisplaceVector = ax::Vec2::ZERO;
-	ax::Vec2 camSnapFactorVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapPixelVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapLerpVector = ax::Vec2::ZERO;
+	ax::Vec2 camSnapBorderVector = ax::Vec2::ZERO;
+	float camZoomValue = 1;
 	f32 speed;
 	i8 playerDirection;
 	f32 curZoom;
@@ -80,6 +83,7 @@ public:
 	bool isReceivingInputs;
 	ax::Vec2 movementDirection;
 	ax::Vec2 playerSnapPlane;
+	ax::Vec2 playerSnapPlaneLerp;
 	bool isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
 	PROTECTED(f32) playerMoveBeginEase, playerMoveStopEase;
 	bool actionButtonPress = false;

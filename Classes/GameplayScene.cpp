@@ -38,13 +38,13 @@ bool GameplayScene::init()
     if (physics->init({ 0, -24.79 * 2 }))
         addChild(physics, 10);
     physics->SetContinuousPhysics(true);
-    physics->debug(true);
 
     physics->preStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPreStep(world, dt); };
     physics->postStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPostStep(world, dt); };
 
     p = CatPlayer::createPhysicalEntity(physics);
     p->attachCamera(_defaultCamera);
+    p->retain();
 
     map = new TiledMap();
     if (map->initWithFilename(this, physics, "maps/level1/untitled.tmx", p))

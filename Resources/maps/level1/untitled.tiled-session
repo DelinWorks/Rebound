@@ -61,11 +61,11 @@
             "scaleInEditor": 5.5
         },
         "untitled.tmx": {
-            "scale": 1,
+            "scale": 5.5,
             "selectedLayer": 7,
             "viewCenter": {
-                "x": 407,
-                "y": 566
+                "x": 320.72727272727275,
+                "y": 587.2727272727273
             }
         }
     },
@@ -82,9 +82,9 @@
     "project": "untitled.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "untitled.tmx",
         "atlas_002.tsx",
         "atlas_001.tsx",
-        "untitled.tmx",
         "Sprite-0001.tsx",
         "E:/dev/axmol/tests/cpp-tests/Content/TileMaps/tile_animation_test_2.tmx",
         "E:/dev/axmol/tests/cpp-tests/Content/TileMaps/tile_animation_test.tmx",

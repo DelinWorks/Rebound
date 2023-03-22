@@ -43,6 +43,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
     player = _player;
 
     int relativeSize = 32;
+    player->tileRatio = relativeSize / 32.0;
 
     auto tmx = tiledMap = ax::FastTMXTiledMap::create(file);
 
@@ -52,10 +53,6 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
         return false;
     }
     tiledMap->retain();
-
-    //layerSolid = tmx->getLayer("Solid");
-    //auto layerPlayerSpawn = tmx->getLayer("PlayerSpawn");
-    //addChild(layerSolid);
 
     cam = scene->getDefaultCamera();
 
@@ -83,10 +80,11 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
     auto collideIfInvisible = tmx->getProperty("invisible_collision").isNull() ? true : tmx->getProperty("invisible_collision").asBool();
 
     auto cameraZoom = tmx->getProperty("camera_zoom");
-    if (!cameraZoom.isNull()) player->cam->setZoom(cameraZoom.asFloat());
+    if (!cameraZoom.isNull()) player->camZoomValue = cameraZoom.asFloat();
 
     if (IS_PROP_NOT_NULL_AND_TRUE(tmx, "debug_show_collision")) {
         player->debugMode = true;
+        world->debug(true);
     }
 
     int renderOrder = 0;
@@ -253,7 +251,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
                         float offsetX = Math::map(x, 0.0, mapSize.x, -mapSizeInPixels.x, mapSizeInPixels.x);
                         float offsetY = Math::map(mapSize.y - y, 0.0, mapSize.y, -mapSizeInPixels.y, mapSizeInPixels.y);
                         auto transform = PTM_VEC2_2_B2(Vec2(offsetX * (relativeSize / tile.x) + (relativeSize / 2.0),
-                            (offsetY * (relativeSize / tile.y) - (relativeSize / 2.0)) - 6));
+                            (offsetY * (relativeSize / tile.y) - (relativeSize / 2.0)) - (powf(player->tileRatio, 1.5) * 6)));
                         player->body->SetTransform(transform, 0);
                         player->lastValidPosition = PTM_B2_2_VEC2(player->body->GetPosition());
                         player->debugLineTraceY.fill(PTM_B2_2_VEC2(player->body->GetPosition()));
@@ -266,9 +264,9 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
             auto camWobbleSpeed = layer->getProperty("camera_wobble_speed_vector");
             auto camWobbleAmount = layer->getProperty("camera_wobble_amount_vector");
             auto camDisplaceVector = layer->getProperty("camera_displacement_vector");
-            auto camSnapFactorVector = layer->getProperty("camera_snap_factor_vector");
             auto camSnapPixelVector = layer->getProperty("camera_snap_pixel_vector");
             auto camSnapLerpVector = layer->getProperty("camera_snap_lerp_vector");
+            auto camSnapBorderVector = layer->getProperty("camera_snap_border_vector");
 
             if (!camWobbleSpeed.isNull())
                 player->camWobbleSpeed = GameUtils::Parser::parseVector2D(camWobbleSpeed.asString());
@@ -279,14 +277,14 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
             if (!camDisplaceVector.isNull())
                 player->camDisplaceVector = GameUtils::Parser::parseVector2D(camDisplaceVector.asString());
 
-            if (!camSnapFactorVector.isNull())
-                player->camSnapFactorVector = GameUtils::Parser::parseVector2D(camSnapFactorVector.asString());
-
             if (!camSnapPixelVector.isNull())
                 player->camSnapPixelVector = GameUtils::Parser::parseVector2D(camSnapPixelVector.asString());
 
             if (!camSnapLerpVector.isNull())
                 player->camSnapLerpVector = GameUtils::Parser::parseVector2D(camSnapLerpVector.asString());
+
+            if (!camSnapBorderVector.isNull())
+                player->camSnapBorderVector = GameUtils::Parser::parseVector2D(camSnapBorderVector.asString());
         }
         else if (type == LayerTypeLabel[DECORATION]) {
             layer->setAnchorPoint({ 0.5, 0.5 });
@@ -354,7 +352,7 @@ void TiledMap::update(f32 dt) {
         if (p) {
             ax::PointObject* point = (ax::PointObject*)p->getParallaxArray()->arr[0];
             point->setOffset((player->camPos - cam->getPosition()) / -1.5);
-            p->setPosition(player->camPos - cam->getPosition());
+            p->setPosition((player->camPos - cam->getPosition() / player->tileRatio));
         }
     }
 

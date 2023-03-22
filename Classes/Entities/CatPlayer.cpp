@@ -193,7 +193,7 @@ bool CatPlayer::init()
 		ax::CallFunc::create([&] { body->SetEnabled(true); }),
 		ax::CallFunc::create([&] {
 			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
-			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C(3000)));
+			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C((32 * tileRatio / (0.3429 / 10) * 46))));
 			body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 		}),
 		ax::DelayTime::create(.3f),
@@ -216,6 +216,9 @@ void CatPlayer::attachCamera(ax::Camera* camera)
 
 void CatPlayer::tick(f32 dt)
 {
+	if (!getParent())
+		return;
+
 	Node::update(dt);
 
 	jump_particles->setPosition(body_anchor->getPosition());
@@ -516,7 +519,7 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 	if (cam)
 		cam->setPosition(0, 0);
 
-	if (abs(body->GetLinearVelocity().x) < 1 && isStartUpAnimationDone)
+	if (abs(body->GetLinearVelocity().x) ==0 && isStartUpAnimationDone)
 	{
 		numberOfFlips += 1;
 		playerDirection *= -1;
@@ -536,7 +539,7 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 {
 	body_anchor->setPosition(PTM_B2_2_VEC2(body->GetPosition()));
-	body_anchor->setPositionY(body_anchor->getPositionY() + 6);
+	body_anchor->setPositionY(body_anchor->getPositionY() + 7);
 
 	player_shadow_sprite->setSpriteFrame(player_sprite->getSpriteFrame());
 	player_shadow_sprite->setPosition(player_sprite->getPosition());
@@ -545,11 +548,21 @@ void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 	player_sprite->setPositionY(ceil(body_anchor->getPositionY()));
 
 	camWobbleTime += dt;
-	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x, camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
+	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x,
+		camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
 	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);
-	playerSnapPlane = Vec2(LERP(playerSnapPlane.x, Math::snap(body_anchor->getPositionX() * camSnapFactorVector.x, camSnapPixelVector.x), camSnapLerpVector.x * dt),
-		LERP(playerSnapPlane.y, Math::snap(body_anchor->getPositionY() * camSnapFactorVector.y, camSnapPixelVector.y), camSnapLerpVector.y * dt));
-	cam->setPosition(fCamPos + playerSnapPlane);
+	bool condX = (body_anchor->getPosition().x > (fCamPos + playerSnapPlane).x + camSnapBorderVector.x
+		|| body_anchor->getPosition().x < (fCamPos + playerSnapPlane).x + -camSnapBorderVector.x)
+		&& camSnapBorderVector != Vec2::ZERO;
+	bool condY = (body_anchor->getPosition().y > (fCamPos + playerSnapPlane).y + camSnapBorderVector.y
+		|| body_anchor->getPosition().y < (fCamPos + playerSnapPlane).y + -camSnapBorderVector.y)
+		&& camSnapBorderVector != Vec2::ZERO;
+	playerSnapPlane = Vec2(condX ? Math::snap(body_anchor->getPositionX(), camSnapPixelVector.x) : playerSnapPlane.x,
+		condY ? Math::snap(body_anchor->getPositionY(), camSnapPixelVector.y) : playerSnapPlane.y);
+	playerSnapPlaneLerp = Vec2(LERP(playerSnapPlaneLerp.x, playerSnapPlane.x, camSnapLerpVector.x * dt),
+		LERP(playerSnapPlaneLerp.y, playerSnapPlane.y, camSnapLerpVector.y * dt));
+	cam->setZoom(camZoomValue * tileRatio);
+	cam->setPosition(fCamPos + playerSnapPlaneLerp);
 }
 
 bool CatPlayer::isOnGround()
@@ -569,7 +582,7 @@ bool CatPlayer::isOnGround()
 
 void CatPlayer::jump(f32 dt, bool noEffect)
 {
-	if (speed < 1)
+	if (speed == 0)
 		return;
 
 	if (lastCollisionIndex & RIGHT_ONLY_COLLISION_INDEX)
@@ -597,7 +610,7 @@ void CatPlayer::jump(f32 dt, bool noEffect)
 		return;
 
 	if (!isHeadBlocked) {
-		body->SetLinearVelocity({ body->GetLinearVelocity().x, TO_B2_C(820)});
+		body->SetLinearVelocity({ body->GetLinearVelocity().x, TO_B2_C(830)});
 	};
 
 	actionButtonPress = false;
