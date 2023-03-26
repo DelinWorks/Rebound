@@ -2,16 +2,15 @@
 #include <string>
 #include <codecvt>
 
+#ifndef __STRINGS_H__
+#define __STRINGS_H__
+
+#define VECTOR_CHARS std::vector<char>
 #define VECTOR_STRING std::vector<std::string>
 #define VECTOR_WSTRING std::vector<std::wstring>
 
 #define CCP(d) (const char*)d
 #define CWCP(d) (const wchar_t*)d
-
-//#include "ntcvt/ntcvt.hpp"
-
-#ifndef __STRINGS_H__
-#define __STRINGS_H__
 
 #define MAX_WC2MB_ALLOCATION 1024
 
@@ -48,6 +47,18 @@ namespace Strings {
             return final;
         final.replace(start_pos, from.length(), to);
         return final;
+    }
+
+    inline void split_single_char(std::string& str, const char* delim, VECTOR_CHARS& out)
+    {
+        size_t start;
+        size_t end = 0;
+
+        while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
+        {
+            end = str.find(delim, start);
+            out.push_back(str.substr(start, end - start)[0]);
+        }
     }
 
     inline void split(std::string& str, const char* delim, VECTOR_STRING& out)

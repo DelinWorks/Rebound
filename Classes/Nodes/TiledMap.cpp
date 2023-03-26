@@ -38,6 +38,10 @@ const char* LayerTypeLabel[] = {
     "parallax",
 };
 
+#define BENCHMARK_SECTION_BEGIN(name) const char* benchmark_bb7_name = name; auto benchmark_bb7_start = std::chrono::high_resolution_clock::now();
+#define BENCHMARK_SECTION_END() auto benchmark_bb7_end = std::chrono::high_resolution_clock::now(); \
+printf("benchmark %s took: %dms", benchmark_bb7_name, std::chrono::duration_cast<std::chrono::milliseconds>(benchmark_bb7_end - benchmark_bb7_start).count());
+
 bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, std::string_view file, CatPlayer* _player)
 {
     player = _player;
@@ -45,7 +49,9 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
     int relativeSize = 32;
     player->tileRatio = relativeSize / 32.0;
 
+    BENCHMARK_SECTION_BEGIN("TMX PARSE");
     auto tmx = tiledMap = ax::FastTMXTiledMap::create(file);
+    BENCHMARK_SECTION_END();
 
     if (!tmx) {
         tiledMap = nullptr;
@@ -73,6 +79,20 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
         //if (id1 != 0 && id2 != 0 && id3 != 0) return 1;
         return 0;
     };
+
+    TMXTypeInterpreter interpreter;
+    if (!interpreter.interpret("camera_fuck_function_test", "i,i,v,e", "12,44,3.56,4")) {
+        tiledMap = nullptr;
+        return false;
+    }
+
+    interpreter.bind("camera_fuck_function_test");
+
+    auto i = interpreter.asVector(2, false);
+    if (interpreter.lastError) {
+        tiledMap = nullptr;
+        return false;
+    }
 
     int solidTileCount = 0;
     int solidCollCount = 0;

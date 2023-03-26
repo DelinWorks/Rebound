@@ -274,21 +274,26 @@ namespace GameUtils
     {
         inline Vec2 parseVector2D(std::string position)
         {
-            std::string value = position;
-            std::string::iterator end_pos = std::remove(value.begin(), value.end(), ' ');
-            value.erase(end_pos, value.end());
-            if (value.at(0) == '[')
-                value.erase(0, 1); 
-            if (value.at(value.length() - 1) == ']')
-                value.erase(value.length() - 1, value.length());
-            std::string token, strX, strY;
-            strX = value.substr(0, value.find(","));
-            value.erase(0, value.substr(0, value.find(",")).length());
-            if (value.length() != 0)
-                strY = value.substr(1, value.length());
-            if (strX.length() == 0) strX = "0";
-            if (strY.length() == 0) strY = strX;
-            return Vec2(std::stof(strX), std::stof(strY));
+            try {
+                std::string value = position;
+                std::string::iterator end_pos = std::remove(value.begin(), value.end(), ' ');
+                value.erase(end_pos, value.end());
+                if (value.at(0) == '[')
+                    value.erase(0, 1);
+                if (value.at(value.length() - 1) == ']')
+                    value.erase(value.length() - 1, value.length());
+                std::string token, strX, strY;
+                strX = value.substr(0, value.find(","));
+                value.erase(0, value.substr(0, value.find(",")).length());
+                if (value.length() != 0)
+                    strY = value.substr(1, value.length());
+                if (strX.length() == 0) strX = "0";
+                if (strY.length() == 0) strY = strX;
+                return Vec2(std::stof(strX), std::stof(strY));
+            }
+            catch (std::exception& e) {
+                return { 0,0 };
+            };
         }
 
         struct TIMESTAMP

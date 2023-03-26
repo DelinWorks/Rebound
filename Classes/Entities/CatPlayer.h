@@ -76,12 +76,17 @@ public:
 
 	float tileRatio = 32;
 
+	bool isBodyAnimated = false;
+
 	void tick(f32 dt);
+	void tickCameraSpace(f32 dt);
+
 	ax::Vec2 camPos, camWobbleSpeed, camWobbleAmount;
 	f32 camWobbleTime = 0;
 	ax::Vec2 camDisplaceVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapPixelVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapLerpVector = ax::Vec2::ZERO;
+	ax::Vec2 camSnapLerpType = ax::Vec2::ZERO;
 	ax::Vec2 camSnapBorderVector = ax::Vec2::ZERO;
 	float camZoomValue = 1;
 	f32 speed;

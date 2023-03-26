@@ -13,7 +13,7 @@
 //#define F64 double
 //#define STR std::string
 
-// signed 8 bit int (unsigned char)
+// signed 8 bit int (signed char)
 typedef std::int8_t i8;
 
 // signed 16 bit int (short)

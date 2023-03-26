@@ -37,8 +37,9 @@ bool CatPlayer::init()
 		massData.center = b2Vec2_zero;
 		massData.I = 0;
 		massData.mass = 0;
+		body->SetGravityScale(5);
 		body->SetFixedRotation(true);
-		body->SetMassData(&massData);
+		//body->SetMassData(&massData);
 		body->CreateFixture(&fixtureDef);
 		body->SetEnabled(false);
 	}
@@ -120,6 +121,9 @@ bool CatPlayer::init()
 	//physics_body->setContactTestBitmask(8);
 
 	jumpActionDelay = ax::Sequence::create(
+		//ax::CallFunc::create([&] {
+		//	body->SetLinearVelocity({ body->GetPosition().x, -9999 });
+		//}),
 		ax::DelayTime::create(.25),
 		ax::CallFunc::create([&] {
 			actionButtonPress = false;
@@ -306,6 +310,28 @@ void CatPlayer::tick(f32 dt)
 	}
 
 	if (isOnGround()) hasTouchedGround = false;
+
+	tickCameraSpace(dt);
+}
+
+void CatPlayer::tickCameraSpace(f32 dt)
+{
+	camWobbleTime += dt;
+	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x,
+		camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
+	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);
+	bool condX = (body_anchor->getPosition().x > (fCamPos + playerSnapPlane).x + camSnapBorderVector.x
+		|| body_anchor->getPosition().x < (fCamPos + playerSnapPlane).x + -camSnapBorderVector.x)
+		&& camSnapBorderVector != Vec2::ZERO;
+	bool condY = (body_anchor->getPosition().y > (fCamPos + playerSnapPlane).y + camSnapBorderVector.y
+		|| body_anchor->getPosition().y < (fCamPos + playerSnapPlane).y + -camSnapBorderVector.y)
+		&& camSnapBorderVector != Vec2::ZERO;
+	playerSnapPlane = Vec2(condX ? Math::snap(body_anchor->getPositionX(), camSnapPixelVector.x) : playerSnapPlane.x,
+		condY ? Math::snap(body_anchor->getPositionY(), camSnapPixelVector.y) : playerSnapPlane.y);
+	playerSnapPlaneLerp = Vec2(LERP(playerSnapPlaneLerp.x, playerSnapPlane.x, camSnapLerpVector.x * dt),
+		LERP(playerSnapPlaneLerp.y, playerSnapPlane.y, camSnapLerpVector.y * dt));
+	cam->setZoom(camZoomValue * tileRatio);
+	cam->setPosition(fCamPos + playerSnapPlaneLerp);
 }
 
 void CatPlayer::setInputState(bool isReceivingInputs)
@@ -520,9 +546,11 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 
 		auto pos = body->GetPosition();
 		b2Vec2 p1 = b2Vec2(pos.x, pos.y);
-		b2Vec2 p2 = b2Vec2(pos.x, pos.y - TO_B2_C(999));
+		b2Vec2 p2 = b2Vec2(pos.x, pos.y - TO_B2_C(FLT_MAX));
 
 		world->RayCast(&teleportCallback, p1, p2);
+
+		//body->SetLinearVelocity({ body->GetLinearVelocity().x, float(-123123123) });
 
 		teleportPlayer = false;
 	}
@@ -530,11 +558,12 @@ void CatPlayer::physicsPreStep(DarknessPhysicsWorld* world, f32 dt)
 	if (cam)
 		cam->setPosition(0, 0);
 
-	if (abs(body->GetLinearVelocity().x) ==0 && isStartUpAnimationDone)
+	if (abs(body->GetLinearVelocity().x) < 1 && isStartUpAnimationDone)
+		changeAnimation("wall_turn");
+	if (abs(body->GetLinearVelocity().x) == 0 && isStartUpAnimationDone)
 	{
 		numberOfFlips += 1;
 		playerDirection *= -1;
-		changeAnimation("wall_turn");
 	}
 	
 	body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
@@ -557,29 +586,12 @@ void CatPlayer::physicsPostStep(DarknessPhysicsWorld* world, f32 dt)
 
 	player_sprite->setPositionX(round(body_anchor->getPositionX()));
 	player_sprite->setPositionY(ceil(body_anchor->getPositionY()));
-
-	camWobbleTime += dt;
-	Vec2 camPosW = Vec2(camPos.x + std::cos(camWobbleTime * camWobbleSpeed.x) * camWobbleAmount.x,
-		camPos.y + std::sin(camWobbleTime * camWobbleSpeed.y) * camWobbleAmount.y);
-	Vec2 fCamPos = camPosW + (body_anchor->getPosition() - camPos) * (camDisplaceVector / 100.0);
-	bool condX = (body_anchor->getPosition().x > (fCamPos + playerSnapPlane).x + camSnapBorderVector.x
-		|| body_anchor->getPosition().x < (fCamPos + playerSnapPlane).x + -camSnapBorderVector.x)
-		&& camSnapBorderVector != Vec2::ZERO;
-	bool condY = (body_anchor->getPosition().y > (fCamPos + playerSnapPlane).y + camSnapBorderVector.y
-		|| body_anchor->getPosition().y < (fCamPos + playerSnapPlane).y + -camSnapBorderVector.y)
-		&& camSnapBorderVector != Vec2::ZERO;
-	playerSnapPlane = Vec2(condX ? Math::snap(body_anchor->getPositionX(), camSnapPixelVector.x) : playerSnapPlane.x,
-		condY ? Math::snap(body_anchor->getPositionY(), camSnapPixelVector.y) : playerSnapPlane.y);
-	playerSnapPlaneLerp = Vec2(LERP(playerSnapPlaneLerp.x, playerSnapPlane.x, camSnapLerpVector.x * dt),
-		LERP(playerSnapPlaneLerp.y, playerSnapPlane.y, camSnapLerpVector.y * dt));
-	cam->setZoom(camZoomValue * tileRatio);
-	cam->setPosition(fCamPos + playerSnapPlaneLerp);
 }
 
 void CatPlayer::EndContact(b2Contact* contact)
 {
-	if (contact->GetFixtureB()->GetBody() == body && body->GetLinearVelocity().y < 1)
-		teleportPlayer = true;
+	//if (contact->GetFixtureB()->GetBody() == body && body->GetLinearVelocity().y < 1)
+	//	teleportPlayer = true;
 }
 
 bool CatPlayer::isOnGround()
@@ -589,11 +601,9 @@ bool CatPlayer::isOnGround()
 	b2Vec2 p2 = b2Vec2(pos.x, pos.y - TO_B2_C(12));
 
 	isPlayerOnGroundRayCast = false;
-	//world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x - 12, startVec3.y), endVec3, nullptr);
-	//world->rayCast(rayCastFunc3, cpShapeFilterNew(2, 1, 1), Vec2(startVec3.x + 12, startVec3.y), endVec3, nullptr);
-	world->RayCast(&jumpCallback, p1, b2Vec2(p2.x + TO_B2_C(14), p2.y));
+	world->RayCast(&jumpCallback, p1, b2Vec2(p2.x + TO_B2_C(16), p2.y));
 	if (!isPlayerOnGroundRayCast)
-		world->RayCast(&jumpCallback, p1, b2Vec2(p2.x - TO_B2_C(14), p2.y));
+		world->RayCast(&jumpCallback, p1, b2Vec2(p2.x - TO_B2_C(16), p2.y));
 	return isPlayerOnGroundRayCast;
 }
 
@@ -648,6 +658,28 @@ float RayCastJumpCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point
 
 float RayCastTeleportCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
 {
-	player->body->SetTransform(point, 0);
-	return 0;
+	//player->body_anchor->stopAllActionsByTag(9);
+	//auto vec = FROM_B2_VEC2(b2Vec2(point.x, point.y + TO_B2_C(17)));
+	//auto seq = Sequence::create(
+	//	CallFunc::create([&] {
+	//		player->isBodyAnimated = true;
+	//		}),
+
+	//	MoveTo::create(0.1, vec),
+
+	//			CallFunc::create([&] {
+	//			player->isBodyAnimated = false;
+	//				}),
+
+	//			_NOTHING
+	//					);
+	//seq->setTag(9);
+	//player->body_anchor->runAction((seq));
+	////player->body->SetTransform(, 0);
+	//player->body->SetLinearVelocity({ player->body->GetLinearVelocity().x, 0 });
+	//return fraction;
+
+	player->body->SetTransform(b2Vec2(point.x, point.y + TO_B2_C(10)), 0);
+	player->body->SetLinearVelocity({ player->body->GetLinearVelocity().x, 0 });
+	return fraction;
 }

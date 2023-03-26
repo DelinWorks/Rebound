@@ -35,7 +35,7 @@ bool GameplayScene::init()
     visibleSize = { 1280, 720 };
 
     physics = new DarknessPhysicsWorld();
-    if (physics->init({ 0, -24.79 * 2 }))
+    if (physics->init({ 0, -10 }))
         addChild(physics, 10);
     physics->SetContinuousPhysics(true);
 
