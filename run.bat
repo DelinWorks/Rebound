@@ -10,7 +10,7 @@ echo Entering run.bat directory: %myDir%
 
 cd /d %myDir%
 
-set APP_NAME=DarkDimensions
+set APP_NAME=Rebound
 set BUILD_DIR=proj.win32/build
 set BUILD_CFG=%1
 

@@ -337,15 +337,17 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
 
         auto tileAnimVariance = layer->getProperty("layer_anim_variance");
         if (!tileAnimVariance.isNull())
-            if (layer->getTileAnimManager())
-                for (auto& t : layer->getTileAnimManager()->getTasks())
-                    t->update(Random::maxFloat(tileAnimVariance.asFloat()));
+            for (auto& [_, sub] : layer->getSubLayers())
+                if (layer->getTileAnimManager(sub))
+                    for (auto& t : layer->getTileAnimManager(sub)->getTasks())
+                        t->update(Random::maxFloat(tileAnimVariance.asFloat()));
 
         auto tileAnimSpeedVariance = layer->getProperty("layer_anim_time_variance");
         if (!tileAnimSpeedVariance.isNull())
-            if (layer->getTileAnimManager())
-                for (auto& t : layer->getTileAnimManager()->getTasks())
-                    t->setTimeScale(1.0 + Random::maxFloat(tileAnimSpeedVariance.asFloat()));
+            for (auto& [_, sub] : layer->getSubLayers())
+                if (layer->getTileAnimManager(sub))
+                    for (auto& t : layer->getTileAnimManager(sub)->getTasks())
+                        t->setTimeScale(1.0 + Random::maxFloat(tileAnimSpeedVariance.asFloat()));
 
         layer->setProgramState(GameUtils::CocosExt::createGPUProgram());
     }

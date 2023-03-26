@@ -25,11 +25,19 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(APP_NAME DarkDimensions)
+set(APP_NAME Rebound)
 
 project(${APP_NAME})
 
-if(NOT DEFINED BUILD_ENGINE_DONE) # to test DarkDimensions into root project
+set(AX_ENABLE_EXT_SPINE OFF CACHE BOOL "Build extension spine" FORCE)
+set(AX_ENABLE_EXT_DRAGONBONES OFF CACHE BOOL "Build extension DragonBones" FORCE)
+set(AX_ENABLE_EXT_COCOSTUDIO OFF CACHE BOOL "Build extension cocostudio" FORCE)
+set(AX_ENABLE_EXT_FAIRYGUI OFF CACHE BOOL "Build extension FairyGUI" FORCE)
+set(AX_ENABLE_EXT_ASSETMANAGER OFF CACHE BOOL "Build extension asset-manager" FORCE)
+set(AX_ENABLE_EXT_PARTICLE3D OFF CACHE BOOL "Build extension Particle3D" FORCE)
+set(AX_ENABLE_EXT_LUA OFF CACHE BOOL "Build lua libraries" FORCE)
+
+if(NOT DEFINED BUILD_ENGINE_DONE) # to test Rebound into root project
     if(XCODE)
         set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY TRUE)
     endif()
@@ -74,7 +82,7 @@ if(APPLE OR WINDOWS)
     ax_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
 endif()
 
-# add cross-platforms source files and header files 
+# add cross-platforms source files and header files
 FILE(GLOB_RECURSE GAME_HEADER Classes/*.h;Classes/*.hpp)
 FILE(GLOB_RECURSE GAME_SOURCE Classes/*.c;Classes/*.cpp)
 
@@ -101,7 +109,7 @@ elseif(WINDOWS)
 	include_directories(proj.win32/external/fmod/include/win32)
 
 	link_directories(proj.win32/external/fmod/prebuilt/win32)
-		 
+	
 elseif(APPLE)
     if(IOS)
         list(APPEND GAME_HEADER

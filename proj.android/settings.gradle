@@ -1,6 +1,6 @@
 import java.nio.file.Paths
 include ':libaxmol'
 project(':libaxmol').projectDir = new File(Paths.get("${System.env.AX_ROOT}/core/platform/android/libaxmol").toUri())
-include ':DarkDimensions'
-project(':DarkDimensions').projectDir = new File(settingsDir, 'app')
-rootProject.name = "DarkDimensions"
+include ':Rebound'
+project(':Rebound').projectDir = new File(settingsDir, 'app')
+rootProject.name = "Rebound"

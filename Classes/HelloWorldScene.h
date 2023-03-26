@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Bytedance Inc.
 
- http://www.cocos2d-x.org
+ https://axmolengine.github.io/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,23 +23,33 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by game.RC
-//
+#ifndef __HELLOWORLD_SCENE_H__
+#define __HELLOWORLD_SCENE_H__
 
-#define IDS_PROJNAME 100
-#define IDR_TESTJS 100
+#include "axmol.h"
 
-#define ID_FILE_NEW_WINDOW 32771
 
-// Next default values for new objects
-//
-#ifdef APSTUDIO_INVOKED
-#    ifndef APSTUDIO_READONLY_SYMBOLS
-#        define _APS_NEXT_RESOURCE_VALUE 201
-#        define _APS_NEXT_CONTROL_VALUE 1000
-#        define _APS_NEXT_SYMED_VALUE 101
-#        define _APS_NEXT_COMMAND_VALUE 32775
-#    endif
-#endif
+class HelloWorld : public ax::Scene
+{
+    enum class ExampleGameState
+    {
+        init = 0,
+        update,
+        pause,
+        end,
+        menu1,
+        menu2,
+    };
+    
+public:
+    bool init() override;
+    void update(float delta) override;
+
+    // a selector callback
+    void menuCloseCallback(Ref* sender);
+
+private:
+    ExampleGameState _gameState = ExampleGameState::init;
+};
+
+#endif  // __HELLOWORLD_SCENE_H__
