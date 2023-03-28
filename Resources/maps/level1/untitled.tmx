@@ -10,6 +10,7 @@
  </properties>
  <tileset firstgid="1" source="atlas_001.tsx"/>
  <tileset firstgid="129" source="atlas_002.tsx"/>
+ <tileset firstgid="1153" source="../../../../DarkDimensions/Resources/maps/level1/atlas_001.tsx"/>
  <layer id="31" name="D_BackGround" width="128" height="128" tintcolor="#68c5c7">
   <properties>
    <property name="layer_type" value="decoration"/>
@@ -68,7 +69,7 @@
    <property name="layer_type" value="decoration"/>
   </properties>
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAACu3RQQ6AIAxFQcLWU3tzb6CYgF+aaTL7tq+31joAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATDYy6R3Rn7lN30z6HvRnbeO7Sd+K/lXtMOkfVbbDpH9U2ZeTvhX90Z+5/dM3oD9r+qf3Q39gvfNBej+y/Y8f7Eiuf3o/9AcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACglgtueYGdAAABAA==
+   H4sIAAAAAAAACu3SQQrAIAxFQZGevCfvDVoL6scwgdknPntrrQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAZCOT3hH9mdv0z6TvQX/WNn6b9K3oX9UJk36jyk6Y9BtVtnPSt6I/+jO3f/oG9GdN//R+6A+sd1/f0juiP7n+/kBd+gMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACw2wOf/vQwAAABAA==
   </data>
  </layer>
  <layer id="74" name="C_MapCollision" width="128" height="128" opacity="0.26">
@@ -81,7 +82,7 @@
    <property name="visible" type="bool" value="false"/>
   </properties>
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAACu3VQQpCMRAFQcH739m1G/mKsROnCmYfXi9yuwEAAAAAAAAAAAAAAAAAAAAAAAAAAP/uPux4VvfQv1X30L9V99C/VffQv1X30L9V99C/VffQv1X30L9V99C/VffQv1X30L9V99C/VffQv1X30L9V91jRT//r6p76t+qeK5rof13dXv/WqY1f2eUdJ9B/tp07fur09/+S/rPt3P/0f+gEO++n/3o776f/esVmK7rq/5mrm31zP/338e3+ZVv936f/bO/2P/14pv9s+s+m/2z6z6b/bPrPpv9s+s+m/2z6z6b/bPrPpv9s+s+m/2z6AwAAAAAAAAAAAAAAAAAAAAAAAPDPHitSozYAAAEA
+   H4sIAAAAAAAACu3SSwoCQRBEQUFv7sXF5SDI/JzsNiOglg1Fvb7dAAAAAAAAAAAAAAAAAAAAAAAAAACAf3cvG5bSPfTPSvfQPyvdQ/+sdA/9s9I99M9K99A/K91D/6x0D/2z0j30z0r30D8r3UP/rHQP/bPSPfTPSvfQPyvd4xf99F8v3VP/rHTPXzTRf710e/2zZm38zSh7zED/biN33Gv2/a+kf7eR+6/Z5/kYd/8Z6N9N/26Jm239c2e11//T2pudeT/9x3F2/7Pa6n8N/btt7T/KvNvrf9zM/fe8Y0n/bjP239te/0/6d5ux/5FhSf9u+nfTv5v+3fTvpn83/bvp303/bvp30x8AAAAAAAAAAAAAAAAAAAAAAACAf/YC0bKkmAAAAQA=
   </data>
  </layer>
  <layer id="33" name="D_DirtDust" width="128" height="128" opacity="0.13">
@@ -183,7 +184,7 @@
   <properties>
    <property name="camera_displacement_vector" value="[12,3]"/>
    <property name="camera_snap_border_vector" value="[200,250]"/>
-   <property name="camera_snap_lerp_vector" value="1"/>
+   <property name="camera_snap_lerp_vector" value="0"/>
    <property name="camera_snap_pixel_vector" value="[1,60]"/>
    <property name="camera_wobble_amount_vector" value="0"/>
    <property name="camera_wobble_speed_vector" value="[1.4,1.4]"/>

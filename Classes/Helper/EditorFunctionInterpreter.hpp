@@ -5,10 +5,10 @@
 #include <format.h>
 #include "shared_scenes/GameUtils.h"
 
-#ifndef __H_TMXTYPEINTERPRETER__
-#define __H_TMXTYPEINTERPRETER__
+#ifndef __H_EDITORFUNCTIONINTERPRETER__
+#define __H_EDITORFUNCTIONINTERPRETER__
 
-struct TMXInterpretedType {
+struct EditorFunction {
 	i32         _int = 0;
 	f32         _float = 0.0f;
 	ax::Vec2    _vector = ax::Vec2::ZERO;
@@ -60,7 +60,7 @@ struct TMXInterpretedType {
 	ax::StringUtils::format("Couldn't interpret function '%s' with format of (%s) at param %d, expected %c and got %c, this parameter is strict.\nMake sure you're following the documentation correctly!", bind.c_str(), format.c_str(), i + 1, in, out)); }
 #define TTI_RETURN_ERR { TTI_ERR return false; }
 
-class TMXTypeInterpreter {
+class EditorFunctionInterpreter {
 public:
 	// possible format is 'i,f,v,e'
 	bool interpret(std::string bind, std::string format, std::string data) {
@@ -93,7 +93,7 @@ public:
 					char in = 'i';
 					char out = 'i';
 					try {
-						TMXInterpretedType t;
+						EditorFunction t;
 						t.preferred = 'i';
 						t.bind = bind;
 						t.format = format;
@@ -114,7 +114,7 @@ public:
 					char in = 'i';
 					char out = 'i';
 					try {
-						TMXInterpretedType t;
+						EditorFunction t;
 						t.preferred = 'f';
 						t.bind = bind;
 						t.format = format;
@@ -135,7 +135,7 @@ public:
 					char in = 'i';
 					char out = 'i';
 					try {
-						TMXInterpretedType t;
+						EditorFunction t;
 						t.preferred = 'v';
 						t.bind = bind;
 						t.format = format;
@@ -156,7 +156,7 @@ public:
 					char in = 'i';
 					char out = 'i';
 					try {
-						TMXInterpretedType t;
+						EditorFunction t;
 						t.preferred = 'e';
 						t.bind = bind;
 						t.format = format;
@@ -248,7 +248,7 @@ public:
 
 	bool lastError = false;
 	std::string bound;
-	std::map<std::string, std::vector<TMXInterpretedType>> _its;
+	std::map<std::string, std::vector<EditorFunction>> _its;
 };
 
 #endif

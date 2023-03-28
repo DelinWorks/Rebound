@@ -80,7 +80,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
         return 0;
     };
 
-    TMXTypeInterpreter interpreter;
+    EditorFunctionInterpreter interpreter;
     if (!interpreter.interpret("camera_fuck_function_test", "i,i,v,e", "12,44,3.56,4")) {
         tiledMap = nullptr;
         return false;

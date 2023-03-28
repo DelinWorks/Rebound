@@ -7,7 +7,7 @@
 #include "string_manipulation_lib/stringFunctions.hpp"
 #include "shared_scenes/GameSingleton.h"
 #include "shared_scenes/GameUtils.h"
-#include "Nodes/TMXTypeInterpreter.hpp"
+#include "Helper/EditorFunctionInterpreter.hpp"
 
 #ifndef __H_TILEDMAP__
 #define __H_TILEDMAP__

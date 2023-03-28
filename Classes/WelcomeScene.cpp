@@ -1,5 +1,6 @@
 #include "WelcomeScene.h"
 #include "shared_scenes/GameUtils.h"
+#include "MapEditor.h"
 
 USING_NS_CC;
 
@@ -63,15 +64,6 @@ bool WelcomeScene::init()
     tex = Director::getInstance()->getTextureCache()->addImage("star.png");
     tex->setAliasTexParameters();
 
-    //Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
-    //Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
-    //cn->setScaleX(actualWinSize.width / actualFrameSize.width);
-    //cn->setScaleY(actualWinSize.height / actualFrameSize.height);
-
-    //auto sound = FMODAudioEngine::getInstance()->playSound("chase_music_RND_INC", FMODAudioEngine::platformResourcePath("RLGrimeJuelzFormula.mp3"), true, true);
-    //sound->setReverbProperties(0, 20.0F);
-    //sound->setVolume(10.0F);
-
     return true;
 }
 
@@ -92,7 +84,7 @@ void WelcomeScene::update(f32 dt)
     if (animTime > _maxTime && cnOpacity <= 0)
     {
         GameUtils::CocosExt::addSpriteFramesFromJson("player/player_atlas.png", "player/player_atlas.json");
-        auto scene = GameplayScene::createScene();
+        auto scene = MapEditor::createScene();
         Director::getInstance()->pushScene(scene);
     }
 
