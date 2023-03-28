@@ -3,6 +3,79 @@
 
 using namespace ax;
 
+struct UV {
+    float U;
+    float V;
+};
+
+struct TileTexCoords {
+    UV tl;
+    UV tr;
+    UV bl;
+    UV br;
+
+    bool is90 = false;
+    bool isH = false;
+    bool isV = false;
+    
+    void rotate90() {
+        is90 = !is90;
+
+        float tmp = 0;
+
+        tmp = tl.U;
+        tl.U = tl.V;
+        tl.V = tmp;
+
+        tmp = tr.U;
+        tr.U = tr.V;
+        tr.V = tmp;
+
+        tmp = bl.U;
+        bl.U = bl.V;
+        bl.V = tmp;
+
+        tmp = br.U;
+        br.U = br.V;
+        br.V = tmp;
+    }
+
+    void flipH() {
+        isH = !isH;
+
+        UV tmp;
+
+        tmp = tl;
+        tl = tr;
+        tr = tmp;
+
+        tmp = bl;
+        bl = br;
+        br = tmp;
+    }
+
+    void flipV() {
+        isV = !isV;
+
+        UV tmp;
+
+        tmp = tl;
+        tl = bl;
+        bl = tmp;
+
+        tmp = tr;
+        tr = br;
+        br = tmp;
+    }
+
+    void rotateClockwise() {
+        rotate90();
+        flipV();
+        if (!is90)
+            flipH();
+    }
+};
+
 class TileMeshCreator {
 public:
     static void updateMeshVertexData(const std::vector<float>& vertices, Mesh* mesh) {
@@ -37,11 +110,13 @@ public:
                     float sy = tile_size.y;
                     Color4F tc = Color4F::WHITE;
 
+                    TileTexCoords coord{ { 0,0 }, { 1,0 }, { 0,1 }, { 1,1 } };
+
                     vertices.insert(vertices.end(), {
-                        x, y,           0,  tc.r, tc.g, tc.b, tc.a,  0,0,
-                        x + sx, y,      0,  tc.r, tc.g, tc.b, tc.a,  1,0,
-                        x, y + sy,      0,  tc.r, tc.g, tc.b, tc.a,  0,1,
-                        x + sx, y + sy, 0,  tc.r, tc.g, tc.b, tc.a,  1,1,
+                        x, y,           0,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
+                        x + sx, y,      0,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
+                        x, y + sy,      0,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
+                        x + sx, y + sy, 0,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
                         });
 
                     indices.insert<uint16_t>(indices.size(),

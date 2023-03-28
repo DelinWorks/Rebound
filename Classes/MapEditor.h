@@ -128,6 +128,10 @@ public:
 
     sqlite3* pdb;
 
+    std::vector<float> vertices;
+    ax::MeshRenderer* renderer;
+    TileTexCoords coord{ { 0,0 }, { 1,0 }, { 0,1 }, { 1,1 } };
+
     GameUtils::TileSystem::Map* map;
 
     ax::Sprite*                map_sprite_stamp;

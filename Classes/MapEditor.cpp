@@ -487,25 +487,9 @@ void MapEditor::onInitDone(f32 dt)
 
         //set_cameraScaleUiText(std::numeric_limits<F32>::max());
 
-        std::vector<float> vertices;
-
         auto mesh = TileMeshCreator::buildTiledMesh(vertices, nullptr, { 32, 32 }, ax::Vec2::ZERO);
-        auto renderer = TileMeshCreator::createMeshRenderer("salene.png", mesh);
+        renderer = TileMeshCreator::createMeshRenderer("salene.png", mesh);
         addChild(renderer);
-
-        {
-            int startIdx = 1024;
-            startIdx *= 36;
-
-            for (i8 i = 0; i < 4; i++) {
-                vertices[(3 + startIdx) + 9 * i] = 1.0f;
-                vertices[(4 + startIdx) + 9 * i] = 0.0f;
-                vertices[(5 + startIdx) + 9 * i] = 0.0f;
-                vertices[(6 + startIdx) + 9 * i] = 1.0f;
-            }
-        }
-
-        TileMeshCreator::updateMeshVertexData(vertices, renderer->getMesh());
 
         buildEntireUi();
 
@@ -524,6 +508,32 @@ void MapEditor::onInitDone(f32 dt)
 
 void MapEditor::perSecondUpdate(f32 dt)
 {
+    coord.rotateClockwise();
+
+    for (i16 i = 0; i < 1024; i++)
+    {
+        int startIdx = i;
+        startIdx *= 36;
+
+        //vertices[(3 + startIdx) + 9 * i] = 1.0f;
+        //vertices[(4 + startIdx) + 9 * i] = 0.0f;
+        //vertices[(5 + startIdx) + 9 * i] = 0.0f;
+        //vertices[(6 + startIdx) + 9 * i] = 1.0f;
+
+        vertices[(7 + startIdx) + 9 * 0] = coord.tl.U;
+        vertices[(8 + startIdx) + 9 * 0] = coord.tl.V;
+
+        vertices[(7 + startIdx) + 9 * 1] = coord.tr.U;
+        vertices[(8 + startIdx) + 9 * 1] = coord.tr.V;
+
+        vertices[(7 + startIdx) + 9 * 2] = coord.bl.U;
+        vertices[(8 + startIdx) + 9 * 2] = coord.bl.V;
+
+        vertices[(7 + startIdx) + 9 * 3] = coord.br.U;
+        vertices[(8 + startIdx) + 9 * 3] = coord.br.V;
+    }
+
+    TileMeshCreator::updateMeshVertexData(vertices, renderer->getMesh());
 }
 
 void MapEditor::update(f32 dt)
