@@ -835,6 +835,11 @@ void MapEditor::onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event)
 
 void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
+    {
+        isEditorDragging = true;
+    }
+
     if (keyCode == EventKeyboard::KeyCode::KEY_G)
         isEditorHideGrid = true;
 
@@ -887,6 +892,10 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
+    {
+        isEditorDragging = false;
+    }
 }
 
 void MapEditor::onMouseDown(ax::Event* event)
