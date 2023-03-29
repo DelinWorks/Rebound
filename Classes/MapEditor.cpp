@@ -100,7 +100,7 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
-    map = new GameUtils::TileSystem::Map(16, 2, 500000, 200000);
+    map = new GameUtils::TileSystem::Map(16, 1, 500000, 200000);
     map->retain();
 
     grid = Node::create();
@@ -487,8 +487,14 @@ void MapEditor::onInitDone(f32 dt)
 
         //set_cameraScaleUiText(std::numeric_limits<F32>::max());
 
-        auto mesh = TileMeshCreator::buildTiledMesh(vertices, nullptr, { 32, 32 }, ax::Vec2::ZERO);
-        renderer = TileMeshCreator::createMeshRenderer("salene.png", mesh);
+        uint64_t tiles[1024];
+        std::fill_n(tiles, 1024, 0);
+
+        BENCHMARK_SECTION_BEGIN("build tiled mesh");
+        auto mesh = TileMeshCreator::buildTiledMesh(vertices, tiles, { 16, 16 }, { 512, 512 });
+        BENCHMARK_SECTION_END();
+
+        renderer = TileMeshCreator::createMeshRenderer("test.png", mesh);
         addChild(renderer);
 
         buildEntireUi();
@@ -508,32 +514,34 @@ void MapEditor::onInitDone(f32 dt)
 
 void MapEditor::perSecondUpdate(f32 dt)
 {
-    coord.rotateClockwise();
+    //coord.ccw();
 
-    for (i16 i = 0; i < 1024; i++)
-    {
-        int startIdx = i;
-        startIdx *= 36;
+    //for (i16 i = 0; i < 1024; i++)
+    //{
+    //    int startIdx = i;
+    //    startIdx *= 36;
 
-        //vertices[(3 + startIdx) + 9 * i] = 1.0f;
-        //vertices[(4 + startIdx) + 9 * i] = 0.0f;
-        //vertices[(5 + startIdx) + 9 * i] = 0.0f;
-        //vertices[(6 + startIdx) + 9 * i] = 1.0f;
+    //    //vertices[(3 + startIdx) + 9 * i] = 1.0f;
+    //    //vertices[(4 + startIdx) + 9 * i] = 0.0f;
+    //    //vertices[(5 + startIdx) + 9 * i] = 0.0f;
+    //    //vertices[(6 + startIdx) + 9 * i] = 1.0f;
 
-        vertices[(7 + startIdx) + 9 * 0] = coord.tl.U;
-        vertices[(8 + startIdx) + 9 * 0] = coord.tl.V;
+    //    vertices[(7 + startIdx) + 9 * 0] = coord.tl.U;
+    //    vertices[(8 + startIdx) + 9 * 0] = coord.tl.V;
 
-        vertices[(7 + startIdx) + 9 * 1] = coord.tr.U;
-        vertices[(8 + startIdx) + 9 * 1] = coord.tr.V;
+    //    vertices[(7 + startIdx) + 9 * 1] = coord.tr.U;
+    //    vertices[(8 + startIdx) + 9 * 1] = coord.tr.V;
 
-        vertices[(7 + startIdx) + 9 * 2] = coord.bl.U;
-        vertices[(8 + startIdx) + 9 * 2] = coord.bl.V;
+    //    vertices[(7 + startIdx) + 9 * 2] = coord.bl.U;
+    //    vertices[(8 + startIdx) + 9 * 2] = coord.bl.V;
 
-        vertices[(7 + startIdx) + 9 * 3] = coord.br.U;
-        vertices[(8 + startIdx) + 9 * 3] = coord.br.V;
-    }
+    //    vertices[(7 + startIdx) + 9 * 3] = coord.br.U;
+    //    vertices[(8 + startIdx) + 9 * 3] = coord.br.V;
+    //}
 
-    TileMeshCreator::updateMeshVertexData(vertices, renderer->getMesh());
+    //BENCHMARK_SECTION_BEGIN("update gpu buffer");
+    //TileMeshCreator::updateMeshVertexData(vertices, renderer->getMesh());
+    //BENCHMARK_SECTION_END();
 }
 
 void MapEditor::update(f32 dt)

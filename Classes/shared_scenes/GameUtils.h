@@ -123,6 +123,10 @@ exposedTex->setAliasTexParameters(); \
 else \
 exposedTex->setAntiAliasTexParameters();
 
+#define BENCHMARK_SECTION_BEGIN(name) const char* benchmark_bb7_name = name; auto benchmark_bb7_start = std::chrono::high_resolution_clock::now();
+#define BENCHMARK_SECTION_END() auto benchmark_bb7_end = std::chrono::high_resolution_clock::now(); \
+printf("benchmark %s took: %d millis, %d micros\n", benchmark_bb7_name, std::chrono::duration_cast<std::chrono::milliseconds>(benchmark_bb7_end - benchmark_bb7_start).count(), std::chrono::duration_cast<std::chrono::microseconds>(benchmark_bb7_end - benchmark_bb7_start).count());
+
 USING_NS_CC;
 
 // Some random ass enum
