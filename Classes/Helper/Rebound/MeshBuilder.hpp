@@ -119,9 +119,8 @@ public:
         mesh->getVertexBuffer()->updateData((void*)&vertices[0], vertices.size() * sizeof(vertices[0]));
     }
 
-    static MeshRenderer* createMeshRenderer(std::string_view texturePath, Mesh* mesh) {
+    static MeshRenderer* createMeshRenderer(ax::Texture2D* texture, Mesh* mesh) {
         auto mat = MeshMaterial::createBuiltInMaterial(MeshMaterial::MaterialType::QUAD_TEXTURE, false);
-        auto texture = Director::getInstance()->getTextureCache()->addImage(texturePath);
         texture->setAliasTexParameters();
         mat->setTexture(texture, ax::NTextureData::Usage::Diffuse);
         mat->setForce2DQueue(true);
@@ -142,7 +141,7 @@ public:
                 for (u8 x1 = 0; x1 < 32; x1++)
                 {
                     float column = (tiles[index] % (int)(tex_size.x / tile_size.x)) * tile_size.x;
-                    float row = floor(tiles[index] / (tex_size.y / tile_size.y)) * tile_size.y;
+                    float row = floor(tiles[index] / (tex_size.x / tile_size.x)) * tile_size.y;
                     float columnM = (column + tile_size.x);
                     float rowM = (row + tile_size.y);
 

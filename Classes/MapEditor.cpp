@@ -488,13 +488,15 @@ void MapEditor::onInitDone(f32 dt)
         //set_cameraScaleUiText(std::numeric_limits<F32>::max());
 
         uint64_t tiles[1024];
-        std::fill_n(tiles, 1024, 0);
+        std::fill_n(tiles, 1024, 33);
+
+        auto texture = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
 
         BENCHMARK_SECTION_BEGIN("build tiled mesh");
-        auto mesh = TileMeshCreator::buildTiledMesh(vertices, tiles, { 16, 16 }, { 512, 512 });
+        auto mesh = TileMeshCreator::buildTiledMesh(vertices, tiles, { 16, 16 }, ax::Vec2(texture->getPixelsWide(), texture->getPixelsHigh()));
         BENCHMARK_SECTION_END();
 
-        renderer = TileMeshCreator::createMeshRenderer("test.png", mesh);
+        renderer = TileMeshCreator::createMeshRenderer(texture, mesh);
         addChild(renderer);
 
         buildEntireUi();
@@ -847,6 +849,9 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     {
         isEditorDragging = true;
     }
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_H)
+        grid->setVisible(!grid->isVisible());
 
     if (keyCode == EventKeyboard::KeyCode::KEY_G)
         isEditorHideGrid = true;
