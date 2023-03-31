@@ -487,7 +487,9 @@ void MapEditor::onInitDone(f32 dt)
 
         //set_cameraScaleUiText(std::numeric_limits<F32>::max());
 
-        std::vector<TileID> Rtiles = { 8 };
+        emptyVIC.fill();
+
+        std::vector<TileID> Rtiles = { 1, 1024 + 25 };
 
         TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 
@@ -503,7 +505,7 @@ void MapEditor::onInitDone(f32 dt)
         tilesetArr->calculateBounds();
 
         for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
-            tiles[i] = tilesetArr->relativeID(Random::maxInt(0), Rtiles[Random::maxInt(Rtiles.size() - 1)]);
+            tiles[i] = Rtiles[Random::maxInt(Rtiles.size() - 1)];
 
             if (Random::float01() > 0.5)
                 tiles[i] |= TILE_FLAG_ROTATE;
@@ -513,14 +515,20 @@ void MapEditor::onInitDone(f32 dt)
                 tiles[i] |= TILE_FLAG_FLIP_Y;
         }
 
-        tiles[0] = 128;
+        tarr = TileArray::create(tiles);
+
+        ChunkFactory::buildVertexCache(tarr, tilesetArr);
 
         ChunkDescriptor d{};
-        d._tiles = tiles;
+        d._tiles = tarr;
         d._tilesetArr = tilesetArr;
 
-        auto chunk = ChunkRenderer::create(d);
-        addChild(chunk);
+        for (int x = 0; x < 200; x++)
+            for (int y = 0; y < 200; y++) {
+                auto chunk = ChunkRenderer::create(d);
+                addChild(chunk);
+                chunk->setPositionInChunkSpace(x, y);
+            }
 
 
         //for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
@@ -557,6 +565,23 @@ void MapEditor::onInitDone(f32 dt)
 
 void MapEditor::perSecondUpdate(f32 dt)
 {
+    std::vector<TileID> Rtiles = { 0 };
+
+    for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
+        if (Random::float01() > 0.9) {
+            TileID newGid = Rtiles[Random::maxInt(Rtiles.size() - 1)];
+
+            if (Random::float01() > 0.5)
+                newGid |= TILE_FLAG_ROTATE;
+            if (Random::float01() > 0.5)
+                newGid |= TILE_FLAG_FLIP_X;
+            if (Random::float01() > 0.5)
+                newGid |= TILE_FLAG_FLIP_Y;
+
+            ChunkFactory::setTile(tarr, i, newGid);
+        }
+    }
+
     //coord.ccw();
 
     //for (i16 i = 0; i < 1024; i++)

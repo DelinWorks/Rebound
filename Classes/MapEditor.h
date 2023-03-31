@@ -137,6 +137,8 @@ public:
 
     GameUtils::TileSystem::Map* map;
 
+    TileArray* tarr;
+
     ax::Sprite*                map_sprite_stamp;
     ax::Texture2D*             map_default_tex;
     ax::backend::ProgramState* map_default_tile_shader;
