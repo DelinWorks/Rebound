@@ -487,17 +487,57 @@ void MapEditor::onInitDone(f32 dt)
 
         //set_cameraScaleUiText(std::numeric_limits<F32>::max());
 
-        uint64_t tiles[1024];
-        std::fill_n(tiles, 1024, 33);
+        std::vector<TileID> Rtiles = { 8 };
 
-        auto texture = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
+        TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 
-        BENCHMARK_SECTION_BEGIN("build tiled mesh");
-        auto mesh = TileMeshCreator::buildTiledMesh(vertices, tiles, { 16, 16 }, ax::Vec2(texture->getPixelsWide(), texture->getPixelsHigh()));
-        BENCHMARK_SECTION_END();
+        tilesetArr = new TilesetArray({ 16, 16 });
+        tilesetArr->retain();
 
-        renderer = TileMeshCreator::createMeshRenderer(texture, mesh);
-        addChild(renderer);
+        auto texture1 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
+        auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
+
+        tilesetArr->addTileset(texture1);
+        tilesetArr->addTileset(texture2);
+
+        tilesetArr->calculateBounds();
+
+        for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
+            tiles[i] = tilesetArr->relativeID(Random::maxInt(0), Rtiles[Random::maxInt(Rtiles.size() - 1)]);
+
+            if (Random::float01() > 0.5)
+                tiles[i] |= TILE_FLAG_ROTATE;
+            if (Random::float01() > 0.5)
+                tiles[i] |= TILE_FLAG_FLIP_X;
+            if (Random::float01() > 0.5)
+                tiles[i] |= TILE_FLAG_FLIP_Y;
+        }
+
+        tiles[0] = 128;
+
+        ChunkDescriptor d{};
+        d._tiles = tiles;
+        d._tilesetArr = tilesetArr;
+
+        auto chunk = ChunkRenderer::create(d);
+        addChild(chunk);
+
+
+        //for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
+        //    tiles[i] = Rtiles[Random::maxInt(Rtiles.size() - 1)];
+        //}
+
+        //auto texture = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
+
+        //BENCHMARK_SECTION_BEGIN("build tiled mesh");
+        //for (int x = 0; x < 20; x++)
+        //    for (int y = 0; y < 20; y++) {
+        //        auto mesh = ChunkFactory::buildTiledMesh(tiles, vertices, { 16, 16 }, ax::Vec2(texture->getPixelsWide(), texture->getPixelsHigh()));
+        //        renderer = ChunkFactory::createChunkMeshRenderer(texture, mesh);
+        //        renderer->setPosition(mesh._sizeInPixels.x * x, mesh._sizeInPixels.y * y);
+        //        addChild(renderer);
+        //    }
+        //BENCHMARK_SECTION_END();
 
         buildEntireUi();
 
@@ -512,6 +552,7 @@ void MapEditor::onInitDone(f32 dt)
             updateSchedTime = 0;
         }
     }
+    updateDirectorToStatsCount(0, 0);
 }
 
 void MapEditor::perSecondUpdate(f32 dt)
@@ -556,6 +597,13 @@ void MapEditor::update(f32 dt)
     onInitDone(dt);
     if (!isInitDone)
         return;
+
+    auto* focusState = &Darkness::getInstance()->gameWindow.focusState;
+    if (*focusState) {
+        tilesetArr->reloadTextures();
+        tilesetArr->calculateBounds();
+        *focusState = false;
+    }
 
     auto cam = Camera::getDefaultCamera();
 
@@ -650,7 +698,7 @@ void MapEditor::lateUpdate(f32 dt)
         if (cameraScale >= 13)
         {
             worldCoordsLines->setOpacity(20);
-            i->setOpacity(10);
+            i->setOpacity(0);
         }
     }
     //deltaEditing->clear();
@@ -1105,7 +1153,7 @@ void MapEditor::buildEntireUi()
     setNodeIgnoreDesignScale(statsParentNode);
     statsParentNode->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
         ->enableDesignScaleIgnoring()->setVisibleSizeHints(-2, 5, -2));
-    f32 fontSize = 12;
+    f32 fontSize = 20;
     std::string fontName = "fonts/arial.ttf";
     FPSUiText = ui::Text::create("FPS_UI_TEXT", fontName, fontSize);
     VertsUiText = ui::Text::create("VERTS_UI_TEXT", fontName, fontSize);
@@ -1126,13 +1174,14 @@ void MapEditor::buildEntireUi()
         auto update_fps_action = CallFunc::create([&]() {
             char buff[14];
             char buffDt[14];
-            snprintf(buff, sizeof(buff), "%.1lf", 1.0F / global_dt);
-            snprintf(buffDt, sizeof(buffDt), "%.1lf", global_dt * 1000);
+            fps_dt += (_director->getInstance()->getDeltaTime() - fps_dt) * 0.25f;
+            snprintf(buff, sizeof(buff), "%.1lf", 1.0F / fps_dt);
+            snprintf(buffDt, sizeof(buffDt), "%.1lf", fps_dt * 1000);
             std::string buffAsStdStr = buff;
             std::string buffAsStdStrDt = buffDt;
-            FPSUiText->setString("FPS: " + buffAsStdStr + " / " + buffAsStdStrDt + "ms");
-            });
-        auto wait_fps_action = DelayTime::create(0.1f);
+            FPSUiText->setString("D3D11: " + buffAsStdStr + " | " + buffAsStdStrDt + "ms");
+        });
+        auto wait_fps_action = DelayTime::create(0.5f);
         auto make_seq = Sequence::create(update_fps_action, wait_fps_action, nullptr);
         auto seq_repeat_forever = RepeatForever::create(make_seq);
         FPSUiText->runAction(seq_repeat_forever);

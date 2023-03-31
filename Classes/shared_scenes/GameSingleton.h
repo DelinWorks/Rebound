@@ -34,6 +34,7 @@ struct GameWindowDescriptor
     cocos2d::Size windowSize;
     i32 currentWindowCursor;
     ResolutionPolicy windowPolicy;
+    bool focusState;
 };
 
 /** Game class responsible for global variables, client connections and save files */

@@ -54,6 +54,7 @@ void Darkness::init()
         gameWindow.lastKnownWindowRect = cocos2d::Rect(0, 0, 1280, 720);
         gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
         gameWindow.currentWindowCursor = 0;
+        gameWindow.focusState = false;
     }
 }
 

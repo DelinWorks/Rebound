@@ -1528,13 +1528,6 @@ constexpr auto CHUNK_SIZE_MULTIPLIER = 32;
                 cocos2d::backend::ProgramState* shader,
                 cocos2d::BlendFunc* shader_blend)
             {
-                // i can't i just can't i feel like i wasnt built for this cancer
-                // im starting to hate this shit and hate my life too
-                // everything goes right until on day it stops and throws
-                // a punch at my face i hate this illness
-                // and more importantly i hate you c++ you gave me cancer and youll still do
-                // this code works perfectly fine BUT it will fuck up some day soon
-
                 //Vec2 loc = convertFromScreenToSpace(Vec2(visibleSize.width, visibleSize.height), visibleSize);
                 //Vec2 loc0 = convertFromScreenToSpace(Vec2(0, 0), visibleSize);
                 for (const auto& x : *layer_groups)

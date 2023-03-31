@@ -98,7 +98,7 @@ static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
     long Style = GetWindowLong(windowHandle, GWL_STYLE);
     //Style &= ~WS_MAXIMIZEBOX;
     SetWindowLong(windowHandle, GWL_STYLE, Style);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 }
 
 static void window_maximize_callback(GLFWwindow* window, i32 maximized)
@@ -189,6 +189,8 @@ static void window_focus_callback(GLFWwindow* window, i32 focused)
 
         //SetWindowPos(glfwGetWin32Window(Darkness::getInstance()->window), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
+
+    Darkness::getInstance()->gameWindow.focusState = focused;
 }
 
 static void window_close_callback(GLFWwindow* window)
@@ -369,7 +371,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         icon->width = img->getWidth();
         icon->height = img->getHeight();
         icon->pixels = img->getData();
-        GLFWcursor* cursor = glfwCreateCursor(icon, 0, 0);
+        GLFWcursor* cursor = glfwCreateCursor(icon, 1, 1);
         glfwSetCursor(window->getWindow(), cursor);
         Darkness::getInstance()->gameWindow.window = window->getWindow();
 #else
@@ -446,8 +448,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
         auto scene = WelcomeScene::createScene();
         director->runWithScene(scene);
     }
-
-    Director::getInstance()->setStatsDisplay(true);
 
     return true;
 }

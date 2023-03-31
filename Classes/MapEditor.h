@@ -60,7 +60,7 @@ using namespace Math;
 #include "Helper/SelectionBox.h"
 #include "Helper/ChangeValue.h"
 
-#include "Helper/Rebound/MeshBuilder.hpp"
+#include "Helper/Rebound/TileMapSystem.hpp"
 
 class MapEditor : public ax::Scene
 {
@@ -74,6 +74,7 @@ public:
 #endif
 
     f32 global_dt;
+    f32 fps_dt;
     void update(f32 dt);
     f32 updateSchedTime;
     void perSecondUpdate(f32 dt);
@@ -102,6 +103,8 @@ public:
     void onTouchMoved(ax::Touch* touch, ax::Event* event);
     void onTouchEnded(ax::Touch* touch, ax::Event* event);
     void onTouchCancelled(ax::Touch* touch, ax::Event* event);
+    
+    TilesetArray* tilesetArr;
 
     //ax::Vec2 parseVector2D(std::string position);
     //ax::backend::ProgramState* createGPUProgram(std::string resources_frag_shader_path, std::string resources_vertex_shader_path);
@@ -159,7 +162,7 @@ public:
     f32 cameraScale;
     i32 cameraScaleIndex = 5;
     //f32 possibleCameraScales[29] = { 0.05F, 0.1F, 0.2F, 0.3F, 0.4F, 0.6F, 0.8F, 1, 1.5F, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18, 22, 26, 32, 48, 64, 80, 96, 100};
-    f32 possibleCameraScales[34] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100 };
+    f32 possibleCameraScales[16] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70, 85 };
 
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;
