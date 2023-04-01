@@ -301,7 +301,7 @@ void CustomUi::TextField::focus()
     field->attachWithIME();
     if (field->getString().length() > 0)
         cursor_control->setVisible(true);
-    isFocused = true;
+    notifyFocused(isFocused = true);
 }
 
 void CustomUi::TextField::defocus()
@@ -310,7 +310,7 @@ void CustomUi::TextField::defocus()
     sprite->runAction(tint);
     field->detachWithIME();
     cursor_control->setVisible(false);
-    isFocused = false;
+    notifyFocused(isFocused = false);
 }
 
 void CustomUi::TextField::onEnable()

@@ -36,6 +36,15 @@ void CustomUi::GUI::updateEnabled(bool state)
 		}
 }
 
+void CustomUi::GUI::notifyFocused(bool focused)
+{
+	auto cast = DCAST(GUI, getParent());
+	if (cast)
+		cast->notifyFocused(focused);
+	else
+		_isFocused = focused;
+}
+
 void CustomUi::GUI::notifyEnabled()
 {
 	auto cast = DCAST(GUI, getParent());

@@ -21,9 +21,9 @@ bool CustomUi::CustomUiContainer::update(cocos2d::Vec2 mouseLocationInView, coco
     for (int i = list.size() - 1; i > -1; i--)
     {
         if (((GUI*)list.at(i))->update(mouseLocationInView, cam))
-            return isHitSwallowed = true;
+            return _isHitSwallowed = true;
     }
-    return isHitSwallowed = false;
+    return _isHitSwallowed = false;
 }
 
 bool CustomUi::CustomUiContainer::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)

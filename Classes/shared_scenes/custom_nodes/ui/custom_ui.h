@@ -43,6 +43,8 @@ namespace CustomUi
         // DO NOT ACCESS, USE AdvancedUiContainer
         virtual bool click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
 
+        void notifyFocused(bool focused);
+
         void updateEnabled(bool state);
         void notifyEnabled();
         bool isEnabled();
@@ -61,6 +63,7 @@ namespace CustomUi
         bool _isEnabledState = true;
 
     protected:
+        bool _isFocused = false;
         bool _isContainer = false;
         bool _isEnabled = true;
     };
