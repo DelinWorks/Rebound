@@ -18,19 +18,12 @@ CustomUi::CustomUiContainer* CustomUi::CustomUiContainer::create()
 bool CustomUi::CustomUiContainer::update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     auto& list = getChildren();
-    bool isClickSwallowed = false;
     for (int i = list.size() - 1; i > -1; i--)
     {
-        if (isClickSwallowed)
-        {
-            ((GUI*)list.at(i))->update({ INFINITY, INFINITY }, cam);
-            continue;
-        }
-
         if (((GUI*)list.at(i))->update(mouseLocationInView, cam))
-            isClickSwallowed = true;
+            return isHitSwallowed = true;
     }
-    return false;
+    return isHitSwallowed = false;
 }
 
 bool CustomUi::CustomUiContainer::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -39,14 +32,8 @@ bool CustomUi::CustomUiContainer::click(cocos2d::Vec2 mouseLocationInView, cocos
     bool isClickSwallowed = false;
     for (int i = list.size() - 1; i > -1; i--)
     {
-        if (isClickSwallowed)
-        {
-            ((GUI*)list.at(i))->click({ INFINITY, INFINITY }, cam);
-            continue;
-        }
-
         if (((GUI*)list.at(i))->click(mouseLocationInView, cam))
-            isClickSwallowed = true;
+            return true;
     }
     return false;
 }

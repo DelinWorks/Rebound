@@ -22,6 +22,7 @@ namespace CustomUi
         CustomUiContainer() {}
         static CustomUi::CustomUiContainer* create();
 
+        bool isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave
         bool update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
 

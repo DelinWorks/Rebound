@@ -514,7 +514,7 @@ void MapEditor::onInitDone(f32 dt)
         uiNode->addChild(container);
 
         auto textField = CustomUi::TextField::create();
-        textField->init("layer name", 18, {100, 20}, 10, "0.123456789");
+        textField->init("layer name", 18, {100, 20}, 10, "0.123456789-");
         container->addChild(textField);
 
         buildEntireUi();
@@ -885,11 +885,13 @@ void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& r
 
 void MapEditor::onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event)
 {
-
+    if (container) if (container->isHitSwallowed) return;
 }
 
 void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
+    if (container) if (container->isHitSwallowed) return;
+
     if (keyCode == EventKeyboard::KeyCode::KEY_1) map->bindLayer(0);
     if (keyCode == EventKeyboard::KeyCode::KEY_2) map->bindLayer(1);
     if (keyCode == EventKeyboard::KeyCode::KEY_3) map->bindLayer(2);
@@ -948,6 +950,8 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
+    if (container) if (container->isHitSwallowed) return;
+
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
         isEditorDragging = false;
@@ -958,8 +962,10 @@ void MapEditor::onMouseDown(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
 
-    if (container)
+    if (container) {
         container->click(mouseLocationInView, _defaultCamera);
+        if (container->isHitSwallowed) return;
+    }
 
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
     {
@@ -1003,6 +1009,8 @@ void MapEditor::onMouseDown(ax::Event* event)
 void MapEditor::onMouseUp(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
+    if (container) if (container->isHitSwallowed) return;
+
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
     {
         isEditorDragging = false;
@@ -1028,6 +1036,9 @@ void MapEditor::onMouseMove(ax::Event* event)
     oldMouseLocation = newMouseLocation;
     newMouseLocation = mouseLocation;
     mouseLocationDelta = oldMouseLocation - newMouseLocation;
+    mouseLocationInView = e->getLocationInView();
+    if (container) if (container->isHitSwallowed) return;
+
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
     if (isEditorDragging)
     {
@@ -1035,7 +1046,6 @@ void MapEditor::onMouseMove(ax::Event* event)
         cameraLocation->setPositionY(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
     }
     //CCLOG("%f,%f", cameraLocation->getPositionX(), cameraLocation->getPositionY());
-    mouseLocationInView = e->getLocationInView();
 }
 
 void MapEditor::setCameraScaleIndex(i32 dir) {
@@ -1072,6 +1082,8 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
 void MapEditor::onMouseScroll(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
+    if (container) if (container->isHitSwallowed) return;
+
     setCameraScaleIndex(e->getScrollY());
 
     if (pdb != nullptr)
