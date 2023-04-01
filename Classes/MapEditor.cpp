@@ -3,7 +3,6 @@
 using namespace GameUtils::Parser;
 using namespace GameUtils::CocosExt;
 using namespace GameUtils::CocosExt::CustomComponents;
-using namespace GameUtils::TileSystem;
 
 USING_NS_CC;
 using namespace backend;
@@ -24,8 +23,6 @@ Scene* MapEditor::createScene()
 
 MapEditor::~MapEditor()
 {
-    map->Cleanup();
-    map->release();
     std::cout << sqlite3_close(pdb) << std::endl;
 }
 
@@ -100,107 +97,92 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
-    map = new GameUtils::TileSystem::Map(16, 1, 500000, 200000);
-    map->retain();
+    map = TileSystem::Map::create(16, 1, Vec2(100, 50));
+    addChild(map);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
-    for (i32 i = -(map->chunk_size / map->tile_size) * 7; i <= +(map->chunk_size / map->tile_size) * 8; i++)
+    for (i32 i = -(map->_gridSize / map->_tileSize) * 7; i <= +(map->_gridSize / map->_tileSize) * 8; i++)
     {
-        gridDN->drawLine(Vec2(i * map->tile_size, -map->chunk_size * 7), Vec2(i * map->tile_size, +map->chunk_size * 8), GRID_COLOR);
+        gridDN->drawLine(Vec2(i * map->_tileSize, -map->_gridSize / 2 * 7), Vec2(i * map->_tileSize, +map->_gridSize / 2 * 8), GRID_COLOR);
     }
-    for (i32 i = -(map->chunk_size / map->tile_size) * 7; i <= +(map->chunk_size / map->tile_size) * 8; i++)
+    for (i32 i = -(map->_gridSize / 2 / map->_tileSize) * 7; i <= +(map->_gridSize / 2 / map->_tileSize) * 8; i++)
     {
-        gridDN->drawLine(Vec2(-map->chunk_size * 7, i * map->tile_size), Vec2(+map->chunk_size * 8, i * map->tile_size), GRID_COLOR);
+        gridDN->drawLine(Vec2(-map->_gridSize * 7, i * map->_tileSize), Vec2(+map->_gridSize * 8, i * map->_tileSize), GRID_COLOR);
     }
     gridDN->setPosition(0, 0);
     grid->addChild(gridDN);
-
-    //auto chunkGrid = DrawNode::create(1);
-    //for (i32 i = 0; i <= 7 * map->chunk_size; i += map->chunk_size)
-    //{
-    //    chunkGrid->drawLine(Vec2(clamp(i, 0, 4096 * map->tile_size), 0), Vec2(clamp(i, 0, 4096 * map->tile_size), 7 * map->chunk_size), GRID_COLOR);
-    //}
-    //for (i32 i = 0; i <= 7 * map->chunk_size; i += map->chunk_size)
-    //{
-    //    chunkGrid->drawLine(Vec2(0, clamp(i, 0, 4096 * map->tile_size)), Vec2(7 * map->chunk_size, clamp(i, 0, 4096 * map->tile_size)), GRID_COLOR);
-    //}
-    //chunkGrid->setPosition(-map->chunk_size * 3, -map->chunk_size * 3);
-    //grid->addChild(chunkGrid);
     gridNode->addChild(grid, 1);
 
     TopMapSizeNode = Node::create();
-    TopMapSizeNode->setPosition(Vec2(0, map->map_size_y * map->tile_size));
+    TopMapSizeNode->setPosition(Vec2(0, map->_mapSize.y * map->_tileSize));
     auto TopMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     TopMapSize->setPosition(Vec2(visibleSize.width / -2, 0));
     TopMapSizeNode->addChild(TopMapSize);
     gridNode->addChild(TopMapSizeNode, 2);
 
     BottomMapSizeNode = Node::create();
-    BottomMapSizeNode->setPosition(Vec2(0, -map->map_size_y * map->tile_size));
+    BottomMapSizeNode->setPosition(Vec2(0, -map->_mapSize.y * map->_tileSize));
     auto BottomMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     BottomMapSize->setPosition(Vec2(visibleSize.width / -2, -visibleSize.height));
     BottomMapSizeNode->addChild(BottomMapSize);
     gridNode->addChild(BottomMapSizeNode, 2);
 
     RightMapSizeNode = Node::create();
-    RightMapSizeNode->setPosition(Vec2(map->map_size_x * map->tile_size, 0));
+    RightMapSizeNode->setPosition(Vec2(map->_mapSize.x * map->_tileSize, 0));
     auto RightMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     RightMapSize->setPosition(Vec2(0, visibleSize.height / -2));
     RightMapSizeNode->addChild(RightMapSize);
     gridNode->addChild(RightMapSizeNode, 2);
 
     LeftMapSizeNode = Node::create();
-    LeftMapSizeNode->setPosition(Vec2(-map->map_size_x * map->tile_size, 0));
+    LeftMapSizeNode->setPosition(Vec2(-map->_mapSize.x * map->_tileSize, 0));
     auto LeftMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     LeftMapSize->setPosition(Vec2(-visibleSize.width, visibleSize.height / -2));
     LeftMapSizeNode->addChild(LeftMapSize);
     gridNode->addChild(LeftMapSizeNode, 2);
 
     WorldBoundsLimit = DrawNode::create(1.0F);
-    WorldBoundsLimit->drawLine(Vec2(-map->map_size_x * map->tile_size, map->map_size_y * map->tile_size), Vec2(map->map_size_x * map->tile_size, map->map_size_y * map->tile_size), LINE_BACKGROUND_BOUND_COLOR);
-    WorldBoundsLimit->drawLine(Vec2(-map->map_size_x * map->tile_size, map->map_size_y * map->tile_size), Vec2(-map->map_size_x * map->tile_size, -map->map_size_y * map->tile_size), LINE_BACKGROUND_BOUND_COLOR);
-    WorldBoundsLimit->drawLine(Vec2(-map->map_size_x * map->tile_size, -map->map_size_y * map->tile_size), Vec2(map->map_size_x * map->tile_size, -map->map_size_y * map->tile_size), LINE_BACKGROUND_BOUND_COLOR);
-    WorldBoundsLimit->drawLine(Vec2(map->map_size_x * map->tile_size, -map->map_size_y * map->tile_size), Vec2(map->map_size_x * map->tile_size, map->map_size_y * map->tile_size), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), Vec2(map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), Vec2(-map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), Vec2(map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), Vec2(map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
     gridNode->addChild(WorldBoundsLimit, 2);
 
     deltaEditing = DrawNode::create(100);
     this->addChild(deltaEditing);
 
     selectionPlaceSquare = DrawNode::create(1);
-    selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->tile_size), Vec2(map->tile_size, 0), SELECTION_SQUARE_TRI_ALLOWED);
-    selectionPlaceSquare->drawTriangle(Vec2(map->tile_size, map->tile_size), Vec2(map->tile_size, 0), Vec2(0, map->tile_size), SELECTION_SQUARE_TRI_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(map->tile_size, 0), SELECTION_SQUARE_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(0, map->tile_size), SELECTION_SQUARE_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(map->tile_size, 0), Vec2(map->tile_size, map->tile_size), SELECTION_SQUARE_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(map->tile_size, map->tile_size), Vec2(0, map->tile_size), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize), Vec2(map->_tileSize, 0), SELECTION_SQUARE_TRI_ALLOWED);
+    selectionPlaceSquare->drawTriangle(Vec2(map->_tileSize, map->_tileSize), Vec2(map->_tileSize, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_TRI_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(map->_tileSize, 0), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(map->_tileSize, 0), Vec2(map->_tileSize, map->_tileSize), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(map->_tileSize, map->_tileSize), Vec2(0, map->_tileSize), SELECTION_SQUARE_ALLOWED);
     selectionPlaceSquare->setAnchorPoint(Point(0.5, 0.5));
     gridNode->addChild(selectionPlaceSquare, 3);
 
     selectionPlaceSquareForbidden = DrawNode::create(1);
-    selectionPlaceSquareForbidden->drawTriangle(Vec2(0, 0), Vec2(0, map->tile_size), Vec2(map->tile_size, 0), SELECTION_SQUARE_TRI_DENIED);
-    selectionPlaceSquareForbidden->drawTriangle(Vec2(map->tile_size, map->tile_size), Vec2(map->tile_size, 0), Vec2(0, map->tile_size), SELECTION_SQUARE_TRI_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(map->tile_size, 0), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(0, map->tile_size), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(map->tile_size, 0), Vec2(map->tile_size, map->tile_size), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(map->tile_size, map->tile_size), Vec2(0, map->tile_size), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize), Vec2(map->_tileSize, 0), SELECTION_SQUARE_TRI_DENIED);
+    selectionPlaceSquareForbidden->drawTriangle(Vec2(map->_tileSize, map->_tileSize), Vec2(map->_tileSize, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_TRI_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(map->_tileSize, 0), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize, 0), Vec2(map->_tileSize, map->_tileSize), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize, map->_tileSize), Vec2(0, map->_tileSize), SELECTION_SQUARE_DENIED);
     selectionPlaceSquareForbidden->setAnchorPoint(Point(0.5, 0.5));
     gridNode->addChild(selectionPlaceSquareForbidden, 3);
 
     worldCoordsLines = DrawNode::create(1);
-    worldCoordsLines->drawLine(Vec2(0, -map->map_size_x * map->tile_size), Vec2(0, 0), Color4F(0, 0.5, 0, 1));
-    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(0, map->map_size_x * map->tile_size), Color4F(0, 1, 0, 1));
-    worldCoordsLines->drawLine(Vec2(-map->map_size_x * map->tile_size, 0), Vec2(0, 0), Color4F(0.5, 0, 0, 1));
-    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(map->map_size_x * map->tile_size, 0), Color4F(1, 0, 0, 1));
+    worldCoordsLines->drawLine(Vec2(0, -map->_mapSize.x * map->_tileSize), Vec2(0, 0), Color4F(0, 0.5, 0, 1));
+    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(0, map->_mapSize.x * map->_tileSize), Color4F(0, 1, 0, 1));
+    worldCoordsLines->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, 0), Vec2(0, 0), Color4F(0.5, 0, 0, 1));
+    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(map->_mapSize.x * map->_tileSize, 0), Color4F(1, 0, 0, 1));
     worldCoordsLines->setAnchorPoint(Point(0.5, 0.5));
     worldCoordsLines->setOpacity(100);
     gridNode->addChild(worldCoordsLines, 1);
 
     oldMouseLocation = Vec2(0, 0);
     newMouseLocation = Vec2(0, 0);
-
-    gridHideValue = new ChangeValueBool();
-    gridOpacityValue = new ChangeValueFloat();
 
     auto parent = Node::create();
     parent->setPositionX(visibleSize.width);
@@ -212,21 +194,6 @@ bool MapEditor::init()
 
     return true;
 }
-
-//backend::ProgramState* CreateProgramStateFromFragment(const std::string& fragmentShaderPath)
-//{
-//    const auto fileUtils = ax::FileUtils::getInstance();
-//    const auto fragmentFullPath = fileUtils->fullPathForFilename(fragmentShaderPath);
-//    const auto fragSource = fileUtils->getStringFromFile(fragmentFullPath);
-//    const auto program = ax::backend::Device::getInstance()->newProgram(ax::positionTextureColor_vert, fragSource);
-//
-//    const auto programState = new (std::nothrow) backend::ProgramState(program);
-//
-//    // Program must be released if no longer used, since it is not auto-released
-//    CC_SAFE_RELEASE(program);
-//
-//    return programState;
-//}
 
 void MapEditor::onInitDone(f32 dt)
 {
@@ -390,7 +357,7 @@ void MapEditor::onInitDone(f32 dt)
         //        errorInCase = "tileSize can only be: 8, 16, 32, 64";
         //        return;
         //    }
-        //    if (map->chunk_size == -1)
+        //    if (map->_chunkSize == -1)
         //    {
         //        loadStep = 99;
         //        return;
@@ -469,19 +436,6 @@ void MapEditor::onInitDone(f32 dt)
         bg->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))->enableLayerResizing());
         addChild(bg, -1);
 
-        //editUpdate_place(0, 0, 256, 256);
-
-        map->chunkUpdate(Vec2(INFINITY, INFINITY), Vec2(-INFINITY, -INFINITY),
-            chunkNode, map_sprite_stamp, map_default_tex, map_default_tile_shader, map_default_tile_shader_blend);
-
-        for (size_t x = 0; x < 10; x++)
-        {
-            for (size_t y = 1; y < 11; y++)
-            {
-                map->removeTileIfNotExists(Vec2(x, y), map->getOrCreateLayer(map->getOrCreateLayerGroup("Tile Group 1"), "Tile Layer 1"));
-            }
-        }
-
         //std::cout << sqlite3_close(pdb) << std::endl;
         //pdb = nullptr;
 
@@ -493,8 +447,8 @@ void MapEditor::onInitDone(f32 dt)
 
         TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 
-        tilesetArr = new TilesetArray({ 16, 16 });
-        tilesetArr->retain();
+        tilesetArr = TilesetArray::create({ 16, 16 });
+        tilesetArr->autorelease();
 
         auto texture1 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
         auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
@@ -565,22 +519,22 @@ void MapEditor::onInitDone(f32 dt)
 
 void MapEditor::perSecondUpdate(f32 dt)
 {
-    std::vector<TileID> Rtiles = { 0 };
+    //std::vector<TileID> Rtiles = { 0 };
 
-    for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
-        if (Random::float01() > 0.9) {
-            TileID newGid = Rtiles[Random::maxInt(Rtiles.size() - 1)];
+    //for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
+    //    if (Random::float01() > 0.9) {
+    //        TileID newGid = Rtiles[Random::maxInt(Rtiles.size() - 1)];
 
-            if (Random::float01() > 0.5)
-                newGid |= TILE_FLAG_ROTATE;
-            if (Random::float01() > 0.5)
-                newGid |= TILE_FLAG_FLIP_X;
-            if (Random::float01() > 0.5)
-                newGid |= TILE_FLAG_FLIP_Y;
+    //        if (Random::float01() > 0.5)
+    //            newGid |= TILE_FLAG_ROTATE;
+    //        if (Random::float01() > 0.5)
+    //            newGid |= TILE_FLAG_FLIP_X;
+    //        if (Random::float01() > 0.5)
+    //            newGid |= TILE_FLAG_FLIP_Y;
 
-            ChunkFactory::setTile(tarr, i, newGid);
-        }
-    }
+    //        ChunkFactory::setTile(tarr, i, newGid);
+    //    }
+    //}
 
     //coord.ccw();
 
@@ -614,6 +568,8 @@ void MapEditor::perSecondUpdate(f32 dt)
 
 void MapEditor::update(f32 dt)
 {
+    chunkMeshCreateCount = 0;
+
     REBUILD_UI;
 
     //ps->addParticles(1, -1, -1);
@@ -625,12 +581,11 @@ void MapEditor::update(f32 dt)
 
     auto* focusState = &Darkness::getInstance()->gameWindow.focusState;
     if (*focusState) {
-        tilesetArr->reloadTextures();
-        tilesetArr->calculateBounds();
+        map->reload();
         *focusState = false;
     }
 
-    auto cam = Camera::getDefaultCamera();
+    auto cam = _defaultCamera;
 
     //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
 
@@ -653,10 +608,13 @@ void MapEditor::update(f32 dt)
 
     //std::cout << this->getChildrenCount() << "\n";
 
+    setWorldBoundsLayerColorTransforms(_defaultCamera);
 
-    cam->setPosition(Vec2(
-        clamp(cameraLocation->getPositionX(), (f32)(map->map_size_x * map->tile_size) * -1, (f32)map->map_size_x * map->tile_size),
-        clamp(cameraLocation->getPositionY(), (f32)(map->map_size_y * map->tile_size) * -1, (f32)map->map_size_y * map->tile_size)));
+    cameraLocation->setPosition(Vec2(
+        clamp(cameraLocation->getPositionX(), (f32)(map->_mapSize.x * map->_tileSize) * -1, (f32)map->_mapSize.x * map->_tileSize),
+        clamp(cameraLocation->getPositionY(), (f32)(map->_mapSize.y * map->_tileSize) * -1, (f32)map->_mapSize.y * map->_tileSize)));
+
+    _defaultCamera->setPosition(cameraLocation->getPosition());
 
     Vec2 pos = convertFromScreenToSpace(mouseLocationInView, visibleSize, cam);
     //updateDirectorToStatsCount(map->totalTiles(), map->totalChunks());
@@ -670,15 +628,15 @@ void MapEditor::update(f32 dt)
     for (const auto i : uiNodeNonFollow->getChildren())
         i->setScale(cam->getZoom());
     oldSelectionPlace = selectionPlace;
-    selectionPlace = Vec2(snap(pos.x - map->tile_size * 1.5f, map->tile_size) + map->tile_size, snap(pos.y - map->tile_size * 1.5f, map->tile_size) + map->tile_size);
-    chunkSelectionPlace = Vec2(snap(pos.x - map->chunk_size / 2, map->chunk_size), snap(pos.y - map->chunk_size / 2, map->chunk_size));
-    Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->chunk_size / 2, map->chunk_size), snap(cameraLocation->getPositionY() - map->chunk_size / 2, map->chunk_size));
+    selectionPlace = Vec2(snap(pos.x - map->_tileSize * 1.5f, map->_tileSize) + map->_tileSize, snap(pos.y - map->_tileSize * 1.5f, map->_tileSize) + map->_tileSize);
+    chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
+    Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize));
     grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
     //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
     selectionPlaceSquare->setPosition(selectionPlace);
     selectionPlaceSquareForbidden->setPosition(selectionPlace);
-    if (selectionPlace.x + map->tile_size / 2 < -map->map_size_x * map->tile_size || selectionPlace.x + map->tile_size / 2 > map->map_size_x * map->tile_size ||
-        selectionPlace.y + map->tile_size / 2 < -map->map_size_y * map->tile_size || selectionPlace.y + map->tile_size / 2 > map->map_size_y * map->tile_size)
+    if (selectionPlace.x + map->_tileSize / 2 < -map->_mapSize.x * map->_tileSize || selectionPlace.x + map->_tileSize / 2 > map->_mapSize.x * map->_tileSize ||
+        selectionPlace.y + map->_tileSize / 2 < -map->_mapSize.y * map->_tileSize || selectionPlace.y + map->_tileSize / 2 > map->_mapSize.y * map->_tileSize)
     {
         isLocationEditable = false;
         selectionPlaceSquare->setVisible(false);
@@ -702,7 +660,7 @@ void MapEditor::update(f32 dt)
 
 void MapEditor::lateUpdate(f32 dt)
 {
-    auto cam = Camera::getDefaultCamera();
+    auto cam = _defaultCamera;
 
     bg->setPositionX(cameraLocation->getPositionX() - visibleSize.width / 2);
     bg->setPositionY(cameraLocation->getPositionY() - visibleSize.height / 2);
@@ -729,9 +687,9 @@ void MapEditor::lateUpdate(f32 dt)
     //deltaEditing->clear();
     //deltaEditing->setLineWidth(1);
     //deltaEditing->drawLine(convertFromScreenToSpace(oldMouseLocationOnUpdate, visibleSize, true), convertFromScreenToSpace(newMouseLocationOnUpdate, visibleSize, true), Color4F::GREEN);
-    //cameraCenterIndicator->setPosition(Camera::getDefaultCamera()->getPosition());
-    //cameraCenterIndicator->setScaleX(Camera::getDefaultCamera()->getScaleX());
-    //cameraCenterIndicator->setScaleY(Camera::getDefaultCamera()->getScaleY());
+    //cameraCenterIndicator->setPosition(_defaultCamera->getPosition());
+    //cameraCenterIndicator->setScaleX(_defaultCamera->getScaleX());
+    //cameraCenterIndicator->setScaleY(_defaultCamera->getScaleY());
     Size place    = Size();
     place.width   = 100;
     place.height  = 100;
@@ -741,7 +699,6 @@ void MapEditor::lateUpdate(f32 dt)
     editUpdate(oldSelectionPlace, selectionPlace, place, remove);
     Vec2 loc = convertFromScreenToSpace(Vec2(visibleSize.width, visibleSize.height), visibleSize, cam);
     Vec2 loc0 = convertFromScreenToSpace(Vec2(0, 0), visibleSize, cam);
-    map->chunkUpdate(loc, loc0, chunkNode, map_sprite_stamp, map_default_tex, map_default_tile_shader, map_default_tile_shader_blend);
 }
 
 //void MapEditor::chunkUpdate(F32 dt)
@@ -833,22 +790,16 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
-    for (i32 x = -map->tile_size * _width; x < map->tile_size * _width; x += map->tile_size)
-        for (i32 y = -map->tile_size * _height; y < map->tile_size * _height; y += map->tile_size)
-            map->addTileIfNotExists(map->convertFromSpaceToTileSpace(Vec2(_x + x, _y + y)), map->getOrCreateLayer(map->getOrCreateLayerGroup("Tile Group 1"), "Tile Layer 1"), 0, 0, Random::maxInt(4), ColorConversion::rgba2hex(Color4B(Random::maxInt(255), Random::maxInt(255), Random::maxInt(255), Random::maxInt(255))));
 }
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
-    for (i32 x = _x; x < _width; x += map->tile_size)
-        for (i32 y = _y; y < _height; y += map->tile_size)
-            map->removeTileIfNotExists(map->convertFromSpaceToTileSpace(Vec2(x, y)), map->getOrCreateLayer(map->getOrCreateLayerGroup("Tile Group 1"), "Tile Layer 1"));
 }
 
 void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size removeStampSize)
 {
     if (isRemoving)
-        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, Camera::getDefaultCamera(), true), map->tile_size);
+        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize);
 
     if (isPlacing || isRemoving)
     {
@@ -858,7 +809,7 @@ void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size remov
         evalX = _oldX - _newX;
         evalY = _oldY - _newY;
         f32 _width = 0, height = 0;
-        finalEval = abs((abs(evalX) - _width) / map->tile_size > (abs(evalY) - height) / map->tile_size ? (abs(evalX) - _width) / map->tile_size : (abs(evalY) - height) / map->tile_size);
+        finalEval = abs((abs(evalX) - _width) / map->_tileSize > (abs(evalY) - height) / map->_tileSize ? (abs(evalX) - _width) / map->_tileSize : (abs(evalY) - height) / map->_tileSize);
         for (f32 i = 0l; i < 1.0l; i += 1.0l / finalEval)
         {
             vX = _oldX - _newX;
@@ -869,7 +820,7 @@ void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size remov
             vY += _newY;
             if (isPlacing)
             {
-                editUpdate_place(snap(vX, map->tile_size), snap(vY, map->tile_size), placeStampSize.width, placeStampSize.height);
+                editUpdate_place(snap(vX, map->_tileSize), snap(vY, map->_tileSize), placeStampSize.width, placeStampSize.height);
                 // break the loop cuz we dont want the stamp to be lined with frame lag
                 // cuz that shit steals a TON of frames just skip it if its over 10 units on any axis
                 if (placeStampSize.width > 10 || placeStampSize.height > 10)
@@ -899,16 +850,6 @@ void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size remov
     //        for (i32 y = -tileSize * 10; y < tileSize * 10; y += tileSize)
     //            removeTileIfNotExists(convertFromSpaceToTileSpace(Vec2(place.x + x, place.y + y)));
     //}
-}
-
-void MapEditor::updateUiHitEvent(ax::Vec2 point)
-{
-    isUiObstructing = false;
-    for (const auto& i : uiHitEvents) {
-        if (!i->hitTest(point, Camera::getDefaultCamera(), nullptr))
-            continue;
-        isUiObstructing = true;
-    }
 }
 
 void MapEditor::onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event)
@@ -943,18 +884,18 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     {
         //std::terminate();
         //sqlite3_exec(pdb, std::string("DELETE FROM MapChunkDatas").c_str(), NULL, NULL, NULL);
-        for (const auto& x : *map->layer_groups)
-            for (const auto& y : *x->layers)
-                for (const auto& i : *y->chunks_map) {
-                    std::string dat = Strings::to_base64(zlibString::compress_string(map->createCSVFromChunk(i.second)));
-                    std::string pos = std::string("[") + std::to_string(i.second->x) + "," + std::to_string(i.second->y) + std::string("]");
-                    std::string gid = std::to_string(i.second->textureGID);
-                    i32 result = 0;
-                    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, std::string("INSERT OR IGNORE INTO MapChunkDatas VALUES ('" + pos + "'," + gid + ",\"\");").c_str(), NULL, NULL, NULL) : result;
-                    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, std::string("UPDATE MapChunkDatas SET chunk_data_binary='" + dat + "' WHERE position_in_chunk_space='" + pos + "'").c_str(), NULL, NULL, NULL) : result;
-                    SQLITE_CRASH_CHECK(result);
-                }
-        sqlite3_wal_checkpoint(pdb, NULL);
+        //for (const auto& x : *map->layer_groups)
+        //    for (const auto& y : *x->layers)
+        //        for (const auto& i : *y->chunks_map) {
+        //            std::string dat = Strings::to_base64(zlibString::compress_string(map->createCSVFromChunk(i.second)));
+        //            std::string pos = std::string("[") + std::to_string(i.second->x) + "," + std::to_string(i.second->y) + std::string("]");
+        //            std::string gid = std::to_string(i.second->textureGID);
+        //            i32 result = 0;
+        //            result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, std::string("INSERT OR IGNORE INTO MapChunkDatas VALUES ('" + pos + "'," + gid + ",\"\");").c_str(), NULL, NULL, NULL) : result;
+        //            result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, std::string("UPDATE MapChunkDatas SET chunk_data_binary='" + dat + "' WHERE position_in_chunk_space='" + pos + "'").c_str(), NULL, NULL, NULL) : result;
+        //            SQLITE_CRASH_CHECK(result);
+        //        }
+        //sqlite3_wal_checkpoint(pdb, NULL);
     }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_J)
@@ -965,7 +906,7 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_W)
     {
-        Camera::getDefaultCamera()->runAction(
+        _defaultCamera->runAction(
             RepeatForever::create(
                 Sequence::create(
                     RotateBy::create(3, 360),
@@ -1022,7 +963,7 @@ void MapEditor::onMouseDown(ax::Event* event)
         if (!isUiObstructing)
         {
             isRemoving = true;
-            removeSelectionStartPos = convertFromScreenToSpace(mouseLocation, visibleSize, Camera::getDefaultCamera(), true);
+            removeSelectionStartPos = convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true);
         }
     }
 }
@@ -1032,9 +973,7 @@ void MapEditor::onMouseUp(ax::Event* event)
     EventMouse* e = (EventMouse*)event;
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
     {
-        setWorldBoundsLayerColorTransforms(Camera::getDefaultCamera());
         isEditorDragging = false;
-        cameraLocation->setPosition(Camera::getDefaultCamera()->getPosition());
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
@@ -1043,7 +982,7 @@ void MapEditor::onMouseUp(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         isRemoving = false;
-        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, Camera::getDefaultCamera(), true), map->tile_size);
+        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize);
         editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         std::cout << "remove_selection_tool: begin:" << rect.origin.x << "," << rect.origin.y << " end:" << rect.size.width << "," << rect.size.height << "\n";
         removeSelectionNode->clear();
@@ -1060,12 +999,11 @@ void MapEditor::onMouseMove(ax::Event* event)
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
     if (isEditorDragging)
     {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * Camera::getDefaultCamera()->getZoom()));
-        cameraLocation->setPositionY(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * Camera::getDefaultCamera()->getZoom()));
+        cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _defaultCamera->getZoom()));
+        cameraLocation->setPositionY(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
     }
     //CCLOG("%f,%f", cameraLocation->getPositionX(), cameraLocation->getPositionY());
     mouseLocationInView = e->getLocationInView();
-    updateUiHitEvent(mouseLocationInView);
 }
 
 void MapEditor::setCameraScaleIndex(i32 dir) {
@@ -1094,8 +1032,8 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
     Vec2 pos = cameraLocation->getPosition();
     Vec2 newPos = pos.lerp(targetPos, 1.0F - (postCamScl / preCamScl));
     cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
-    Camera::getDefaultCamera()->setZoom(cameraScale);
-    setWorldBoundsLayerColorTransforms(Camera::getDefaultCamera());
+    _defaultCamera->setZoom(cameraScale);
+    setWorldBoundsLayerColorTransforms(_defaultCamera);
     set_cameraScaleUiText(cameraScale);
 }
 
@@ -1111,8 +1049,8 @@ void MapEditor::onMouseScroll(ax::Event* event)
         SQLITE_CRASH_CHECK(result);
     }
 
-    //Camera::getDefaultCamera()->setScaleX(clamp(Camera::getDefaultCamera()->getScaleX(), 1, 30));
-    //Camera::getDefaultCamera()->setScaleY(clamp(Camera::getDefaultCamera()->getScaleY(), 1, 30));
+    //_defaultCamera->setScaleX(clamp(_defaultCamera->getScaleX(), 1, 30));
+    //_defaultCamera->setScaleY(clamp(_defaultCamera->getScaleY(), 1, 30));
 
 
 }
@@ -1120,7 +1058,7 @@ void MapEditor::onMouseScroll(ax::Event* event)
 bool MapEditor::onTouchBegan(ax::Touch* touch, ax::Event* event)
 {
     isEditorDragging = true;
-    //cameraLocation = Camera::getDefaultCamera()->getPosition();
+    //cameraLocation = _defaultCamera->getPosition();
     isTouchNew = true;
     return true;
 }
@@ -1139,8 +1077,8 @@ void MapEditor::onTouchMoved(ax::Touch* touch, ax::Event* event)
     mouseLocationDelta = oldMouseLocation - newMouseLocation;
     if (isEditorDragging)
     {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * Camera::getDefaultCamera()->getZoom()));
-        cameraLocation->setPositionX(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * Camera::getDefaultCamera()->getZoom()));
+        cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _defaultCamera->getZoom()));
+        cameraLocation->setPositionX(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
     }
     mouseLocationInView = touch->getLocation();
 }
@@ -1148,7 +1086,7 @@ void MapEditor::onTouchMoved(ax::Touch* touch, ax::Event* event)
 void MapEditor::onTouchEnded(ax::Touch* touch, ax::Event* event)
 {
     isEditorDragging = true;
-    cameraLocation->setPosition(Camera::getDefaultCamera()->getPosition());
+    cameraLocation->setPosition(_defaultCamera->getPosition());
 }
 
 void MapEditor::onTouchCancelled(ax::Touch* touch, ax::Event* event)
@@ -1171,8 +1109,6 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 void MapEditor::buildEntireUi()
 {
     rebuildableUiNodes->removeAllChildren();
-    uiHitEvents.clear();
-
     statsParentNode = Node::create();
     statsParentNode->setPosition(Vec2(visibleSize.width / -2 + 5, visibleSize.height / -2));
     setNodeIgnoreDesignScale(statsParentNode);
@@ -1280,8 +1216,8 @@ void MapEditor::buildEntireUi()
     //                }
     //                cameraScaleIndex = i;
     //                cameraScale = possibleCameraScales[cameraScaleIndex];
-    //                /*Camera::getDefaultCamera()->runAction(ease);
-    //                auto moveAnim = MoveTo::create(5.3f, Vec3(0, 0, Camera::getDefaultCamera()->getPositionZ()));
+    //                /*_defaultCamera->runAction(ease);
+    //                auto moveAnim = MoveTo::create(5.3f, Vec3(0, 0, _defaultCamera->getPositionZ()));
     //                auto ease1 = EaseElasticOut::create(moveAnim);
     //                cameraLocation->runAction(ease1);*/
     //                set_cameraScaleUiText(cameraScale);
@@ -1353,10 +1289,10 @@ ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _t
         start_pos.y = start_pos.y + _tileSize / 2;
         end_pos.y = end_pos.y - _tileSize / 2;
     }
-    start_pos.x = clamp(start_pos.x, -map->map_size_x * _tileSize, map->map_size_x * _tileSize);
-    start_pos.y = clamp(start_pos.y, -map->map_size_y * _tileSize, map->map_size_y * _tileSize);
-    end_pos.x = clamp(end_pos.x, -map->map_size_x * _tileSize, map->map_size_x * _tileSize);
-    end_pos.y = clamp(end_pos.y, -map->map_size_y * _tileSize, map->map_size_y * _tileSize);
+    start_pos.x = clamp(start_pos.x, -map->_mapSize.x * _tileSize, map->_mapSize.x * _tileSize);
+    start_pos.y = clamp(start_pos.y, -map->_mapSize.y * _tileSize, map->_mapSize.y * _tileSize);
+    end_pos.x = clamp(end_pos.x, -map->_mapSize.x * _tileSize, map->_mapSize.x * _tileSize);
+    end_pos.y = clamp(end_pos.y, -map->_mapSize.y * _tileSize, map->_mapSize.y * _tileSize);
     if (start_pos.x > end_pos.x) {
         auto temp = end_pos.x;
         end_pos.x = start_pos.x;
@@ -1462,51 +1398,4 @@ void MapEditor::setWorldBoundsLayerColorTransforms(Camera* cam)
     LeftMapSizeNode->setScaleX(cameraScale);
     LeftMapSizeNode->setScaleY(cameraScale);
     LeftMapSizeNode->setPositionY(cam->getPositionY());
-}
-
-void MapEditor::draw(Renderer* renderer, const Mat4& transform, uint32_t flags)
-{
-    //if (quad != nullptr) {
-    //    if (chunk.getPipelineDescriptor().programState != nullptr) {
-    //        CCLOG("IM DRAWING IT !!!!");
-    //        const auto& matrixProjection = Director::getInstance()->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-    //        auto programState = chunk.getPipelineDescriptor().programState;
-    //        programState->setUniform(programState->getUniformLocation("u_MVPMatrix"), matrixProjection.m, sizeof(matrixProjection.m));
-    //        programState->setTexture(programState->getUniformLocation("u_texture"), 0, tex->getBackendTexture());
-    //        chunk.init(1000, tex, BlendFunc::ALPHA_PREMULTIPLIED, quad, 1, transform, flags);
-    //        renderer->addCommand(&chunk);
-    //    }
-    //    else {
-    //        auto& pipelineDescriptor = chunk.getPipelineDescriptor();
-    //        auto* program = backend::Device::getInstance()->newProgram(positionTextureColor_vert, positionTextureColor_frag);
-    //        auto programState = new (std::nothrow) backend::ProgramState(program);
-    //        chunk.getPipelineDescriptor().programState = programState;
-    //        backend::TextureDescriptor textureDescriptor;
-    //        textureDescriptor.textureFormat = PixelFormat::NONE;
-    //        this->tex->_texture = static_cast<backend::Texture2DBackend*>(backend::Device::getInstance()->newTexture(textureDescriptor));
-    //    }
-    //}
-    //else if (_programState == nullptr) {
-    //    auto spriteQuad = Sprite::createWithTexture(tex);
-    //    chunk = QuadCommand();
-    //    quad = &spriteQuad->getQuad();
-    //}
-
-    ////rt = RenderTexture::create(128, 128);
-
-    ////Mat4 m = Director::getInstance()->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-
-    ////m.translate(0.0f, -10.0f, 0.0f);
-
-    ////Director::getInstance()->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-    ////Director::getInstance()->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, m);
-
-    ////rt->beginWithClear(0.0f, 0.0f, 0.0f, 0.0f);
-
-    ////auto sp = Sprite::create("32x32.png");
-    ////sp->visit();
-
-    ////rt->end();
-
-    ////Director::getInstance()->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 }

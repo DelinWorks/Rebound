@@ -199,9 +199,6 @@ static void window_close_callback(GLFWwindow* window)
     //    glfwSetWindowShouldClose(window, GLFW_FALSE);
     //    return;
     //}
-
-    glfwHideWindow(Darkness::getInstance()->gameWindow.window);
-    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 #endif
 

@@ -45,7 +45,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
     // create the application instance
     AppDelegate app;
+
+    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
     int ret = Application::getInstance()->run();
+
+    _CrtDumpMemoryLeaks();
 
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();

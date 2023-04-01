@@ -62,10 +62,13 @@ using namespace Math;
 
 #include "Helper/Rebound/TileMapSystem.hpp"
 
+using namespace TileSystem;
+
 class MapEditor : public ax::Scene
 {
 public:
     static ax::Scene* createScene();
+    CREATE_FUNC(MapEditor);
 
     ~MapEditor();
 
@@ -85,10 +88,6 @@ public:
 
     virtual bool init();
     void onInitDone(f32 dt);
-    void draw(ax::Renderer* renderer, const ax::Mat4& transform, uint32_t flags);
-
-    std::vector<ax::ui::Widget*> uiHitEvents;
-    void updateUiHitEvent(ax::Vec2 point);
 
     void onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
     void onKeyPressed(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
@@ -123,7 +122,6 @@ public:
     //void reorderChunks();
     void menuCloseCallback(ax::Ref* pSender);
     void buildEntireUi();
-    CREATE_FUNC(MapEditor);
 
     void setUiTextDefaultShade(ax::ui::Text* text_node, bool use_shadow = true);
 
@@ -135,7 +133,7 @@ public:
     ax::MeshRenderer* renderer;
     TileTexCoords coord{ { 0,0 }, { 1,0 }, { 0,1 }, { 1,1 } };
 
-    GameUtils::TileSystem::Map* map;
+    TileSystem::Map* map;
 
     TileArray* tarr;
 
@@ -164,7 +162,7 @@ public:
     f32 cameraScale;
     i32 cameraScaleIndex = 5;
     //f32 possibleCameraScales[29] = { 0.05F, 0.1F, 0.2F, 0.3F, 0.4F, 0.6F, 0.8F, 1, 1.5F, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18, 22, 26, 32, 48, 64, 80, 96, 100};
-    f32 possibleCameraScales[16] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70, 85 };
+    f32 possibleCameraScales[15] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70 };
 
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;

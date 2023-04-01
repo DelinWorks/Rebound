@@ -79,6 +79,7 @@ ax::Controller::KeyStatus Darkness::getKeyState(ax::Controller::Key key)
 
 void Darkness::destroyInstance()
 {
+    glfwHideWindow(Darkness::getInstance()->gameWindow.window);
     Director::getInstance()->getScheduler()->unscheduleUpdate(_darkness);
     _darkness->gameWindow.isAllowedToLeave = true;
     Director::getInstance()->end();
