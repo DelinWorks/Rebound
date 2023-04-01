@@ -50,7 +50,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
     int ret = Application::getInstance()->run();
 
-    _CrtDumpMemoryLeaks();
+    //_CrtDumpMemoryLeaks();
 
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();

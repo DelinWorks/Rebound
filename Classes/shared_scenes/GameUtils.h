@@ -820,6 +820,18 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
             //    }
             //};
 
+            enum BorderLayout {
+                TOP = 0,
+                TOP_RIGHT = 1,
+                RIGHT = 2,
+                BOTTOM_RIGHT = 3,
+                BOTTOM = 4,
+                BOTTOM_LEFT = 5,
+                LEFT = 6,
+                TOP_LEFT = 7,
+                CENTER = 8,
+            };
+
             class UiRescaleComponent : public Component {
             public:
                 bool setLayerColor = false;
@@ -875,6 +887,47 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     resizeHints = true;
                     resizeHintsRect = Rect(widthDiv, heightDiv, widthOffset, heightOffset);
                     isUiElemDirty = true;
+                    return this;
+                }
+
+                UiRescaleComponent* setBorderLayout(BorderLayout border = BorderLayout::CENTER) {
+                    switch (border) {
+                    case BorderLayout::TOP: {
+                        setVisibleSizeHints(0);
+                        break;
+                    }
+                    case BorderLayout::TOP_RIGHT: {
+                        setVisibleSizeHints();
+                        break;
+                    }
+                    case BorderLayout::RIGHT: {
+                        setVisibleSizeHints(2, 0, 0, 0);
+                        break;
+                    }
+                    case BorderLayout::BOTTOM_RIGHT: {
+                        setVisibleSizeHints(2, 0, -2, 0);
+                        break;
+                    }
+                    case BorderLayout::BOTTOM: {
+                        setVisibleSizeHints(0, 0, -2, 0);
+                        break;
+                    }
+                    case BorderLayout::BOTTOM_LEFT: {
+                        setVisibleSizeHints(-2, 0, -2, 0);
+                        break;
+                    }
+                    case BorderLayout::LEFT: {
+                        setVisibleSizeHints(-2, 0, 0, 0);
+                        break;
+                    }
+                    case BorderLayout::TOP_LEFT: {
+                        setVisibleSizeHints(-2, 0, 2, 0);
+                        break;
+                    }
+                    default: {
+                        setVisibleSizeHints(0, 1, 0, 0);
+                    }
+                    }
                     return this;
                 }
 

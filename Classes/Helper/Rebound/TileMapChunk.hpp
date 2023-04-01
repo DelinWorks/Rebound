@@ -11,7 +11,7 @@ namespace TileSystem {
 
     typedef uint32_t TileID;
 
-#define CHUNK_SIZE 32
+#define CHUNK_SIZE 32.0
 #define CHUNK_BUFFER_SIZE (CHUNK_SIZE*CHUNK_SIZE)
 
 #define TILE_FLAG_ROTATE (TileID(1) << 31)
@@ -270,7 +270,6 @@ namespace TileSystem {
 
         ~TileArray() {
             AX_SAFE_FREE(_tiles);
-            AX_SAFE_RELEASE(cachedTilesetArr);
             for (auto& [_, v] : vertexCache)
                 v.clear();
             vertexCache.clear();
@@ -289,6 +288,7 @@ namespace TileSystem {
         int _vertexSize;
         bool _chunkDirty = true;
         bool _isParent = false;
+        bool _isModified = false;
 
         ax::Mesh* _mesh;
         TileArray* _tiles;
@@ -378,12 +378,17 @@ namespace TileSystem {
                     }
                     else {
                         unsigned short startindex = vertices.size() / vertexSize;
+                        float x = x1 * tileset->_tileSize.x;
+                        float y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
+                        float sx = tileset->_tileSize.x;
+                        float sy = tileset->_tileSize.y;
+                        Color4F tc = Color4F::WHITE;
 
                         vertices.insert(vertices.end(), {
-                            0,0,0,  0,0,0,0,   0,0,
-                            0,0,0,  0,0,0,0,   0,0,
-                            0,0,0,  0,0,0,0,   0,0,
-                            0,0,0,  0,0,0,0,   0,0,
+                            x, y,            0,  tc.r, tc.g, tc.b, tc.a,   0,0,
+                            x + sx, y,       0,  tc.r, tc.g, tc.b, tc.a,   0,0,
+                            x, y + sy,       0,  tc.r, tc.g, tc.b, tc.a,   0,0,
+                            x + sx, y + sy,  0,  tc.r, tc.g, tc.b, tc.a,   0,0,
                             });
 
                         indices.insert<uint16_t>(indices.size(),
@@ -436,14 +441,14 @@ namespace TileSystem {
         }
 
         // This modifies the vertex cache directly for better performance
-        static void setTile(TileArray* tiles, TileID gid, TileID newGid) {
+        static void setTile(TileArray* tiles, TileID index, TileID newGid) {
             auto _tiles = tiles->getArrayPointer(true);
-            _tiles[gid] = newGid;
+            _tiles[index] = newGid;
 
             for (auto& _ : tiles->cachedTilesetArr->_tileSets) {
                 auto& vertices = tiles->vertexCache[_->_firstGid];
                 auto& coord = calculateTileCoords(newGid, _);
-                int startIndex = gid * VERTEX_SIZE_0 * 4;
+                int startIndex = index * VERTEX_SIZE_0 * 4;
                 if (coord._outOfRange) coord = { 0,0,0,0 };
                 vertices[(7 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.U;
                 vertices[(8 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.V;
@@ -475,7 +480,6 @@ namespace TileSystem {
             _mesh->getVertexBuffer()->updateSubData((void*)&vertices[0], 0, vertices.size() * sizeof(vertices[0]));
         }
 
-        void draw(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {}
         void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {
             if (_chunkDirty)
             {
@@ -556,15 +560,14 @@ namespace TileSystem {
             return count;
         }
 
-        ax::Vec2 currentPos;
+        ax::Vec2 _pos;
 
         void setPositionInChunkSpace(ax::Vec2 pos) {
             setPositionInChunkSpace(pos.x, pos.y);
         }
 
         void setPositionInChunkSpace(float x, float y) {
-            setPosition(x * _tilesetArr->_tileSets[0]->_sizeInPixels.x,
-                y * _tilesetArr->_tileSets[0]->_sizeInPixels.y);
+            _pos = { x,y };
         }
 
         void draw(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {}
@@ -577,7 +580,8 @@ namespace TileSystem {
             auto cam_aabb = Rect(cam->getPosition().x - 640 * cam->getZoom(), cam->getPosition().y - 360 * cam->getZoom(),
                 cam->getPosition().x + 640 * cam->getZoom(), cam->getPosition().y + 360 * cam->getZoom());
 
-            auto pos = getPosition();
+
+            auto pos = Vec2(_pos.x * _tilesetArr->_tileSets[0]->_sizeInPixels.x, _pos.y * _tilesetArr->_tileSets[0]->_sizeInPixels.y);
             auto aabb = Rect(pos.x, pos.y, pos.x + _tilesetArr->_tileSets[0]->_sizeInPixels.x, pos.y + _tilesetArr->_tileSets[0]->_sizeInPixels.y);
 
             if (!cam_aabb.intersectsRect(aabb)) {

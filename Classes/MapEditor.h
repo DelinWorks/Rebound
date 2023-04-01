@@ -62,6 +62,8 @@ using namespace Math;
 
 #include "Helper/Rebound/TileMapSystem.hpp"
 
+#include "shared_scenes/custom_nodes/ui/custom_ui.h"
+
 using namespace TileSystem;
 
 class MapEditor : public ax::Scene
@@ -82,7 +84,7 @@ public:
     f32 updateSchedTime;
     void perSecondUpdate(f32 dt);
     void lateUpdate(f32 dt);
-    void editUpdate(ax::Vec2 old, ax::Vec2 place, ax::Size placeStampSize, ax::Size removeStampSize);
+    void editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize);
     void editUpdate_place(f32 x, f32 y, f32 _width, f32 _height);
     void editUpdate_remove(f32 x, f32 y, f32 _width, f32 _height);
 
@@ -195,6 +197,8 @@ public:
 
     ax::Node* uiNode;
     ax::Node* uiNodeNonFollow;
+    CustomUi::CustomUiContainer* container;
+
     ax::Node* gridNode;
     ax::Node* TopMapSizeNode;
     ax::Node* BottomMapSizeNode;

@@ -44,11 +44,13 @@ namespace CustomUi
         bool show_password = false;
         bool isFocused = false;
 
-        void init(std::string _placeholder, std::string _fontname, i32 _fontsize,
-            bool _password, cocos2d::Rect _capinsets, cocos2d::Size _contentsize,
-            cocos2d::Rect _clampregion, Size _clampoffset, std::string _normal_sp,
-            bool _adaptToWindowSize = false, Color3B _selected_color = Color3B(117, 179, 255),
-            bool _allowExtend = true, i32 length = 128, bool _toUpper = false, str _allowedChars = "");
+        void init(std::string_view _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv);
+
+        void init(std::string_view _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
+            cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
+            Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
+            Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
+            std::string_view _allowedChars);
 
         bool update(cocos2d::Vec2 mouseLocationInView, Camera* cam);
 

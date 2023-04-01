@@ -97,86 +97,86 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
-    map = TileSystem::Map::create(16, 1, Vec2(100, 50));
+    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(10, 10));
     addChild(map);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
-    for (i32 i = -(map->_gridSize / map->_tileSize) * 7; i <= +(map->_gridSize / map->_tileSize) * 8; i++)
+    for (i32 i = -(map->_gridSize / map->_tileSize.x) * 7; i <= +(map->_gridSize / map->_tileSize.x) * 8; i++)
     {
-        gridDN->drawLine(Vec2(i * map->_tileSize, -map->_gridSize / 2 * 7), Vec2(i * map->_tileSize, +map->_gridSize / 2 * 8), GRID_COLOR);
+        gridDN->drawLine(Vec2(i * map->_tileSize.x, -map->_gridSize / 2 * 7), Vec2(i * map->_tileSize.x, +map->_gridSize / 2 * 8), GRID_COLOR);
     }
-    for (i32 i = -(map->_gridSize / 2 / map->_tileSize) * 7; i <= +(map->_gridSize / 2 / map->_tileSize) * 8; i++)
+    for (i32 i = -(map->_gridSize / 2 / map->_tileSize.y) * 7; i <= +(map->_gridSize / 2 / map->_tileSize.y) * 8; i++)
     {
-        gridDN->drawLine(Vec2(-map->_gridSize * 7, i * map->_tileSize), Vec2(+map->_gridSize * 8, i * map->_tileSize), GRID_COLOR);
+        gridDN->drawLine(Vec2(-map->_gridSize * 7, i * map->_tileSize.y), Vec2(+map->_gridSize * 8, i * map->_tileSize.y), GRID_COLOR);
     }
     gridDN->setPosition(0, 0);
     grid->addChild(gridDN);
     gridNode->addChild(grid, 1);
 
     TopMapSizeNode = Node::create();
-    TopMapSizeNode->setPosition(Vec2(0, map->_mapSize.y * map->_tileSize));
+    TopMapSizeNode->setPosition(Vec2(0, map->_mapSize.y * map->_tileSize.y));
     auto TopMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     TopMapSize->setPosition(Vec2(visibleSize.width / -2, 0));
     TopMapSizeNode->addChild(TopMapSize);
     gridNode->addChild(TopMapSizeNode, 2);
 
     BottomMapSizeNode = Node::create();
-    BottomMapSizeNode->setPosition(Vec2(0, -map->_mapSize.y * map->_tileSize));
+    BottomMapSizeNode->setPosition(Vec2(0, -map->_mapSize.y * map->_tileSize.y));
     auto BottomMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     BottomMapSize->setPosition(Vec2(visibleSize.width / -2, -visibleSize.height));
     BottomMapSizeNode->addChild(BottomMapSize);
     gridNode->addChild(BottomMapSizeNode, 2);
 
     RightMapSizeNode = Node::create();
-    RightMapSizeNode->setPosition(Vec2(map->_mapSize.x * map->_tileSize, 0));
+    RightMapSizeNode->setPosition(Vec2(map->_mapSize.x * map->_tileSize.x, 0));
     auto RightMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     RightMapSize->setPosition(Vec2(0, visibleSize.height / -2));
     RightMapSizeNode->addChild(RightMapSize);
     gridNode->addChild(RightMapSizeNode, 2);
 
     LeftMapSizeNode = Node::create();
-    LeftMapSizeNode->setPosition(Vec2(-map->_mapSize.x * map->_tileSize, 0));
+    LeftMapSizeNode->setPosition(Vec2(-map->_mapSize.x * map->_tileSize.x, 0));
     auto LeftMapSize = ax::LayerColor::create(LAYER_BACKGROUND_BOUND_COLOR);
     LeftMapSize->setPosition(Vec2(-visibleSize.width, visibleSize.height / -2));
     LeftMapSizeNode->addChild(LeftMapSize);
     gridNode->addChild(LeftMapSizeNode, 2);
 
     WorldBoundsLimit = DrawNode::create(1.0F);
-    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), Vec2(map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
-    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), Vec2(-map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
-    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), Vec2(map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
-    WorldBoundsLimit->drawLine(Vec2(map->_mapSize.x * map->_tileSize, -map->_mapSize.y * map->_tileSize), Vec2(map->_mapSize.x * map->_tileSize, map->_mapSize.y * map->_tileSize), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize.x, map->_mapSize.y * map->_tileSize.y), Vec2(map->_mapSize.x * map->_tileSize.x, map->_mapSize.y * map->_tileSize.y), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize.x, map->_mapSize.y * map->_tileSize.y), Vec2(-map->_mapSize.x * map->_tileSize.x, -map->_mapSize.y * map->_tileSize.y), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(-map->_mapSize.x * map->_tileSize.x, -map->_mapSize.y * map->_tileSize.y), Vec2(map->_mapSize.x * map->_tileSize.x, -map->_mapSize.y * map->_tileSize.y), LINE_BACKGROUND_BOUND_COLOR);
+    WorldBoundsLimit->drawLine(Vec2(map->_mapSize.x * map->_tileSize.x, -map->_mapSize.y * map->_tileSize.y), Vec2(map->_mapSize.x * map->_tileSize.x, map->_mapSize.y * map->_tileSize.y), LINE_BACKGROUND_BOUND_COLOR);
     gridNode->addChild(WorldBoundsLimit, 2);
 
     deltaEditing = DrawNode::create(100);
     this->addChild(deltaEditing);
 
     selectionPlaceSquare = DrawNode::create(1);
-    selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize), Vec2(map->_tileSize, 0), SELECTION_SQUARE_TRI_ALLOWED);
-    selectionPlaceSquare->drawTriangle(Vec2(map->_tileSize, map->_tileSize), Vec2(map->_tileSize, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_TRI_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(map->_tileSize, 0), SELECTION_SQUARE_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(map->_tileSize, 0), Vec2(map->_tileSize, map->_tileSize), SELECTION_SQUARE_ALLOWED);
-    selectionPlaceSquare->drawLine(Vec2(map->_tileSize, map->_tileSize), Vec2(0, map->_tileSize), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_ALLOWED);
+    selectionPlaceSquare->drawTriangle(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(map->_tileSize.x, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_TRI_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(map->_tileSize.x, 0), Vec2(map->_tileSize.x, map->_tileSize.y), SELECTION_SQUARE_ALLOWED);
+    selectionPlaceSquare->drawLine(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_ALLOWED);
     selectionPlaceSquare->setAnchorPoint(Point(0.5, 0.5));
     gridNode->addChild(selectionPlaceSquare, 3);
 
     selectionPlaceSquareForbidden = DrawNode::create(1);
-    selectionPlaceSquareForbidden->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize), Vec2(map->_tileSize, 0), SELECTION_SQUARE_TRI_DENIED);
-    selectionPlaceSquareForbidden->drawTriangle(Vec2(map->_tileSize, map->_tileSize), Vec2(map->_tileSize, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_TRI_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(map->_tileSize, 0), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize, 0), Vec2(map->_tileSize, map->_tileSize), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize, map->_tileSize), Vec2(0, map->_tileSize), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_DENIED);
+    selectionPlaceSquareForbidden->drawTriangle(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(map->_tileSize.x, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_TRI_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize.x, 0), Vec2(map->_tileSize.x, map->_tileSize.y), SELECTION_SQUARE_DENIED);
+    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_DENIED);
     selectionPlaceSquareForbidden->setAnchorPoint(Point(0.5, 0.5));
     gridNode->addChild(selectionPlaceSquareForbidden, 3);
 
     worldCoordsLines = DrawNode::create(1);
-    worldCoordsLines->drawLine(Vec2(0, -map->_mapSize.x * map->_tileSize), Vec2(0, 0), Color4F(0, 0.5, 0, 1));
-    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(0, map->_mapSize.x * map->_tileSize), Color4F(0, 1, 0, 1));
-    worldCoordsLines->drawLine(Vec2(-map->_mapSize.x * map->_tileSize, 0), Vec2(0, 0), Color4F(0.5, 0, 0, 1));
-    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(map->_mapSize.x * map->_tileSize, 0), Color4F(1, 0, 0, 1));
+    worldCoordsLines->drawLine(Vec2(0, -map->_mapSize.x * map->_tileSize.x), Vec2(0, 0), Color4F(0, 0.5, 0, 1));
+    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(0, map->_mapSize.x * map->_tileSize.x), Color4F(0, 1, 0, 1));
+    worldCoordsLines->drawLine(Vec2(-map->_mapSize.x * map->_tileSize.x, 0), Vec2(0, 0), Color4F(0.5, 0, 0, 1));
+    worldCoordsLines->drawLine(Vec2(0, 0), Vec2(map->_mapSize.x * map->_tileSize.x, 0), Color4F(1, 0, 0, 1));
     worldCoordsLines->setAnchorPoint(Point(0.5, 0.5));
     worldCoordsLines->setOpacity(100);
     gridNode->addChild(worldCoordsLines, 1);
@@ -441,14 +441,11 @@ void MapEditor::onInitDone(f32 dt)
 
         //set_cameraScaleUiText(std::numeric_limits<F32>::max());
 
-        emptyVIC.fill();
+        //std::vector<TileID> Rtiles = { 1, 1024 + 25 };
 
-        std::vector<TileID> Rtiles = { 1, 1024 + 25 };
-
-        TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
+        //TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 
         tilesetArr = TilesetArray::create({ 16, 16 });
-        tilesetArr->autorelease();
 
         auto texture1 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
         auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
@@ -456,33 +453,43 @@ void MapEditor::onInitDone(f32 dt)
         tilesetArr->addTileset(texture1);
         tilesetArr->addTileset(texture2);
 
-        tilesetArr->calculateBounds();
+        map->setTilesetArray(tilesetArr);
 
-        for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
-            tiles[i] = Rtiles[Random::maxInt(Rtiles.size() - 1)];
+        map->addLayer("background");
+        map->addLayer("collision");
+        map->addLayer("decoration");
+        map->bindLayer(0);
 
-            if (Random::float01() > 0.5)
-                tiles[i] |= TILE_FLAG_ROTATE;
-            if (Random::float01() > 0.5)
-                tiles[i] |= TILE_FLAG_FLIP_X;
-            if (Random::float01() > 0.5)
-                tiles[i] |= TILE_FLAG_FLIP_Y;
-        }
+        //tilesetArr->addTileset(texture1);
+        //tilesetArr->addTileset(texture2);
 
-        tarr = TileArray::create(tiles);
+        //tilesetArr->calculateBounds();
 
-        ChunkFactory::buildVertexCache(tarr, tilesetArr);
+        //for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
+        //    tiles[i] = Rtiles[Random::maxInt(Rtiles.size() - 1)];
 
-        ChunkDescriptor d{};
-        d._tiles = tarr;
-        d._tilesetArr = tilesetArr;
+        //    if (Random::float01() > 0.5)
+        //        tiles[i] |= TILE_FLAG_ROTATE;
+        //    if (Random::float01() > 0.5)
+        //        tiles[i] |= TILE_FLAG_FLIP_X;
+        //    if (Random::float01() > 0.5)
+        //        tiles[i] |= TILE_FLAG_FLIP_Y;
+        //}
 
-        for (int x = 0; x < 200; x++)
-            for (int y = 0; y < 200; y++) {
-                auto chunk = ChunkRenderer::create(d);
-                addChild(chunk);
-                chunk->setPositionInChunkSpace(x, y);
-            }
+        //tarr = TileArray::create(tiles);
+
+        //ChunkFactory::buildVertexCache(tarr, tilesetArr);
+
+        //ChunkDescriptor d{};
+        //d._tiles = tarr;
+        //d._tilesetArr = tilesetArr;
+
+        //for (int x = 0; x < 200; x++)
+        //    for (int y = 0; y < 200; y++) {
+        //        auto chunk = ChunkRenderer::create(d);
+        //        addChild(chunk);
+        //        chunk->setPositionInChunkSpace(x, y);
+        //    }
 
 
         //for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
@@ -500,6 +507,15 @@ void MapEditor::onInitDone(f32 dt)
         //        addChild(renderer);
         //    }
         //BENCHMARK_SECTION_END();
+
+        container = CustomUi::CustomUiContainer::create();
+        container->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
+            ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::CENTER));
+        uiNode->addChild(container);
+
+        auto textField = CustomUi::TextField::create();
+        textField->init("layer name", 18, {100, 20}, 10, "0.123456789");
+        container->addChild(textField);
 
         buildEntireUi();
 
@@ -568,9 +584,10 @@ void MapEditor::perSecondUpdate(f32 dt)
 
 void MapEditor::update(f32 dt)
 {
-    chunkMeshCreateCount = 0;
-
     REBUILD_UI;
+
+    if (container)
+        container->update(mouseLocationInView, _defaultCamera);
 
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);
@@ -611,8 +628,8 @@ void MapEditor::update(f32 dt)
     setWorldBoundsLayerColorTransforms(_defaultCamera);
 
     cameraLocation->setPosition(Vec2(
-        clamp(cameraLocation->getPositionX(), (f32)(map->_mapSize.x * map->_tileSize) * -1, (f32)map->_mapSize.x * map->_tileSize),
-        clamp(cameraLocation->getPositionY(), (f32)(map->_mapSize.y * map->_tileSize) * -1, (f32)map->_mapSize.y * map->_tileSize)));
+        clamp(cameraLocation->getPositionX(), (f32)(map->_mapSize.x * map->_tileSize.x) * -1, (f32)map->_mapSize.x * map->_tileSize.x),
+        clamp(cameraLocation->getPositionY(), (f32)(map->_mapSize.y * map->_tileSize.x) * -1, (f32)map->_mapSize.y * map->_tileSize.x)));
 
     _defaultCamera->setPosition(cameraLocation->getPosition());
 
@@ -627,16 +644,13 @@ void MapEditor::update(f32 dt)
     newMouseLocationOnUpdate = mouseLocation;
     for (const auto i : uiNodeNonFollow->getChildren())
         i->setScale(cam->getZoom());
-    oldSelectionPlace = selectionPlace;
-    selectionPlace = Vec2(snap(pos.x - map->_tileSize * 1.5f, map->_tileSize) + map->_tileSize, snap(pos.y - map->_tileSize * 1.5f, map->_tileSize) + map->_tileSize);
-    chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
     Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize));
     grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
     //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
     selectionPlaceSquare->setPosition(selectionPlace);
     selectionPlaceSquareForbidden->setPosition(selectionPlace);
-    if (selectionPlace.x + map->_tileSize / 2 < -map->_mapSize.x * map->_tileSize || selectionPlace.x + map->_tileSize / 2 > map->_mapSize.x * map->_tileSize ||
-        selectionPlace.y + map->_tileSize / 2 < -map->_mapSize.y * map->_tileSize || selectionPlace.y + map->_tileSize / 2 > map->_mapSize.y * map->_tileSize)
+    if (selectionPlace.x + map->_tileSize.x / 2 < -map->_mapSize.x * map->_tileSize.x || selectionPlace.x + map->_tileSize.x / 2 > map->_mapSize.x * map->_tileSize.x ||
+        selectionPlace.y + map->_tileSize.y / 2 < -map->_mapSize.y * map->_tileSize.y || selectionPlace.y + map->_tileSize.y / 2 > map->_mapSize.y * map->_tileSize.y)
     {
         isLocationEditable = false;
         selectionPlaceSquare->setVisible(false);
@@ -655,6 +669,10 @@ void MapEditor::update(f32 dt)
         selectionPlaceSquareForbidden->setVisible(false);
     }
 
+    oldSelectionPlace = selectionPlace;
+    selectionPlace = Vec2(snap(pos.x - map->_tileSize.x * 1.5f, map->_tileSize.x) + map->_tileSize.x, snap(pos.y - map->_tileSize.y * 1.5f, map->_tileSize.y) + map->_tileSize.y);
+    chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
+
     lateUpdate(dt);
 }
 
@@ -667,21 +685,16 @@ void MapEditor::lateUpdate(f32 dt)
     bg->setScale(cam->getZoom());
     bg->setRotation(cam->getRotation());
 
-    for (auto i : grid->getChildren()) {
+    for (auto& i : grid->getChildren()) {
         if (cameraScale < 5)
         {
             i->setOpacity(60);
             worldCoordsLines->setOpacity(100);
         }
-        if (cameraScale >= 5 && cameraScale < 13)
+        else if (cameraScale >= 5 && cameraScale < 13)
         {
             i->setOpacity(20);
             worldCoordsLines->setOpacity(60);
-        }
-        if (cameraScale >= 13)
-        {
-            worldCoordsLines->setOpacity(20);
-            i->setOpacity(0);
         }
     }
     //deltaEditing->clear();
@@ -790,16 +803,34 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
+    _x = round(_x / map->_tileSize.x);
+    _y = round(_y / map->_tileSize.y);
+    TileID gid = Random::rangeInt(1, 3);
+        if (Random::float01() > 0.5)
+            gid |= TILE_FLAG_ROTATE;
+        if (Random::float01() > 0.5)
+            gid |= TILE_FLAG_FLIP_X;
+        if (Random::float01() > 0.5)
+            gid |= TILE_FLAG_FLIP_Y;
+    map->setTileAt({ _x, _y }, gid);
 }
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
+    _x = _x / map->_tileSize.x;
+    _y = _y / map->_tileSize.y;
+    _width = _width / map->_tileSize.x;
+    _height = _height / map->_tileSize.y;
+
+    for (int x = _x; x < _width; x++)
+        for (int y = _y; y < _height; y++)
+            map->setTileAt(Vec2(x, y), 0);
 }
 
-void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size removeStampSize)
+void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize)
 {
     if (isRemoving)
-        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize);
+        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
 
     if (isPlacing || isRemoving)
     {
@@ -809,7 +840,7 @@ void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size remov
         evalX = _oldX - _newX;
         evalY = _oldY - _newY;
         f32 _width = 0, height = 0;
-        finalEval = abs((abs(evalX) - _width) / map->_tileSize > (abs(evalY) - height) / map->_tileSize ? (abs(evalX) - _width) / map->_tileSize : (abs(evalY) - height) / map->_tileSize);
+        finalEval = abs((abs(evalX) - _width) / map->_tileSize.x > (abs(evalY) - height) / map->_tileSize.y ? (abs(evalX) - _width) / map->_tileSize.x : (abs(evalY) - height) / map->_tileSize.y);
         for (f32 i = 0l; i < 1.0l; i += 1.0l / finalEval)
         {
             vX = _oldX - _newX;
@@ -820,11 +851,11 @@ void MapEditor::editUpdate(Vec2 old, Vec2 place, Size placeStampSize, Size remov
             vY += _newY;
             if (isPlacing)
             {
-                editUpdate_place(snap(vX, map->_tileSize), snap(vY, map->_tileSize), placeStampSize.width, placeStampSize.height);
+                editUpdate_place(vX, vY, placeStampSize.width, placeStampSize.height);
                 // break the loop cuz we dont want the stamp to be lined with frame lag
                 // cuz that shit steals a TON of frames just skip it if its over 10 units on any axis
-                if (placeStampSize.width > 10 || placeStampSize.height > 10)
-                    break;
+                //if (placeStampSize.width > 10 || placeStampSize.height > 10)
+                //    break;
                 continue;
             }
             //if (isRemoving)
@@ -859,6 +890,10 @@ void MapEditor::onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event)
 
 void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
+    if (keyCode == EventKeyboard::KeyCode::KEY_1) map->bindLayer(0);
+    if (keyCode == EventKeyboard::KeyCode::KEY_2) map->bindLayer(1);
+    if (keyCode == EventKeyboard::KeyCode::KEY_3) map->bindLayer(2);
+
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
         isEditorDragging = true;
@@ -898,12 +933,6 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
         //sqlite3_wal_checkpoint(pdb, NULL);
     }
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_J)
-    {
-        FMODAudioEngine::getInstance()->stopSound("jules");
-        FMODAudioEngine::getInstance()->playSound("jules", FMODAudioEngine::platformResourcePath(L"jules.ogg"), true);
-    }
-
     if (keyCode == EventKeyboard::KeyCode::KEY_W)
     {
         _defaultCamera->runAction(
@@ -928,6 +957,9 @@ void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 void MapEditor::onMouseDown(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
+
+    if (container)
+        container->click(mouseLocationInView, _defaultCamera);
 
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
     {
@@ -982,7 +1014,7 @@ void MapEditor::onMouseUp(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         isRemoving = false;
-        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize);
+        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
         editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         std::cout << "remove_selection_tool: begin:" << rect.origin.x << "," << rect.origin.y << " end:" << rect.size.width << "," << rect.size.height << "\n";
         removeSelectionNode->clear();
@@ -1383,6 +1415,11 @@ void MapEditor::set_cameraScaleUiText(f32 scale)
 
 void MapEditor::setWorldBoundsLayerColorTransforms(Camera* cam)
 {
+    BottomMapSizeNode->setVisible(false);
+    TopMapSizeNode->setVisible(false);
+    RightMapSizeNode->setVisible(false);
+    LeftMapSizeNode->setVisible(false);
+
     BottomMapSizeNode->setScaleX(cameraScale);
     BottomMapSizeNode->setScaleY(cameraScale);
     BottomMapSizeNode->setPositionX(cam->getPositionX());

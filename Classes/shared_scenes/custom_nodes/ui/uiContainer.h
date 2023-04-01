@@ -13,7 +13,7 @@
 #include "shared_scenes/SoundGlobals.h"
 
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 28 - 24, 28 - 24)
-#define ADVANCEDUI_TEXTURE "9_slice_box_1.png"
+#define ADVANCEDUI_TEXTURE "9_slice_box_1.png"sv
 
 namespace CustomUi
 {

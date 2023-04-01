@@ -39,7 +39,32 @@ CustomUi::TextField* CustomUi::TextField::create()
     return ret;
 }
 
-void CustomUi::TextField::init(std::string _placeholder, std::string _fontname, i32 _fontsize, bool _password, cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion, Size _clampoffset, std::string _normal_sp, bool _adaptToWindowSize, Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper, str _allowedChars)
+void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars)
+{
+    init(
+        _placeholder,
+        "fonts/arial.ttf"sv,
+        _fontSize,
+        false,
+        ADVANCEDUI_P1_CAP_INSETS,
+        _size,
+        Rect(150, 40, 150, 40),
+        TEXTFIELD_P1_CLAMP_OFFSET,
+        ADVANCEDUI_TEXTURE,
+        false,
+        Color3B(117, 179, 255),
+        true,
+        maxLength,
+        false,
+        allowedChars
+    );
+}
+
+void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
+    cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
+    Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
+    Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
+    std::string_view _allowedChars)
 {
     adaptToWindowSize = _adaptToWindowSize;
     extend = _allowExtend;
@@ -53,8 +78,10 @@ void CustomUi::TextField::init(std::string _placeholder, std::string _fontname, 
     password = _password;
     cursor_control_parent = cocos2d::Node::create();
     field = cocos2d::ui::TextField::create(_placeholder, _fontname, _fontsize);
-    field->setMaxLengthEnabled(true);
-    field->setMaxLength(length);
+    if (length != -1) {
+        field->setMaxLengthEnabled(true);
+        field->setMaxLength(length);
+    }
     field->setPasswordEnabled(_password);
     field->setEnabled(false);
     field->_textFieldRenderer->setVerticalAlignment(TextVAlignment::CENTER);
@@ -130,7 +157,7 @@ void CustomUi::TextField::init(std::string _placeholder, std::string _fontname, 
 
 bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
-    if (adaptToWindowSize && field->getContentSize().width > sprite->getContentSize().width)
+    if (!adaptToWindowSize && field->getContentSize().width > sprite->getContentSize().width)
         field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width + capinsets.origin.x * 2));
     else if (adaptToWindowSize)
         field->_textFieldRenderer->setScale(1);
@@ -157,10 +184,14 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         if (isFocused)
         {
             cursor_control->setVisible(true);
-            if (field->getString().length() > 0)
-                cursor_control->setPosition(Vec2(field->getContentSize().width / 2 + 4, 0));
-            else
+            if (field->getString().length() > 0) {
+                cursor_control->setPosition(Vec2((field->getContentSize().width / 2 + 4) * field->_textFieldRenderer->getScale(), 0));
+                cursor_control->setScale(field->_textFieldRenderer->getScale());
+            }
+            else {
                 cursor_control->setPosition(Vec2(0, 0));
+                cursor_control->setScale(1);
+            }
 
             str sString = TEXT(field->getString());
             std::size_t doubleSpace = sString.find("  ");
