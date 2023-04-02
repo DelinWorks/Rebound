@@ -587,7 +587,7 @@ void MapEditor::update(f32 dt)
     REBUILD_UI;
 
     if (_input->_uiContainer)
-        _input->_uiContainer->update(_input->_mouseLocationInView, _defaultCamera);
+        _input->_uiContainer->update(_input->_mouseLocationInViewNoScene, _defaultCamera);
 
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);

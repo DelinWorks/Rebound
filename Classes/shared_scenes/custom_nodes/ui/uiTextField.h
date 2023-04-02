@@ -42,7 +42,6 @@ namespace CustomUi
         str allowedChars = "";
         bool password = false;
         bool show_password = false;
-        bool isFocused = false;
 
         void init(std::string_view _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv);
 

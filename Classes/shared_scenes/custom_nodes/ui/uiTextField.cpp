@@ -181,7 +181,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         password_hover->setValue(false);
 #endif
 
-        if (isFocused)
+        if (_isFocused)
         {
             cursor_control->setVisible(true);
             if (field->getString().length() > 0) {
@@ -223,7 +223,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         {
             if (hover.getValue())
             {
-                if (!isFocused) {
+                if (!_isFocused) {
                     SoundGlobals::playUiHoverSound();
                     sprite_hover->stopAllActions();
                     sprite_hover->runAction(
@@ -238,12 +238,12 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
                     SET_UNIFORM(sprite_hover_shader, "u_val", (float)0.0);
                 }
             }
-            else if (!isFocused)
+            else if (!_isFocused)
             {
             }
         }
 
-        if (isFocused || hover.getValue())
+        if (_isFocused || hover.getValue())
         {
             auto dSize = getDynamicContentSize();
             dSize.x += 30;
@@ -253,7 +253,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 
         if (hover_animation_time != -1)
         {
-            if (hover_animation_time >= 0.25 && (!isFocused && !hover.getValue()))
+            if (hover_animation_time >= 0.25 && (!_isFocused && !hover.getValue()))
             {
                 hover_animation_time = -1;
                 sprite_hover->stopAllActions();
@@ -301,7 +301,7 @@ void CustomUi::TextField::focus()
     field->attachWithIME();
     if (field->getString().length() > 0)
         cursor_control->setVisible(true);
-    notifyFocused(isFocused = true);
+    notifyFocused(_isFocused = true);
 }
 
 void CustomUi::TextField::defocus()
@@ -310,7 +310,7 @@ void CustomUi::TextField::defocus()
     sprite->runAction(tint);
     field->detachWithIME();
     cursor_control->setVisible(false);
-    notifyFocused(isFocused = false);
+    notifyFocused(_isFocused = false);
 }
 
 void CustomUi::TextField::onEnable()

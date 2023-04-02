@@ -5,6 +5,7 @@ CustomUi::Container* CustomUi::Container::create()
     Container* ret = new Container();
     if (ret->init())
     {
+        ret->_isForceFocused = true;
         ret->setAsContainer();
         ret->autorelease();
     }
@@ -17,13 +18,14 @@ CustomUi::Container* CustomUi::Container::create()
 
 bool CustomUi::Container::update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
+    _skipCallback = false;
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         if (((GUI*)list.at(i))->update(mouseLocationInView, cam))
             return _isHitSwallowed = true;
     }
-    return _isHitSwallowed = false;
+    return _isHitSwallowed = _isFocused;
 }
 
 bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
