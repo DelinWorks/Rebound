@@ -264,8 +264,37 @@ namespace TileSystem {
         }
 
         TileID* getArrayPointer(bool dirty = false) {
-            if (dirty) retainedChunksI = retainedChunks;
+            if (dirty) {
+                _tileArrayDirty = true;
+                retainedChunksI = retainedChunks;
+            }
             return _tiles;
+        }
+
+        void update() {
+            if (cachedTilesetArr && _tileArrayDirty) {
+                _tileArrayDirty = false;
+                _emptyTilesets.clear();
+                for (auto& _ : cachedTilesetArr->_tileSets) {
+                    bool empty = true;
+                    for (TileID i = 0; i < CHUNK_BUFFER_SIZE; i++) {
+                        TileID gid = _tiles[i];
+                        gid &= TILE_FLAG_NONE;
+                        gid -= _->_firstGid - 1;
+                        int maxIdRange = _->_textureSize.x / _->_tileSize.x * (_->_textureSize.y / _->_tileSize.y);
+                        if (gid != 0 && gid <= maxIdRange) {
+                            empty = false;
+                            break;
+                        }
+                    }
+                    if (empty)
+                        _emptyTilesets.insert(_->_firstGid);
+                }
+            }
+        }
+
+        bool isEmpty(int firstGid) {
+            return _emptyTilesets.find(firstGid) != _emptyTilesets.end();
         }
 
         ~TileArray() {
@@ -277,6 +306,8 @@ namespace TileSystem {
 
         //protected:
         TilesetArray* cachedTilesetArr;
+        bool _tileArrayDirty = false;
+        std::set<int> _emptyTilesets;
         std::map<int, std::vector<float>> vertexCache;
         int retainedChunks = 0;
         int retainedChunksI = 0;
@@ -429,6 +460,7 @@ namespace TileSystem {
         a vertex cache map that stores caches based on first gid.
         */
         static void buildVertexCache(TileArray* tiles, TilesetArray* tilesets) {
+            tiles->getArrayPointer(true);
             tiles->vertexCache.clear();
             tiles->cachedTilesetArr = tilesets;
 
@@ -481,6 +513,7 @@ namespace TileSystem {
         }
 
         void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {
+            if (_tiles->isEmpty(_tileset->_firstGid)) return;
             if (_chunkDirty)
             {
                 if (!_mesh && chunkMeshCreateCount < 4) {
@@ -590,6 +623,7 @@ namespace TileSystem {
                 return;
             }
 
+            _tiles->update();
             for (auto& _ : _chunks)
             {
                 if (_chunkDirty || _tiles->retainedChunksI > 0 || _tilesetArr->retainedChunksI > 0)

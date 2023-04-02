@@ -5,7 +5,6 @@ CustomUi::Container* CustomUi::Container::create()
     Container* ret = new Container();
     if (ret->init())
     {
-        ret->_isForceFocused = true;
         ret->setAsContainer();
         ret->autorelease();
     }

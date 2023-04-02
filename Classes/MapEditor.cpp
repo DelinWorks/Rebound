@@ -805,7 +805,8 @@ void MapEditor::lateUpdate(f32 dt)
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
-    TileID gid = Random::rangeInt(1, 3);
+    std::vector v = { 1,2,3,1025 };
+    TileID gid = v[Random::maxInt(v.size() - 1)];
         if (Random::float01() > 0.5)
             gid |= TILE_FLAG_ROTATE;
         if (Random::float01() > 0.5)
