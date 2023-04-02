@@ -66,7 +66,7 @@ using namespace Math;
 
 using namespace TileSystem;
 
-class MapEditor : public ax::Scene
+class MapEditor : public ax::Scene, public GameUtils::CocosExt::CustomComponents::SceneInputManager
 {
 public:
     static ax::Scene* createScene();
@@ -150,13 +150,6 @@ public:
     ax::Node* grid;
     //ax::DrawNode* chunkGrid;
     ax::DrawNode* deltaEditing;
-    ax::Vec2 mouseLocation;
-    ax::Vec2 oldMouseLocation;
-    ax::Vec2 newMouseLocation;
-    ax::Vec2 oldMouseLocationOnUpdate;
-    ax::Vec2 newMouseLocationOnUpdate;
-    ax::Vec2 mouseLocationDelta;
-    ax::Vec2 mouseLocationInView;
     ax::Node* cameraLocation;
     ax::Vec2 oldSelectionPlace;
     ax::Vec2 selectionPlace;
@@ -179,7 +172,6 @@ public:
 
     ax::Node* rebuildableUiNodes;
     void rebuildEntireUi();
-    bool isUiObstructing = false;
     bool isEditorDragging = false;
     bool isEditorHideGrid = false;
     bool isLocationEditable = false;
@@ -197,7 +189,6 @@ public:
 
     ax::Node* uiNode;
     ax::Node* uiNodeNonFollow;
-    CustomUi::CustomUiContainer* container;
 
     ax::Node* gridNode;
     ax::Node* TopMapSizeNode;

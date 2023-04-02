@@ -1,8 +1,8 @@
 #include "uiContainer.h"
 
-CustomUi::CustomUiContainer* CustomUi::CustomUiContainer::create()
+CustomUi::Container* CustomUi::Container::create()
 {
-    CustomUiContainer* ret = new CustomUiContainer();
+    Container* ret = new Container();
     if (ret->init())
     {
         ret->setAsContainer();
@@ -15,7 +15,7 @@ CustomUi::CustomUiContainer* CustomUi::CustomUiContainer::create()
     return ret;
 }
 
-bool CustomUi::CustomUiContainer::update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CustomUi::Container::update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
@@ -26,7 +26,7 @@ bool CustomUi::CustomUiContainer::update(cocos2d::Vec2 mouseLocationInView, coco
     return _isHitSwallowed = false;
 }
 
-bool CustomUi::CustomUiContainer::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     auto& list = getChildren();
     bool isClickSwallowed = false;
@@ -38,10 +38,10 @@ bool CustomUi::CustomUiContainer::click(cocos2d::Vec2 mouseLocationInView, cocos
     return false;
 }
 
-void CustomUi::CustomUiContainer::onEnable()
+void CustomUi::Container::onEnable()
 {
 }
 
-void CustomUi::CustomUiContainer::onDisable()
+void CustomUi::Container::onDisable()
 {
 }

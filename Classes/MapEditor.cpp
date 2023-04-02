@@ -97,7 +97,7 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
-    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(10, 10));
+    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
     addChild(map);
 
     grid = Node::create();
@@ -181,8 +181,8 @@ bool MapEditor::init()
     worldCoordsLines->setOpacity(100);
     gridNode->addChild(worldCoordsLines, 1);
 
-    oldMouseLocation = Vec2(0, 0);
-    newMouseLocation = Vec2(0, 0);
+    _input->_oldMouseLocation = Vec2(0, 0);
+    _input->_newMouseLocation = Vec2(0, 0);
 
     auto parent = Node::create();
     parent->setPositionX(visibleSize.width);
@@ -508,7 +508,7 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
-        container = CustomUi::CustomUiContainer::create();
+        auto container = _input->_uiContainer = CustomUi::Container::create();
         container->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
             ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::CENTER));
         uiNode->addChild(container);
@@ -586,8 +586,8 @@ void MapEditor::update(f32 dt)
 {
     REBUILD_UI;
 
-    if (container)
-        container->update(mouseLocationInView, _defaultCamera);
+    if (_input->_uiContainer)
+        _input->_uiContainer->update(_input->_mouseLocationInView, _defaultCamera);
 
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);
@@ -606,7 +606,7 @@ void MapEditor::update(f32 dt)
 
     //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
 
-    streak->setPosition(Vec2(mouseLocation.x - (visibleSize.x / 2), (mouseLocation.y + (visibleSize.y / -2)) * -1));
+    streak->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
 
     //for (auto& i : findNodesByTag(this, 91))
     //    ((ParticleSystemQuad*)i)->setEmissionShape(0, ParticleSystem::createCircleShape({ 0,0 }, pos.x * 2));
@@ -633,15 +633,15 @@ void MapEditor::update(f32 dt)
 
     _defaultCamera->setPosition(cameraLocation->getPosition());
 
-    Vec2 pos = convertFromScreenToSpace(mouseLocationInView, visibleSize, cam);
+    Vec2 pos = convertFromScreenToSpace(_input->_mouseLocationInView, visibleSize, cam);
     //updateDirectorToStatsCount(map->totalTiles(), map->totalChunks());
 
     uiNode->setPosition(cameraLocation->getPosition());
     uiNode->setScale(cam->getZoom());
     uiNode->setRotation(cam->getRotation());
 
-    oldMouseLocationOnUpdate = newMouseLocationOnUpdate;
-    newMouseLocationOnUpdate = mouseLocation;
+    _input->_oldMouseLocationOnUpdate = _input->_newMouseLocationOnUpdate;
+    _input->_newMouseLocationOnUpdate = _input->_mouseLocation;
     for (const auto i : uiNodeNonFollow->getChildren())
         i->setScale(cam->getZoom());
     Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize));
@@ -663,7 +663,7 @@ void MapEditor::update(f32 dt)
         selectionPlaceSquareForbidden->setVisible(false);
     }
 
-    if (isUiObstructing || isRemoving)
+    if (isRemoving)
     {
         selectionPlaceSquare->setVisible(false);
         selectionPlaceSquareForbidden->setVisible(false);
@@ -830,7 +830,7 @@ void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
 void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize)
 {
     if (isRemoving)
-        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
+        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
 
     if (isPlacing || isRemoving)
     {
@@ -885,13 +885,10 @@ void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& r
 
 void MapEditor::onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event)
 {
-    if (container) if (container->blockKeyboard()) return;
 }
 
 void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
-    if (container) if (container->blockKeyboard()) return;
-
     if (keyCode == EventKeyboard::KeyCode::KEY_1) map->bindLayer(0);
     if (keyCode == EventKeyboard::KeyCode::KEY_2) map->bindLayer(1);
     if (keyCode == EventKeyboard::KeyCode::KEY_3) map->bindLayer(2);
@@ -950,8 +947,6 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
-    if (container) if (container->blockKeyboard()) return;
-
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
         isEditorDragging = false;
@@ -961,11 +956,6 @@ void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 void MapEditor::onMouseDown(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
-
-    if (container) {
-        container->click(mouseLocationInView, _defaultCamera);
-        if (container->blockKeyboard()) return;
-    }
 
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
     {
@@ -986,30 +976,25 @@ void MapEditor::onMouseDown(ax::Event* event)
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
-        if (!isUiObstructing)
-            isPlacing = true;
+        isPlacing = true;
 
         printf("%d\n", ++cur);
         auto mouseClick = DrawNode::create(1);
-        mouseClick->setPosition(Vec2(mouseLocation.x - (visibleSize.x / 2), (mouseLocation.y + (visibleSize.y / -2)) * -1));
+        mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
         mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 32));
         DESTROY(mouseClick, .5);
         uiNode->addChild(mouseClick, 999);
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
-        if (!isUiObstructing)
-        {
-            isRemoving = true;
-            removeSelectionStartPos = convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true);
-        }
+        isRemoving = true;
+        removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, visibleSize, _defaultCamera, true);
     }
 }
 
 void MapEditor::onMouseUp(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
-    if (container) if (container->blockMouse()) return;
 
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
     {
@@ -1022,7 +1007,7 @@ void MapEditor::onMouseUp(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         isRemoving = false;
-        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
+        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
         editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         std::cout << "remove_selection_tool: begin:" << rect.origin.x << "," << rect.origin.y << " end:" << rect.size.width << "," << rect.size.height << "\n";
         removeSelectionNode->clear();
@@ -1031,19 +1016,11 @@ void MapEditor::onMouseUp(ax::Event* event)
 
 void MapEditor::onMouseMove(ax::Event* event)
 {
-    EventMouse* e = (EventMouse*)event;
-    mouseLocation = e->getLocation();
-    oldMouseLocation = newMouseLocation;
-    newMouseLocation = mouseLocation;
-    mouseLocationDelta = oldMouseLocation - newMouseLocation;
-    mouseLocationInView = e->getLocationInView();
-    if (container) if (container->blockMouse()) return;
-
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
     if (isEditorDragging)
     {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _defaultCamera->getZoom()));
-        cameraLocation->setPositionY(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
+        cameraLocation->setPositionX(cameraLocation->getPositionX() + (_input->_mouseLocationDelta.x * _defaultCamera->getZoom()));
+        cameraLocation->setPositionY(cameraLocation->getPositionY() + (_input->_mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
     }
     //CCLOG("%f,%f", cameraLocation->getPositionX(), cameraLocation->getPositionY());
 }
@@ -1070,7 +1047,7 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
         cameraScale = snap_interval(cameraScale, 1, 1);
     f32 postCamScl = cameraScale;
 
-    Vec2 targetPos = convertFromScreenToSpace(mouseLocationInView, visibleSize, getDefaultCamera());
+    Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, visibleSize, getDefaultCamera());
     Vec2 pos = cameraLocation->getPosition();
     Vec2 newPos = pos.lerp(targetPos, 1.0F - (postCamScl / preCamScl));
     cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
@@ -1082,7 +1059,6 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
 void MapEditor::onMouseScroll(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
-    if (container) if (container->blockMouse()) return;
 
     setCameraScaleIndex(e->getScrollY());
 
@@ -1109,22 +1085,22 @@ bool MapEditor::onTouchBegan(ax::Touch* touch, ax::Event* event)
 
 void MapEditor::onTouchMoved(ax::Touch* touch, ax::Event* event)
 {
-    mouseLocation.x = touch->getLocation().x;
-    mouseLocation.y = touch->getLocation().y * -1;
-    oldMouseLocation = newMouseLocation;
-    newMouseLocation = mouseLocation;
-    if (isTouchNew)
-    {
-        oldMouseLocation = newMouseLocation;
-        isTouchNew = false;
-    }
-    mouseLocationDelta = oldMouseLocation - newMouseLocation;
-    if (isEditorDragging)
-    {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _defaultCamera->getZoom()));
-        cameraLocation->setPositionX(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
-    }
-    mouseLocationInView = touch->getLocation();
+    //mouseLocation.x = touch->getLocation().x;
+    //mouseLocation.y = touch->getLocation().y * -1;
+    //oldMouseLocation = newMouseLocation;
+    //newMouseLocation = mouseLocation;
+    //if (isTouchNew)
+    //{
+    //    oldMouseLocation = newMouseLocation;
+    //    isTouchNew = false;
+    //}
+    //mouseLocationDelta = oldMouseLocation - newMouseLocation;
+    //if (isEditorDragging)
+    //{
+    //    cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _defaultCamera->getZoom()));
+    //    cameraLocation->setPositionX(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
+    //}
+    //_input->_mouseLocationInView = touch->getLocation();
 }
 
 void MapEditor::onTouchEnded(ax::Touch* touch, ax::Event* event)

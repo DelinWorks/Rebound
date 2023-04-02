@@ -14,6 +14,8 @@
 #include "Helper/win32_error.h"
 #include "Helper/PlatDefines.h"
 
+#include "shared_scenes/custom_nodes/ui/include_ui.h"
+
 #include "Helper/Math.h"
 
 #define MATH_PI                     3.14159265358979323846f
@@ -30,7 +32,7 @@
 #define REGISTER_SCENE(T) SET_SCENE_NAME(T); ATTACH_SCENE_INPUT_MANAGER(T);
 
 #define SET_SCENE_NAME(T) this->setName(Strings::replace_const(typeid(T).name(), "class ", "scene."));
-#define ATTACH_SCENE_INPUT_MANAGER(T) addComponent((new SceneInputManagerComponent()) \
+#define ATTACH_SCENE_INPUT_MANAGER(T) addComponent(_input = (new SceneInputManagerComponent()) \
 ->initKeyboard(CALL2(T::onKeyPressed), CALL2(T::onKeyReleased), CALL2(T::onKeyHold)) \
 ->initMouse(CALL1(T::onMouseMove), CALL1(T::onMouseUp), CALL1(T::onMouseDown), CALL1(T::onMouseScroll)) \
 ->initTouchScreenOneByOne(CALL2(T::onTouchBegan), CALL2(T::onTouchMoved), CALL2(T::onTouchEnded), CALL2(T::onTouchCancelled)) \
@@ -627,8 +629,22 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 std::function<void(EventKeyboard::KeyCode, Event*)> onKeyPressed;
                 std::function<void(EventKeyboard::KeyCode, Event*)> onKeyReleased;
                 std::function<void(EventKeyboard::KeyCode, Event*)> onKeyHold;
+                std::function<void(EventMouse* event)> onMouseDown;
+                std::function<void(EventMouse* event)> onMouseUp;
+                std::function<void(EventMouse* event)> onMouseMove;
+                std::function<void(EventMouse* event)> onMouseScroll;
                 Event* onKeyEvent;
                 std::vector<int>* _pressedKeys;
+
+                ax::Vec2 _mouseLocation;
+                ax::Vec2 _oldMouseLocation;
+                ax::Vec2 _newMouseLocation;
+                ax::Vec2 _oldMouseLocationOnUpdate;
+                ax::Vec2 _newMouseLocationOnUpdate;
+                ax::Vec2 _mouseLocationDelta;
+                ax::Vec2 _mouseLocationInView;
+
+                CustomUi::Container* _uiContainer = nullptr;
 
                 SceneInputManagerComponent() : _keyboardListener(nullptr), _mouseListener(nullptr), _touchListener(nullptr), onKeyEvent(nullptr), _pressedKeys(new std::vector<int>()) {
                     setName(__func__);
@@ -636,7 +652,6 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 }
 
                 ~SceneInputManagerComponent() {
-
                     Director::getInstance()->getScheduler()->unscheduleUpdate(this);
 
                     if (_keyboardListener)
@@ -727,6 +742,10 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                         if (keyCode == EventKeyboard::KeyCode::KEY_F5)
                             FMODAudioEngine::destroyInstance();
 
+                        if (_uiContainer) 
+                            if (_uiContainer->blockKeyboard())
+                                return;
+
                         onKeyEvent = event;
                         onKeyPressed(keyCode, event);
                     };
@@ -738,6 +757,10 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                                     _pressedKeys->erase(std::remove(_pressedKeys->begin(), _pressedKeys->end(), (i32)keyCode), _pressedKeys->end());
                         } while (false);
 
+                        if (_uiContainer) 
+                            if (_uiContainer->blockKeyboard())
+                                return;
+
                         onKeyReleased(keyCode, event);
                     };
 
@@ -748,6 +771,10 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     return this;
                 }
 
+                Camera* getCamera() {
+                    return DCAST(ax::Scene, getOwner())->getDefaultCamera();
+                }
+
                 SceneInputManagerComponent* initMouse(
                     std::function<void(EventMouse* event)> _onMouseMove,
                     std::function<void(EventMouse* event)> _onMouseUp,
@@ -756,12 +783,50 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 ) {
 #if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32
                     _mouseListener = EventListenerMouse::create();
-                    _mouseListener->onMouseMove = _onMouseMove;
-                    _mouseListener->onMouseUp = _onMouseUp;
-                    _mouseListener->onMouseDown = _onMouseDown;
-                    _mouseListener->onMouseScroll = _onMouseScroll;
-#endif
 
+                    onMouseDown = _onMouseDown;
+                    onMouseUp = _onMouseUp;
+                    onMouseMove = _onMouseMove;
+                    onMouseScroll = _onMouseScroll;
+
+                    auto _onMouseDownCheck = [&](EventMouse* event) {
+                        if (_uiContainer) {
+                            _uiContainer->click(_mouseLocationInView, getCamera());
+                            if (_uiContainer->blockMouse()) return;
+                        }
+
+                        onMouseDown(event);
+                    };
+
+                    auto _onMouseUpCheck = [&](EventMouse* event) {
+                        if (_uiContainer) if (_uiContainer->blockMouse()) return;
+                        
+                        onMouseUp(event);
+                    };
+
+                    auto _onMouseMoveCheck = [&](EventMouse* event) {
+                        EventMouse* e = (EventMouse*)event;
+                        _mouseLocation = e->getLocation();
+                        _oldMouseLocation = _newMouseLocation;
+                        _newMouseLocation = _mouseLocation;
+                        _mouseLocationDelta = _oldMouseLocation - _newMouseLocation;
+                        _mouseLocationInView = e->getLocationInView();
+                        if (_uiContainer) if (_uiContainer->blockMouse()) return;
+
+                        onMouseMove(event);
+                    };
+
+                    auto _onMouseScrollCheck = [&](EventMouse* event) {
+                        if (_uiContainer) if (_uiContainer->blockMouse()) return;
+
+                        onMouseScroll(event);
+                    };
+                    
+                    _mouseListener->onMouseDown = _onMouseDownCheck;
+                    _mouseListener->onMouseUp = _onMouseUpCheck;
+                    _mouseListener->onMouseMove = _onMouseMoveCheck;
+                    _mouseListener->onMouseScroll = _onMouseScrollCheck;
+#endif
                     return this;
                 }
 
@@ -796,29 +861,10 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 }
             };
 
-            //class SceneUiRebuilderComponent : public Component {
-            //public:
-            //    std::function<void()> rebuildEntireUi;
-
-            //    SceneUiRebuilderComponent(std::function<void()> _rebuildEntireUi) {
-            //        setName(__func__);
-            //        setEnabled(true);
-            //        rebuildEntireUi = _rebuildEntireUi;
-            //    }
-
-            //    ~SceneUiRebuilderComponent() {
-            //        Director::getInstance()->getScheduler()->unscheduleUpdate(this);
-            //    }
-
-            //    void onAdd() {
-            //        CCLOG("Ui builder initialized for scene.%s", str(_owner->getName()).c_str());
-            //        Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
-            //    }
-
-            //    void update(f32 dt) {
-
-            //    }
-            //};
+            class SceneInputManager {
+            public:
+                SceneInputManagerComponent* _input;
+            };
 
             enum BorderLayout {
                 TOP = 0,
@@ -830,6 +876,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 LEFT = 6,
                 TOP_LEFT = 7,
                 CENTER = 8,
+                TOP_G = 9,
             };
 
             class UiRescaleComponent : public Component {
@@ -921,6 +968,10 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                         break;
                     }
                     case BorderLayout::TOP_LEFT: {
+                        setVisibleSizeHints(-2, 0, 2, 0);
+                        break;
+                    }
+                    case BorderLayout::TOP_G: {
                         setVisibleSizeHints(-2, 0, 2, 0);
                         break;
                     }

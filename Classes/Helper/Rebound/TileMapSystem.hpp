@@ -83,7 +83,7 @@ namespace TileSystem {
         void setTileAt(const ax::Vec2& pos, TileID gid) {
             if (!_layerBind || pos.x >= _mapSize.x || pos.x < -_mapSize.x || pos.y >= _mapSize.y || pos.y < -_mapSize.y)
                 return;
-            Vec2 chunkPos;
+              Vec2 chunkPos;
             auto index = getTileTransform(pos, chunkPos);
             auto chunk = _layerBind->getChunkAtPos(chunkPos, gid);
             if (!chunk) return;

@@ -1,7 +1,7 @@
 #ifndef _WELCOME_SCENE_H_
 #define _WELCOME_SCENE_H_
 
-#include "cocos2d.h"
+#include "axmol.h"
 #include "shared_scenes/GameUtils.h"
 #include "fmod/include_fmod.h"
 #include "AppDelegate.h"
@@ -10,10 +10,10 @@
 #include "Helper/win32_error.h"
 #include "Helper/short_types.h"
 
-class WelcomeScene : public cocos2d::Scene
+class WelcomeScene : public ax::Scene, public GameUtils::CocosExt::CustomComponents::SceneInputManager
 {
 public:
-    static cocos2d::Scene* createScene();
+    static ax::Scene* createScene();
 
     void update(f32 dt);
     void runNext();
@@ -24,26 +24,26 @@ public:
     bool isInitDone = false;
     void onInitDone();
 
-    cocos2d::EventListenerKeyboard* listener;
-    cocos2d::EventListenerMouse* _mouseListener;
+    ax::EventListenerKeyboard* listener;
+    ax::EventListenerMouse* _mouseListener;
 
-    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
-    void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
-    void onKeyHold(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
-    void onMouseDown(cocos2d::Event* event);
-    void onMouseUp(cocos2d::Event* event);
-    void onMouseMove(cocos2d::Event* event);
-    void onMouseScroll(cocos2d::Event* event);
-    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchCancelled(cocos2d::Touch* touch, cocos2d::Event* event);
+    void onKeyPressed(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    void onKeyReleased(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    void onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    void onMouseDown(ax::Event* event);
+    void onMouseUp(ax::Event* event);
+    void onMouseMove(ax::Event* event);
+    void onMouseScroll(ax::Event* event);
+    bool onTouchBegan(ax::Touch* touch, ax::Event* event);
+    void onTouchMoved(ax::Touch* touch, ax::Event* event);
+    void onTouchEnded(ax::Touch* touch, ax::Event* event);
+    void onTouchCancelled(ax::Touch* touch, ax::Event* event);
 
     CREATE_FUNC(WelcomeScene);
 
-    cocos2d::Size visibleSize;
+    ax::Size visibleSize;
 
-    cocos2d::Sprite* cn;
+    ax::Sprite* cn;
     f32 _maxTime = 5;
     f32 animTime;
     f32 cnOpacity;

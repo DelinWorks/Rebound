@@ -17,10 +17,10 @@
 
 namespace CustomUi
 {
-    class CustomUiContainer : public GUI {
+    class Container : public GUI {
     public:
-        CustomUiContainer() {}
-        static CustomUi::CustomUiContainer* create();
+        Container() {}
+        static CustomUi::Container* create();
 
         bool _isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave
