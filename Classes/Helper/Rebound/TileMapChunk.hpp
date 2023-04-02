@@ -9,7 +9,7 @@ using namespace ax;
 
 namespace TileSystem {
 
-    typedef uint32_t TileID;
+typedef u32 TileID;
 
 #define CHUNK_SIZE 32.0
 #define CHUNK_BUFFER_SIZE (CHUNK_SIZE*CHUNK_SIZE)
@@ -32,7 +32,7 @@ namespace TileSystem {
                 indices.clear(CustomCommand::IndexFormat::U_SHORT);
                 for (u8 y1 = CHUNK_SIZE; y1 > 0; y1--)
                     for (u8 x1 = 0; x1 < CHUNK_SIZE; x1++) {
-                        unsigned short startindex = vertices.size() / VERTEX_SIZE_0;
+                        u16 startindex = vertices.size() / VERTEX_SIZE_0;
 
                         vertices.insert(vertices.end(), {
                             0,0,0,  0,0,0,0,   0,0,
@@ -41,30 +41,30 @@ namespace TileSystem {
                             0,0,0,  0,0,0,0,   0,0,
                             });
 
-                        indices.insert<uint16_t>(indices.size(),
-                            ilist_u16_t{ startindex, uint16_t(startindex + 3), uint16_t(startindex + 2),
-                            uint16_t(startindex + 1), uint16_t(startindex + 3), startindex });
+                        indices.insert<u16>(indices.size(),
+                            ilist_u16_t{ startindex, u16(startindex + 3), u16(startindex + 2),
+                            u16(startindex + 1), u16(startindex + 3), startindex });
                     }
 
                 _isFill = true;
             }
         }
 
-        const std::vector<float>& getVertex() { fill(); return vertices; };
+        const std::vector<f32>& getVertex() { fill(); return vertices; };
         const IndexArray& getIndex() { fill(); return indices; };
 
     protected:
         bool _isFill = false;
-        std::vector<float> vertices;
+        std::vector<f32> vertices;
         IndexArray indices;
     };
 
     inline EmptyVertexIndexCache emptyVIC;
-    inline float chunkMeshCreateCount;
+    inline f32 chunkMeshCreateCount;
 
     struct UV {
-        float U;
-        float V;
+        f32 U;
+        f32 V;
     };
 
     struct TileTexCoords {
@@ -176,7 +176,7 @@ namespace TileSystem {
 
     class Tileset : public ax::Ref {
     public:
-        int _firstGid;
+        i32 _firstGid;
         ax::Texture2D* _texture;
         ax::Vec2 _tileSize;
         ax::Vec2 _textureSize;
@@ -245,8 +245,8 @@ namespace TileSystem {
             _tileSets.clear();
         }
 
-        int retainedChunks = 0;
-        int retainedChunksI = 0;
+        i32 retainedChunks = 0;
+        i32 retainedChunksI = 0;
         ax::Vec2 _tileSize;
         std::vector<Tileset*> _tileSets;
     };
@@ -281,7 +281,7 @@ namespace TileSystem {
                         TileID gid = _tiles[i];
                         gid &= TILE_FLAG_NONE;
                         gid -= _->_firstGid - 1;
-                        int maxIdRange = _->_textureSize.x / _->_tileSize.x * (_->_textureSize.y / _->_tileSize.y);
+                        i32 maxIdRange = _->_textureSize.x / _->_tileSize.x * (_->_textureSize.y / _->_tileSize.y);
                         if (gid != 0 && gid <= maxIdRange) {
                             empty = false;
                             break;
@@ -293,7 +293,7 @@ namespace TileSystem {
             }
         }
 
-        bool isEmpty(int firstGid) {
+        bool isEmpty(i32 firstGid) {
             return _emptyTilesets.find(firstGid) != _emptyTilesets.end();
         }
 
@@ -307,16 +307,16 @@ namespace TileSystem {
         //protected:
         TilesetArray* cachedTilesetArr;
         bool _tileArrayDirty = false;
-        std::set<int> _emptyTilesets;
-        std::map<int, std::vector<float>> vertexCache;
-        int retainedChunks = 0;
-        int retainedChunksI = 0;
+        std::set<i32> _emptyTilesets;
+        std::map<i32, std::vector<f32>> vertexCache;
+        i32 retainedChunks = 0;
+        i32 retainedChunksI = 0;
         TileID* _tiles;
     };
 
     class ChunkDescriptor {
     public:
-        int _vertexSize;
+        i32 _vertexSize;
         bool _chunkDirty = true;
         bool _isParent = false;
         bool _isModified = false;
@@ -334,13 +334,13 @@ namespace TileSystem {
             TileID gid = id;
             gid &= TILE_FLAG_NONE;
             gid -= tileset->_firstGid - 1;
-            int maxIdRange = tileset->_textureSize.x / tileset->_tileSize.x * (tileset->_textureSize.y / tileset->_tileSize.y);
+            i32 maxIdRange = tileset->_textureSize.x / tileset->_tileSize.x * (tileset->_textureSize.y / tileset->_tileSize.y);
             if (gid != 0 && gid <= maxIdRange) {
                 gid -= 1;
-                float column = ((gid) % (int)(tileset->_textureSize.x / tileset->_tileSize.x)) * tileset->_tileSize.x;
-                float row = floor((gid) / (tileset->_textureSize.x / tileset->_tileSize.x)) * tileset->_tileSize.y;
-                float columnM = (column + tileset->_tileSize.x);
-                float rowM = (row + tileset->_tileSize.y);
+                f32 column = ((gid) % (i32)(tileset->_textureSize.x / tileset->_tileSize.x)) * tileset->_tileSize.x;
+                f32 row = floor((gid) / (tileset->_textureSize.x / tileset->_tileSize.x)) * tileset->_tileSize.y;
+                f32 columnM = (column + tileset->_tileSize.x);
+                f32 rowM = (row + tileset->_tileSize.y);
 
                 column /= tileset->_textureSize.x;
                 row /= tileset->_textureSize.y;
@@ -374,22 +374,22 @@ namespace TileSystem {
             }
         }
 
-        static int buildVertexIndex(TileArray* tileArr, Tileset* tileset, std::vector<float>& vertices, IndexArray& indices, bool doNotTheCat = false) {
-            int vertexSize = VERTEX_SIZE_0;
+        static i32 buildVertexIndex(TileArray* tileArr, Tileset* tileset, std::vector<f32>& vertices, IndexArray& indices, bool doNotTheCat = false) {
+            i32 vertexSize = VERTEX_SIZE_0;
             vertices.clear();
             vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * vertexSize * 4 /* tiles.x * tiles.y * vertex_size * vertices */);
             indices.clear(CustomCommand::IndexFormat::U_SHORT);
-            int index = 0;
+            i32 index = 0;
             for (u8 y1 = CHUNK_SIZE; y1 > 0; y1--)
                 for (u8 x1 = 0; x1 < CHUNK_SIZE; x1++)
                 {
                     auto tiles = tileArr->getArrayPointer(false);
 
-                    unsigned short startindex = vertices.size() / vertexSize;
-                    float x = x1 * tileset->_tileSize.x;
-                    float y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
-                    float sx = tileset->_tileSize.x;
-                    float sy = tileset->_tileSize.y;
+                    u16 startindex = vertices.size() / vertexSize;
+                    f32 x = x1 * tileset->_tileSize.x;
+                    f32 y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
+                    f32 sx = tileset->_tileSize.x;
+                    f32 sy = tileset->_tileSize.y;
 
                     auto& coord = calculateTileCoords(tiles[index], tileset);
 
@@ -403,16 +403,16 @@ namespace TileSystem {
                             x + sx, y + sy, 0,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
                             });
 
-                        indices.insert<uint16_t>(indices.size(),
-                            ilist_u16_t{ startindex, uint16_t(startindex + 3), uint16_t(startindex + 2),
-                            uint16_t(startindex + 1), uint16_t(startindex + 3), startindex });
+                        indices.insert<u16>(indices.size(),
+                            ilist_u16_t{ startindex, u16(startindex + 3), u16(startindex + 2),
+                            u16(startindex + 1), u16(startindex + 3), startindex });
                     }
                     else {
-                        unsigned short startindex = vertices.size() / vertexSize;
-                        float x = x1 * tileset->_tileSize.x;
-                        float y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
-                        float sx = tileset->_tileSize.x;
-                        float sy = tileset->_tileSize.y;
+                        u16 startindex = vertices.size() / vertexSize;
+                        f32 x = x1 * tileset->_tileSize.x;
+                        f32 y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
+                        f32 sx = tileset->_tileSize.x;
+                        f32 sy = tileset->_tileSize.y;
                         Color4F tc = Color4F::WHITE;
 
                         vertices.insert(vertices.end(), {
@@ -422,9 +422,9 @@ namespace TileSystem {
                             x + sx, y + sy,  0,  tc.r, tc.g, tc.b, tc.a,   0,0,
                             });
 
-                        indices.insert<uint16_t>(indices.size(),
-                            ilist_u16_t{ startindex, uint16_t(startindex + 3), uint16_t(startindex + 2),
-                            uint16_t(startindex + 1), uint16_t(startindex + 3), startindex });
+                        indices.insert<u16>(indices.size(),
+                            ilist_u16_t{ startindex, u16(startindex + 3), u16(startindex + 2),
+                            u16(startindex + 1), u16(startindex + 3), startindex });
                     }
 
                     index++;
@@ -465,7 +465,7 @@ namespace TileSystem {
             tiles->cachedTilesetArr = tilesets;
 
             for (auto& _ : tilesets->_tileSets) {
-                std::vector<float> vertices;
+                std::vector<f32> vertices;
                 IndexArray indices;
                 ChunkFactory::buildVertexIndex(tiles, _, vertices, indices);
                 tiles->vertexCache.emplace(_->_firstGid, vertices);
@@ -480,7 +480,7 @@ namespace TileSystem {
             for (auto& _ : tiles->cachedTilesetArr->_tileSets) {
                 auto& vertices = tiles->vertexCache[_->_firstGid];
                 auto& coord = calculateTileCoords(newGid, _);
-                int startIndex = index * VERTEX_SIZE_0 * 4;
+                i32 startIndex = index * VERTEX_SIZE_0 * 4;
                 if (coord._outOfRange) coord = { 0,0,0,0 };
                 vertices[(7 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.U;
                 vertices[(8 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.V;
@@ -512,7 +512,7 @@ namespace TileSystem {
             _mesh->getVertexBuffer()->updateSubData((void*)&vertices[0], 0, vertices.size() * sizeof(vertices[0]));
         }
 
-        void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
             if (_tiles->isEmpty(_tileset->_firstGid)) return;
             if (_chunkDirty)
             {
@@ -568,9 +568,9 @@ namespace TileSystem {
             AX_SAFE_RELEASE(_tilesetArr);
         }
 
-        int count = 0;
+        i32 count = 0;
 
-        int resizeChunkCount() {
+        i32 resizeChunkCount() {
             if (count != _tilesetArr->_tileSets.size())
             {
                 for (auto& c : _chunks)
@@ -599,12 +599,12 @@ namespace TileSystem {
             setPositionInChunkSpace(pos.x, pos.y);
         }
 
-        void setPositionInChunkSpace(float x, float y) {
+        void setPositionInChunkSpace(f32 x, f32 y) {
             _pos = { x,y };
         }
 
-        void draw(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {}
-        void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {
+        void draw(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
             auto tiles = _tiles->getArrayPointer();
             if (!resizeChunkCount())
                 return;

@@ -20,7 +20,7 @@ namespace TileSystem {
                 ref->_mapSize = _mapSize;
                 ref->_chunkSize = CHUNK_SIZE;
                 ref->_chunkSizeInPixels = ref->_tileSize * ref->_chunkSize;
-                ref->_gridSize = CHUNK_SIZE * 5;
+                ref->_gridSize = CHUNK_SIZE * 6;
                 
                 ref->autorelease();
                 return ref;
