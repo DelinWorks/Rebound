@@ -644,6 +644,8 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 ax::Vec2 _mouseLocationDelta;
                 ax::Vec2 _mouseLocationInView;
 
+                ax::Vec2 _mouseLocationInViewNoScene;
+
                 CustomUi::Container* _uiContainer = nullptr;
 
                 SceneInputManagerComponent() : _keyboardListener(nullptr), _mouseListener(nullptr), _touchListener(nullptr), onKeyEvent(nullptr), _pressedKeys(new std::vector<int>()) {
@@ -790,34 +792,37 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     onMouseScroll = _onMouseScroll;
 
                     auto _onMouseDownCheck = [&](EventMouse* event) {
+                        EventMouse* e = (EventMouse*)event;
                         if (_uiContainer) {
-                            _uiContainer->click(_mouseLocationInView, getCamera());
-                            if (_uiContainer->blockMouse()) return;
+                            _uiContainer->click(e->getLocationInView(), getCamera());
+                            if (_uiContainer->shouldSkipCallback()) _mouseLocationInView = e->getLocationInView();
+                            if (_uiContainer->blockMouse() || _uiContainer->shouldSkipCallback()) return;
                         }
 
                         onMouseDown(event);
                     };
 
                     auto _onMouseUpCheck = [&](EventMouse* event) {
-                        if (_uiContainer) if (_uiContainer->blockMouse()) return;
-                        
+                        if (_uiContainer) if (_uiContainer->shouldSkipCallback()) return;
+
                         onMouseUp(event);
                     };
 
                     auto _onMouseMoveCheck = [&](EventMouse* event) {
                         EventMouse* e = (EventMouse*)event;
+                        _mouseLocationInViewNoScene = e->getLocationInView();
+                        if (_uiContainer) if (_uiContainer->blockMouse() || _uiContainer->blockKeyboard() || _uiContainer->shouldSkipCallback()) return;
                         _mouseLocation = e->getLocation();
                         _oldMouseLocation = _newMouseLocation;
                         _newMouseLocation = _mouseLocation;
                         _mouseLocationDelta = _oldMouseLocation - _newMouseLocation;
                         _mouseLocationInView = e->getLocationInView();
-                        if (_uiContainer) if (_uiContainer->blockMouse()) return;
 
                         onMouseMove(event);
                     };
 
                     auto _onMouseScrollCheck = [&](EventMouse* event) {
-                        if (_uiContainer) if (_uiContainer->blockMouse()) return;
+                        if (_uiContainer) if (_uiContainer->blockMouse() || _uiContainer->blockKeyboard()) return;
 
                         onMouseScroll(event);
                     };
