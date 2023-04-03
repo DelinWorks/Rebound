@@ -460,7 +460,7 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("decoration");
         map->bindLayer(0);
 
-        map->setResizable(true);
+        map->setResizable(false);
 
         //tilesetArr->addTileset(texture1);
         //tilesetArr->addTileset(texture2);
@@ -809,17 +809,20 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
+    std::vector v = { 1,2,3,1035 };
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
-    std::vector v = { 1,2,3,1035 };
-    TileID gid = v[Random::maxInt(v.size() - 1)];
-        if (Random::float01() > 0.5)
-            gid |= TILE_FLAG_ROTATE;
-        if (Random::float01() > 0.5)
-            gid |= TILE_FLAG_FLIP_X;
-        if (Random::float01() > 0.5)
-            gid |= TILE_FLAG_FLIP_Y;
-    map->setTileAt({ _x, _y }, gid);
+    for (int x = _x; x < _x + 100; x++)
+        for (int y = _y; y < _y + 100; y++) {
+            TileID gid = v[Random::maxInt(v.size() - 1)];
+            if (Random::float01() > 0.5)
+                gid |= TILE_FLAG_ROTATE;
+            if (Random::float01() > 0.5)
+                gid |= TILE_FLAG_FLIP_X;
+            if (Random::float01() > 0.5)
+                gid |= TILE_FLAG_FLIP_Y;
+            map->setTileAt({ float(x), float(y) }, gid);
+        }
 }
 
 // DON'T CALL THIS MANUALLY
@@ -861,8 +864,8 @@ void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& r
                 editUpdate_place(vX, vY, placeStampSize.width, placeStampSize.height);
                 // break the loop cuz we dont want the stamp to be lined with frame lag
                 // cuz that shit steals a TON of frames just skip it if its over 10 units on any axis
-                //if (placeStampSize.width > 10 || placeStampSize.height > 10)
-                //    break;
+                if (placeStampSize.width > 10 || placeStampSize.height > 10)
+                    break;
                 continue;
             }
             //if (isRemoving)

@@ -188,8 +188,20 @@ typedef u32 TileID;
         ax::Vec2 _tileSize;
         ax::Vec2 _textureSize;
         ax::Vec2 _sizeInPixels;
+        MeshMaterial* _material;
+
+        Tileset(ax::Texture2D* _texture) {
+            this->_texture = _texture;
+            _texture->setAliasTexParameters();
+            _material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_TEXTURE, false);
+            _material->setTexture(_texture, ax::NTextureData::Usage::None);
+            _material->setTransparent(true);
+            _material->setForce2DQueue(true);
+            _material->retain();
+        }
 
         ~Tileset() {
+            _material->release();
             AX_SAFE_RELEASE(_texture);
         }
     };
@@ -211,10 +223,9 @@ typedef u32 TileID;
         }
 
         void addTileset(ax::Texture2D* tex) {
-            auto ts = new Tileset();
+            auto ts = new Tileset(tex);
             ts->autorelease();
             ts->retain();
-            ts->_texture = tex;
             addTileset(ts);
         }
 
@@ -529,6 +540,10 @@ typedef u32 TileID;
             _mesh->getVertexBuffer()->updateSubData((void*)&vertices[0], 0, vertices.size() * sizeof(vertices[0]));
         }
 
+        ~SingleTilesetChunkRenderer() {
+            //AX_SAFE_RELEASE_NULL(_mesh);
+        }
+
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
             if (_chunkDirty)
             {
@@ -537,13 +552,9 @@ typedef u32 TileID;
                     _mesh = ChunkFactory::buildTiledMesh(_tiles, _tileset, _resize);
                 }
                 if (_mesh && _resize || !_mesh && !_resize) {
-                    _mesh = ChunkFactory::buildTiledMesh(_tiles, _tileset, _resize);
-                    auto mat = ax::MeshMaterial::createBuiltInMaterial(MeshMaterial::MaterialType::QUAD_TEXTURE, false);
-                    _tileset->_texture->setAliasTexParameters();
-                    mat->setTexture(_tileset->_texture, ax::NTextureData::Usage::None);
-                    mat->setTransparent(true);
-                    mat->setForce2DQueue(true);
-                    _mesh->setMaterial(mat);
+                    if (!_resize)
+                        _mesh = ChunkFactory::buildTiledMesh(_tiles, _tileset, _resize);
+                    _mesh->setMaterial(_tileset->_material);
                     addMesh(_mesh);
                 }
                 if (_mesh && !_resize) {
