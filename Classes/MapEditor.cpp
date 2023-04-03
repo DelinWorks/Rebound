@@ -510,7 +510,7 @@ void MapEditor::onInitDone(f32 dt)
 
         auto container = _input->_uiContainer = CustomUi::Container::create();
         container->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
-            ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::TOP));
+            ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::CENTER));
         uiNode->addChild(container);
 
         auto textField = CustomUi::TextField::create();

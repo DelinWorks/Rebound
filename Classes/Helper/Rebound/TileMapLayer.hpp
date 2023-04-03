@@ -6,7 +6,7 @@
 
 namespace TileSystem {
 
-	class Layer : public Node {
+	class Layer : public RendererResizableBuffer, public ax::Node {
 	public:
 		static Layer* create(std::string_view name) {
 			auto ref = new Layer();
@@ -37,6 +37,7 @@ namespace TileSystem {
 				c->setPositionInChunkSpace(pos);
 				_chunks.emplace(pos, c);
 				c->_isModified = true;
+				c->setResizable(_resize);
 				addChild(c);
 				return c;
 			}
@@ -68,6 +69,11 @@ namespace TileSystem {
 				_chunks.erase(_);
 			}
 			_chunksToRemove.clear();
+		}
+
+		void setResizable(bool _resize) {
+			for (auto& _ : _chunks)
+				_.second->setResizable(_resize);
 		}
 
 		std::string _layerName;

@@ -44,6 +44,7 @@ namespace CustomUi
         virtual bool click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
 
         void onEnter() override;
+        void onExit() override;
 
         void notifyFocused(bool focused);
 

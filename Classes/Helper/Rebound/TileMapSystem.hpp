@@ -9,7 +9,7 @@ using namespace ax;
 
 namespace TileSystem {
 
-    class Map : public Node {
+    class Map : public RendererResizableBuffer, public Node {
     public:
         static Map* create(Vec2 _tileSize, i32 _contentScale, Vec2 _mapSize)
         {
@@ -35,6 +35,7 @@ namespace TileSystem {
 
         void addLayer(Layer* _layer) {
             _layers.push_back(_layer);
+            _layer->setResizable(_resize);
             addChild(_layer);
             _layer->_tilesetArr = _tilesetArr;
         }
@@ -117,6 +118,11 @@ namespace TileSystem {
         TilesetArray* _tilesetArr;
         Layer* _layerBind;
         std::vector<Layer*> _layers;
+
+        void setResizable(bool _resize) {
+            for (auto& _ : _layers)
+                _->setResizable(_resize);
+        }
 
         Vec2 _tileSize;
         i32 _contentScale = 1;

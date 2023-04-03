@@ -9,6 +9,13 @@ using namespace ax;
 
 namespace TileSystem {
 
+class RendererResizableBuffer {
+public:
+    RendererResizableBuffer() {}
+    bool _resize = false;
+    virtual void setResizable(bool _resize) = 0;
+};
+
 typedef u32 TileID;
 
 #define CHUNK_SIZE 32.0
@@ -494,7 +501,7 @@ typedef u32 TileID;
         }
     };
 
-    class SingleTilesetChunkRenderer : public ChunkDescriptor, public ax::MeshRenderer {
+    class SingleTilesetChunkRenderer : public ChunkDescriptor, public RendererResizableBuffer, public ax::MeshRenderer {
     public:
         static SingleTilesetChunkRenderer* create() {
             auto ref = new SingleTilesetChunkRenderer();
@@ -533,9 +540,13 @@ typedef u32 TileID;
             }
             MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }
+
+        void setResizable(bool _resize) {
+            this->_resize = _resize;
+        }
     };
 
-    class ChunkRenderer : public ChunkDescriptor, public ax::Node {
+    class ChunkRenderer : public ChunkDescriptor, public RendererResizableBuffer, public ax::Node {
     public:
         static ChunkRenderer* create(ChunkDescriptor desc) {
             auto ref = new ChunkRenderer();
@@ -635,6 +646,11 @@ typedef u32 TileID;
             }
             _tilesetArr->retainedChunksI--;
             _tiles->retainedChunksI--;
+        }
+
+        void setResizble(bool _resize) {
+            for (auto& _ : _chunks)
+                _->setResizable(_resize);
         }
 
         std::vector<SingleTilesetChunkRenderer*> _chunks;

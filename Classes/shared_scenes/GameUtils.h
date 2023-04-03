@@ -880,8 +880,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                 BOTTOM_LEFT = 5,
                 LEFT = 6,
                 TOP_LEFT = 7,
-                CENTER = 8,
-                TOP_G = 9,
+                CENTER = 8
             };
 
             class UiRescaleComponent : public Component {
@@ -976,10 +975,6 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                         setVisibleSizeHints(-2, 0, 2, 0);
                         break;
                     }
-                    case BorderLayout::TOP_G: {
-                        setVisibleSizeHints(-2, 0, 2, 0);
-                        break;
-                    }
                     default: {
                         setVisibleSizeHints(0, 1, 0, 0);
                     }
@@ -999,10 +994,7 @@ for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescal
                     auto repositionNode = [&](Node* target) {
                         auto newPos = Vec2(resizeHintsRect.origin.x == 0 ? 0 : newVisibleSize.width / resizeHintsRect.origin.x + resizeHintsRect.size.width,
                             resizeHintsRect.origin.y == 0 ? 0 : newVisibleSize.height / resizeHintsRect.origin.y + resizeHintsRect.size.height);
-                        auto action = MoveTo::create(.5, Vec2(round(newPos.x), round(newPos.y)));
-                        //auto ease = EaseBounceOut::create(action);
-                        target->stopAllActions();
-                        target->runAction(action);
+                        target->setPosition(Vec2(round(newPos.x), round(newPos.y)));
                     };
 
                     if (setLayerColor)
