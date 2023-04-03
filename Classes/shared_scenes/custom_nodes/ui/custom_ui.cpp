@@ -43,14 +43,14 @@ void CustomUi::GUI::onEnter()
 
 void CustomUi::GUI::notifyFocused(bool focused)
 {
-	focused |= _isForceFocused;
-	auto cast = DCAST(GUI, getParent());
-	if (cast)
-		cast->notifyFocused(focused);
-	else if (_isFocused != focused) {
-		_skipCallback = true;
-		_isFocused = focused;
-	}
+	//focused |= _isForceFocused;
+	//auto cast = DCAST(GUI, getParent());
+	//if (cast)
+	//	cast->notifyFocused(focused);
+	//else if (_isFocused != focused) {
+	//	_skipCallback = true;
+	//	_isFocused = focused;
+	//}
 }
 
 void CustomUi::GUI::notifyEnabled()

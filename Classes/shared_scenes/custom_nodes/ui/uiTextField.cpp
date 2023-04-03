@@ -151,11 +151,15 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     cursor_control->setVisible(false);
     cursor_control_parent->addChild(cursor_control);
     addChild(button);
-    hover = ChangeValueBool();
+    hover_cv = ChangeValueBool();
     password_hover = ChangeValueBool();
 }
 
-bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+void CustomUi::TextField::update(f32 dt) {
+    cursor_control_parent->update(dt);
+}
+
+bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!adaptToWindowSize && field->getContentSize().width > sprite->getContentSize().width)
         field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width + capinsets.origin.x * 2));
@@ -175,7 +179,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     if (isEnabled())
     {
 #if 1
-        hover.setValue(button->hitTest(mouseLocationInView, cam, _NOTHING));
+        hover_cv.setValue(button->hitTest(mouseLocationInView, cam, _NOTHING));
 #else
         hover->setValue(false);
         password_hover->setValue(false);
@@ -219,9 +223,9 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         }
         else cursor_control->setVisible(false);
 
-        if (hover.isChanged())
+        if (hover_cv.isChanged())
         {
-            if (hover.getValue())
+            if (hover_cv.getValue())
             {
                 if (!_isFocused) {
                     SoundGlobals::playUiHoverSound();
@@ -243,7 +247,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             }
         }
 
-        if (_isFocused || hover.getValue())
+        if (_isFocused || hover_cv.getValue())
         {
             auto dSize = getDynamicContentSize();
             dSize.x += 30;
@@ -253,7 +257,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 
         if (hover_animation_time != -1)
         {
-            if (hover_animation_time >= 0.25 && (!_isFocused && !hover.getValue()))
+            if (hover_animation_time >= 0.25 && (!_isFocused && !hover_cv.getValue()))
             {
                 hover_animation_time = -1;
                 sprite_hover->stopAllActions();
@@ -285,7 +289,7 @@ bool CustomUi::TextField::update(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         password_control->setPosition(Vec2(getDynamicContentSize().width / 2 + password_control->getContentSize().width - 8, 0));
     }
 
-    return hover.getValue();
+    return hover_cv.getValue();
 }
 
 void CustomUi::TextField::focus()
@@ -344,7 +348,7 @@ bool CustomUi::TextField::click(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     }
     if (!button->hitTest(mouseLocationInView, cam, _NOTHING))
         defocus();
-    update(mouseLocationInView, cam);
+    hover(mouseLocationInView, cam);
     return false;
 }
 

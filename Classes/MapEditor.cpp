@@ -510,12 +510,14 @@ void MapEditor::onInitDone(f32 dt)
 
         auto container = _input->_uiContainer = CustomUi::Container::create();
         container->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
-            ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::CENTER));
+            ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::TOP));
         uiNode->addChild(container);
 
         auto textField = CustomUi::TextField::create();
-        textField->init("layer name", 18, {100, 20}, 10, "0.123456789-");
+        textField->init("layer name", 18, {100, 20});
         container->addChild(textField);
+
+        container->enable();
 
         buildEntireUi();
 
@@ -586,8 +588,10 @@ void MapEditor::update(f32 dt)
 {
     REBUILD_UI;
 
-    if (_input->_uiContainer)
-        _input->_uiContainer->update(_input->_mouseLocationInViewNoScene, _defaultCamera);
+    if (_input->_uiContainer) {
+        _input->_uiContainer->update(dt);
+        _input->_uiContainer->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
+    }
 
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);
@@ -805,7 +809,7 @@ void MapEditor::lateUpdate(f32 dt)
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
-    std::vector v = { 1,2,3,1025 };
+    std::vector v = { 1,2,3,1035 };
     TileID gid = v[Random::maxInt(v.size() - 1)];
         if (Random::float01() > 0.5)
             gid |= TILE_FLAG_ROTATE;

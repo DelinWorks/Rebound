@@ -24,7 +24,7 @@ namespace CustomUi
 
         bool _isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave
-        bool update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
 
         // should be called on onMouseDown or onTouchBegan, it will check on every element and react if mouseLocationInView vector is inside that object on a specific camera and perform a click action or defocus action if outside
         bool click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);

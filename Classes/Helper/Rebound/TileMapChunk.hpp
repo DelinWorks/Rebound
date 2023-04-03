@@ -513,7 +513,6 @@ typedef u32 TileID;
         }
 
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
-            if (_tiles->isEmpty(_tileset->_firstGid)) return;
             if (_chunkDirty)
             {
                 if (!_mesh && chunkMeshCreateCount < 4) {
@@ -626,6 +625,7 @@ typedef u32 TileID;
             _tiles->update();
             for (auto& _ : _chunks)
             {
+                if (_tiles->isEmpty(_->_tileset->_firstGid)) continue;
                 if (_chunkDirty || _tiles->retainedChunksI > 0 || _tilesetArr->retainedChunksI > 0)
                     _->_chunkDirty = true;
                 Mat4 parentTransform = Mat4::IDENTITY;

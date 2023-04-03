@@ -26,7 +26,7 @@ void CustomUi::Button::init(
     addChild(sprite);
 }
 
-bool CustomUi::Button::update(cocos2d::Vec2 mouseLocationInView, ax::Camera* cam)
+bool CustomUi::Button::hover(cocos2d::Vec2 mouseLocationInView, ax::Camera* cam)
 {
     return false;
 }

@@ -25,7 +25,7 @@ namespace CustomUi
         void init(cocos2d::Rect _capinsets, cocos2d::Size _contentsize,
             std::string _normal_sp, Color3B _normal_color = Color3B(117, 179, 255));
 
-        bool update(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam);
 
         void onEnable();
         void onDisable();

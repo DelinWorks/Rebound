@@ -15,13 +15,13 @@ CustomUi::Container* CustomUi::Container::create()
     return ret;
 }
 
-bool CustomUi::Container::update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     _skipCallback = false;
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
-        if (((GUI*)list.at(i))->update(mouseLocationInView, cam))
+        if (((GUI*)list.at(i))->hover(mouseLocationInView, cam))
             return _isHitSwallowed = true;
     }
     return _isHitSwallowed = _isFocused;

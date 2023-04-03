@@ -39,7 +39,7 @@ namespace CustomUi
         virtual ~GUI() {}
 
         // DO NOT ACCESS, USE AdvancedUiContainer
-        virtual bool update(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
+        virtual bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
         // DO NOT ACCESS, USE AdvancedUiContainer
         virtual bool click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
 
