@@ -381,7 +381,7 @@ typedef u32 TileID;
             }
         }
 
-        static i32 buildVertexIndex(TileArray* tileArr, Tileset* tileset, std::vector<f32>& vertices, IndexArray& indices, bool doNotTheCat = false) {
+        static i32 buildVertexIndex(TileArray* tileArr, Tileset* tileset, std::vector<f32>& vertices, IndexArray& indices, bool resize) {
             i32 vertexSize = VERTEX_SIZE_0;
             vertices.clear();
             vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * vertexSize * 4 /* tiles.x * tiles.y * vertex_size * vertices */);
@@ -400,7 +400,7 @@ typedef u32 TileID;
 
                     auto& coord = calculateTileCoords(tiles[index], tileset);
 
-                    if (!coord._outOfRange && !doNotTheCat) {
+                    if (!coord._outOfRange) {
                         Color4F tc = Color4F::WHITE;
 
                         vertices.insert(vertices.end(), {
@@ -414,7 +414,7 @@ typedef u32 TileID;
                             ilist_u16_t{ startindex, u16(startindex + 3), u16(startindex + 2),
                             u16(startindex + 1), u16(startindex + 3), startindex });
                     }
-                    else {
+                    else if (!resize) {
                         u16 startindex = vertices.size() / vertexSize;
                         f32 x = x1 * tileset->_tileSize.x;
                         f32 y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
@@ -440,7 +440,7 @@ typedef u32 TileID;
             return vertexSize;
         }
 
-        static Mesh* buildTiledMesh() {
+        static Mesh* buildTiledMesh(TileArray* _tileArr, Tileset* _tileset, bool _resize) {
             std::vector<MeshVertexAttrib> attribs;
             MeshVertexAttrib att;
 
@@ -456,9 +456,16 @@ typedef u32 TileID;
             att.vertexAttrib = shaderinfos::VertexKey::VERTEX_ATTRIB_TEX_COORD;
             attribs.push_back(att);
 
-            auto mesh = Mesh::create(emptyVIC.getVertex(), VERTEX_SIZE_0, emptyVIC.getIndex(), attribs);
-
-            return mesh;
+            if (_resize)
+            {
+                std::vector<float> vertices;
+                IndexArray indices;
+                buildVertexIndex(_tileArr, _tileset, vertices, indices, true);
+                if (vertices.size() == 0)
+                    return nullptr;
+                return Mesh::create(vertices, VERTEX_SIZE_0, indices, attribs);
+            }
+            else return Mesh::create(emptyVIC.getVertex(), VERTEX_SIZE_0, emptyVIC.getIndex(), attribs);
         }
 
         /* Build vertex cache for a specified TileArray* object.
@@ -466,7 +473,9 @@ typedef u32 TileID;
         updating the vertex buffer with the needed data using
         a vertex cache map that stores caches based on first gid.
         */
-        static void buildVertexCache(TileArray* tiles, TilesetArray* tilesets) {
+        static void buildVertexCache(TileArray* tiles, TilesetArray* tilesets, bool _resize) {
+            if (_resize) return;
+
             tiles->getArrayPointer(true);
             tiles->vertexCache.clear();
             tiles->cachedTilesetArr = tilesets;
@@ -474,15 +483,16 @@ typedef u32 TileID;
             for (auto& _ : tilesets->_tileSets) {
                 std::vector<f32> vertices;
                 IndexArray indices;
-                ChunkFactory::buildVertexIndex(tiles, _, vertices, indices);
+                ChunkFactory::buildVertexIndex(tiles, _, vertices, indices, false);
                 tiles->vertexCache.emplace(_->_firstGid, vertices);
             }
         }
 
         // This modifies the vertex cache directly for better performance
-        static void setTile(TileArray* tiles, TileID index, TileID newGid) {
+        static void setTile(TileArray* tiles, TileID index, TileID newGid, bool _resize) {
             auto _tiles = tiles->getArrayPointer(true);
             _tiles[index] = newGid;
+            if (_resize) return;
 
             for (auto& _ : tiles->cachedTilesetArr->_tileSets) {
                 auto& vertices = tiles->vertexCache[_->_firstGid];
@@ -522,8 +532,12 @@ typedef u32 TileID;
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
             if (_chunkDirty)
             {
-                if (!_mesh && chunkMeshCreateCount < 4) {
-                    _mesh = ChunkFactory::buildTiledMesh();
+                if (_resize) {
+                    removeAllMeshes();
+                    _mesh = ChunkFactory::buildTiledMesh(_tiles, _tileset, _resize);
+                }
+                if (_mesh && _resize || !_mesh && !_resize) {
+                    _mesh = ChunkFactory::buildTiledMesh(_tiles, _tileset, _resize);
                     auto mat = ax::MeshMaterial::createBuiltInMaterial(MeshMaterial::MaterialType::QUAD_TEXTURE, false);
                     _tileset->_texture->setAliasTexParameters();
                     mat->setTexture(_tileset->_texture, ax::NTextureData::Usage::None);
@@ -531,14 +545,14 @@ typedef u32 TileID;
                     mat->setForce2DQueue(true);
                     _mesh->setMaterial(mat);
                     addMesh(_mesh);
-                    chunkMeshCreateCount++;
                 }
-                else if (_mesh) {
+                if (_mesh && !_resize) {
                     updateVertexData();
-                    _chunkDirty = false;
                 }
+                _chunkDirty = false;
             }
-            MeshRenderer::visit(renderer, parentTransform, parentFlags);
+            if (_mesh)
+                MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }
 
         void setResizable(bool _resize) {
@@ -594,6 +608,7 @@ typedef u32 TileID;
                     c->_tiles = _tiles;
                     c->_tileset = _;
                     c->_chunkDirty = true;
+                    c->setResizable(_resize);
                     addChild(c);
                     _chunks.push_back(c);
                     c->_tiles = _tiles;
@@ -648,7 +663,8 @@ typedef u32 TileID;
             _tiles->retainedChunksI--;
         }
 
-        void setResizble(bool _resize) {
+        void setResizable(bool _resize) {
+            this->_resize = _resize;
             for (auto& _ : _chunks)
                 _->setResizable(_resize);
         }

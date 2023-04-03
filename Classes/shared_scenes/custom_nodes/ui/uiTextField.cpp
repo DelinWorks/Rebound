@@ -155,10 +155,6 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     password_hover = ChangeValueBool();
 }
 
-void CustomUi::TextField::update(f32 dt) {
-    cursor_control_parent->update(dt);
-}
-
 bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!adaptToWindowSize && field->getContentSize().width > sprite->getContentSize().width)

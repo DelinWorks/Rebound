@@ -51,8 +51,6 @@ namespace CustomUi
             Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
             std::string_view _allowedChars);
 
-        void update(f32 dt) override;
-
         bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
 
         void focus();

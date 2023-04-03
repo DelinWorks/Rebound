@@ -89,7 +89,7 @@ namespace TileSystem {
             auto chunk = _layerBind->getChunkAtPos(chunkPos, gid);
             if (!chunk) return;
             auto tilesArr = chunk->_tiles;
-            ChunkFactory::setTile(tilesArr, index, gid);
+            ChunkFactory::setTile(tilesArr, index, gid, _resize);
         }
 
         TileID getTileAt(const ax::Vec2& pos) {
@@ -120,6 +120,7 @@ namespace TileSystem {
         std::vector<Layer*> _layers;
 
         void setResizable(bool _resize) {
+            this->_resize = _resize;
             for (auto& _ : _layers)
                 _->setResizable(_resize);
         }

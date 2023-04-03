@@ -460,6 +460,8 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("decoration");
         map->bindLayer(0);
 
+        map->setResizable(true);
+
         //tilesetArr->addTileset(texture1);
         //tilesetArr->addTileset(texture2);
 

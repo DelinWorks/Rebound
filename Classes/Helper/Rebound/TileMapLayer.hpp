@@ -29,15 +29,15 @@ namespace TileSystem {
 				TileID* tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 				memset(tiles, 0, CHUNK_BUFFER_SIZE * sizeof(TileID));
 				auto tilesArr = TileArray::create(tiles);
-				ChunkFactory::buildVertexCache(tilesArr, _tilesetArr);
+				ChunkFactory::buildVertexCache(tilesArr, _tilesetArr, _resize);
 				ChunkDescriptor d{};
 				d._tiles = tilesArr;
 				d._tilesetArr = _tilesetArr;
 				auto c = ChunkRenderer::create(d);
 				c->setPositionInChunkSpace(pos);
-				_chunks.emplace(pos, c);
 				c->_isModified = true;
 				c->setResizable(_resize);
+				_chunks.emplace(pos, c);
 				addChild(c);
 				return c;
 			}
@@ -72,6 +72,7 @@ namespace TileSystem {
 		}
 
 		void setResizable(bool _resize) {
+			this->_resize = _resize;
 			for (auto& _ : _chunks)
 				_.second->setResizable(_resize);
 		}
