@@ -9,11 +9,11 @@ using namespace ax;
 
 namespace TileSystem {
 
-class RendererResizableBuffer {
+class ChunkRenderMethod {
 public:
-    RendererResizableBuffer() {}
-    bool _resize = false;
-    virtual void setResizable(bool _resize) = 0;
+    ChunkRenderMethod() {}
+    bool _resize = true;
+    virtual void cacheVertices(bool _resize) = 0;
 };
 
 typedef u32 TileID;
@@ -522,7 +522,7 @@ typedef u32 TileID;
         }
     };
 
-    class SingleTilesetChunkRenderer : public ChunkDescriptor, public RendererResizableBuffer, public ax::MeshRenderer {
+    class SingleTilesetChunkRenderer : public ChunkDescriptor, public ChunkRenderMethod, public ax::MeshRenderer {
     public:
         static SingleTilesetChunkRenderer* create() {
             auto ref = new SingleTilesetChunkRenderer();
@@ -542,6 +542,12 @@ typedef u32 TileID;
 
         ~SingleTilesetChunkRenderer() {
             //AX_SAFE_RELEASE_NULL(_mesh);
+        }
+
+        void unload() {
+            removeAllMeshes();
+            _mesh = nullptr;
+            _chunkDirty = true;
         }
 
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
@@ -566,12 +572,12 @@ typedef u32 TileID;
                 MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }
 
-        void setResizable(bool _resize) {
+        void cacheVertices(bool _resize) {
             this->_resize = _resize;
         }
     };
 
-    class ChunkRenderer : public ChunkDescriptor, public RendererResizableBuffer, public ax::Node {
+    class ChunkRenderer : public ChunkDescriptor, public ChunkRenderMethod, public ax::Node {
     public:
         static ChunkRenderer* create(ChunkDescriptor desc) {
             auto ref = new ChunkRenderer();
@@ -619,7 +625,7 @@ typedef u32 TileID;
                     c->_tiles = _tiles;
                     c->_tileset = _;
                     c->_chunkDirty = true;
-                    c->setResizable(_resize);
+                    c->cacheVertices(_resize);
                     addChild(c);
                     _chunks.push_back(c);
                     c->_tiles = _tiles;
@@ -656,6 +662,8 @@ typedef u32 TileID;
             if (!cam_aabb.intersectsRect(aabb)) {
                 _tilesetArr->retainedChunksI--;
                 _tiles->retainedChunksI--;
+                for (auto& _ : _chunks)
+                    _->unload();
                 return;
             }
 
@@ -674,10 +682,10 @@ typedef u32 TileID;
             _tiles->retainedChunksI--;
         }
 
-        void setResizable(bool _resize) {
+        void cacheVertices(bool _resize) {
             this->_resize = _resize;
             for (auto& _ : _chunks)
-                _->setResizable(_resize);
+                _->cacheVertices(_resize);
         }
 
         std::vector<SingleTilesetChunkRenderer*> _chunks;

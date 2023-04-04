@@ -460,8 +460,6 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("decoration");
         map->bindLayer(0);
 
-        map->setResizable(false);
-
         //tilesetArr->addTileset(texture1);
         //tilesetArr->addTileset(texture2);
 
@@ -590,11 +588,6 @@ void MapEditor::update(f32 dt)
 {
     REBUILD_UI;
 
-    if (_input->_uiContainer) {
-        _input->_uiContainer->update(dt);
-        _input->_uiContainer->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
-    }
-
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);
 
@@ -680,6 +673,9 @@ void MapEditor::update(f32 dt)
     chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
 
     lateUpdate(dt);
+
+    if (_input->_uiContainer)
+        _input->_uiContainer->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
 }
 
 void MapEditor::lateUpdate(f32 dt)
@@ -812,8 +808,8 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     std::vector v = { 1,2,3,1035 };
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
-    for (int x = _x; x < _x + 100; x++)
-        for (int y = _y; y < _y + 100; y++) {
+    for (int x = _x; x < _x + 2000; x++)
+        for (int y = _y; y < _y + 1000; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_ROTATE;

@@ -9,7 +9,7 @@ using namespace ax;
 
 namespace TileSystem {
 
-    class Map : public RendererResizableBuffer, public Node {
+    class Map : public ChunkRenderMethod, public Node {
     public:
         static Map* create(Vec2 _tileSize, i32 _contentScale, Vec2 _mapSize)
         {
@@ -35,7 +35,7 @@ namespace TileSystem {
 
         void addLayer(Layer* _layer) {
             _layers.push_back(_layer);
-            _layer->setResizable(_resize);
+            _layer->cacheVertices(_resize);
             addChild(_layer);
             _layer->_tilesetArr = _tilesetArr;
         }
@@ -119,10 +119,10 @@ namespace TileSystem {
         Layer* _layerBind;
         std::vector<Layer*> _layers;
 
-        void setResizable(bool _resize) {
+        void cacheVertices(bool _resize) {
             this->_resize = _resize;
             for (auto& _ : _layers)
-                _->setResizable(_resize);
+                _->cacheVertices(_resize);
         }
 
         Vec2 _tileSize;

@@ -6,7 +6,7 @@
 
 namespace TileSystem {
 
-	class Layer : public RendererResizableBuffer, public ax::Node {
+	class Layer : public ChunkRenderMethod, public ax::Node {
 	public:
 		static Layer* create(std::string_view name) {
 			auto ref = new Layer();
@@ -36,7 +36,7 @@ namespace TileSystem {
 				auto c = ChunkRenderer::create(d);
 				c->setPositionInChunkSpace(pos);
 				c->_isModified = true;
-				c->setResizable(_resize);
+				c->cacheVertices(_resize);
 				_chunks.emplace(pos, c);
 				addChild(c);
 				return c;
@@ -71,10 +71,10 @@ namespace TileSystem {
 			_chunksToRemove.clear();
 		}
 
-		void setResizable(bool _resize) {
+		void cacheVertices(bool _resize) {
 			this->_resize = _resize;
 			for (auto& _ : _chunks)
-				_.second->setResizable(_resize);
+				_.second->cacheVertices(_resize);
 		}
 
 		std::string _layerName;
