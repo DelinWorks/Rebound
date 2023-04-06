@@ -285,22 +285,22 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
             auto camSnapBorderVector = layer->getProperty("camera_snap_border_vector");
 
             if (!camWobbleSpeed.isNull())
-                player->camWobbleSpeed = GameUtils::Parser::parseVector2D(camWobbleSpeed.asString());
+                player->camWobbleSpeed = GameUtils::parseVector2D(camWobbleSpeed.asString());
 
             if (!camWobbleAmount.isNull())
-                player->camWobbleAmount = GameUtils::Parser::parseVector2D(camWobbleAmount.asString());
+                player->camWobbleAmount = GameUtils::parseVector2D(camWobbleAmount.asString());
 
             if (!camDisplaceVector.isNull())
-                player->camDisplaceVector = GameUtils::Parser::parseVector2D(camDisplaceVector.asString());
+                player->camDisplaceVector = GameUtils::parseVector2D(camDisplaceVector.asString());
 
             if (!camSnapPixelVector.isNull())
-                player->camSnapPixelVector = GameUtils::Parser::parseVector2D(camSnapPixelVector.asString());
+                player->camSnapPixelVector = GameUtils::parseVector2D(camSnapPixelVector.asString());
 
             if (!camSnapLerpVector.isNull())
-                player->camSnapLerpVector = GameUtils::Parser::parseVector2D(camSnapLerpVector.asString());
+                player->camSnapLerpVector = GameUtils::parseVector2D(camSnapLerpVector.asString());
 
             if (!camSnapBorderVector.isNull())
-                player->camSnapBorderVector = GameUtils::Parser::parseVector2D(camSnapBorderVector.asString());
+                player->camSnapBorderVector = GameUtils::parseVector2D(camSnapBorderVector.asString());
         }
         else if (type == LayerTypeLabel[DECORATION]) {
             layer->setAnchorPoint({ 0.5, 0.5 });
@@ -314,7 +314,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
 
             auto parallaxRatioProp = layer->getProperty("parallax_ratio_vector");
             Vec2 parallaxRatio = parallaxRatioProp.isNull() ? Vec2::ZERO : 
-                GameUtils::Parser::parseVector2D(parallaxRatioProp.asString());
+                GameUtils::parseVector2D(parallaxRatioProp.asString());
             parallax->addChild(layer, 0, parallaxRatio, Vec2::ZERO);
         }
 
@@ -345,7 +345,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
                     for (auto& t : layer->getTileAnimManager(sub)->getTasks())
                         t->setTimeScale(1.0 + Random::maxFloat(tileAnimSpeedVariance.asFloat()));
 
-        layer->setProgramState(GameUtils::CocosExt::createGPUProgram());
+        layer->setProgramState(GameUtils::createGPUProgram());
     }
 
     int batchingPercentage = (1.0 - float(solidCollCount - 1) / solidTileCount) * 100.0;

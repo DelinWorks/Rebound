@@ -1,12 +1,11 @@
 #ifndef __ADVANCED_UI_TEXTFIELD_H__
 #define __ADVANCED_UI_TEXTFIELD_H__
 
-#include "cocos2d.h"
-#include "ui/CocosGUI.h"
+#include "axmol.h"
 #include "uiContainer.h"
+#include "uiHoverEffect.h"
 
 USING_NS_CC;
-USING_NS_CC::ui;
 
 #define TEXTFIELD_P1_CONTENT_SIZE Size(380, 40)
 #define TEXTFIELD_P1_CLAMP_REGION Rect(380, 40, visibleSize.width + getWinDiff().width, 40)
@@ -14,16 +13,11 @@ USING_NS_CC::ui;
 
 namespace CustomUi
 {
-    class TextField : public GUI {
+    class TextField : public HoverEffectGUI {
     public:
         static CustomUi::TextField* create();
-
         ui::TextField* field;
         ui::Scale9Sprite* sprite;
-        Sprite* sprite_hover;
-        cocos2d::backend::ProgramState* sprite_hover_shader;
-        float hover_animation_time;
-        float hover_animation_step;
         Sprite* password_control;
         Node* cursor_control_parent;
         Sprite* cursor_control;
@@ -39,7 +33,7 @@ namespace CustomUi
         bool adaptToWindowSize = false;
         bool extend = false;
         bool toUpper = false;
-        str allowedChars = "";
+        std::string allowedChars = "";
         bool password = false;
         bool show_password = false;
 

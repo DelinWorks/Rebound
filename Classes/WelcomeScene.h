@@ -9,8 +9,9 @@
 #include "GameplayScene.h"
 #include "Helper/win32_error.h"
 #include "Helper/short_types.h"
+#include "Components/Components.h"
 
-class WelcomeScene : public ax::Scene, public GameUtils::CocosExt::CustomComponents::SceneInputManager
+class WelcomeScene : public ax::Scene, public SceneInputManager
 {
 public:
     static ax::Scene* createScene();

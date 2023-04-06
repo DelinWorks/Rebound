@@ -1,30 +1,35 @@
 #ifndef __CUSTOM_UI_H__
 #define __CUSTOM_UI_H__
 
-#include "cocos2d.h"
-#include "ui/CocosGUI.h"
+#include "axmol.h"
 #include "Helper/short_types.h"
+#include <ui/CocosGUI.h>
+#include <ui/UIButton.h>
+#include <ui/UITextField.h>
+
+using namespace ax;
 
 namespace CustomUi
 {
     //#define SHOW_BUTTON_HITBOX
 
-    inline cocos2d::ui::Button* createPlaceholderButton()
+    inline ui::Button* createPlaceholderButton()
     {
-        auto button = cocos2d::ui::Button::create();
+        auto button = ui::Button::create();
 #ifdef SHOW_BUTTON_HITBOX
         button->loadTextureNormal("shared/debug/button.png");
         button->setOpacity(120);
 #else
+        button->setVisible(false);
         button->setOpacity(0);
 #endif
         return button;
     }
 
-    inline void hookPlaceholderButtonToNode(cocos2d::Node* node_ref, cocos2d::ui::Button* button_ref, const cocos2d::Size hitbox_scale = cocos2d::Size(0, 0), bool add_hitbox_from_parent = true)
+    inline void hookPlaceholderButtonToNode(Node* node_ref, ui::Button* button_ref, const Size hitbox_scale = Size(0, 0), bool add_hitbox_from_parent = true)
     {
         node_ref->addChild(button_ref);
-        button_ref->setPosition(cocos2d::Vec2(node_ref->getBoundingBox().size.width / 2, node_ref->getBoundingBox().size.height / 2));
+        button_ref->setPosition(Vec2(node_ref->getBoundingBox().size.width / 2, node_ref->getBoundingBox().size.height / 2));
         button_ref->ignoreContentAdaptWithSize(false);
         if (add_hitbox_from_parent)
             button_ref->setContentSize(node_ref->getContentSize() + hitbox_scale);
@@ -33,15 +38,15 @@ namespace CustomUi
     }
 
     // Inherit Node GUI Manager
-    class GUI : public cocos2d::Node {
+    class GUI : public Node {
     public:
         GUI() {}
         virtual ~GUI() {}
 
         // DO NOT ACCESS, USE AdvancedUiContainer
-        virtual bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
+        virtual bool hover(Vec2 mouseLocationInView, Camera* cam) = 0;
         // DO NOT ACCESS, USE AdvancedUiContainer
-        virtual bool click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam) = 0;
+        virtual bool click(Vec2 mouseLocationInView, Camera* cam) = 0;
 
         void onEnter() override;
         void onExit() override;

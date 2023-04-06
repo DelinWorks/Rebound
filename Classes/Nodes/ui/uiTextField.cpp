@@ -1,30 +1,6 @@
 #include "uiTextField.h"
 #include "2d/CCTweenFunction.h"
 
-inline backend::ProgramState* createGPUProgram(std::string_view resources_frag_shader_path = ""sv, std::string_view resources_vertex_shader_path = ""sv)
-{
-    auto fileUtiles = FileUtils::getInstance();
-    auto fragmentFullPath = fileUtiles->fullPathForFilename(resources_frag_shader_path);
-    auto fragSource = fileUtiles->getStringFromFile(fragmentFullPath);
-    auto vertexFullPath = fileUtiles->fullPathForFilename(resources_vertex_shader_path);
-    auto vertexSource = fileUtiles->getStringFromFile(vertexFullPath);
-    auto program = backend::Device::getInstance()->newProgram(vertexSource.length() == 0 ? positionTextureColor_vert : vertexSource.c_str(), fragSource.length() == 0 ? positionTextureColor_frag : fragSource.c_str());
-    auto theFuckingProgramState = new backend::ProgramState(program);
-    return theFuckingProgramState;
-}
-
-#define SET_UNIFORM(ps, name, value)  do {   \
-decltype(value) __v = value;                           \
-auto __loc = (ps)->getUniformLocation(name);  \
-(ps)->setUniform(__loc, &__v, sizeof(__v));  \
-} while(false)
-
-#define SET_TEXTURE(ps, name, idx, value)  do {   \
-auto * __v = value;                           \
-auto __loc = (ps)->getUniformLocation(name);  \
-(ps)->setTexture(__loc, idx, __v);  \
-} while(false) 
-
 CustomUi::TextField* CustomUi::TextField::create()
 {
     CustomUi::TextField* ret = new CustomUi::TextField();
@@ -61,7 +37,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
 }
 
 void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
-    cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
+    ax::Rect _capinsets, ax::Size _contentsize, ax::Rect _clampregion,
     Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
@@ -77,8 +53,8 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     capinsets = _capinsets;
     selected_color = _selected_color;
     password = _password;
-    cursor_control_parent = cocos2d::Node::create();
-    field = cocos2d::ui::TextField::create(_placeholder, _fontname, _fontsize);
+    cursor_control_parent = ax::Node::create();
+    field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize);
     if (length != -1) {
         field->setMaxLengthEnabled(true);
         field->setMaxLength(length);
@@ -87,22 +63,10 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     field->setEnabled(false);
     field->_textFieldRenderer->setVerticalAlignment(TextVAlignment::CENTER);
     field->_textFieldRenderer->setHorizontalAlignment(TextHAlignment::CENTER);
-    sprite = cocos2d::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
+    sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
     sprite->setContentSize(_contentsize);
     button = createPlaceholderButton();
     button->setEnabled(false);
-    auto tex = Director::getInstance()->getTextureCache()->addImage("shared/unready/ptrn_bg_hover2.png");
-    Texture2D::TexParams params;
-    params.minFilter = backend::SamplerFilter::NEAREST;
-    params.magFilter = backend::SamplerFilter::NEAREST;
-    params.sAddressMode = backend::SamplerAddressMode::REPEAT;
-    params.tAddressMode = backend::SamplerAddressMode::REPEAT;
-    tex->setTexParameters(params);
-    sprite_hover = Sprite::createWithTexture(tex);
-    sprite_hover->setOpacity(0);
-    sprite_hover_shader = createGPUProgram("shared/unready/ui_hover_shader/hover.frag", "shared/unready/ui_hover_shader/hover.vert");
-    sprite_hover->setProgramState(sprite_hover_shader);
-    SET_TEXTURE(sprite_hover_shader, "u_tex1", 1, Director::getInstance()->getTextureCache()->addImage("shared/unready/ptrn_bg_hover_shader.png")->getBackendTexture());
     cursor_control = Sprite::createWithSpriteFrameName("text_cursor");
     if (password) {
         password_control = Sprite::createWithSpriteFrameName("hide_password");
@@ -142,7 +106,6 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
             });
     }
     button->ignoreContentAdaptWithSize(false);
-    addChild(sprite_hover, 0);
     addChild(sprite, 0);
     addChild(field, 1);
     addChild(cursor_control_parent, 2);
@@ -164,11 +127,10 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
 }
 
 void CustomUi::TextField::update(f32 dt) {
-    _hoverShaderTime += dt;
-    SET_UNIFORM(sprite_hover_shader, "u_time", (float)_hoverShaderTime);
+    HoverEffectGUI::update(dt);
 }
 
-bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!adaptToWindowSize && field->getContentSize().width > sprite->getContentSize().width)
         field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width + capinsets.origin.x * 2));
@@ -206,7 +168,7 @@ bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
                 cursor_control->setScale(1);
             }
 
-            str sString = TEXT(field->getString());
+            std::string  sString = TEXT(field->getString());
             std::size_t doubleSpace = sString.find("  ");
             while (doubleSpace != std::string::npos)
             {
@@ -215,7 +177,7 @@ bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             }
 
             if (allowedChars.length() > 0) {
-                str temp;
+                std::string temp;
                 temp.reserve(sString.length());
                 for (size_t i = 0; i < sString.length(); i++)
                 {
@@ -237,18 +199,7 @@ bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             if (hover_cv.getValue())
             {
                 if (!_isFocused) {
-                    SoundGlobals::playUiHoverSound();
-                    sprite_hover->stopAllActions();
-                    sprite_hover->runAction(
-                        Sequence::create(
-                            CallFunc::create([this]() { sprite_hover->setVisible(true); }),
-                            FadeTo::create(0.1f, 100),
-                            _NOTHING
-                        )
-                    );
-                    hover_animation_time = 0.0;
-                    hover_animation_step = 0.0;
-                    SET_UNIFORM(sprite_hover_shader, "u_val", (float)0.0);
+                    HoverEffectGUI::reset();
                 }
             }
             else if (!_isFocused)
@@ -261,36 +212,7 @@ bool CustomUi::TextField::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             auto dSize = getDynamicContentSize();
             dSize.x += 50;
             dSize.y += 40;
-            sprite_hover->setContentSize(dSize);
-        }
-
-        if (hover_animation_time != -1)
-        {
-            if (hover_animation_time >= 0.25 && (!_isFocused && !hover_cv.getValue()))
-            {
-                hover_animation_time = -1;
-                sprite_hover->stopAllActions();
-                sprite_hover->runAction(
-                    Sequence::create(
-                        FadeTo::create(0.1, 0),
-                        CallFunc::create([this]() { sprite_hover->setVisible(false); }),
-                        _NOTHING
-                    )
-                );
-            }
-        }
-
-        if (hover_animation_time != -1)
-        {
-            hover_animation_time += Director::getInstance()->getDeltaTime();
-            hover_animation_time = hover_animation_time > 1.0 ? 1.0 : hover_animation_time;
-
-            if (hover_animation_step > 0)
-            {
-                hover_animation_step = 0;
-                SET_UNIFORM(sprite_hover_shader, "u_val", (float)hover_animation_time);
-            }
-            else hover_animation_step += Director::getInstance()->getDeltaTime();
+            HoverEffectGUI::hover(true, dSize);
         }
     }
 
@@ -343,10 +265,9 @@ void CustomUi::TextField::onDisable()
     sprite->runAction(fade);
     sprite->runAction(tint);
     field->runAction(tint);
-    sprite_hover->setVisible(false);
 }
 
-bool CustomUi::TextField::click(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!isEnabled())
         return false;

@@ -10,8 +10,9 @@
 #include "Entities/CatPlayer.h"
 #include "Nodes/TiledMap.h"
 #include "Nodes/PhysicsWorld.h"
+#include "Components/Components.h"
 
-class GameplayScene : public ax::Scene, public GameUtils::CocosExt::CustomComponents::SceneInputManager
+class GameplayScene : public ax::Scene, public SceneInputManager
 {
 public:
     static ax::Scene* createScene();

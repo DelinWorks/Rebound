@@ -1,7 +1,7 @@
 #ifndef __CUSTOM_UI_CONTAINER_H__
 #define __CUSTOM_UI_CONTAINER_H__
 
-#include "cocos2d.h"
+#include "axmol.h"
 #include "custom_ui.h"
 
 #include "Helper/ChangeValue.h"

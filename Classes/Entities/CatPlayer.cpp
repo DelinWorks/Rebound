@@ -1,6 +1,4 @@
 #include "CatPlayer.h"
-#include "shared_scenes/GameUtils.h"
-#include "2d/CCTweenFunction.h"
 
 CatPlayer* CatPlayer::createPhysicalEntity(b2World* world)
 {
@@ -196,7 +194,7 @@ bool CatPlayer::init()
 		ax::DelayTime::create(1),
 		ax::CallFunc::create([&] { body->SetEnabled(true); }),
 		ax::CallFunc::create([&] {
-			addComponent((new GameUtils::CocosExt::CustomComponents::LerpPropertyActionComponent(this))
+			addComponent((new LerpPropertyActionComponent(this))
 			->initFloat(&speed, .3f, .0f, 17.0f, TO_B2_C((300 * tileRatio/* / (0.3429 / 10) * 46*/))));
 			body->SetLinearVelocity({ speed * playerDirection, body->GetLinearVelocity().y });
 		}),

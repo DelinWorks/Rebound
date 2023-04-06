@@ -1,8 +1,9 @@
 #ifndef __ADVANCED_UI_BUTTON_H__
 #define __ADVANCED_UI_BUTTON_H__
 
-#include "cocos2d.h"
+#include <axmol.h>
 #include "uiContainer.h"
+#include <ui/UIText.h>
 
 using namespace ax;
 

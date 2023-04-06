@@ -1,9 +1,5 @@
 ﻿#include "MapEditor.h"
 
-using namespace GameUtils::Parser;
-using namespace GameUtils::CocosExt;
-using namespace GameUtils::CocosExt::CustomComponents;
-
 USING_NS_CC;
 using namespace backend;
 
@@ -61,7 +57,7 @@ bool MapEditor::init()
     uiNode = Node::create();
     rebuildableUiNodes = Node::create();
     uiNodeNonFollow = Node::create();
-    uiNodeNonFollow->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
+    uiNodeNonFollow->addComponent((new UiRescaleComponent(visibleSize))
         ->enableDesignScaleIgnoring());
     gridNode = Node::create();
     chunkNode = Node::create();
@@ -433,7 +429,7 @@ void MapEditor::onInitDone(f32 dt)
 
         bg = ax::LayerColor::create(LAYER_BACKGROUND_COLOR);
         bg->setAnchorPoint(Vec2(0.5F, 0.5F));
-        bg->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))->enableLayerResizing());
+        //bg->addComponent((new UiRescaleComponent(visibleSize))->enableLayerResizing());
         addChild(bg, -1);
 
         //std::cout << sqlite3_close(pdb) << std::endl;
@@ -509,7 +505,7 @@ void MapEditor::onInitDone(f32 dt)
         //BENCHMARK_SECTION_END();
 
         auto container = _input->_uiContainer = CustomUi::Container::create();
-        container->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
+        container->addComponent((new UiRescaleComponent(visibleSize))
             ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::CENTER));
         uiNode->addChild(container);
 
@@ -805,7 +801,7 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
-    std::vector v = { 1,2,3,1035 };
+    std::vector v = { 1,2,3 };
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
     for (int x = _x; x < _x + 2000; x++)
@@ -1138,7 +1134,7 @@ void MapEditor::buildEntireUi()
     statsParentNode = Node::create();
     statsParentNode->setPosition(Vec2(visibleSize.width / -2 + 5, visibleSize.height / -2));
     setNodeIgnoreDesignScale(statsParentNode);
-    statsParentNode->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
+    statsParentNode->addComponent((new UiRescaleComponent(visibleSize))
         ->enableDesignScaleIgnoring()->setVisibleSizeHints(-2, 5, -2));
     f32 fontSize = 20;
     std::string fontName = "fonts/arial.ttf";
@@ -1279,8 +1275,7 @@ void MapEditor::setUiTextDefaultShade(ui::Text* text_node, bool use_shadow)
 
 void MapEditor::rebuildEntireUi()
 {
-    auto list = GameUtils::CocosExt::findComponentsByName(this, "UiRescaleComponent");
-    for (auto i : list) dynamic_cast<GameUtils::CocosExt::CustomComponents::UiRescaleComponent*>(i)->windowSizeChange(visibleSize);
+    RESIZE_UI_ELEMENTS;
 }
 
 ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)

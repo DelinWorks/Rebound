@@ -181,7 +181,7 @@ static void window_focus_callback(GLFWwindow* window, i32 focused)
                 glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
                 glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
                 glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
-                GameUtils::CursorsAndWindows::GLFW_ClipCursor(true);
+                GameUtils::GLFW_ClipCursor(true);
         }
         FMODAudioEngine::getInstance()->resumeAllSounds();
     } else {

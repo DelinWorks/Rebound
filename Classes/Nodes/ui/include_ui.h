@@ -3,6 +3,7 @@
 
 #include "uiContainer.h"
 
+#include "uiHoverEffect.h"
 #include "uiButton.h"
 #include "uiTextField.h"
 

@@ -52,12 +52,8 @@ typedef float f32;
 // singed 64 bit floating point (double) (sacrificing speed for precision)
 typedef double f64;
 
-#define TEXT(t) str(t)
+#define TEXT(t) std::string(t)
 #define TO_TEXT(t) std::to_string(t)
-
-// std::string
-typedef std::string str;
-typedef std::string_view strv;
 
 #define SCAST static_cast
 #define DCAST(T, O) dynamic_cast<T*>(O)
@@ -66,6 +62,8 @@ typedef std::string_view strv;
 #define C_UCHAR_P const unsigned char*
 
 #define _NOTHING nullptr
+
+#define LERP MathUtil::lerp
 
 #include <list>
 

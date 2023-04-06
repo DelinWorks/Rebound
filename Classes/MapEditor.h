@@ -29,10 +29,7 @@
 #include "shared_scenes/GameUtils.h"
 #include "fmod/include_fmod.h"
 #include "sqlite3enc/sqleet.h"
-#include "ui/CocosGUI.h"
 #include "math/FastRNG.h"
-
-#include "shared_scenes/custom_nodes/ui/include_ui.h"
 
 #include <string> 
 #include <sstream> 
@@ -59,14 +56,13 @@ using namespace Math;
 
 #include "Helper/SelectionBox.h"
 #include "Helper/ChangeValue.h"
-
 #include "Helper/Rebound/TileMapSystem.hpp"
-
-#include "shared_scenes/custom_nodes/ui/custom_ui.h"
+#include "Nodes/ui/include_ui.h"
+#include "Components/Components.h"
 
 using namespace TileSystem;
 
-class MapEditor : public ax::Scene, public GameUtils::CocosExt::CustomComponents::SceneInputManager
+class MapEditor : public ax::Scene, public SceneInputManager
 {
 public:
     static ax::Scene* createScene();
