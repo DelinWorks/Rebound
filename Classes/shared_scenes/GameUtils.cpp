@@ -199,8 +199,17 @@ Vec2 GameUtils::convertFromScreenToSpace(Vec2 locationInView, Size& visibleSize,
 void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node) {
     Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
-    node->setScaleX(actualWinSize.width / actualFrameSize.width);
-    node->setScaleY(actualWinSize.height / actualFrameSize.height);
+    float x = actualWinSize.width / actualFrameSize.width;
+    float y = actualWinSize.height / actualFrameSize.height;
+
+    // If the scale dimensions are the same, then we just
+    // set the scale to the x or y value, any will suffice.
+    if (x == y)
+        node->setScale(x);
+    // If somehow the scale dimensions are different, then we just
+    // see which dimension is bigger and set the scale to that
+    // value so that any ui node doesn't stretch and deform.
+    else node->setScale(x < y ? y : x);
 }
 
 Size GameUtils::getWinDiff() {
