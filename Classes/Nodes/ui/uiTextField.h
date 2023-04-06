@@ -28,8 +28,8 @@ namespace CustomUi
         cocos2d::Rect capinsets;
         cocos2d::Rect clampregion;
         cocos2d::Size clampoffset;
-        ChangeValueBool hover_cv;
-        ChangeValueBool password_hover;
+        ChangeValue<bool> hover_cv;
+        ChangeValue<bool> password_hover;
         bool adaptToWindowSize = false;
         bool extend = false;
         bool toUpper = false;

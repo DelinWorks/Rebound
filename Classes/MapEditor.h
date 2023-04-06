@@ -160,8 +160,8 @@ public:
     ax::DrawNode* worldCoordsLines;
     ax::DrawNode* cameraCenterIndicator;
 
-    ChangeValueBool* gridHideValue;
-    ChangeValueFloat* gridOpacityValue;
+    ChangeValue<bool> gridHideValue;
+    ChangeValue<float> gridOpacityValue;
 
     bool isInitDone = false;
     bool isTouchNew = false;

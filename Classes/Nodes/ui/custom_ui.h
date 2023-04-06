@@ -78,9 +78,9 @@ namespace CustomUi
         bool _skipCallback = false;
         bool _isForceFocused = false;
         bool _isFocused = false;
+        bool _isHovered = false;
         bool _isContainer = false;
         bool _isEnabled = true;
-        float _hoverShaderTime = 0.0;
     };
 }
 

@@ -10,6 +10,7 @@ uniform float u_val;
 
 uniform sampler2D u_tex0;
 uniform sampler2D u_tex1;
+uniform sampler2D u_tex2;
 
 float getAlphaEdge(float coord) {
 	if (coord < 0.1) {
@@ -32,7 +33,7 @@ void main()
 	float opacity = getAlphaEdge(v_texCoord.x) * getAlphaEdge(v_texCoord.y);
 
 	if (texture2D(u_tex1, v_texCoord).a < val)
-		gl_FragColor = v_fragmentColor * texture2D(u_tex0, coord) * opacity;
+		gl_FragColor = v_fragmentColor * texture2D(u_tex0, coord) * texture2D(u_tex2, v_texCoord).a * opacity;
 	else
 		gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
 }

@@ -11,15 +11,14 @@ namespace CustomUi {
 		HoverEffectGUI();
 
 		void update(f32 dt);
-		void hover(bool hovered, ax::Vec2 dSize);
-		void reset();
+		void hover(ax::Vec2 dSize = ax::Vec2::ZERO);
 
 	private:
-		ax::backend::ProgramState* hover_shader;
-		float _hover_animation_time;
-		float _hover_animation_step;
-		f32 _hoverShaderTime;
-		ax::Sprite* _sprite;
+		ax::backend::ProgramState* _hoverShader;
+		ax::Sprite* _hoverSprite;
+		f32 _hoverShaderTime1;
+		f32 _hoverShaderTime2;
+		f32 _hoverShaderTimeLerp2 = 0;
 	};
 }
 

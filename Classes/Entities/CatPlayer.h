@@ -110,7 +110,7 @@ public:
 	float playerStuckDuration = 0;
 	ax::Vec2 contactDebug[4];
 	MaxPushList<ax::Vec2> debugLineTraceY;
-	ChangeValueBool controllerJump;
+	ChangeValue<bool> controllerJump;
 
 	CatPlayer() : jumpCallback(this), teleportCallback(this) {
 		debugLineTraceY = MaxPushList<ax::Vec2>(i8(10));

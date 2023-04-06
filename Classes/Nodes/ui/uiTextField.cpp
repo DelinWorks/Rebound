@@ -122,8 +122,8 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     cursor_control->setVisible(false);
     cursor_control_parent->addChild(cursor_control);
     addChild(button);
-    hover_cv = ChangeValueBool();
-    password_hover = ChangeValueBool();
+    //hover_cv = ChangeValue<bool>();
+    //password_hover = ChangeValue<bool>();
 }
 
 void CustomUi::TextField::update(f32 dt) {
@@ -150,7 +150,14 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     if (isEnabled())
     {
 #if 1
-        hover_cv.setValue(button->hitTest(mouseLocationInView, cam, _NOTHING));
+        hover_cv.setValue(_isHovered = button->hitTest(mouseLocationInView, cam, _NOTHING));
+
+        if (hover_cv.isChanged()) {
+            auto dSize = getDynamicContentSize();
+            dSize.x += 50;
+            dSize.y += 40;
+            HoverEffectGUI::hover(dSize);
+        }
 #else
         hover->setValue(false);
         password_hover->setValue(false);
@@ -193,27 +200,6 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             field->setString(sString);
         }
         else cursor_control->setVisible(false);
-
-        if (hover_cv.isChanged())
-        {
-            if (hover_cv.getValue())
-            {
-                if (!_isFocused) {
-                    HoverEffectGUI::reset();
-                }
-            }
-            else if (!_isFocused)
-            {
-            }
-        }
-
-        if (_isFocused || hover_cv.getValue())
-        {
-            auto dSize = getDynamicContentSize();
-            dSize.x += 50;
-            dSize.y += 40;
-            HoverEffectGUI::hover(true, dSize);
-        }
     }
 
     if (password) {
@@ -246,6 +232,7 @@ void CustomUi::TextField::defocus()
     field->detachWithIME();
     cursor_control->setVisible(false);
     notifyFocused(_isFocused = false);
+    HoverEffectGUI::hover();
 }
 
 void CustomUi::TextField::onEnable()
