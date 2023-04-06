@@ -5,8 +5,6 @@
 #include "Helper/short_types.h"
 #include "shared_scenes/GameUtils.h"
 
-using namespace GameUtils;
-
 enum BorderLayout {
     TOP = 0,
     TOP_RIGHT = 1,

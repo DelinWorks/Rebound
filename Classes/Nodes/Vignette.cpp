@@ -1,5 +1,7 @@
 #include "Vignette.h"
 
+USING_NS_GAMEUTILS;
+
 Vignette* Vignette::create(ax::Size visibleSize) {
     Vignette* ret = new Vignette();
     if (ret->init(visibleSize))

@@ -12,6 +12,8 @@
 #include "shared_scenes/GameSingleton.h"
 #include "shared_scenes/SoundGlobals.h"
 
+#include "Components/UiRescaleComponent.h"
+
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 28 - 24, 28 - 24)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1.png"sv
 
@@ -20,7 +22,8 @@ namespace CustomUi
     class Container : public GUI {
     public:
         Container() {}
-        static CustomUi::Container* create();
+        static CustomUi::Container* createNullLayout();
+        static CustomUi::Container* create(BorderLayout border = BorderLayout::CENTER);
 
         bool _isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave

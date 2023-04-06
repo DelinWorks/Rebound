@@ -1,5 +1,7 @@
 #include "UiRescaleComponent.h"
 
+USING_NS_GAMEUTILS;
+
 UiRescaleComponent::UiRescaleComponent(Size _visibleSize) {
     autorelease();
     setName(__func__);

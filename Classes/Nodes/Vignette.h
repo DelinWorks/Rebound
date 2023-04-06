@@ -4,8 +4,6 @@
 #include <axmol.h>
 #include "shared_scenes/GameUtils.h"
 
-using namespace GameUtils;
-
 class Vignette : public ax::Sprite {
 public:
     ax::backend::ProgramState* Program;

@@ -11,7 +11,7 @@ namespace CustomUi {
 		HoverEffectGUI();
 
 		void update(f32 dt);
-		void hover(ax::Vec2 dSize = ax::Vec2::ZERO);
+		void hover();
 
 	private:
 		ax::backend::ProgramState* _hoverShader;

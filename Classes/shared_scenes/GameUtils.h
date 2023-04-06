@@ -3,6 +3,8 @@
 #ifndef _GameUtils_H__
 #define _GameUtils_H__
 
+#define USING_NS_GAMEUTILS using namespace GameUtils
+
 #include "axmol.h"
 #include "Helper/Color.hpp"
 #include "AppDelegate.h"

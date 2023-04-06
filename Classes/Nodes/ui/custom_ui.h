@@ -51,7 +51,7 @@ namespace CustomUi
         void onEnter() override;
         void onExit() override;
 
-        void notifyFocused(bool focused);
+        void notifyFocused(GUI* sender, bool focused);
 
         void updateEnabled(bool state);
         void notifyEnabled();
@@ -66,16 +66,12 @@ namespace CustomUi
 
         void setAsContainer(bool isContainer = true) { _isContainer = isContainer; }
 
-        bool shouldSkipCallback() {
-            return _skipCallback;
-        }
-
     private:
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
 
-    protected:
-        bool _skipCallback = false;
+    public:
+        std::set<GUI*> _focusedElements;
         bool _isForceFocused = false;
         bool _isFocused = false;
         bool _isHovered = false;

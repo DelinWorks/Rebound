@@ -1,30 +1,42 @@
 #include "uiContainer.h"
 
-CustomUi::Container* CustomUi::Container::create()
+CustomUi::Container* CustomUi::Container::createNullLayout()
 {
-    Container* ret = new Container();
-    if (ret->init())
+    Container* ref = new Container();
+    if (ref->init())
     {
-        ret->setAsContainer();
-        ret->autorelease();
+        ref->setAsContainer();
+        ref->autorelease();
     }
     else
     {
-        AX_SAFE_DELETE(ret);
+        AX_SAFE_DELETE(ref);
     }
-    return ret;
+    return ref;
+}
+
+CustomUi::Container* CustomUi::Container::create(BorderLayout border)
+{
+    auto ref = createNullLayout();
+    if (ref) {
+        ref->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+            ->setBorderLayout(border));
+        return ref;
+    }
+    else return nullptr;
 }
 
 bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
-    _skipCallback = false;
+    _isHitSwallowed = false;
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
-        if (((GUI*)list.at(i))->hover(mouseLocationInView, cam))
-            return _isHitSwallowed = true;
+        auto n = ((GUI*)list.at(i));
+        if (n->hover(_isHitSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
+            _isHitSwallowed = true;
     }
-    return _isHitSwallowed = _isFocused;
+    return _isHitSwallowed;
 }
 
 bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -33,10 +45,12 @@ bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     bool isClickSwallowed = false;
     for (int i = list.size() - 1; i > -1; i--)
     {
-        if (((GUI*)list.at(i))->click(mouseLocationInView, cam))
-            return true;
+        auto n = ((GUI*)list.at(i));
+        if (n->click(isClickSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam)) {
+            isClickSwallowed = true;
+        }
     }
-    return false;
+    return isClickSwallowed;
 }
 
 void CustomUi::Container::onEnable()

@@ -24,7 +24,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
         false,
         ADVANCEDUI_P1_CAP_INSETS,
         _size,
-        Rect(150, 40, 150, 40),
+        Rect(_size.x, _size.y, _size.x, _size.y),
         TEXTFIELD_P1_CLAMP_OFFSET,
         ADVANCEDUI_TEXTURE,
         true,
@@ -42,6 +42,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     scheduleUpdate();
     adaptToWindowSize = _adaptToWindowSize;
     extend = _allowExtend;
@@ -127,6 +128,10 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
 }
 
 void CustomUi::TextField::update(f32 dt) {
+    auto dSize = getDynamicContentSize();
+    dSize.x += 50 * (dSize.x / 120);
+    dSize.y += 40;
+    setContentSize(dSize);
     HoverEffectGUI::update(dt);
 }
 
@@ -137,7 +142,8 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     else if (adaptToWindowSize)
         field->_textFieldRenderer->setScale(1);
 
-    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) : Darkness::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
+    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
+        Darkness::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
         Math::clamp(field->getContentSize().height + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
     button->setContentSize(sprite->getContentSize());
 
@@ -152,12 +158,8 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 #if 1
         hover_cv.setValue(_isHovered = button->hitTest(mouseLocationInView, cam, _NOTHING));
 
-        if (hover_cv.isChanged()) {
-            auto dSize = getDynamicContentSize();
-            dSize.x += 50;
-            dSize.y += 40;
-            HoverEffectGUI::hover(dSize);
-        }
+        if (hover_cv.isChanged())
+            HoverEffectGUI::hover();
 #else
         hover->setValue(false);
         password_hover->setValue(false);
@@ -197,6 +199,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             if (toUpper)
                 std::transform(sString.begin(), sString.end(), sString.begin(), ::toupper);
 
+            cachedString = ShapingEngine::Helper::widen(sString);
             field->setString(sString);
         }
         else cursor_control->setVisible(false);
@@ -211,27 +214,25 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 
 void CustomUi::TextField::focus()
 {
+    field->attachWithIME();
+    if (_isFocused) return;
+    field->setString(ShapingEngine::Helper::narrow(cachedString));
     sprite->stopAllActions();
     auto fade = FadeTo::create(0.1f, 255);
-    //auto scale = ScaleTo::create(0.1f, 1);
-    //auto ease = EaseCubicActionIn::create(scale);
-    //parent->runAction(ease);
-    //sprite->runAction(fade);
-    //auto tint = TintTo::create(0.1f, selected_color);
-    //sprite->runAction(tint);
-    field->attachWithIME();
     if (field->getString().length() > 0)
         cursor_control->setVisible(true);
-    notifyFocused(_isFocused = true);
+    notifyFocused(this, true);
 }
 
 void CustomUi::TextField::defocus()
 {
+    if (!_isFocused) return;
+    field->setString(ShapingEngine::render(cachedString));
     auto tint = TintTo::create(0.1f, Color3B::WHITE);
     sprite->runAction(tint);
     field->detachWithIME();
     cursor_control->setVisible(false);
-    notifyFocused(_isFocused = false);
+    notifyFocused(this, false);
     HoverEffectGUI::hover();
 }
 
@@ -256,6 +257,7 @@ void CustomUi::TextField::onDisable()
 
 bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
 {
+    auto state = _isFocused;
     if (!isEnabled())
         return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
@@ -263,10 +265,10 @@ bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
         SoundGlobals::playUiHoverSound();
         return true;
     }
-    if (!button->hitTest(mouseLocationInView, cam, _NOTHING))
+    else if (!button->hitTest(mouseLocationInView, cam, _NOTHING))
         defocus();
     hover(mouseLocationInView, cam);
-    return false;
+    return state;
 }
 
 Size CustomUi::TextField::getDynamicContentSize()

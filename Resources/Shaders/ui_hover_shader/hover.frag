@@ -24,7 +24,7 @@ float getAlphaEdge(float coord) {
 
 void main()
 {
-	float val = clamp(u_val * 3.0, 0.0, 1.0);
+	float val = clamp((u_val + 0.08) * 3.0, 0.0, 1.0);
 	
 	float time = u_time * 0.1;
     

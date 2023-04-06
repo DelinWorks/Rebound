@@ -93,7 +93,7 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
-    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
+    map = TileSystem::Map::create(Vec2(1, 1), 1, Vec2(1000, 1000));
     addChild(map);
 
     grid = Node::create();
@@ -441,7 +441,7 @@ void MapEditor::onInitDone(f32 dt)
 
         //TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 
-        tilesetArr = TilesetArray::create({ 16, 16 });
+        tilesetArr = TilesetArray::create({ 1, 1 });
 
         auto texture1 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
         auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
@@ -505,13 +505,20 @@ void MapEditor::onInitDone(f32 dt)
         //BENCHMARK_SECTION_END();
 
         auto container = _input->_uiContainer = CustomUi::Container::create();
-        container->addComponent((new UiRescaleComponent(visibleSize))
-            ->enableDesignScaleIgnoring()->setBorderLayout(BorderLayout::CENTER));
         uiNode->addChild(container);
 
         auto textField = CustomUi::TextField::create();
-        textField->init("layer name", 18, {100, 20});
+        textField->init("layer fuck", 24, { 200, 40 });
         container->addChild(textField);
+        textField->setPositionX(500);
+
+        auto container2 = CustomUi::Container::create();
+        container2->addComponent((new UiRescaleComponent(visibleSize))->setBorderLayout(BorderLayout::BOTTOM));
+        container->addChild(container2);
+
+        textField = CustomUi::TextField::create();
+        textField->init("layer name", 18, {100, 40});
+        container2->addChild(textField);
 
         container->enable();
 

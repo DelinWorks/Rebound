@@ -4,6 +4,8 @@
 #include "axmol.h"
 #include "uiContainer.h"
 #include "uiHoverEffect.h"
+#include "Helper/ShapingEngine.hpp"
+#include "Components/UiRescaleComponent.h"
 
 USING_NS_CC;
 
@@ -17,6 +19,7 @@ namespace CustomUi
     public:
         static CustomUi::TextField* create();
         ui::TextField* field;
+        std::wstring cachedString;
         ui::Scale9Sprite* sprite;
         Sprite* password_control;
         Node* cursor_control_parent;

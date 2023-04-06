@@ -39,24 +39,30 @@ void CustomUi::GUI::updateEnabled(bool state)
 void CustomUi::GUI::onEnter()
 {
 	Node::onEnter();
-	notifyFocused(false);
+	notifyFocused(this, false);
 }
 
 void CustomUi::GUI::onExit()
 {
 	Node::onExit();
-	notifyFocused(false);
+	notifyFocused(this, false);
 }
 
-void CustomUi::GUI::notifyFocused(bool focused)
+void CustomUi::GUI::notifyFocused(GUI* sender, bool focused)
 {
-	focused |= _isForceFocused;
 	auto cast = DCAST(GUI, getParent());
-	if (cast)
-		cast->notifyFocused(focused);
-	else if (_isFocused != focused) {
-		_skipCallback = true;
+	if (cast) {
+		if (_isFocused == focused) return;
 		_isFocused = focused;
+		cast->notifyFocused(sender, focused);
+	}
+	else {
+		if (focused)
+			_focusedElements.insert(sender);
+		else
+			_focusedElements.erase(sender);
+
+		_isFocused = _focusedElements.size() > 0;
 	}
 }
 
