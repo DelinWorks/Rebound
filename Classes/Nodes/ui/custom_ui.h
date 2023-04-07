@@ -64,18 +64,20 @@ namespace CustomUi
         virtual void onEnable() = 0;
         virtual void onDisable() = 0;
 
-        void setAsContainer(bool isContainer = true) { _isContainer = isContainer; }
+        void setDynamic() { _isDynamic = true; }
+        void setStatic() { _isDynamic = false; }
 
     private:
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
 
     public:
+        bool _isDynamic = false;
+        bool _isContainer = false;
         std::set<GUI*> _focusedElements;
         bool _isForceFocused = false;
         bool _isFocused = false;
         bool _isHovered = false;
-        bool _isContainer = false;
         bool _isEnabled = true;
     };
 }

@@ -202,7 +202,6 @@ typedef u32 TileID;
 
         ~Tileset() {
             _material->release();
-            AX_SAFE_RELEASE(_texture);
         }
     };
 
@@ -500,10 +499,12 @@ typedef u32 TileID;
         }
 
         // This modifies the vertex cache directly for better performance
-        static void setTile(TileArray* tiles, TileID index, TileID newGid, bool _resize) {
+        // Returns true if the previuous tile had a tile gid of 0
+        static bool setTile(TileArray* tiles, TileID index, TileID newGid, bool _resize) {
             auto _tiles = tiles->getArrayPointer(true);
+            auto prevT = _tiles[index];
             _tiles[index] = newGid;
-            if (_resize) return;
+            if (_resize) return prevT == 0;
 
             for (auto& _ : tiles->cachedTilesetArr->_tileSets) {
                 auto& vertices = tiles->vertexCache[_->_firstGid];
@@ -519,6 +520,8 @@ typedef u32 TileID;
                 vertices[(7 + startIndex) + VERTEX_SIZE_0 * 3] = coord.br.U;
                 vertices[(8 + startIndex) + VERTEX_SIZE_0 * 3] = coord.br.V;
             }
+
+            return prevT == 0;
         }
     };
 
@@ -662,8 +665,8 @@ typedef u32 TileID;
             if (!cam_aabb.intersectsRect(aabb)) {
                 _tilesetArr->retainedChunksI--;
                 _tiles->retainedChunksI--;
-                for (auto& _ : _chunks)
-                    _->unload();
+                //for (auto& _ : _chunks)
+                //    _->unload();
                 return;
             }
 

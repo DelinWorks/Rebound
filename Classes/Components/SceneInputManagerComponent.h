@@ -71,6 +71,8 @@ public:
 class SceneInputManager {
 public:
     SceneInputManagerComponent* _input;
+
+    CustomUi::Container* getContainer();
 };
 
 #endif

@@ -66,6 +66,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     field->_textFieldRenderer->setHorizontalAlignment(TextHAlignment::CENTER);
     sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
     sprite->setContentSize(_contentsize);
+    setContentSize(_contentsize);
     button = createPlaceholderButton();
     button->setEnabled(false);
     cursor_control = Sprite::createWithSpriteFrameName("text_cursor");
@@ -129,8 +130,6 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
 
 void CustomUi::TextField::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    dSize.x += 50 * (dSize.x / 120);
-    dSize.y += 40;
     setContentSize(dSize);
     HoverEffectGUI::update(dt);
 }
@@ -257,7 +256,6 @@ void CustomUi::TextField::onDisable()
 
 bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
 {
-    auto state = _isFocused;
     if (!isEnabled())
         return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
@@ -268,7 +266,7 @@ bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
     else if (!button->hitTest(mouseLocationInView, cam, _NOTHING))
         defocus();
     hover(mouseLocationInView, cam);
-    return state;
+    return false;
 }
 
 Size CustomUi::TextField::getDynamicContentSize()

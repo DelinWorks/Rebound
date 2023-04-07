@@ -46,6 +46,26 @@ rebuildEntireUi(); \
 Darkness::getInstance()->gameWindow.isScreenSizeDirty = false; \
 }
 
+#define SCENE_BUILD_UI auto list = GameUtils::findComponentsByName(this, "UiRescaleComponent"); \
+for (auto& _ : list) { \
+    auto i = DCAST(UiRescaleComponent, _); \
+    if (i) { \
+        auto c = DCAST(CustomUi::Container, i->getOwner()); \
+        if (c && c->_closestStaticBorder) \
+        { \
+            auto parent = c; \
+            while (parent) { \
+                parent = DCAST(CustomUi::Container, parent->getParent()); \
+                if (!parent) break; \
+                if (!parent->_isDynamic) \
+                    i->windowSizeChange(parent->getContentSize()); \
+            } \
+        } \
+        else i->windowSizeChange(visibleSize); \
+    } \
+} \
+if (getContainer()) getContainer()->updateLayoutManagers(true); \
+
 #define SET_POSITION_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / 2), (visibleSize.height / 2)));
 #define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / -2), (visibleSize.height / -2)));
 

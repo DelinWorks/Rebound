@@ -197,3 +197,8 @@ SceneInputManagerComponent* SceneInputManagerComponent::attachSceneGraph(Node* o
 
     return this;
 }
+
+CustomUi::Container* SceneInputManager::getContainer()
+{
+    return _input->_uiContainer;
+}

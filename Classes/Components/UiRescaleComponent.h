@@ -5,7 +5,7 @@
 #include "Helper/short_types.h"
 #include "shared_scenes/GameUtils.h"
 
-enum BorderLayout {
+enum BorderLayout : u8 {
     TOP = 0,
     TOP_RIGHT = 1,
     RIGHT = 2,
@@ -17,8 +17,10 @@ enum BorderLayout {
     CENTER = 8
 };
 
-#define RESIZE_UI_ELEMENTS auto list = GameUtils::findComponentsByName(this, "UiRescaleComponent"); \
-for (auto i : list) dynamic_cast<UiRescaleComponent*>(i)->windowSizeChange(visibleSize);
+enum BorderContext : u8 {
+    SCREEN_SPACE = 0,
+    CLOSEST_STATIC = 1,
+};
 
 class UiRescaleComponent : public ax::Component {
 public:

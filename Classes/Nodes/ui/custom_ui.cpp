@@ -52,7 +52,7 @@ void CustomUi::GUI::notifyFocused(GUI* sender, bool focused)
 {
 	auto cast = DCAST(GUI, getParent());
 	if (cast) {
-		if (_isFocused == focused) return;
+		//if (_isFocused == focused) return;
 		_isFocused = focused;
 		cast->notifyFocused(sender, focused);
 	}

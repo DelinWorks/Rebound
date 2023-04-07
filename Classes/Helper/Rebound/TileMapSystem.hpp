@@ -89,7 +89,8 @@ namespace TileSystem {
             auto chunk = _layerBind->getChunkAtPos(chunkPos, gid);
             if (!chunk) return;
             auto tilesArr = chunk->_tiles;
-            ChunkFactory::setTile(tilesArr, index, gid, _resize);
+            auto cond = ChunkFactory::setTile(tilesArr, index, gid, _resize);
+            _tileCount += (gid == 0 ? (!cond ? -1 : 0) : (cond ? 1 : 0));
         }
 
         TileID getTileAt(const ax::Vec2& pos) {
@@ -125,6 +126,7 @@ namespace TileSystem {
                 _->cacheVertices(_resize);
         }
 
+        u32 _tileCount, _chunkCount;
         Vec2 _tileSize;
         i32 _contentScale = 1;
         Vec2 _mapSize;

@@ -93,7 +93,7 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
-    map = TileSystem::Map::create(Vec2(1, 1), 1, Vec2(1000, 1000));
+    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
     addChild(map);
 
     grid = Node::create();
@@ -441,7 +441,7 @@ void MapEditor::onInitDone(f32 dt)
 
         //TileID*tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
 
-        tilesetArr = TilesetArray::create({ 1, 1 });
+        tilesetArr = TilesetArray::create({ 16, 16 });
 
         auto texture1 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_002.png");
         auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
@@ -506,21 +506,53 @@ void MapEditor::onInitDone(f32 dt)
 
         auto container = _input->_uiContainer = CustomUi::Container::create();
         uiNode->addChild(container);
-
-        auto textField = CustomUi::TextField::create();
-        textField->init("layer fuck", 24, { 200, 40 });
-        container->addChild(textField);
-        textField->setPositionX(500);
+        container->setStatic();
+        container->setContentSize(visibleSize / 2);
 
         auto container2 = CustomUi::Container::create();
-        container2->addComponent((new UiRescaleComponent(visibleSize))->setBorderLayout(BorderLayout::BOTTOM));
+        container2->setLayout(CustomUi::FlowLayout(
+            CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
+            CustomUi::FlowLayoutDirection::STACK_CENTER
+        ));
         container->addChild(container2);
 
-        textField = CustomUi::TextField::create();
-        textField->init("layer name", 18, {100, 40});
-        container2->addChild(textField);
+        for (int i = 0; i < 2; i++) {
+            auto textField = CustomUi::TextField::create();
+            textField->init(std::to_string(i), 18, { 100, 40 });
+            container2->addChild(textField);
+        }
 
-        container->enable();
+        auto container3 = CustomUi::Container::create(BorderLayout::TOP_RIGHT, BorderContext::CLOSEST_STATIC);
+        container3->setLayout(CustomUi::FlowLayout(
+            CustomUi::FlowLayoutSort::SORT_VERTICAL,
+            CustomUi::FlowLayoutDirection::STACK_BOTTOM
+        ));
+        container->addChild(container3);
+
+        for (int i = 0; i < 2; i++) {
+            auto textField = CustomUi::TextField::create();
+            textField->init(std::to_string(i) + " UI TEST", 18, { 100, 40 });
+            container2->addChild(textField);
+        }
+
+        for (int i = 0; i < 4; i++) {
+            auto textField = CustomUi::TextField::create();
+            textField->init(std::to_string(i) + " UI TEST", 18, {100, 40});
+            container3->addChild(textField);
+        }
+
+        auto container4 = CustomUi::Container::create();
+        container4->setLayout(CustomUi::FlowLayout(
+            CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
+            CustomUi::FlowLayoutDirection::STACK_CENTER
+        ));
+        container2->addChild(container4);
+
+        for (int i = 0; i < 2; i++) {
+            auto textField = CustomUi::TextField::create();
+            textField->init(std::to_string(i) + " UI TEST", 18, { 100, 40 });
+            container4->addChild(textField);
+        }
 
         buildEntireUi();
 
@@ -535,7 +567,7 @@ void MapEditor::onInitDone(f32 dt)
             updateSchedTime = 0;
         }
     }
-    updateDirectorToStatsCount(0, 0);
+    updateDirectorToStatsCount(map->_tileCount, 0);
 }
 
 void MapEditor::perSecondUpdate(f32 dt)
@@ -590,6 +622,8 @@ void MapEditor::perSecondUpdate(f32 dt)
 void MapEditor::update(f32 dt)
 {
     REBUILD_UI;
+
+    if (getContainer()) getContainer()->updateLayoutManagers(true);
 
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);
@@ -677,8 +711,7 @@ void MapEditor::update(f32 dt)
 
     lateUpdate(dt);
 
-    if (_input->_uiContainer)
-        _input->_uiContainer->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
+    if (getContainer()) getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
 }
 
 void MapEditor::lateUpdate(f32 dt)
@@ -718,93 +751,6 @@ void MapEditor::lateUpdate(f32 dt)
     Vec2 loc = convertFromScreenToSpace(Vec2(visibleSize.width, visibleSize.height), visibleSize, cam);
     Vec2 loc0 = convertFromScreenToSpace(Vec2(0, 0), visibleSize, cam);
 }
-
-//void MapEditor::chunkUpdate(F32 dt)
-//{
-//    // i can't i just can't i feel like i wasnt built for this cancer
-//    // im starting to hate this shit and hate my life too
-//    // everything goes right until on day it stops and throws
-//    // a punch at my face i hate this illness
-//    // and more importantly i hate you c++ you gave me cancer and youll still do
-//    // this code works perfectly fine BUT it will fuck up some day soon
-//
-//    Vec2 loc = convertFromScreenToSpace(Vec2(visibleSize.width, visibleSize.height), visibleSize);
-//    Vec2 loc0 = convertFromScreenToSpace(Vec2(0, 0), visibleSize);
-//    for (const auto& i : chunks) {
-//        Vec2 l = convertFromChunkSpaceToSpace(Vec2(i->x, i->y));
-//        if (l.x + chunkSize < loc0.x || l.y + chunkSize < loc0.y || l.x > loc.x || l.y > loc.y) {
-//            if (!i->rebuild) {
-//                i->rebuild = true;
-//                chunkNode->removeChild(i->batch);
-//                i->hasTransparentTile = false;
-//                CCLOG("UPDATE: frustum culling unloaded chunk model at %d,%d GID: %d", i->x, i->y, i->tileGID);
-//            }
-//        }
-//        else {
-//            if (i->rebuild)
-//                chunksToRebuild.push_back(i);/*
-//            if (!i.rebuild)
-//                i.batch->visit(renderer, this->getWorldToNodeTransform(), 0);*/
-//        }
-//    }
-//    bool removeEmptyChunks = false;
-//    for (const auto& i : chunksToRebuild) {
-//        if (i->rebuild)
-//        {
-//            sprite = Sprite::createWithTexture(tex);
-//            sprite->retain();
-//            sprite->setScaleX(contentScale);
-//            sprite->setScaleY(contentScale);
-//            sprite->setAnchorPoint(Vec2(0, 0));
-//            if (i->isEdited)
-//            {
-//                chunkNode->removeChild(i->batch);
-//                i->hasTransparentTile = false;
-//                //CCLOG("UPDATE: frustum culling unloaded chunk model at %d,%d", i->x, i->y);
-//                i->isEdited = false;
-//            }
-//            if (i->tiles.size() == 0) {
-//                removeEmptyChunks = true;
-//                continue;
-//            }
-//            i->index = -1;
-//            i->batch = SpriteBatchNode::createWithTexture(tex, i->tiles.size());
-//            for (CTile* t : i->tiles)
-//            {
-//                i->index++;
-//                Vec2 pos = convertFromTileSpaceToSpace(Vec2(t->x, t->y));
-//                pos.x = pos.x + tileSize / 2;
-//                pos.y = pos.y + tileSize / 2;
-//                sprite->setPosition(pos);
-//                sprite->setTextureRect(Rect(Vec2(tileSizePure * 3, tileSizePure * 0), Size(tileSizePure, tileSizePure)));
-//                auto col = ColorConversion::hex2rgba(t->hex);
-//                if (col.r < 255 || col.g < 255 || col.b < 255)
-//                    sprite->setColor(Color3B(col.r, col.g, col.b));
-//                if (col.a < 255)
-//                {
-//                    sprite->setOpacity(col.a);
-//                    i->hasTransparentTile = true;
-//                }
-//                i32 rot = 90 * t->rot;
-//                if (rot != 0)
-//                    sprite->setRotation(rot);
-//                sprite->setAnchorPoint(Vec2(0.5f, 0.5f));
-//                i->batch->insertQuadFromSprite(sprite, i->index);
-//            }
-//            i->rebuild = false;
-//            chunkNode->addChild(i->batch, 0);
-//            i->batch->setProgramState(defaultTileProgramState);
-//            if (!i->hasTransparentTile)
-//                i->batch->setBlendFunc(defaultTileBlend);
-//        }
-//    }
-//    if (chunksToRebuild.size() > 0)
-//    {
-//        chunksToRebuild.clear();
-//        if (removeEmptyChunks)
-//            reorderChunks();
-//    }
-//}
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
@@ -1282,7 +1228,7 @@ void MapEditor::setUiTextDefaultShade(ui::Text* text_node, bool use_shadow)
 
 void MapEditor::rebuildEntireUi()
 {
-    RESIZE_UI_ELEMENTS;
+    SCENE_BUILD_UI;
 }
 
 ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)

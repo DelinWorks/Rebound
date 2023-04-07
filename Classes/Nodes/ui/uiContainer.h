@@ -19,11 +19,48 @@
 
 namespace CustomUi
 {
+    enum Layout : u8 {
+        FLOW = 0,
+    };
+
+    enum FlowLayoutSort : u8 {
+        SORT_HORIZONTAL = 0,
+        SORT_VERTICAL = 1,
+    };
+
+    enum FlowLayoutDirection : u8 {
+        STACK_LEFT = 0,
+        STACK_CENTER = 1,
+        STACK_RIGHT = 2,
+        STACK_BOTTOM = 3,
+        STACK_TOP = 4,
+    };
+
+    class Container;
+
+    class FlowLayout {
+    public:
+        FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
+            FlowLayoutDirection _direction = FlowLayoutDirection::STACK_RIGHT,
+            ax::Vec2 _spacing = ax::Vec2::ZERO, i16 _maxNodes = -1)
+            : sort(_sort), direction(_direction), spacing(_spacing), maxNodes(_maxNodes) { }
+        FlowLayoutSort sort;
+        FlowLayoutDirection direction;
+        ax::Vec2 spacing;
+        i16 maxNodes;
+
+        void build(CustomUi::Container* container);
+    };
+
     class Container : public GUI {
     public:
         Container() {}
-        static CustomUi::Container* createNullLayout();
-        static CustomUi::Container* create(BorderLayout border = BorderLayout::CENTER);
+        static CustomUi::Container* create();
+        static CustomUi::Container* create(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
+        void setLayout(FlowLayout layout);
+
+        void calculateContentBoundaries();
+        void updateLayoutManagers(bool recursive = false);
 
         bool _isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave
@@ -42,6 +79,13 @@ namespace CustomUi
 
         void onEnable();
         void onDisable();
+
+        DrawNode* contentSizeDebug;
+        bool _closestStaticBorder = false;
+
+    protected:
+        Layout layout;
+        FlowLayout flowLayout;
     };
 }
 

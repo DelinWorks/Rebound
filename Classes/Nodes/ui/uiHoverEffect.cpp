@@ -15,7 +15,7 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
 
 void CustomUi::HoverEffectGUI::update(f32 dt) {
     if (_hoverSprite->isVisible()) {
-        _hoverSprite->setContentSize(getContentSize());
+        _hoverSprite->setContentSize(getContentSize() + Vec2(50 * (getContentSize().x / 120), 40));
         _hoverShaderTime1 += dt;
         SET_UNIFORM(_hoverShader, "u_time", _hoverShaderTime1);
         _hoverShaderTime2 += dt;
@@ -39,7 +39,6 @@ void CustomUi::HoverEffectGUI::hover()
         );
         if (_hoverShaderTime2 > 0.3)
             _hoverShaderTimeLerp2 = 0;
-        _hoverShaderTime1 = 0.0f;
         _hoverShaderTime2 = 0.0f;
     } else {
         _hoverSprite->stopAllActions();
