@@ -49,7 +49,7 @@ namespace CustomUi
         ax::Vec2 spacing;
         i16 maxNodes;
 
-        void build(CustomUi::Container* container);
+        void build(CustomUi::Container* container, u16 start = 0);
     };
 
     class Container : public GUI {

@@ -143,13 +143,17 @@ void CustomUi::Container::calculateContentBoundaries()
     contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
 }
 
-void CustomUi::FlowLayout::build(CustomUi::Container* container)
+void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
 {
     auto list = container->getChildren();
 
     f32 sumSize = 0;
-    for (auto& _ : list)
-        sumSize += sort == SORT_HORIZONTAL ? _->getContentSize().x : _->getContentSize().y;
+    for (auto& _ : list) {
+        auto cSize = _->getContentSize();
+        cSize.x += spacing.x * 2;
+        cSize.y += spacing.y * 2;
+        sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
+    }
 
     auto n = Node::create();
     GameUtils::setNodeIgnoreDesignScale(n);
@@ -163,14 +167,18 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     for (auto& _ : list) {
         if (DCAST(DrawNode, _)) continue;
         auto cSize = _->getContentSize();
-        if (DCAST(Container, _)) cSize *= 1.5;
+        if (DCAST(Container, _)) cSize *= 1.0 / n->getScaleX();
         if (_) {
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
+                cSize.x += spacing.x * 2;
+                cSize.y += spacing.y * 2;
                 _->setPositionX(cumSize * n->getScaleX());
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             } else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
+                cSize.x += spacing.x * 2;
+                cSize.y += spacing.y * 2;
                 _->setPositionY(cumSize * n->getScaleY());
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }

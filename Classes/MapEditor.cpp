@@ -504,54 +504,38 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
-        auto container = _input->_uiContainer = CustomUi::Container::create();
+        auto container = _input->_uiContainer = CustomUi::Container::create(BorderLayout::TOP_LEFT);
         uiNode->addChild(container);
         container->setStatic();
-        container->setContentSize(visibleSize / 2);
+        container->setContentSize({400, 200});
+        container->setAnchorPoint({ -1, 0.5 });
 
         auto container2 = CustomUi::Container::create();
         container2->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
             CustomUi::FlowLayoutDirection::STACK_CENTER
         ));
-        container->addChild(container2);
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 5; i++) {
             auto textField = CustomUi::TextField::create();
             textField->init(std::to_string(i), 18, { 100, 40 });
             container2->addChild(textField);
         }
 
-        auto container3 = CustomUi::Container::create(BorderLayout::TOP_RIGHT, BorderContext::CLOSEST_STATIC);
+        auto container3 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::CLOSEST_STATIC);
         container3->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_VERTICAL,
-            CustomUi::FlowLayoutDirection::STACK_BOTTOM
+            CustomUi::FlowLayoutDirection::STACK_BOTTOM,
+            {0, 100}
         ));
         container->addChild(container3);
-
-        for (int i = 0; i < 2; i++) {
-            auto textField = CustomUi::TextField::create();
-            textField->init(std::to_string(i) + " UI TEST", 18, { 100, 40 });
-            container2->addChild(textField);
-        }
+        //container3->setAnchorPoint({ 0.5,0 });
+        container3->addChild(container2);
 
         for (int i = 0; i < 4; i++) {
             auto textField = CustomUi::TextField::create();
             textField->init(std::to_string(i) + " UI TEST", 18, {100, 40});
             container3->addChild(textField);
-        }
-
-        auto container4 = CustomUi::Container::create();
-        container4->setLayout(CustomUi::FlowLayout(
-            CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
-            CustomUi::FlowLayoutDirection::STACK_CENTER
-        ));
-        container2->addChild(container4);
-
-        for (int i = 0; i < 2; i++) {
-            auto textField = CustomUi::TextField::create();
-            textField->init(std::to_string(i) + " UI TEST", 18, { 100, 40 });
-            container4->addChild(textField);
         }
 
         buildEntireUi();
