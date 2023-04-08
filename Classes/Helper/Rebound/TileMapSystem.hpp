@@ -21,7 +21,7 @@ namespace TileSystem {
                 ref->_chunkSize = CHUNK_SIZE;
                 ref->_chunkSizeInPixels = ref->_tileSize * ref->_chunkSize;
                 ref->_gridSize = CHUNK_SIZE * 6;
-                
+
                 ref->autorelease();
                 return ref;
             }
@@ -84,11 +84,16 @@ namespace TileSystem {
         void setTileAt(const ax::Vec2& pos, TileID gid) {
             if (!_layerBind || pos.x >= _mapSize.x || pos.x < -_mapSize.x || pos.y >= _mapSize.y || pos.y < -_mapSize.y)
                 return;
-              Vec2 chunkPos;
-            auto index = getTileTransform(pos, chunkPos);
-            auto chunk = _layerBind->getChunkAtPos(chunkPos, gid);
-            if (!chunk) return;
-            auto tilesArr = chunk->_tiles;
+            Vec2 chunkPos;
+            TileArray* tilesArr;
+            int index = getTileTransform(pos, chunkPos);
+            if (!cachedChunkPosition.equals(chunkPos) || !cachedChunk) {
+                cachedChunk = _layerBind->getChunkAtPos(chunkPos, gid);
+                cachedChunkPosition = chunkPos;
+                if (!cachedChunk) return;
+                tilesArr = cachedChunk->_tiles;
+            }
+            else tilesArr = cachedChunk->_tiles;
             auto cond = ChunkFactory::setTile(tilesArr, index, gid, _resize);
             _tileCount += (gid == 0 ? (!cond ? -1 : 0) : (cond ? 1 : 0));
         }
@@ -112,6 +117,8 @@ namespace TileSystem {
         void draw(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {}
         void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {
             chunkMeshCreateCount = 0;
+            cachedChunk = nullptr;
+            cachedChunkPosition = { FLT_MAX, FLT_MAX };
             for (auto& _ : _layers)
                 _->visit(renderer, parentTransform, parentFlags);
         }
@@ -126,13 +133,15 @@ namespace TileSystem {
                 _->cacheVertices(_resize);
         }
 
-        u32 _tileCount, _chunkCount;
-        Vec2 _tileSize;
+        ChunkRenderer* cachedChunk = nullptr;
+        Vec2 cachedChunkPosition = { FLT_MAX, FLT_MAX };
+        u32 _tileCount = 0, _chunkCount = 0;
+        Vec2 _tileSize = Vec2::ZERO;
         i32 _contentScale = 1;
-        Vec2 _mapSize;
-        i32 _chunkSize;
-        Vec2 _chunkSizeInPixels;
-        i32 _gridSize;
+        Vec2 _mapSize = Vec2::ZERO;
+        i32 _chunkSize = 0;
+        Vec2 _chunkSizeInPixels = Vec2::ZERO;
+        i32 _gridSize = 0;
     };
 }
 

@@ -9,9 +9,9 @@ using namespace GameUtils;
 
 class SceneInputManagerComponent : public Component {
 public:
-    cocos2d::EventListenerKeyboard* _keyboardListener;
-    cocos2d::EventListenerMouse* _mouseListener;
-    cocos2d::EventListenerTouchOneByOne* _touchListener;
+    cocos2d::EventListenerKeyboard* _keyboardListener = nullptr;
+    cocos2d::EventListenerMouse* _mouseListener = nullptr;
+    cocos2d::EventListenerTouchOneByOne* _touchListener = nullptr;
 
     std::function<void(EventKeyboard::KeyCode, Event*)> onKeyPressed;
     std::function<void(EventKeyboard::KeyCode, Event*)> onKeyReleased;
@@ -20,7 +20,7 @@ public:
     std::function<void(EventMouse* event)> onMouseUp;
     std::function<void(EventMouse* event)> onMouseMove;
     std::function<void(EventMouse* event)> onMouseScroll;
-    Event* onKeyEvent;
+    Event* onKeyEvent = nullptr;
     std::vector<int> _pressedKeys;
 
     ax::Vec2 _mouseLocation;

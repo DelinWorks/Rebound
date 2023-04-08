@@ -6,8 +6,8 @@
 
 class DrawNodeCircleExpandComponent : public Component {
 public:
-    f32 r_start, r_end, time, amount;
-    i32 segs;
+    f32 r_start = 0, r_end = 0, time = 0, amount = 0;
+    i32 segs = 0;
 
     DrawNodeCircleExpandComponent(f32 _time, f32 _amount, i32 _segs);
 

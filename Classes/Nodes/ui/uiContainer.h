@@ -20,7 +20,8 @@
 namespace CustomUi
 {
     enum Layout : u8 {
-        FLOW = 0,
+        NONE = 0,
+        FLOW = 1,
     };
 
     enum FlowLayoutSort : u8 {
@@ -54,10 +55,11 @@ namespace CustomUi
 
     class Container : public GUI {
     public:
-        Container() {}
+        Container() : layout(Layout::NONE), borderLayout(BorderLayout::CENTER), flowLayout(), contentSizeDebug(nullptr) {}
         static CustomUi::Container* create();
         static CustomUi::Container* create(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
         void setLayout(FlowLayout layout);
+        void setBorderLayoutAnchor();
 
         void calculateContentBoundaries();
         void updateLayoutManagers(bool recursive = false);
@@ -85,6 +87,7 @@ namespace CustomUi
 
     protected:
         Layout layout;
+        BorderLayout borderLayout;
         FlowLayout flowLayout;
     };
 }

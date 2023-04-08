@@ -25,7 +25,7 @@ CustomUi::Container* CustomUi::Container::create(BorderLayout border, BorderCont
         if (context == BorderContext::CLOSEST_STATIC)
             ref->_closestStaticBorder = true;
         ref->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-            ->setBorderLayout(border));
+            ->setBorderLayout(ref->borderLayout = border));
         return ref;
     }
     else return nullptr;
@@ -94,6 +94,36 @@ void CustomUi::Container::onEnable()
 
 void CustomUi::Container::onDisable()
 {
+}
+
+void CustomUi::Container::setBorderLayoutAnchor()
+{
+    switch (borderLayout) {
+    case BorderLayout::TOP:
+        setAnchorPoint({ 0, 0.5 });
+        break;
+    case BorderLayout::TOP_RIGHT:
+        setAnchorPoint({ 0.5, 0.5 });
+        break;
+    case BorderLayout::RIGHT:
+        setAnchorPoint({ 0.5, 0 });
+        break;
+    case BorderLayout::BOTTOM_RIGHT:
+        setAnchorPoint({ 0.5, -0.5 });
+        break;
+    case BorderLayout::BOTTOM:
+        setAnchorPoint({ 0, -0.5 });
+        break;
+    case BorderLayout::BOTTOM_LEFT:
+        setAnchorPoint({ -0.5, -0.5 });
+        break;
+    case BorderLayout::LEFT:
+        setAnchorPoint({ -0.5, 0 });
+        break;
+    case BorderLayout::TOP_LEFT:
+        setAnchorPoint({ -0.5, 0.5 });
+        break;
+    }
 }
 
 void CustomUi::Container::calculateContentBoundaries()

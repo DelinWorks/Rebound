@@ -6,8 +6,8 @@
 
 class DestroyNodeComponent : public Component {
 public:
-    f32 time_s;
-    f32 time_e;
+    f32 time_s = 0;
+    f32 time_e = 0;
 
     DestroyNodeComponent(f32 _time);
 

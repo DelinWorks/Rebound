@@ -14,8 +14,8 @@ namespace CustomUi {
 		void hover();
 
 	private:
-		ax::backend::ProgramState* _hoverShader;
-		ax::Sprite* _hoverSprite;
+		ax::backend::ProgramState* _hoverShader = nullptr;
+		ax::Sprite* _hoverSprite = nullptr;
 		f32 _hoverShaderTime1 = 0;
 		f32 _hoverShaderTime2 = 0;
 		f32 _hoverShaderTimeLerp2 = 0;

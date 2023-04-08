@@ -6,15 +6,15 @@
 
 class LerpPropertyActionComponent : public Component {
 public:
-    Node* owner;
-    Node* actionNode;
-    Sequence* action;
+    Node* owner = nullptr;
+    Node* actionNode = nullptr;
+    Sequence* action = nullptr;
     bool isBy = false;
-    float* ref_float;
-    int* ref_int;
-    uint8_t* ref_uint8;
-    f32 start, end, finish;
-    i32 type;
+    float* ref_float = nullptr;
+    int* ref_int = nullptr;
+    uint8_t* ref_uint8 = nullptr;
+    f32 start = 0, end = 0, finish = 0;
+    i32 type = 0;
 
     void onAdd();
 

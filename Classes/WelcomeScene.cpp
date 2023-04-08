@@ -121,7 +121,7 @@ void WelcomeScene::runNext()
 
 void WelcomeScene::rebuildEntireUi()
 {
-    RESIZE_UI_ELEMENTS;
+    SCENE_BUILD_UI;
 }
 
 void WelcomeScene::onKeyHold(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)

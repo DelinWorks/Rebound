@@ -77,10 +77,10 @@ namespace TileSystem {
 				_.second->cacheVertices(_resize);
 		}
 
-		std::string _layerName;
-		Color4F _layerColor;
+		std::string _layerName = "";
+		Color4F _layerColor = Color4F::WHITE;
 
-		TilesetArray* _tilesetArr;
+		TilesetArray* _tilesetArr = nullptr;
 		std::vector<Vec2> _chunksToRemove;
 		std::map<Vec2, ChunkRenderer*> _chunks;
 	};

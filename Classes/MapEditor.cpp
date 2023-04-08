@@ -504,33 +504,25 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
-        auto container = _input->_uiContainer = CustomUi::Container::create(BorderLayout::TOP_LEFT);
+        auto container = _input->_uiContainer = CustomUi::Container::create(BorderLayout::CENTER);
         uiNode->addChild(container);
         container->setStatic();
-        container->setContentSize({400, 200});
-        container->setAnchorPoint({ -1, 0.5 });
+        container->setContentSize(visibleSize);
+        //container->setAnchorPoint({ -1, 0.5 });
 
-        auto container2 = CustomUi::Container::create();
-        container2->setLayout(CustomUi::FlowLayout(
-            CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
-            CustomUi::FlowLayoutDirection::STACK_CENTER
-        ));
-
-        for (int i = 0; i < 5; i++) {
-            auto textField = CustomUi::TextField::create();
-            textField->init(std::to_string(i), 18, { 100, 40 });
-            container2->addChild(textField);
-        }
+        auto container2 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::CLOSEST_STATIC);
+        container2->setBorderLayoutAnchor();
+        container2->setContentSize(visibleSize / 2);
+        container2->setStatic();
+        container->addChild(container2);
 
         auto container3 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::CLOSEST_STATIC);
         container3->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_VERTICAL,
             CustomUi::FlowLayoutDirection::STACK_BOTTOM,
-            {0, 100}
+            {0, 10}
         ));
-        container->addChild(container3);
-        //container3->setAnchorPoint({ 0.5,0 });
-        container3->addChild(container2);
+        container2->addChild(container3);
 
         for (int i = 0; i < 4; i++) {
             auto textField = CustomUi::TextField::create();
@@ -726,8 +718,8 @@ void MapEditor::lateUpdate(f32 dt)
     //cameraCenterIndicator->setScaleX(_defaultCamera->getScaleX());
     //cameraCenterIndicator->setScaleY(_defaultCamera->getScaleY());
     Size place    = Size();
-    place.width   = 100;
-    place.height  = 100;
+    place.width   = 10;
+    place.height  = 10;
     Size remove   = Size();
     remove.width  = 1;
     remove.height = 1;
@@ -741,6 +733,7 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     std::vector v = { 1,2,3 };
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
+    BENCHMARK_SECTION_BEGIN("Tile placement test");
     for (int x = _x; x < _x + 2000; x++)
         for (int y = _y; y < _y + 1000; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
@@ -752,6 +745,7 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
                 gid |= TILE_FLAG_FLIP_Y;
             map->setTileAt({ float(x), float(y) }, gid);
         }
+    BENCHMARK_SECTION_END();
 }
 
 // DON'T CALL THIS MANUALLY

@@ -75,15 +75,15 @@ typedef u32 TileID;
     };
 
     struct TileTexCoords {
-        UV tl;
-        UV tr;
-        UV bl;
-        UV br;
+        UV tl{ 0,0 };
+        UV tr{ 0,0 };
+        UV bl{ 0,0 };
+        UV br{ 0,0 };
 
-        UV saved_tl;
-        UV saved_tr;
-        UV saved_bl;
-        UV saved_br;
+        UV saved_tl{ 0,0 };
+        UV saved_tr{ 0,0 };
+        UV saved_bl{ 0,0 };
+        UV saved_br{ 0,0 };
 
         bool is90 = false;
         bool isH = false;
@@ -183,7 +183,7 @@ typedef u32 TileID;
 
     class Tileset : public ax::Ref {
     public:
-        i32 _firstGid;
+        u32 _firstGid = 0;
         ax::Texture2D* _texture;
         ax::Vec2 _tileSize;
         ax::Vec2 _textureSize;
@@ -322,30 +322,30 @@ typedef u32 TileID;
         }
 
         //protected:
-        TilesetArray* cachedTilesetArr;
+        TilesetArray* cachedTilesetArr = nullptr;
         bool _tileArrayDirty = false;
         std::set<i32> _emptyTilesets;
         std::map<i32, std::vector<f32>> vertexCache;
         i32 retainedChunks = 0;
         i32 retainedChunksI = 0;
-        TileID* _tiles;
+        TileID* _tiles = nullptr;
     };
 
     class ChunkDescriptor {
     public:
-        i32 _vertexSize;
+        i32 _vertexSize = 0;
         bool _chunkDirty = true;
         bool _isParent = false;
         bool _isModified = false;
 
-        ax::Mesh* _mesh;
-        TileArray* _tiles;
-        Tileset* _tileset;
-        TilesetArray* _tilesetArr;
+        ax::Mesh* _mesh = nullptr;
+        TileArray* _tiles = nullptr;
+        Tileset* _tileset = nullptr;
+        TilesetArray* _tilesetArr = nullptr;
     };
 
     namespace ChunkFactory {
-        static TileTexCoords& calculateTileCoords(TileID id, Tileset* tileset) {
+        static TileTexCoords calculateTileCoords(TileID id, Tileset* tileset) {
             TileID flags = 0;
             flags |= id & TILE_FLAG_ALL;
             TileID gid = id;
@@ -408,7 +408,7 @@ typedef u32 TileID;
                     f32 sx = tileset->_tileSize.x;
                     f32 sy = tileset->_tileSize.y;
 
-                    auto& coord = calculateTileCoords(tiles[index], tileset);
+                    auto coord = calculateTileCoords(tiles[index], tileset);
 
                     if (!coord._outOfRange) {
                         Color4F tc = Color4F::WHITE;
@@ -508,7 +508,7 @@ typedef u32 TileID;
 
             for (auto& _ : tiles->cachedTilesetArr->_tileSets) {
                 auto& vertices = tiles->vertexCache[_->_firstGid];
-                auto& coord = calculateTileCoords(newGid, _);
+                auto coord = calculateTileCoords(newGid, _);
                 i32 startIndex = index * VERTEX_SIZE_0 * 4;
                 if (coord._outOfRange) coord = { 0,0,0,0 };
                 vertices[(7 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.U;
@@ -638,7 +638,7 @@ typedef u32 TileID;
             return count;
         }
 
-        ax::Vec2 _pos;
+        ax::Vec2 _pos = Vec2::ZERO;
 
         void setPositionInChunkSpace(ax::Vec2 pos) {
             setPositionInChunkSpace(pos.x, pos.y);

@@ -202,9 +202,15 @@ void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node) {
     float x = actualWinSize.width / actualFrameSize.width;
     float y = actualWinSize.height / actualFrameSize.height;
 
+    // If resolution policy is other than SHOW_ALL then we set
+    // the scale to x and y value. and there will be no stretching.
+    if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
+        node->setScaleX(x);
+        node->setScaleY(y);
+    }
     // If the scale dimensions are the same, then we just
     // set the scale to the x or y value, any will suffice.
-    if (x == y)
+    else if (x == y)
         node->setScale(x);
     // If somehow the scale dimensions are different, then we just
     // see which dimension is bigger and set the scale to that

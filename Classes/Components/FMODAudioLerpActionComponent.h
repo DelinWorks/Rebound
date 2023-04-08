@@ -6,11 +6,11 @@
 
 class FMODAudioLerpActionComponent : public Component {
 public:
-    Node* owner;
-    Node* actionNode;
-    Sequence* action;
-    FMOD::Channel* ref;
-    f32 start, end;
+    Node* owner = nullptr;
+    Node* actionNode = nullptr;
+    Sequence* action = nullptr;
+    FMOD::Channel* ref = nullptr;
+    f32 start = 0, end = 0;
 
     void onAdd();
 
