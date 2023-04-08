@@ -505,29 +505,37 @@ void MapEditor::onInitDone(f32 dt)
         //BENCHMARK_SECTION_END();
 
         auto container = _input->_uiContainer = CustomUi::Container::create(BorderLayout::CENTER);
+        container->setBorderLayoutAnchor();
         uiNode->addChild(container);
         container->setStatic();
         container->setContentSize(visibleSize);
         //container->setAnchorPoint({ -1, 0.5 });
 
-        auto container2 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::CLOSEST_STATIC);
+        auto container2 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
         container2->setBorderLayoutAnchor();
+        container2->setLayout(CustomUi::FlowLayout(
+            CustomUi::FlowLayoutSort::SORT_VERTICAL,
+            CustomUi::FlowLayoutDirection::STACK_TOP,
+            { 2, 2 }
+        ));
         container2->setContentSize(visibleSize / 2);
-        container2->setStatic();
         container->addChild(container2);
 
-        auto container3 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::CLOSEST_STATIC);
-        container3->setLayout(CustomUi::FlowLayout(
-            CustomUi::FlowLayoutSort::SORT_VERTICAL,
-            CustomUi::FlowLayoutDirection::STACK_BOTTOM,
-            {0, 10}
-        ));
-        container2->addChild(container3);
+        for (int i = 0; i < 7; i++) {
+            auto container3 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
+            container2->setBorderLayoutAnchor();
+            container3->setLayout(CustomUi::FlowLayout(
+                CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
+                CustomUi::FlowLayoutDirection::STACK_RIGHT,
+                { 2, 2 }
+            ));
+            container2->addChild(container3);
 
-        for (int i = 0; i < 4; i++) {
-            auto textField = CustomUi::TextField::create();
-            textField->init(std::to_string(i) + " UI TEST", 18, {100, 40});
-            container3->addChild(textField);
+            for (int c = 0; c < 6; c++) {
+                auto textField = CustomUi::TextField::create();
+                textField->init(FMT("UI TEST %d,%d", i, c), 18, { 100, 40 });
+                container3->addChild(textField);
+            }
         }
 
         buildEntireUi();
@@ -599,7 +607,7 @@ void MapEditor::update(f32 dt)
 {
     REBUILD_UI;
 
-    if (getContainer()) getContainer()->updateLayoutManagers(true);
+    //if (getContainer()) getContainer()->updateLayoutManagers(true);
 
     //ps->addParticles(1, -1, -1);
     //ps->addParticles(1, -1, 0);

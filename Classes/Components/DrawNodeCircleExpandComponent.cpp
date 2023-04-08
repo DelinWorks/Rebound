@@ -1,6 +1,7 @@
 #include "DrawNodeCircleExpandComponent.h"
 
 DrawNodeCircleExpandComponent::DrawNodeCircleExpandComponent(f32 _time, f32 _amount, i32 _segs) {
+    autorelease();
     setName(__func__);
     setEnabled(true);
     r_start = 0;

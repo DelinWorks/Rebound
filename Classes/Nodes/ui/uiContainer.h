@@ -61,6 +61,8 @@ namespace CustomUi
         void setLayout(FlowLayout layout);
         void setBorderLayoutAnchor();
 
+        void notifyLayout() override;
+
         void calculateContentBoundaries();
         void updateLayoutManagers(bool recursive = false);
 

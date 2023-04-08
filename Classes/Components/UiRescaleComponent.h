@@ -19,7 +19,7 @@ enum BorderLayout : u8 {
 
 enum BorderContext : u8 {
     SCREEN_SPACE = 0,
-    CLOSEST_STATIC = 1,
+    PARENT = 1,
 };
 
 class UiRescaleComponent : public ax::Component {

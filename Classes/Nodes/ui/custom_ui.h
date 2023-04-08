@@ -52,9 +52,12 @@ namespace CustomUi
         void onExit() override;
 
         void notifyFocused(GUI* sender, bool focused);
+        void notifyEnabled();
+        virtual void notifyLayout();
+
+        void setContentSize(const Vec2& size) override;
 
         void updateEnabled(bool state);
-        void notifyEnabled();
         bool isEnabled();
         bool isInternalEnabled();
 

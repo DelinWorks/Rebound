@@ -1,6 +1,7 @@
 #include "DestroyNodeComponent.h"
 
 DestroyNodeComponent::DestroyNodeComponent(f32 _time) {
+    autorelease();
     setName(__func__);
     setEnabled(true);
     time_s = 0;

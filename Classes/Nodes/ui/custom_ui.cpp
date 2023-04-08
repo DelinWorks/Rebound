@@ -1,5 +1,13 @@
 #include "custom_ui.h"
 
+void CustomUi::GUI::setContentSize(const Vec2& size)
+{
+	if (!size.equals(getContentSize())) {
+		Node::setContentSize(size);
+		notifyLayout();
+	}
+}
+
 void CustomUi::GUI::updateEnabled(bool state)
 {
 	auto newState = _isEnabled;
@@ -73,6 +81,12 @@ void CustomUi::GUI::notifyEnabled()
 		cast->notifyEnabled();
 	else
 		updateEnabled(_isEnabled);
+}
+
+void CustomUi::GUI::notifyLayout()
+{
+	auto gui = DCAST(GUI, getParent());
+	if (gui) gui->notifyLayout();
 }
 
 bool CustomUi::GUI::isEnabled()

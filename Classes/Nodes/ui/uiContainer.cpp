@@ -22,7 +22,7 @@ CustomUi::Container* CustomUi::Container::create(BorderLayout border, BorderCont
 {
     auto ref = create();
     if (ref) {
-        if (context == BorderContext::CLOSEST_STATIC)
+        if (context == BorderContext::PARENT)
             ref->_closestStaticBorder = true;
         ref->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
             ->setBorderLayout(ref->borderLayout = border));
@@ -123,7 +123,15 @@ void CustomUi::Container::setBorderLayoutAnchor()
     case BorderLayout::TOP_LEFT:
         setAnchorPoint({ -0.5, 0.5 });
         break;
+    default:
+        setAnchorPoint({ 0, 0 });
     }
+}
+
+void CustomUi::Container::notifyLayout()
+{
+    updateLayoutManagers();
+    GUI::notifyLayout();
 }
 
 void CustomUi::Container::calculateContentBoundaries()
@@ -168,7 +176,7 @@ void CustomUi::Container::calculateContentBoundaries()
     }
 
     if (_isDynamic)
-        setContentSize(Vec2(highestX * 2 + highestSize.x, highestY * 2 + highestSize.y));
+        Node::setContentSize(Vec2(highestX * 2 + highestSize.x, highestY * 2 + highestSize.y));
     contentSizeDebug->clear();
     contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
 }
