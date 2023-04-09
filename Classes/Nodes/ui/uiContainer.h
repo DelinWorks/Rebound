@@ -43,12 +43,12 @@ namespace CustomUi
     public:
         FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
             FlowLayoutDirection _direction = FlowLayoutDirection::STACK_RIGHT,
-            ax::Vec2 _spacing = ax::Vec2::ZERO, ax::Vec2 _margin = ax::Vec2::ZERO, i16 _maxNodes = -1)
+            float _spacing = 0, float _margin = 0, i16 _maxNodes = -1)
             : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), maxNodes(_maxNodes) { }
         FlowLayoutSort sort;
         FlowLayoutDirection direction;
-        ax::Vec2 spacing;
-        ax::Vec2 margin;
+        float spacing;
+        float margin;
         i16 maxNodes;
 
         void build(CustomUi::Container* container, u16 start = 0);

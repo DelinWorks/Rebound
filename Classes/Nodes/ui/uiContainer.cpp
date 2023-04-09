@@ -138,8 +138,8 @@ void CustomUi::Container::calculateContentBoundaries()
 {
     auto& list = getChildren();
 
-    float highestX = 0;
-    float highestY = 0;
+    float highestX = -FLT_MAX;
+    float highestY = -FLT_MAX;
 
     auto n = Node::create();
     GameUtils::setNodeIgnoreDesignScale(n);
@@ -152,26 +152,27 @@ void CustomUi::Container::calculateContentBoundaries()
         auto c = DCAST(Container, _);
         if (c) c->calculateContentBoundaries();
         if (!_isDynamic) continue;
+        auto size = _->getContentSize();
         float eq = _->getPositionX();
         if (eq > highestX) {
             highestX = eq;
-            highestSize.x = _->getContentSize().x * n->getScaleX();
+            highestSize.x = size.x * n->getScaleX();
         }
 
         eq = _->getPositionY();
         if (eq > highestY) {
             highestY = eq;
-            highestSize.y = _->getContentSize().y * n->getScaleY();
+            highestSize.y = size.y * n->getScaleY();
         }
 
-        if (_->getContentSize().x > dominantSize.x) {
-            highestSize.x = _->getContentSize().x * n->getScaleX();
-            dominantSize.x = _->getContentSize().x;
+        if (size.x > dominantSize.x) {
+            highestSize.x = size.x * n->getScaleX();
+            dominantSize.x = size.x;
         }
 
-        if (_->getContentSize().y > dominantSize.y) {
-            highestSize.y = _->getContentSize().y * n->getScaleY();
-            dominantSize.y = _->getContentSize().y;
+        if (size.y > dominantSize.y) {
+            highestSize.y = size.y * n->getScaleY();
+            dominantSize.y = size.y;
         }
     }
 
@@ -188,39 +189,37 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
     f32 sumSize = 0;
     for (auto& _ : list) {
         auto cSize = _->getContentSize();
-        cSize.x += spacing.x * 2;
-        cSize.y += spacing.y * 2;
+        cSize.x += spacing * 2;
+        cSize.y += spacing * 2;
         sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
     }
 
     auto n = Node::create();
     GameUtils::setNodeIgnoreDesignScale(n);
 
-    float marginX = direction == STACK_RIGHT || direction == STACK_TOP ? margin.x : -margin.x;
-    float marginY = direction == STACK_RIGHT || direction == STACK_TOP ? margin.y : -margin.y;
+    float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
 
     if (direction == STACK_BOTTOM || direction == STACK_LEFT)
         std::reverse(list.begin(), list.end());
 
     f32 cumSize = 0;
     if (direction == STACK_CENTER)
-        cumSize = sumSize / -2;
+        cumSize = (sumSize - (spacing * 1.5 * list.size()) - spacing) / -2;
     for (auto& _ : list) {
         if (DCAST(DrawNode, _)) continue;
+        auto cont = DCAST(Container, _);
+        if (cont) cont->calculateContentBoundaries();
         auto cSize = _->getContentSize();
-        if (DCAST(Container, _)) cSize *= 1.0 / n->getScaleX();
         if (_) {
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
-                cSize.x += spacing.x * 2;
-                cSize.y += spacing.y * 2;
-                _->setPositionX(cumSize * n->getScaleX() + marginX);
+                cSize.x += spacing;
+                _->setPositionX(cumSize * (_->getScaleX() == 1 ? 1 : n->getScaleX()) + marginF);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             } else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
-                cSize.x += spacing.x * 2;
-                cSize.y += spacing.y * 2;
-                _->setPositionY(cumSize * n->getScaleY() + marginY);
+                cSize.y += spacing;
+                _->setPositionY(cumSize * (_->getScaleY() == 1 ? 1 : n->getScaleY()) + marginF);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }
