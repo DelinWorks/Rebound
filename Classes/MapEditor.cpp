@@ -516,7 +516,7 @@ void MapEditor::onInitDone(f32 dt)
         container2->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_VERTICAL,
             CustomUi::FlowLayoutDirection::STACK_TOP,
-            { 2, 2 }
+            { 2, 2 }, { 10, 50 }
         ));
         container2->setContentSize(visibleSize / 2);
         container->addChild(container2);
@@ -526,8 +526,8 @@ void MapEditor::onInitDone(f32 dt)
             container2->setBorderLayoutAnchor();
             container3->setLayout(CustomUi::FlowLayout(
                 CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
-                CustomUi::FlowLayoutDirection::STACK_RIGHT,
-                { 2, 2 }
+                CustomUi::FlowLayoutDirection::STACK_LEFT,
+                { 2, 2 }, { 10, 10 }
             ));
             container2->addChild(container3);
 

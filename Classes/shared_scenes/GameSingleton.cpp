@@ -55,6 +55,7 @@ void Darkness::init()
         gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
         gameWindow.currentWindowCursor = 0;
         gameWindow.focusState = false;
+        gameWindow.guiScale = 1;
     }
 }
 

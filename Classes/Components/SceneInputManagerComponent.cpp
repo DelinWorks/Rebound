@@ -47,33 +47,46 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
             _pressedKeys.push_back((i32)keyCode);
         } while (false);
 
-        if ((std::find(_pressedKeys.begin(), _pressedKeys.end(), (int)EventKeyboard::KeyCode::KEY_RIGHT_ALT) != _pressedKeys.end()) && keyCode == EventKeyboard::KeyCode::KEY_ENTER)
+        if ((std::find(_pressedKeys.begin(), _pressedKeys.end(), (int)EventKeyboard::KeyCode::KEY_LEFT_ALT) != _pressedKeys.end()) ||
+            (std::find(_pressedKeys.begin(), _pressedKeys.end(), (int)EventKeyboard::KeyCode::KEY_RIGHT_ALT) != _pressedKeys.end()))
         {
-            if (!Darkness::getInstance()->gameWindow.isFullscreen)
-            {
-                Darkness::getInstance()->gameWindow.isFullscreen = true;
-                GameUtils::GLFW_SetBorder(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window), 1);
-                GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                i32 xpos, ypos;
-                Size frameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
-                glfwGetWindowPos(Darkness::getInstance()->gameWindow.window, &xpos, &ypos);
-                Darkness::getInstance()->gameWindow.lastKnownWindowRect = Rect(xpos, ypos, frameSize.width, frameSize.width / (f32)(16.0 / 9.0));
-                Director::getInstance()->getOpenGLView()->setFrameSize(mode->width, mode->height);
-                glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
-                glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
-                glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
-                GameUtils::GLFW_ClipCursor(true);
-                return;
-            }
-            else if (Darkness::getInstance()->gameWindow.isFullscreen) {
+            if (keyCode == EventKeyboard::KeyCode::KEY_ENTER) {
+                if (!Darkness::getInstance()->gameWindow.isFullscreen)
+                {
+                    Darkness::getInstance()->gameWindow.isFullscreen = true;
+                    GameUtils::GLFW_SetBorder(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window), 1);
+                    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+                    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                    i32 xpos, ypos;
+                    Size frameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
+                    glfwGetWindowPos(Darkness::getInstance()->gameWindow.window, &xpos, &ypos);
+                    Darkness::getInstance()->gameWindow.lastKnownWindowRect = Rect(xpos, ypos, frameSize.width, frameSize.width / (f32)(16.0 / 9.0));
+                    Director::getInstance()->getOpenGLView()->setFrameSize(mode->width, mode->height);
+                    glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
+                    glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
+                    glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
+                    GameUtils::GLFW_ClipCursor(true);
+                    return;
+                }
+                else if (Darkness::getInstance()->gameWindow.isFullscreen) {
 
-                Darkness::getInstance()->gameWindow.isFullscreen = false;
-                GameUtils::GLFW_SetBorder(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window), 0);
-                GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                auto rect = Darkness::getInstance()->gameWindow.lastKnownWindowRect;
-                glfwSetWindowMonitor(Darkness::getInstance()->gameWindow.window, nullptr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, mode->refreshRate);
+                    Darkness::getInstance()->gameWindow.isFullscreen = false;
+                    GameUtils::GLFW_SetBorder(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window), 0);
+                    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+                    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                    auto rect = Darkness::getInstance()->gameWindow.lastKnownWindowRect;
+                    glfwSetWindowMonitor(Darkness::getInstance()->gameWindow.window, nullptr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, mode->refreshRate);
+                }
+            }
+            else if (keyCode == EventKeyboard::KeyCode::KEY_EQUAL) {
+                Darkness::getInstance()->gameWindow.guiScale += 0.25;
+                Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 2);
+                Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+            }
+            else if (keyCode == EventKeyboard::KeyCode::KEY_MINUS) {
+                Darkness::getInstance()->gameWindow.guiScale -= 0.25;
+                Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 2);
+                Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
             }
         }
 

@@ -35,6 +35,7 @@ struct GameWindowDescriptor
     i32 currentWindowCursor;
     ResolutionPolicy windowPolicy;
     bool focusState;
+    float guiScale;
 };
 
 /** Game class responsible for global variables, client connections and save files */

@@ -196,6 +196,9 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
     auto n = Node::create();
     GameUtils::setNodeIgnoreDesignScale(n);
 
+    float marginX = direction == STACK_RIGHT || direction == STACK_TOP ? margin.x : -margin.x;
+    float marginY = direction == STACK_RIGHT || direction == STACK_TOP ? margin.y : -margin.y;
+
     if (direction == STACK_BOTTOM || direction == STACK_LEFT)
         std::reverse(list.begin(), list.end());
 
@@ -211,13 +214,13 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += spacing.x * 2;
                 cSize.y += spacing.y * 2;
-                _->setPositionX(cumSize * n->getScaleX());
+                _->setPositionX(cumSize * n->getScaleX() + marginX);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             } else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.x += spacing.x * 2;
                 cSize.y += spacing.y * 2;
-                _->setPositionY(cumSize * n->getScaleY());
+                _->setPositionY(cumSize * n->getScaleY() + marginY);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }
