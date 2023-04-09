@@ -138,8 +138,8 @@ void CustomUi::Container::calculateContentBoundaries()
 {
     auto& list = getChildren();
 
-    float highestX = -FLT_MAX;
-    float highestY = -FLT_MAX;
+    float highestX = 0;
+    float highestY = 0;
 
     auto n = Node::create();
     GameUtils::setNodeIgnoreDesignScale(n);
