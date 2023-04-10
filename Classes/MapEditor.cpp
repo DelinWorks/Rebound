@@ -515,11 +515,12 @@ void MapEditor::onInitDone(f32 dt)
         container2->setBorderLayoutAnchor();
         container2->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_VERTICAL,
-            CustomUi::FlowLayoutDirection::STACK_CENTER
+            CustomUi::FlowLayoutDirection::STACK_CENTER,
+            10
         ));
         container->addChild(container2);
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 2; i++) {
             auto container3 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
             container2->setBorderLayoutAnchor();
             container3->setLayout(CustomUi::FlowLayout(
@@ -529,7 +530,7 @@ void MapEditor::onInitDone(f32 dt)
             ));
             container2->addChild(container3);
 
-            for (int c = 0; c < 7; c++) {
+            for (int c = 0; c < 3; c++) {
                 auto textField = CustomUi::TextField::create();
                 textField->init(FMT("UI TEST %d,%d", i, c), 18, { 100, 40 });
                 container3->addChild(textField);

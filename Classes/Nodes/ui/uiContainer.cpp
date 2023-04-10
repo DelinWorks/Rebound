@@ -186,16 +186,20 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
 {
     auto list = container->getChildren();
 
+    auto n = Node::create();
+    GameUtils::setNodeIgnoreDesignScale(n);
+
+    auto _spacing = Vec2(spacing, spacing);
+    _spacing.x *= n->getScaleX();
+    _spacing.y *= n->getScaleY();
+
     f32 sumSize = 0;
     for (auto& _ : list) {
         auto cSize = _->getContentSize();
-        cSize.x += spacing * 2;
-        cSize.y += spacing * 2;
+        cSize.x += _spacing.x * 2;
+        cSize.y += _spacing.y * 2;
         sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
     }
-
-    auto n = Node::create();
-    GameUtils::setNodeIgnoreDesignScale(n);
 
     float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
 
@@ -204,7 +208,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
 
     f32 cumSize = 0;
     if (direction == STACK_CENTER)
-        cumSize = (sumSize - (spacing * 1.5 * list.size()) - spacing) / -2;
+        cumSize = (sumSize - (_spacing.x * 1.5 * list.size()) - _spacing.x) / -2;
     for (auto& _ : list) {
         if (DCAST(DrawNode, _)) continue;
         auto cont = DCAST(Container, _);
@@ -213,12 +217,12 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
         if (_) {
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
-                cSize.x += spacing;
+                cSize.x += _spacing.x;
                 _->setPositionX(cumSize * (_->getScaleX() == 1 ? 1 : n->getScaleX()) + marginF);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             } else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
-                cSize.y += spacing;
+                cSize.y += _spacing.y;
                 _->setPositionY(cumSize * (_->getScaleY() == 1 ? 1 : n->getScaleY()) + marginF);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
