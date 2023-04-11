@@ -156,22 +156,22 @@ void CustomUi::Container::calculateContentBoundaries()
         float eq = _->getPositionX();
         if (eq > highestX) {
             highestX = eq;
-            highestSize.x = size.x * n->getScaleX();
+            highestSize.x = size.x * (_->getScaleX() == 1 ? 1 : n->getScaleX());
         }
 
         eq = _->getPositionY();
         if (eq > highestY) {
             highestY = eq;
-            highestSize.y = size.y * n->getScaleY();
+            highestSize.y = size.y * (_->getScaleY() == 1 ? 1 : n->getScaleY());
         }
 
         if (size.x > dominantSize.x) {
-            highestSize.x = size.x * n->getScaleX();
+            highestSize.x = size.x * (_->getScaleX() == 1 ? 1 : n->getScaleX());
             dominantSize.x = size.x;
         }
 
         if (size.y > dominantSize.y) {
-            highestSize.y = size.y * n->getScaleY();
+            highestSize.y = size.y * (_->getScaleY() == 1 ? 1 : n->getScaleY());
             dominantSize.y = size.y;
         }
     }
