@@ -60,9 +60,11 @@ using namespace Math;
 #include "Nodes/ui/include_ui.h"
 #include "Components/Components.h"
 
+#include "Nodes/VirtualWorld.h"
+
 using namespace TileSystem;
 
-class MapEditor : public ax::Scene, public SceneInputManager
+class MapEditor : public ax::Scene, public SceneInputManager, public VirtualWorld
 {
 public:
     static ax::Scene* createScene();
@@ -101,6 +103,8 @@ public:
     void onTouchEnded(ax::Touch* touch, ax::Event* event);
     void onTouchCancelled(ax::Touch* touch, ax::Event* event);
     
+    void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override;
+
     TilesetArray* tilesetArr;
 
     //ax::Vec2 parseVector2D(std::string position);
@@ -142,7 +146,6 @@ public:
 
     ax::Size visibleSize;
     //ZOrder* orderSystem;
-    ax::LayerColor* bg;
     ax::Node* grid;
     //ax::DrawNode* chunkGrid;
     ax::DrawNode* deltaEditing;
@@ -193,9 +196,6 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
-    ax::Node* chunkNode;
-    ax::Node* worldNode;
-
     ax::MotionStreak* streak;
 
     ax::Node* statsParentNode;
@@ -205,7 +205,7 @@ public:
     ax::ui::Text* ChunkUiText;
 
     void set_cameraScaleUiText(f32 scale);
-    void setWorldBoundsLayerColorTransforms(Camera* cam);
+    void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
     ax::Node* cameraScaleUi;
     ax::Node* cameraScaleUiAlphaSpriteCascade;
     ax::ui::Text* cameraScaleUiText;

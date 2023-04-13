@@ -51,12 +51,12 @@ namespace CustomUi
         float margin;
         i16 maxNodes;
 
-        void build(CustomUi::Container* container, u16 start = 0);
+        void build(CustomUi::Container* container);
     };
 
     class Container : public GUI {
     public:
-        Container() : layout(Layout::NONE), borderLayout(BorderLayout::CENTER), flowLayout(), contentSizeDebug(nullptr) {}
+        Container() : _layout(Layout::NONE), _borderLayout(BorderLayout::CENTER), _flowLayout(), _contentSizeDebug(nullptr) {}
         static CustomUi::Container* create();
         static CustomUi::Container* create(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
         void setLayout(FlowLayout layout);
@@ -82,16 +82,21 @@ namespace CustomUi
             return _isHitSwallowed || _isFocused;
         }
 
+        void setMargin(ax::Vec2 margin) {
+            _margin = margin;
+        }
+
         void onEnable();
         void onDisable();
 
-        DrawNode* contentSizeDebug;
+        DrawNode* _contentSizeDebug;
         bool _closestStaticBorder = false;
 
     protected:
-        Layout layout;
-        BorderLayout borderLayout;
-        FlowLayout flowLayout;
+        ax::Vec2 _margin;
+        Layout _layout;
+        BorderLayout _borderLayout;
+        FlowLayout _flowLayout;
     };
 }
 

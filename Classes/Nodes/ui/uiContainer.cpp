@@ -5,10 +5,10 @@ CustomUi::Container* CustomUi::Container::create()
     Container* ref = new Container();
     if (ref->init())
     {
-        ref->contentSizeDebug = DrawNode::create(1);
+        ref->_contentSizeDebug = DrawNode::create(1);
         ref->_isContainer = true;
         ref->setDynamic();
-        ref->addChild(ref->contentSizeDebug, 99);
+        ref->addChild(ref->_contentSizeDebug, 99);
         ref->autorelease();
     }
     else
@@ -25,16 +25,16 @@ CustomUi::Container* CustomUi::Container::create(BorderLayout border, BorderCont
         if (context == BorderContext::PARENT)
             ref->_closestStaticBorder = true;
         ref->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-            ->setBorderLayout(ref->borderLayout = border));
+            ->setBorderLayout(ref->_borderLayout = border));
         return ref;
     }
     else return nullptr;
 }
 
-void CustomUi::Container::setLayout(FlowLayout _layout)
+void CustomUi::Container::setLayout(FlowLayout layout)
 {
-    flowLayout = _layout;
-    layout = Layout::FLOW;
+    _flowLayout = layout;
+    _layout = Layout::FLOW;
 }
 
 bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -53,6 +53,8 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
 
 bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
+    // reset the camera position so that hits are generated correctly.
+    cam->setPosition(Vec2::ZERO);
     auto& list = getChildren();
     bool isClickSwallowed = false;
     for (int i = list.size() - 1; i > -1; i--)
@@ -67,17 +69,6 @@ bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
 
 void CustomUi::Container::updateLayoutManagers(bool recursive)
 {
-    //std::cout << "Updated layout of container: " << this << "\n";
-    calculateContentBoundaries();
-    switch (layout) {
-    case Layout::FLOW: {
-        flowLayout.build(this);
-        break;
-    }
-    default:
-        break;
-    }
-
     if (recursive) {
         auto& list = getChildren();
         for (auto& _ : list) {
@@ -85,6 +76,16 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
             if (cast)
                 cast->updateLayoutManagers(true);
         }
+    }
+
+    calculateContentBoundaries();
+    switch (_layout) {
+    case Layout::FLOW: {
+        _flowLayout.build(this);
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -98,7 +99,7 @@ void CustomUi::Container::onDisable()
 
 void CustomUi::Container::setBorderLayoutAnchor()
 {
-    switch (borderLayout) {
+    switch (_borderLayout) {
     case BorderLayout::TOP:
         setAnchorPoint({ 0, 0.5 });
         break;
@@ -145,8 +146,8 @@ void CustomUi::Container::calculateContentBoundaries()
     GameUtils::setNodeIgnoreDesignScale(n);
 
     Vec2 highestSize = Vec2::ZERO;
-
     Vec2 dominantSize = Vec2::ZERO;
+
     for (auto& _ : list) {
         if (DCAST(DrawNode, _)) continue;
         auto c = DCAST(Container, _);
@@ -176,14 +177,20 @@ void CustomUi::Container::calculateContentBoundaries()
         }
     }
 
+    auto scaledMargin = ax::Vec2(
+        _margin.x * 2 * n->getScaleX(),
+        _margin.y * 2 * n->getScaleY()
+    );
+
     if (_isDynamic)
-        Node::setContentSize(Vec2(highestX * 2 + highestSize.x, highestY * 2 + highestSize.y));
-    contentSizeDebug->clear();
-    contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
+        Node::setContentSize(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y));
+    _contentSizeDebug->clear();
+    _contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
 }
 
-void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
+void CustomUi::FlowLayout::build(CustomUi::Container* container)
 {
+    // WARNING: copying is intended because of list reversing
     auto list = container->getChildren();
 
     auto n = Node::create();
@@ -210,7 +217,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container, u16 start)
     if (direction == STACK_CENTER)
         cumSize = (sumSize - (_spacing.x * 1.5 * list.size()) - _spacing.x) / -2;
     for (auto& _ : list) {
-        if (DCAST(DrawNode, _)) continue;
+        if (!_ || DCAST(DrawNode, _)) continue;
         auto cont = DCAST(Container, _);
         if (cont) cont->calculateContentBoundaries();
         auto cSize = _->getContentSize();

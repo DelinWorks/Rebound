@@ -188,12 +188,16 @@ void GameUtils::addSpriteFramesFromJson(const std::string_view texture_path, con
     }
 }
 
-Vec2 GameUtils::convertFromScreenToSpace(Vec2 locationInView, Size& visibleSize, Camera* cam, bool reverseY)
+Vec2 GameUtils::convertFromScreenToSpace(const Vec2& locationInView, Node* cam, bool reverseY)
 {
-    auto loc = Director::getInstance()->convertToGL(locationInView);
-    return Vec2((((loc.x - visibleSize.width / 2) * cam->getZoom()) + cam->getPositionX()),
-        (((loc.y - visibleSize.height / 2) * cam->getZoom()) * (reverseY ? 1 : -1)) + cam->getPositionY())
-        .rotateByAngle(cam->getPosition(), -AX_DEGREES_TO_RADIANS(cam->getRotation()));
+    auto director = Director::getInstance();
+    auto visibleSize = director->getVisibleSize();
+    auto loc = director->convertToGL(Vec2(locationInView.x,
+        (!reverseY ? visibleSize.y - locationInView.y : locationInView.y)));
+    auto screenSize = director->getOpenGLView()->getFrameSize();
+    return Vec2((((loc.x - visibleSize.x / 2) * cam->getScale()) + cam->getPositionX()),
+        (((loc.y - visibleSize.y / 2) * cam->getScale()) + cam->getPositionY()));
+        //.rotateByAngle(cam->getPosition(), -AX_DEGREES_TO_RADIANS(cam->getRotation()));
 }
 
 void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node) {
