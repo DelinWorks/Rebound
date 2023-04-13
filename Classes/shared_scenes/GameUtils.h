@@ -166,12 +166,11 @@ namespace GameUtils
 
     Vec2 parseVector2D(std::string position);
 
-
     backend::ProgramState* createGPUProgram(std::string resources_frag_shader_path = "", std::string resources_vertex_shader_path = "");
 
     void addSpriteFramesFromJson(const std::string_view texture_path, const std::string_view json_path);
 
-    Vec2 convertFromScreenToSpace(Vec2 locationInView, Size& visibleSize, Camera* cam, bool reverseY = false);
+    Vec2 convertFromScreenToSpace(const Vec2& locationInView, Node* cam, bool reverseY = false);
 
     void setNodeIgnoreDesignScale(cocos2d::Node* node);
 

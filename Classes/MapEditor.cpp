@@ -60,15 +60,11 @@ bool MapEditor::init()
     uiNodeNonFollow->addComponent((new UiRescaleComponent(visibleSize))
         ->enableDesignScaleIgnoring());
     gridNode = Node::create();
-    chunkNode = Node::create();
-    worldNode = Node::create();
     addChild(cameraLocation);
     addChild(uiNode, 17);
     uiNode->addChild(rebuildableUiNodes);
-    addChild(uiNodeNonFollow, 17);
-    addChild(gridNode, 9);
-    addChild(chunkNode, 7);
-    addChild(worldNode, 8);
+    _world->addChild(uiNodeNonFollow, 17);
+    _world->addChild(gridNode, 9);
 
     //uiNode->addComponent(new FollowNodeTransformComponent(getDefaultCamera()));
 
@@ -93,8 +89,10 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
+    VirtualWorld::refresh(this);
+
     map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
-    addChild(map);
+    _world->addChild(map);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
@@ -146,7 +144,7 @@ bool MapEditor::init()
     gridNode->addChild(WorldBoundsLimit, 2);
 
     deltaEditing = DrawNode::create(100);
-    this->addChild(deltaEditing);
+    _world->addChild(deltaEditing);
 
     selectionPlaceSquare = DrawNode::create(1);
     selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_ALLOWED);
@@ -179,11 +177,6 @@ bool MapEditor::init()
 
     _input->_oldMouseLocation = Vec2(0, 0);
     _input->_newMouseLocation = Vec2(0, 0);
-
-    auto parent = Node::create();
-    parent->setPositionX(visibleSize.width);
-
-    uiNodeNonFollow->addChild(parent);
 
     streak = MotionStreak::create(0.1, 1, 8, Color3B::WHITE, "streak.png");
     uiNode->addChild(streak);
@@ -427,10 +420,10 @@ void MapEditor::onInitDone(f32 dt)
         //}
         //sqlite3_finalize(stmt);
 
-        bg = ax::LayerColor::create(LAYER_BACKGROUND_COLOR);
-        bg->setAnchorPoint(Vec2(0.5F, 0.5F));
-        //bg->addComponent((new UiRescaleComponent(visibleSize))->enableLayerResizing());
-        addChild(bg, -1);
+        //bg = ax::LayerColor::create(LAYER_BACKGROUND_COLOR);
+        //bg->setAnchorPoint(Vec2(0.5F, 0.5F));
+        ////bg->addComponent((new UiRescaleComponent(visibleSize))->enableLayerResizing());
+        //_world->addChild(bg, -1);
 
         //std::cout << sqlite3_close(pdb) << std::endl;
         //pdb = nullptr;
@@ -508,25 +501,26 @@ void MapEditor::onInitDone(f32 dt)
         container->setBorderLayoutAnchor();
         uiNode->addChild(container);
         container->setStatic();
-        container->setContentSize(visibleSize);
+        container->setContentSize(visibleSize / 2);
         //container->setAnchorPoint({ -1, 0.5 });
 
-        auto container2 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
+        auto container2 = CustomUi::Container::create(BorderLayout::TOP_LEFT, BorderContext::PARENT);
         container2->setBorderLayoutAnchor();
+        container2->setMargin({ 10, 10 });
         container2->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_VERTICAL,
             CustomUi::FlowLayoutDirection::STACK_CENTER,
-            10
+            20
         ));
         container->addChild(container2);
 
         for (int i = 0; i < 2; i++) {
             auto container3 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
-            container2->setBorderLayoutAnchor();
+            //container2->setBorderLayoutAnchor();
             container3->setLayout(CustomUi::FlowLayout(
                 CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
                 CustomUi::FlowLayoutDirection::STACK_CENTER,
-                10
+                20
             ));
             container2->addChild(container3);
 
@@ -621,8 +615,6 @@ void MapEditor::update(f32 dt)
         *focusState = false;
     }
 
-    auto cam = _defaultCamera;
-
     //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
 
     streak->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
@@ -644,25 +636,21 @@ void MapEditor::update(f32 dt)
 
     //std::cout << this->getChildrenCount() << "\n";
 
-    setWorldBoundsLayerColorTransforms(_defaultCamera);
+    setWorldBoundsLayerColorTransforms(_camera);
 
     cameraLocation->setPosition(Vec2(
         clamp(cameraLocation->getPositionX(), (f32)(map->_mapSize.x * map->_tileSize.x) * -1, (f32)map->_mapSize.x * map->_tileSize.x),
         clamp(cameraLocation->getPositionY(), (f32)(map->_mapSize.y * map->_tileSize.x) * -1, (f32)map->_mapSize.y * map->_tileSize.x)));
 
-    _defaultCamera->setPosition(cameraLocation->getPosition());
+    _defaultCamera->setPosition(ax::Vec2::ZERO);
+    _camera->setPosition(cameraLocation->getPosition());
 
-    Vec2 pos = convertFromScreenToSpace(_input->_mouseLocationInView, visibleSize, cam);
-    //updateDirectorToStatsCount(map->totalTiles(), map->totalChunks());
-
-    uiNode->setPosition(cameraLocation->getPosition());
-    uiNode->setScale(cam->getZoom());
-    uiNode->setRotation(cam->getRotation());
+    Vec2 pos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
 
     _input->_oldMouseLocationOnUpdate = _input->_newMouseLocationOnUpdate;
     _input->_newMouseLocationOnUpdate = _input->_mouseLocation;
     for (const auto i : uiNodeNonFollow->getChildren())
-        i->setScale(cam->getZoom());
+        i->setScale(_camera->getScale());
     Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize));
     grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
     //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
@@ -699,13 +687,6 @@ void MapEditor::update(f32 dt)
 
 void MapEditor::lateUpdate(f32 dt)
 {
-    auto cam = _defaultCamera;
-
-    bg->setPositionX(cameraLocation->getPositionX() - visibleSize.width / 2);
-    bg->setPositionY(cameraLocation->getPositionY() - visibleSize.height / 2);
-    bg->setScale(cam->getZoom());
-    bg->setRotation(cam->getRotation());
-
     for (auto& i : grid->getChildren()) {
         if (cameraScale < 5)
         {
@@ -731,8 +712,8 @@ void MapEditor::lateUpdate(f32 dt)
     remove.width  = 1;
     remove.height = 1;
     editUpdate(oldSelectionPlace, selectionPlace, place, remove);
-    Vec2 loc = convertFromScreenToSpace(Vec2(visibleSize.width, visibleSize.height), visibleSize, cam);
-    Vec2 loc0 = convertFromScreenToSpace(Vec2(0, 0), visibleSize, cam);
+    Vec2 loc = convertFromScreenToSpace(visibleSize, _camera);
+    Vec2 loc0 = convertFromScreenToSpace(Vec2::ZERO, _camera);
 }
 
 // DON'T CALL THIS MANUALLY
@@ -770,7 +751,7 @@ void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
 void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize)
 {
     if (isRemoving)
-        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
+        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
 
     if (isPlacing || isRemoving)
     {
@@ -928,7 +909,7 @@ void MapEditor::onMouseDown(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         isRemoving = true;
-        removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, visibleSize, _defaultCamera, true);
+        removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
     }
 }
 
@@ -947,7 +928,7 @@ void MapEditor::onMouseUp(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         isRemoving = false;
-        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, visibleSize, _defaultCamera, true), map->_tileSize.x);
+        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
         editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         std::cout << "remove_selection_tool: begin:" << rect.origin.x << "," << rect.origin.y << " end:" << rect.size.width << "," << rect.size.height << "\n";
         removeSelectionNode->clear();
@@ -959,8 +940,8 @@ void MapEditor::onMouseMove(ax::Event* event)
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
     if (isEditorDragging)
     {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + (_input->_mouseLocationDelta.x * _defaultCamera->getZoom()));
-        cameraLocation->setPositionY(cameraLocation->getPositionY() + (_input->_mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
+        cameraLocation->setPositionX(cameraLocation->getPositionX() + (_input->_mouseLocationDelta.x * _camera->getScale()));
+        cameraLocation->setPositionY(cameraLocation->getPositionY() + (_input->_mouseLocationDelta.y * -1 * _camera->getScale()));
     }
     //CCLOG("%f,%f", cameraLocation->getPositionX(), cameraLocation->getPositionY());
 }
@@ -987,12 +968,12 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
         cameraScale = snap_interval(cameraScale, 1, 1);
     f32 postCamScl = cameraScale;
 
-    Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, visibleSize, getDefaultCamera());
+    Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
     Vec2 pos = cameraLocation->getPosition();
     Vec2 newPos = pos.lerp(targetPos, 1.0F - (postCamScl / preCamScl));
     cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
-    _defaultCamera->setZoom(cameraScale);
-    setWorldBoundsLayerColorTransforms(_defaultCamera);
+    _camera->setZoom(cameraScale);
+    setWorldBoundsLayerColorTransforms(_camera);
     set_cameraScaleUiText(cameraScale);
 }
 
@@ -1008,17 +989,11 @@ void MapEditor::onMouseScroll(ax::Event* event)
         result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, std::string("UPDATE EditorMetaData SET store_value='" + std::to_string(cameraScaleIndex) + "' WHERE store_key='editor_camera_scale_index';").c_str(), NULL, NULL, NULL) : result;
         SQLITE_CRASH_CHECK(result);
     }
-
-    //_defaultCamera->setScaleX(clamp(_defaultCamera->getScaleX(), 1, 30));
-    //_defaultCamera->setScaleY(clamp(_defaultCamera->getScaleY(), 1, 30));
-
-
 }
 
 bool MapEditor::onTouchBegan(ax::Touch* touch, ax::Event* event)
 {
     isEditorDragging = true;
-    //cameraLocation = _defaultCamera->getPosition();
     isTouchNew = true;
     return true;
 }
@@ -1037,8 +1012,8 @@ void MapEditor::onTouchMoved(ax::Touch* touch, ax::Event* event)
     //mouseLocationDelta = oldMouseLocation - newMouseLocation;
     //if (isEditorDragging)
     //{
-    //    cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _defaultCamera->getZoom()));
-    //    cameraLocation->setPositionX(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _defaultCamera->getZoom()));
+    //    cameraLocation->setPositionX(cameraLocation->getPositionX() + (mouseLocationDelta.x * _camera->getScale()));
+    //    cameraLocation->setPositionX(cameraLocation->getPositionY() + (mouseLocationDelta.y * -1 * _camera->getScale()));
     //}
     //_input->_mouseLocationInView = touch->getLocation();
 }
@@ -1046,11 +1021,17 @@ void MapEditor::onTouchMoved(ax::Touch* touch, ax::Event* event)
 void MapEditor::onTouchEnded(ax::Touch* touch, ax::Event* event)
 {
     isEditorDragging = true;
-    cameraLocation->setPosition(_defaultCamera->getPosition());
+    cameraLocation->setPosition(_camera->getPosition());
 }
 
 void MapEditor::onTouchCancelled(ax::Touch* touch, ax::Event* event)
 {
+}
+
+void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags)
+{
+    Scene::visit(renderer, parentTransform, parentFlags);
+    VirtualWorld::render(this, Color4F(LAYER_BACKGROUND_COLOR));
 }
 
 void MapEditor::menuCloseCallback(Ref* pSender)
@@ -1340,13 +1321,8 @@ void MapEditor::set_cameraScaleUiText(f32 scale)
     //cameraScaleUiSpBig->setPositionX(spritesPosX);
 }
 
-void MapEditor::setWorldBoundsLayerColorTransforms(Camera* cam)
+void MapEditor::setWorldBoundsLayerColorTransforms(VirtualCamera* cam)
 {
-    BottomMapSizeNode->setVisible(false);
-    TopMapSizeNode->setVisible(false);
-    RightMapSizeNode->setVisible(false);
-    LeftMapSizeNode->setVisible(false);
-
     BottomMapSizeNode->setScaleX(cameraScale);
     BottomMapSizeNode->setScaleY(cameraScale);
     BottomMapSizeNode->setPositionX(cam->getPositionX());
