@@ -60,7 +60,7 @@ using namespace Math;
 #include "Nodes/ui/include_ui.h"
 #include "Components/Components.h"
 
-#include "Nodes/SceneVirtualCamera.h"
+#include "Nodes/VirtualWorld.h"
 
 using namespace TileSystem;
 

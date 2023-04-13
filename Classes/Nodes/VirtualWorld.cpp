@@ -1,4 +1,4 @@
-#include "SceneVirtualCamera.h"
+#include "VirtualWorld.h"
 
 VirtualWorld::VirtualWorld()
 {
