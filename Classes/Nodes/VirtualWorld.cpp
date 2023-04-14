@@ -25,7 +25,7 @@ void VirtualWorld::refresh(ax::Scene* scene)
 
 		_rt->initWithWidthAndHeight(_currentSize.x, _currentSize.y,
 			ax::backend::PixelFormat::RGBA8);
-		auto p = GameUtils::createGPUProgram("chrom.frag", "bloom.vert");
+		auto p = GameUtils::createGPUProgram("deform.frag", "default.vert");
 		_rt->getSprite()->setProgramState(p);
 
 		_camera->getChildren().at(0)->setPosition(_glview->getVisibleSize() / -2);

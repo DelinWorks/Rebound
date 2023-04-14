@@ -91,7 +91,7 @@ bool MapEditor::init()
 
     VirtualWorld::refresh(this);
 
-    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
+    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(100000, 100000));
     _world->addChild(map);
 
     grid = Node::create();
@@ -599,6 +599,9 @@ void MapEditor::perSecondUpdate(f32 dt)
 void MapEditor::update(f32 dt)
 {
     REBUILD_UI;
+
+    elapsedDt += dt;
+    SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
 
     //if (getContainer()) getContainer()->updateLayoutManagers(true);
 

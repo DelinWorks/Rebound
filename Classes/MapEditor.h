@@ -80,6 +80,7 @@ public:
     f32 fps_dt;
     void update(f32 dt);
     f32 updateSchedTime;
+    f32 elapsedDt = 0;
     void perSecondUpdate(f32 dt);
     void lateUpdate(f32 dt);
     void editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize);
