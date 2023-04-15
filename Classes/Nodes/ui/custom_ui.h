@@ -75,6 +75,7 @@ namespace CustomUi
         bool _isEnabledState = true;
 
     public:
+        float _efiFontScale = 2;
         bool _isDynamic = false;
         bool _isContainer = false;
         std::set<GUI*> _focusedElements;

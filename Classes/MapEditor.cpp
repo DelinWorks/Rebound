@@ -1064,13 +1064,13 @@ void MapEditor::buildEntireUi()
     setNodeIgnoreDesignScale(statsParentNode);
     statsParentNode->addComponent((new UiRescaleComponent(visibleSize))
         ->enableDesignScaleIgnoring()->setVisibleSizeHints(-2, 5, -2));
-    f32 fontSize = 12;
-    std::string fontName = "fonts/bitsy-font-with-arabic.ttf";
+    f32 fontSize = 17 * 2;
+    auto fontName = "fonts/bitsy-font-with-arabic.ttf"sv;
     DebugText = ui::Text::create("FPS_UI_TEXT", fontName, fontSize);
     DebugText->_labelRenderer->getFontAtlas()->setAliasTexParameters();
     statsParentNode->addChild(DebugText);
     rebuildableUiNodes->addChild(statsParentNode);
-    //DebugText->setScale(0.5);
+    DebugText->setScale(0.5);
     DebugText->setAnchorPoint(Vec2(0, 0));
     /* FPS COUNTER CODE BODY */ {
         DebugText->stopAllActions();

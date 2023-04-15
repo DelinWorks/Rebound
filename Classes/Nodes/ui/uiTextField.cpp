@@ -55,7 +55,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     selected_color = _selected_color;
     password = _password;
     cursor_control_parent = ax::Node::create();
-    field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize);
+    field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize * _efiFontScale);
     field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
     if (length != -1) {
         field->setMaxLengthEnabled(true);
@@ -137,14 +137,14 @@ void CustomUi::TextField::update(f32 dt) {
 
 bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
-    if (!adaptToWindowSize && field->getContentSize().width > sprite->getContentSize().width)
-        field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width + capinsets.origin.x * 2));
+    if (!adaptToWindowSize && field->getContentSize().width / _efiFontScale > sprite->getContentSize().width)
+        field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width / _efiFontScale + capinsets.origin.x * 2) * 0.5);
     else if (adaptToWindowSize)
-        field->_textFieldRenderer->setScale(1);
+        field->_textFieldRenderer->setScale(1 / _efiFontScale);
 
-    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
+    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _efiFontScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
         Darkness::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
-        Math::clamp(field->getContentSize().height + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+        Math::clamp(field->getContentSize().height / _efiFontScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
     button->setContentSize(sprite->getContentSize());
 
     if (password_control_button != _NOTHING)
@@ -170,7 +170,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             cursor_control->setVisible(true);
             if (field->getString().length() > 0) {
                 cursor_control->setPosition(Vec2((field->getContentSize().width / 2 + 4) * field->_textFieldRenderer->getScale(), 0));
-                cursor_control->setScale(field->_textFieldRenderer->getScale());
+                cursor_control->setScale(field->_textFieldRenderer->getScale() * _efiFontScale);
             }
             else {
                 cursor_control->setPosition(Vec2(0, 0));
