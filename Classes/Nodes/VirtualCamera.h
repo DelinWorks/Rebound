@@ -3,6 +3,7 @@
 
 #include <axmol.h>
 #include "shared_scenes/GameUtils.h"
+#include "Components/UiRescaleComponent.h"
 
 class VirtualCamera : public ax::Node {
 public:

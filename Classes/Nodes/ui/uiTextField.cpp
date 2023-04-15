@@ -19,7 +19,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
 {
     init(
         _placeholder,
-        "fonts/arial.ttf"sv,
+        "fonts/bitsy-font-with-arabic.ttf"sv,
         _fontSize,
         false,
         ADVANCEDUI_P1_CAP_INSETS,
@@ -56,6 +56,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     password = _password;
     cursor_control_parent = ax::Node::create();
     field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize);
+    field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
     if (length != -1) {
         field->setMaxLengthEnabled(true);
         field->setMaxLength(length);

@@ -19,14 +19,19 @@ void VirtualWorld::refresh(ax::Scene* scene)
 {
 	if (_currentSize != _glview->getFrameSize()) {
 		_currentSize = _glview->getFrameSize();
+		auto visibleSize = _glview->getVisibleSize();
 
-		if (!_rt)
-			scene->addChild(_rt = ax::RenderTexture::create(_currentSize.x, _currentSize.y), -19);
+		if (!_rt) {
+			scene->addChild(_rt = ax::RenderTexture::create(_currentSize.x, _currentSize.y), -1);
+			//_rt->addComponent((new UiRescaleComponent(visibleSize))->setVisibleSizeHints()->enableDesignScaleIgnoring());
+		}
 
 		_rt->initWithWidthAndHeight(_currentSize.x, _currentSize.y,
 			ax::backend::PixelFormat::RGBA8);
-		auto p = GameUtils::createGPUProgram("deform.frag", "default.vert");
+		auto p = GameUtils::createGPUProgram("default.frag", "default.vert");
 		_rt->getSprite()->setProgramState(p);
+
+		SET_POSITION_HALF_SCREEN(_rt);
 
 		_camera->getChildren().at(0)->setPosition(_glview->getVisibleSize() / -2);
 

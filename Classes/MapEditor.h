@@ -78,7 +78,8 @@ public:
 
     f32 global_dt;
     f32 fps_dt;
-    void update(f32 dt);
+    void update(f32 dt) override;
+    void update(f32 dt, int custom = 1);
     f32 updateSchedTime;
     f32 elapsedDt = 0;
     void perSecondUpdate(f32 dt);
@@ -200,10 +201,11 @@ public:
     ax::MotionStreak* streak;
 
     ax::Node* statsParentNode;
-    ax::ui::Text* FPSUiText;
-    ax::ui::Text* VertsUiText;
-    ax::ui::Text* BatchesUiText;
-    ax::ui::Text* ChunkUiText;
+    ax::ui::Text* DebugText;
+    //ax::ui::Text* FPSUiText;
+    //ax::ui::Text* VertsUiText;
+    //ax::ui::Text* BatchesUiText;
+    //ax::ui::Text* ChunkUiText;
 
     void set_cameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);

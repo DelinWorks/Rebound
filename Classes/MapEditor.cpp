@@ -5,11 +5,6 @@ using namespace backend;
 
 void MapEditor::updateDirectorToStatsCount(i32 tileCount, i32 chunkCount)
 {
-    i32 verts = (i32)Director::getInstance()->getRenderer()->getDrawnVertices();
-    i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
-    BatchesUiText ->setString(FMT("Draw Calls: %d", batches));
-    VertsUiText   ->setString(FMT("Verts Drawn: %d", verts));
-    ChunkUiText   ->setString(FMT("T: %d | C: %d", tileCount, chunkCount));
 }
 
 Scene* MapEditor::createScene()
@@ -48,7 +43,6 @@ bool MapEditor::init()
 
     cameraLocation = Node::create();
 
-    scheduleUpdate();
     ax::Device::setKeepScreenOn(true);
 
     visibleSize = Director::getInstance()->getVisibleSize();
@@ -63,6 +57,7 @@ bool MapEditor::init()
     addChild(cameraLocation);
     addChild(uiNode, 17);
     uiNode->addChild(rebuildableUiNodes);
+    SET_POSITION_HALF_SCREEN(uiNode);
     _world->addChild(uiNodeNonFollow, 17);
     _world->addChild(gridNode, 9);
 
@@ -91,8 +86,9 @@ bool MapEditor::init()
 
     VirtualWorld::refresh(this);
 
-    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(100000, 100000));
-    _world->addChild(map);
+    TileSystem::tileMapVirtualCamera = _camera;
+    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000000, 1000000));
+    _world->addChild(map, 999);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
@@ -544,7 +540,6 @@ void MapEditor::onInitDone(f32 dt)
             updateSchedTime = 0;
         }
     }
-    updateDirectorToStatsCount(map->_tileCount, 0);
 }
 
 void MapEditor::perSecondUpdate(f32 dt)
@@ -598,10 +593,16 @@ void MapEditor::perSecondUpdate(f32 dt)
 
 void MapEditor::update(f32 dt)
 {
+    updateDirectorToStatsCount(map->_tileCount, 0);
+}
+
+void MapEditor::update(f32 dt, int custom)
+{
     REBUILD_UI;
 
-    elapsedDt += dt;
+    elapsedDt += dt * 0.1;
     SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
+    _rt->getSprite()->getTexture()->setAliasTexParameters();
 
     //if (getContainer()) getContainer()->updateLayoutManagers(true);
 
@@ -645,7 +646,6 @@ void MapEditor::update(f32 dt)
         clamp(cameraLocation->getPositionX(), (f32)(map->_mapSize.x * map->_tileSize.x) * -1, (f32)map->_mapSize.x * map->_tileSize.x),
         clamp(cameraLocation->getPositionY(), (f32)(map->_mapSize.y * map->_tileSize.x) * -1, (f32)map->_mapSize.y * map->_tileSize.x)));
 
-    _defaultCamera->setPosition(ax::Vec2::ZERO);
     _camera->setPosition(cameraLocation->getPosition());
 
     Vec2 pos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
@@ -654,7 +654,7 @@ void MapEditor::update(f32 dt)
     _input->_newMouseLocationOnUpdate = _input->_mouseLocation;
     for (const auto i : uiNodeNonFollow->getChildren())
         i->setScale(_camera->getScale());
-    Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize));
+    Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize * 10), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize * 10));
     grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
     //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
     selectionPlaceSquare->setPosition(selectionPlace);
@@ -694,11 +694,13 @@ void MapEditor::lateUpdate(f32 dt)
         if (cameraScale < 5)
         {
             i->setOpacity(60);
+            i->setScale(1);
             worldCoordsLines->setOpacity(100);
         }
         else if (cameraScale >= 5 && cameraScale < 13)
         {
             i->setOpacity(20);
+            i->setScale(10);
             worldCoordsLines->setOpacity(60);
         }
     }
@@ -725,8 +727,8 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    for (int x = _x; x < _x + 2000; x++)
-        for (int y = _y; y < _y + 1000; y++) {
+    for (int x = _x; x < _x + 32; x++)
+        for (int y = _y; y < _y + 32; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_ROTATE;
@@ -1033,8 +1035,12 @@ void MapEditor::onTouchCancelled(ax::Touch* touch, ax::Event* event)
 
 void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags)
 {
-    Scene::visit(renderer, parentTransform, parentFlags);
+    // we are updating in the visit function because axmol
+    // calls visit before update which makes the game have
+    // a one frame delay which can be frustration.
+    update(_director->getDeltaTime(), 0);
     VirtualWorld::render(this, Color4F(LAYER_BACKGROUND_COLOR));
+    Scene::visit(renderer, parentTransform, parentFlags);
 }
 
 void MapEditor::menuCloseCallback(Ref* pSender)
@@ -1058,24 +1064,16 @@ void MapEditor::buildEntireUi()
     setNodeIgnoreDesignScale(statsParentNode);
     statsParentNode->addComponent((new UiRescaleComponent(visibleSize))
         ->enableDesignScaleIgnoring()->setVisibleSizeHints(-2, 5, -2));
-    f32 fontSize = 20;
-    std::string fontName = "fonts/arial.ttf";
-    FPSUiText = ui::Text::create("FPS_UI_TEXT", fontName, fontSize);
-    VertsUiText = ui::Text::create("VERTS_UI_TEXT", fontName, fontSize);
-    BatchesUiText = ui::Text::create("BATCHES_UI_TEXT", fontName, fontSize);
-    ChunkUiText = ui::Text::create("CHUNK_UI_TEXT", fontName, fontSize);
-    setUiTextDefaultShade(FPSUiText, false);
-    setUiTextDefaultShade(VertsUiText, false);
-    setUiTextDefaultShade(BatchesUiText, false);
-    setUiTextDefaultShade(ChunkUiText, false);
-    statsParentNode->addChild(FPSUiText);
-    statsParentNode->addChild(VertsUiText);
-    statsParentNode->addChild(BatchesUiText);
-    statsParentNode->addChild(ChunkUiText);
+    f32 fontSize = 12;
+    std::string fontName = "fonts/bitsy-font-with-arabic.ttf";
+    DebugText = ui::Text::create("FPS_UI_TEXT", fontName, fontSize);
+    DebugText->_labelRenderer->getFontAtlas()->setAliasTexParameters();
+    statsParentNode->addChild(DebugText);
     rebuildableUiNodes->addChild(statsParentNode);
-    FPSUiText->setAnchorPoint(Vec2(0, 0));
+    //DebugText->setScale(0.5);
+    DebugText->setAnchorPoint(Vec2(0, 0));
     /* FPS COUNTER CODE BODY */ {
-        FPSUiText->stopAllActions();
+        DebugText->stopAllActions();
         auto update_fps_action = CallFunc::create([&]() {
             char buff[14];
             char buffDt[14];
@@ -1084,22 +1082,17 @@ void MapEditor::buildEntireUi()
             snprintf(buffDt, sizeof(buffDt), "%.1lf", fps_dt * 1000);
             std::string buffAsStdStr = buff;
             std::string buffAsStdStrDt = buffDt;
-            FPSUiText->setString("D3D11: " + buffAsStdStr + " | " + buffAsStdStrDt + "ms");
+            i32 verts = (i32)Director::getInstance()->getRenderer()->getDrawnVertices();
+            i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
+            std::string text = FMT("T: %d | C: %d\n", 0, 0) + "D3D11: " + buffAsStdStr + " / " + buffAsStdStrDt + "ms\n" +
+                FMT("Draw Calls: %d / ", batches) + FMT("Verts Drawn: %d", verts);
+            DebugText->setString(text);
         });
         auto wait_fps_action = DelayTime::create(0.5f);
         auto make_seq = Sequence::create(update_fps_action, wait_fps_action, nullptr);
         auto seq_repeat_forever = RepeatForever::create(make_seq);
-        FPSUiText->runAction(seq_repeat_forever);
+        DebugText->runAction(seq_repeat_forever);
     }
-    VertsUiText->setAnchorPoint(Vec2(0, 0));
-    BatchesUiText->setAnchorPoint(Vec2(0, 0));
-    ChunkUiText->setAnchorPoint(Vec2(0, 0));
-    f32 spaceY = FPSUiText->getContentSize().height;
-    VertsUiText->setPositionY(spaceY);
-    spaceY += spaceY / 1;
-    BatchesUiText->setPositionY(spaceY);
-    spaceY += spaceY / 2;
-    ChunkUiText->setPositionY(spaceY);
 
     // Camera Ui Scale Text And Sprites
     //{

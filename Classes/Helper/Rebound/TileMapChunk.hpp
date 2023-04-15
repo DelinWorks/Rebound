@@ -66,6 +66,7 @@ typedef u32 TileID;
         IndexArray indices;
     };
 
+    inline ax::Node* tileMapVirtualCamera = nullptr;
     inline EmptyVertexIndexCache emptyVIC;
     inline f32 chunkMeshCreateCount;
 
@@ -197,6 +198,7 @@ typedef u32 TileID;
             _material->setTexture(_texture, ax::NTextureData::Usage::None);
             _material->setTransparent(true);
             _material->setForce2DQueue(true);
+            _material->getStateBlock().setCullFace(false);
             _material->retain();
         }
 
@@ -654,10 +656,11 @@ typedef u32 TileID;
             if (!resizeChunkCount())
                 return;
 
-            auto cam = Camera::getVisitingCamera();
-            auto cam_aabb = Rect(cam->getPosition().x - 640 * cam->getZoom(), cam->getPosition().y - 360 * cam->getZoom(),
-                cam->getPosition().x + 640 * cam->getZoom(), cam->getPosition().y + 360 * cam->getZoom());
+            auto cam = tileMapVirtualCamera;
+            if (!cam) return;
 
+            auto cam_aabb = Rect(cam->getPosition().x - 640 * cam->getScale(), cam->getPosition().y - 360 * cam->getScale(),
+                cam->getPosition().x + 640 * cam->getScale(), cam->getPosition().y + 360 * cam->getScale());
 
             auto pos = Vec2(_pos.x * _tilesetArr->_tileSets[0]->_sizeInPixels.x, _pos.y * _tilesetArr->_tileSets[0]->_sizeInPixels.y);
             auto aabb = Rect(pos.x, pos.y, pos.x + _tilesetArr->_tileSets[0]->_sizeInPixels.x, pos.y + _tilesetArr->_tileSets[0]->_sizeInPixels.y);
@@ -676,9 +679,10 @@ typedef u32 TileID;
                 if (_tiles->isEmpty(_->_tileset->_firstGid)) continue;
                 if (_chunkDirty || _tiles->retainedChunksI > 0 || _tilesetArr->retainedChunksI > 0)
                     _->_chunkDirty = true;
-                Mat4 parentTransform = Mat4::IDENTITY;
-                parentTransform.translate(ax::Vec3(pos.x, pos.y, 0));
-                _->visit(renderer, parentTransform, parentFlags);
+                Mat4 transform = Mat4::IDENTITY;
+                transform.multiply(parentTransform);
+                transform.translate(ax::Vec3(pos.x, pos.y, 0));
+                _->visit(renderer, transform, parentFlags);
                 _chunkDirty = false;
             }
             _tilesetArr->retainedChunksI--;

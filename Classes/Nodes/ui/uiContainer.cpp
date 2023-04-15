@@ -54,7 +54,7 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
 bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     // reset the camera position so that hits are generated correctly.
-    cam->setPosition(Vec2::ZERO);
+    //cam->setPosition(Vec2::ZERO);
     auto& list = getChildren();
     bool isClickSwallowed = false;
     for (int i = list.size() - 1; i > -1; i--)
