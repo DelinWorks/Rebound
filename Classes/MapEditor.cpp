@@ -727,8 +727,8 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    for (int x = _x; x < _x + 32; x++)
-        for (int y = _y; y < _y + 32; y++) {
+    for (int x = _x; x < _x + 256; x++)
+        for (int y = _y; y < _y + 256; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_ROTATE;

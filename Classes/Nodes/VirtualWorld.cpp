@@ -4,9 +4,7 @@ VirtualWorld::VirtualWorld()
 {
 	_glview = ax::Director::getInstance()->getOpenGLView();
 	_camera = new VirtualCamera();
-	_camera->retain();
 	_world = new VirtualWorldSpace();
-	_world->retain();
 }
 
 VirtualWorld::~VirtualWorld()
