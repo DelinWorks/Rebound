@@ -19,6 +19,11 @@
 
 namespace CustomUi
 {
+    inline float _UiScale = 0; // Dynamically modified within runtime.
+
+    inline float _UiScaleMul = 2;
+    inline float _PmtFontScale = 4;
+
     enum Layout : u8 {
         NONE = 0,
         FLOW = 1,

@@ -522,7 +522,7 @@ void MapEditor::onInitDone(f32 dt)
 
             for (int c = 0; c < 3; c++) {
                 auto textField = CustomUi::TextField::create();
-                textField->init(FMT("UI TEST %d,%d", i, c), 18, { 100, 40 });
+                textField->init(FMT("UI TEST %d,%d", i, c), 16, { 100, 40 });
                 container3->addChild(textField);
             }
         }
@@ -594,9 +594,10 @@ void MapEditor::perSecondUpdate(f32 dt)
 void MapEditor::update(f32 dt)
 {
     updateDirectorToStatsCount(map->_tileCount, 0);
+    if (getContainer()) getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
 }
 
-void MapEditor::update(f32 dt, int custom)
+void MapEditor::tick(f32 dt)
 {
     REBUILD_UI;
 
@@ -684,8 +685,6 @@ void MapEditor::update(f32 dt, int custom)
     chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
 
     lateUpdate(dt);
-
-    if (getContainer()) getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
 }
 
 void MapEditor::lateUpdate(f32 dt)
@@ -727,8 +726,8 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    for (int x = _x; x < _x + 256; x++)
-        for (int y = _y; y < _y + 256; y++) {
+    for (int x = _x; x < _x + 2048; x++)
+        for (int y = _y; y < _y + 2048; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_ROTATE;
@@ -1038,7 +1037,7 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     // we are updating in the visit function because axmol
     // calls visit before update which makes the game have
     // a one frame delay which can be frustration.
-    update(_director->getDeltaTime(), 0);
+    tick(_director->getDeltaTime());
     VirtualWorld::render(this, Color4F(LAYER_BACKGROUND_COLOR));
     Scene::visit(renderer, parentTransform, parentFlags);
 }
@@ -1066,14 +1065,15 @@ void MapEditor::buildEntireUi()
         ->enableDesignScaleIgnoring()->setVisibleSizeHints(-2, 5, -2));
     f32 fontSize = 17 * 2;
     auto fontName = "fonts/bitsy-font-with-arabic.ttf"sv;
-    DebugText = ui::Text::create("FPS_UI_TEXT", fontName, fontSize);
-    DebugText->_labelRenderer->getFontAtlas()->setAliasTexParameters();
-    statsParentNode->addChild(DebugText);
+    _debugText = ax::Label::createWithTTF("", fontName, fontSize);
+    _debugText->enableOutline(Color4B::BLACK, 4);
+    _debugText->getFontAtlas()->setAliasTexParameters();
+    statsParentNode->addChild(_debugText);
     rebuildableUiNodes->addChild(statsParentNode);
-    DebugText->setScale(0.5);
-    DebugText->setAnchorPoint(Vec2(0, 0));
+    _debugText->setScale(0.5);
+    _debugText->setAnchorPoint(Vec2(0, 0));
     /* FPS COUNTER CODE BODY */ {
-        DebugText->stopAllActions();
+        _debugText->stopAllActions();
         auto update_fps_action = CallFunc::create([&]() {
             char buff[14];
             char buffDt[14];
@@ -1086,12 +1086,12 @@ void MapEditor::buildEntireUi()
             i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
             std::string text = FMT("T: %d | C: %d\n", 0, 0) + "D3D11: " + buffAsStdStr + " / " + buffAsStdStrDt + "ms\n" +
                 FMT("Draw Calls: %d / ", batches) + FMT("Verts Drawn: %d", verts);
-            DebugText->setString(text);
+            _debugText->setString(text);
         });
         auto wait_fps_action = DelayTime::create(0.5f);
         auto make_seq = Sequence::create(update_fps_action, wait_fps_action, nullptr);
         auto seq_repeat_forever = RepeatForever::create(make_seq);
-        DebugText->runAction(seq_repeat_forever);
+        _debugText->runAction(seq_repeat_forever);
     }
 
     // Camera Ui Scale Text And Sprites
@@ -1179,13 +1179,6 @@ void MapEditor::buildEntireUi()
     //}
 
     rebuildEntireUi();
-}
-
-void MapEditor::setUiTextDefaultShade(ui::Text* text_node, bool use_shadow)
-{
-    text_node->enableOutline(Color4B::BLACK, 1);
-    if (use_shadow)
-        text_node->enableShadow(Color4B::BLACK, Size(1, -1), 100);
 }
 
 void MapEditor::rebuildEntireUi()

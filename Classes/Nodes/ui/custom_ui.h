@@ -57,6 +57,8 @@ namespace CustomUi
 
         void setContentSize(const Vec2& size) override;
 
+        virtual void onFontScaleUpdate(float scale);
+
         void updateEnabled(bool state);
         bool isEnabled();
         bool isInternalEnabled();
@@ -75,7 +77,6 @@ namespace CustomUi
         bool _isEnabledState = true;
 
     public:
-        float _efiFontScale = 2;
         bool _isDynamic = false;
         bool _isContainer = false;
         std::set<GUI*> _focusedElements;

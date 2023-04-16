@@ -30,10 +30,9 @@ void VirtualWorld::refresh(ax::Scene* scene)
 		_rt->getSprite()->setProgramState(p);
 
 		SET_POSITION_HALF_SCREEN(_rt);
+		SET_POSITION_MINUS_HALF_SCREEN(_camera->getChildren().at(0));
 
-		_camera->getChildren().at(0)->setPosition(_glview->getVisibleSize() / -2);
-
-		GameUtils::setNodeIgnoreDesignScale(_rt);
+		GameUtils::setNodeIgnoreDesignScale(_rt, true);
 	}
 }
 

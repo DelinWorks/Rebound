@@ -133,7 +133,7 @@ std::atomic<bool> exit_thread_hook{ false };
 
 void Darkness::initAntiCheat()
 {
-    if (isAntiCheatReady)
+    if (_isAntiCheatReady)
         return;
 
     //GetWriteWatch(
@@ -251,7 +251,7 @@ void Darkness::initAntiCheat()
         });
 #endif
 
-    isAntiCheatReady = true;
+    _isAntiCheatReady = true;
 }
 
 void Darkness::updateAntiCheat(float delta)
@@ -268,34 +268,39 @@ void Darkness::updateAntiCheat(float delta)
     }
 #endif
 
-    if (!isAntiCheatReady)
+    if (!_isAntiCheatReady)
         return;
 
     //  Game clock speed anti-cheat check  ////////////////////////////////////
 
-    if (timeSinceStart == 0ULL || elapsedGameTime > 10.0F)
+    if (_timeSinceStart == 0ULL || _elapsedGameTime > 100.0F)
     {
-        timeSinceStart = currentTime = time(0);
-        elapsedGameTime = 0.0F;
+        _timeSinceStart = _currentTime = time(0);
+        _elapsedGameTime = 0.0F;
     }
-    elapsedGameTime += delta;
+    _elapsedGameTime += delta;
 
-    f32 timeDiff = abs(elapsedGameTime - float(currentTime - timeSinceStart));
+    f32 timeDiff = abs(_elapsedGameTime - float(_currentTime - _timeSinceStart));
 
 #ifndef _DEBUG
-    if (timeDiff > 3)
+    if (timeDiff > 1)
     {
+        _accumulatedKickTries++;
+        printf("_accumilatedKickTries: %d", _accumulatedKickTries);
+        if (_accumulatedKickTries > 1) {
 #ifdef WIN32
-        MessageBoxA(glfwGetWin32Window(gameWindow.window),
-            "game clock is not steady, possibly a third-party program is modifying the clock speed.",
-            "anti-cheat engine",
-            0x00000010L | 0x00004000L | 0x00000000L);
-        while (true) {}
+            MessageBoxA(glfwGetWin32Window(gameWindow.window),
+                "game clock is not steady, a third-party program might be modifying the delta time of the game.",
+                "anti-cheat engine",
+                0x00000010L | 0x00004000L | 0x00000000L);
+            exit(0);
 #endif
-    }
+        }
+    } else
+        _accumulatedKickTries = 0;
 #endif
 
-    currentTime = time(0);
+    _currentTime = time(0);
 
     ///////////////////////////////////////////////////////////////////////////
 }

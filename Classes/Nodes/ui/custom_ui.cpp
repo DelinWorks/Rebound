@@ -8,6 +8,18 @@ void CustomUi::GUI::setContentSize(const Vec2& size)
 	}
 }
 
+void CustomUi::GUI::onFontScaleUpdate(float scale)
+{
+	// any GUI node that doesn't override this function
+	// is going to recursive update it's children.
+	for (auto& _ : getChildren())
+	{
+		auto cast = DCAST(GUI, _);
+		if (cast)
+			cast->onFontScaleUpdate(scale);
+	}
+}
+
 void CustomUi::GUI::updateEnabled(bool state)
 {
 	auto newState = _isEnabled;

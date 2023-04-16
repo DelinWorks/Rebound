@@ -19,7 +19,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
 {
     init(
         _placeholder,
-        "fonts/bitsy-font-with-arabic.ttf"sv,
+        "fonts/BetterPixels.ttf"sv,
         _fontSize,
         false,
         ADVANCEDUI_P1_CAP_INSETS,
@@ -42,6 +42,8 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
+    desc.fontName = _fontname;
+    desc.fontSize = _fontsize;
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     scheduleUpdate();
     adaptToWindowSize = _adaptToWindowSize;
@@ -55,7 +57,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     selected_color = _selected_color;
     password = _password;
     cursor_control_parent = ax::Node::create();
-    field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize * _efiFontScale);
+    field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize * _UiScale);
     field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
     if (length != -1) {
         field->setMaxLengthEnabled(true);
@@ -137,14 +139,14 @@ void CustomUi::TextField::update(f32 dt) {
 
 bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
-    if (!adaptToWindowSize && field->getContentSize().width / _efiFontScale > sprite->getContentSize().width)
-        field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width / _efiFontScale + capinsets.origin.x * 2) * 0.5);
+    if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
+        field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
     else if (adaptToWindowSize)
-        field->_textFieldRenderer->setScale(1 / _efiFontScale);
+        field->_textFieldRenderer->setScale(1 / _UiScale);
 
-    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _efiFontScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
+    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
         Darkness::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
-        Math::clamp(field->getContentSize().height / _efiFontScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+        Math::clamp(field->getContentSize().height / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
     button->setContentSize(sprite->getContentSize());
 
     if (password_control_button != _NOTHING)
@@ -170,7 +172,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             cursor_control->setVisible(true);
             if (field->getString().length() > 0) {
                 cursor_control->setPosition(Vec2((field->getContentSize().width / 2 + 4) * field->_textFieldRenderer->getScale(), 0));
-                cursor_control->setScale(field->_textFieldRenderer->getScale() * _efiFontScale);
+                cursor_control->setScale(field->_textFieldRenderer->getScale() * _UiScale);
             }
             else {
                 cursor_control->setPosition(Vec2(0, 0));
@@ -273,4 +275,12 @@ bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
 Size CustomUi::TextField::getDynamicContentSize()
 {
     return sprite->getContentSize();
+}
+
+void CustomUi::TextField::onFontScaleUpdate(float scale)
+{
+    field->_textFieldRenderer->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
+    field->_textFieldRenderer->setScale(1.0 / scale);
+    field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
+    field->updateSizeAndPosition();
 }

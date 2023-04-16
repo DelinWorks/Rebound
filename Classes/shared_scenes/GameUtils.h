@@ -66,7 +66,10 @@ for (auto& _ : list) { \
         else i->windowSizeChange(visibleSize); \
     } \
 } \
-if (getContainer()) getContainer()->updateLayoutManagers(true); \
+auto scale = Darkness::getInstance()->gameWindow.guiScale; \
+if (getContainer()) { getContainer()->updateLayoutManagers(true); \
+    getContainer()->onFontScaleUpdate(scale); } \
+CustomUi::_UiScale = scale * CustomUi::_UiScaleMul; \
 
 #define SET_POSITION_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / 2), (visibleSize.height / 2)));
 #define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / -2), (visibleSize.height / -2)));
@@ -172,7 +175,7 @@ namespace GameUtils
 
     Vec2 convertFromScreenToSpace(const Vec2& locationInView, Node* cam, bool reverseY = false);
 
-    void setNodeIgnoreDesignScale(cocos2d::Node* node);
+    void setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling = false);
 
     Size getWinDiff();
 

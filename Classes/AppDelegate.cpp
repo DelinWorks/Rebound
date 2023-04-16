@@ -158,7 +158,7 @@ bool IsCheatEngineProcessRunning()
 static void window_focus_callback(GLFWwindow* window, i32 focused)
 {
 #if WIN32
-    if (Darkness::getInstance()->isAntiCheatReady && IsCheatEngineProcessRunning()) {
+    if (Darkness::getInstance()->_isAntiCheatReady && IsCheatEngineProcessRunning()) {
         MessageBoxA(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window),
             "third-party software detected, please close cheat engine or any of the like and start the game again.",
             "anti-cheat engine",

@@ -200,11 +200,11 @@ Vec2 GameUtils::convertFromScreenToSpace(const Vec2& locationInView, Node* cam, 
         //.rotateByAngle(cam->getPosition(), -AX_DEGREES_TO_RADIANS(cam->getRotation()));
 }
 
-void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node) {
+void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling) {
     Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
-    float x = actualWinSize.width / actualFrameSize.width * Darkness::getInstance()->gameWindow.guiScale;
-    float y = actualWinSize.height / actualFrameSize.height * Darkness::getInstance()->gameWindow.guiScale;
+    float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
+    float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
 
     // If resolution policy is other than SHOW_ALL then we set
     // the scale to x and y value. and there will be no stretching.

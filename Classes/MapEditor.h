@@ -79,7 +79,7 @@ public:
     f32 global_dt;
     f32 fps_dt;
     void update(f32 dt) override;
-    void update(f32 dt, int custom = 1);
+    void tick(f32 dt);
     f32 updateSchedTime;
     f32 elapsedDt = 0;
     void perSecondUpdate(f32 dt);
@@ -126,8 +126,6 @@ public:
     //void reorderChunks();
     void menuCloseCallback(ax::Ref* pSender);
     void buildEntireUi();
-
-    void setUiTextDefaultShade(ax::ui::Text* text_node, bool use_shadow = true);
 
     FastRNG rng;
 
@@ -201,7 +199,7 @@ public:
     ax::MotionStreak* streak;
 
     ax::Node* statsParentNode;
-    ax::ui::Text* DebugText;
+    ax::Label* _debugText;
     //ax::ui::Text* FPSUiText;
     //ax::ui::Text* VertsUiText;
     //ax::ui::Text* BatchesUiText;

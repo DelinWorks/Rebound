@@ -18,7 +18,7 @@ public:
 
 typedef u32 TileID;
 
-#define CHUNK_SIZE 32.0
+#define CHUNK_SIZE 128.0
 #define CHUNK_BUFFER_SIZE (CHUNK_SIZE*CHUNK_SIZE)
 
 #define TILE_FLAG_ROTATE (TileID(1) << 31)
