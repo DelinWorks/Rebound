@@ -500,7 +500,7 @@ void MapEditor::onInitDone(f32 dt)
         container->setContentSize(visibleSize / 2);
         //container->setAnchorPoint({ -1, 0.5 });
 
-        auto container2 = CustomUi::Container::create(BorderLayout::TOP_LEFT, BorderContext::PARENT);
+        auto container2 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::PARENT);
         container2->setBorderLayoutAnchor();
         container2->setMargin({ 10, 10 });
         container2->setLayout(CustomUi::FlowLayout(
@@ -510,22 +510,26 @@ void MapEditor::onInitDone(f32 dt)
         ));
         container->addChild(container2);
 
-        for (int i = 0; i < 2; i++) {
-            auto container3 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
-            //container2->setBorderLayoutAnchor();
-            container3->setLayout(CustomUi::FlowLayout(
-                CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
-                CustomUi::FlowLayoutDirection::STACK_CENTER,
-                20
-            ));
-            container2->addChild(container3);
+        auto container3 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
+        //container2->setBorderLayoutAnchor();
+        container3->setLayout(CustomUi::FlowLayout(
+            CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
+            CustomUi::FlowLayoutDirection::STACK_CENTER,
+            20
+        ));
+        container2->addChild(container3);
 
-            for (int c = 0; c < 3; c++) {
-                auto textField = CustomUi::TextField::create();
-                textField->init(FMT("UI TEST %d,%d", i, c), 16, { 100, 40 });
-                container3->addChild(textField);
-            }
-        }
+        auto textField = CustomUi::TextField::create();
+        textField->init("Level Name", 16, { 0, 40 });
+        container3->addChild(textField);
+
+        auto button = CustomUi::Button::create();
+        button->init(L"لعب جماعي زنجي", 16, { 0, 40 });
+        container3->addChild(button);
+
+        button->_callback = [&](CustomUi::Button* target) {
+             target->sprite->setColor(Color3B(Random::maxInt(255), Random::maxInt(255), Random::maxInt(255)));
+        };
 
         buildEntireUi();
 

@@ -51,7 +51,7 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     return _isHitSwallowed;
 }
 
-bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
@@ -61,10 +61,20 @@ bool CustomUi::Container::click(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     {
         auto n = DCAST(GUI, list.at(i));
         if (n)
-            if (n->click(isClickSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
+            if (n->press(isClickSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
                 isClickSwallowed = true;
     }
     return isClickSwallowed;
+}
+
+bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+{
+    if (_pCurrentHeldItem) {
+        auto b = _pCurrentHeldItem->release(mouseLocationInView, cam);
+        _pCurrentHeldItem = nullptr;
+        return b;
+    }
+    return false;
 }
 
 void CustomUi::Container::updateLayoutManagers(bool recursive)

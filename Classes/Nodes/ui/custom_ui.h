@@ -11,6 +11,11 @@ using namespace ax;
 
 namespace CustomUi
 {
+    struct UiFontDescriptor {
+        std::string fontName;
+        float fontSize;
+    };
+
     //#define SHOW_BUTTON_HITBOX
 
     inline ui::Button* createPlaceholderButton()
@@ -46,7 +51,8 @@ namespace CustomUi
         // DO NOT ACCESS, USE AdvancedUiContainer
         virtual bool hover(Vec2 mouseLocationInView, Camera* cam) = 0;
         // DO NOT ACCESS, USE AdvancedUiContainer
-        virtual bool click(Vec2 mouseLocationInView, Camera* cam) = 0;
+        virtual bool press(Vec2 mouseLocationInView, Camera* cam) = 0;
+        virtual bool release(Vec2 mouseLocationInView, Camera* cam) = 0;
 
         void onEnter() override;
         void onExit() override;

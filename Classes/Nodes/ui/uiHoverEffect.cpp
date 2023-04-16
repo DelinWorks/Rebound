@@ -40,6 +40,7 @@ void CustomUi::HoverEffectGUI::hover()
         if (_hoverShaderTime2 > 0.3)
             _hoverShaderTimeLerp2 = 0;
         _hoverShaderTime2 = 0.0f;
+        SoundGlobals::playUiHoverSound();
     } else {
         _hoverSprite->stopAllActions();
         _hoverSprite->runAction(

@@ -1,5 +1,4 @@
-#ifndef __CUSTOM_UI_CONTAINER_H__
-#define __CUSTOM_UI_CONTAINER_H__
+#pragma once
 
 #include "axmol.h"
 #include "custom_ui.h"
@@ -21,8 +20,10 @@ namespace CustomUi
 {
     inline float _UiScale = 0; // Dynamically modified within runtime.
 
-    inline float _UiScaleMul = 2;
+    inline float _UiScaleMul = 4;
     inline float _PmtFontScale = 4;
+
+    inline GUI* _pCurrentHeldItem = nullptr;
 
     enum Layout : u8 {
         NONE = 0,
@@ -77,7 +78,8 @@ namespace CustomUi
         bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
 
         // should be called on onMouseDown or onTouchBegan, it will check on every element and react if mouseLocationInView vector is inside that object on a specific camera and perform a click action or defocus action if outside
-        bool click(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
         
         bool blockMouse() {
             return _isHitSwallowed;
@@ -104,5 +106,3 @@ namespace CustomUi
         FlowLayout _flowLayout;
     };
 }
-
-#endif

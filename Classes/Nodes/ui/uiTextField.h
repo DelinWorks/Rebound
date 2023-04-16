@@ -15,15 +15,10 @@ USING_NS_CC;
 
 namespace CustomUi
 {
-    struct TextFieldFontDescriptor {
-        std::string fontName;
-        float fontSize;
-    };
-
     class TextField : public HoverEffectGUI {
     public:
         static CustomUi::TextField* create();
-        TextFieldFontDescriptor desc;
+        UiFontDescriptor desc;
         ui::TextField* field;
         std::wstring cachedString;
         ui::Scale9Sprite* sprite;
@@ -66,7 +61,8 @@ namespace CustomUi
 
         void onDisable() override;
 
-        bool click(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
 

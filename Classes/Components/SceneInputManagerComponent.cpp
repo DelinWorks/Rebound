@@ -147,7 +147,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     auto _onMouseDownCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
         if (_uiContainer) {
-            if (_uiContainer->click(e->getLocationInView(), getCamera())) return;
+            if (_uiContainer->press(e->getLocationInView(), getCamera())) return;
             if (_uiContainer->blockMouse()) return;
         }
 
@@ -155,6 +155,12 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     };
 
     auto _onMouseUpCheck = [&](EventMouse* event) {
+        EventMouse* e = (EventMouse*)event;
+        if (_uiContainer) {
+            if (_uiContainer->release(e->getLocationInView(), getCamera())) return;
+            if (_uiContainer->blockMouse()) return;
+        }
+
         onMouseUp(event);
     };
 

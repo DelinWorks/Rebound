@@ -273,7 +273,8 @@ void Darkness::updateAntiCheat(float delta)
 
     //  Game clock speed anti-cheat check  ////////////////////////////////////
 
-    if (_timeSinceStart == 0ULL || _elapsedGameTime > 100.0F)
+    if (_timeSinceStart == 0ULL || _elapsedGameTime > 100.0F ||
+        Director::getInstance()->getRunningScene()->_hashOfName == 14169343825431587970 /* scene.MapEditor */)
     {
         _timeSinceStart = _currentTime = time(0);
         _elapsedGameTime = 0.0F;
@@ -282,12 +283,12 @@ void Darkness::updateAntiCheat(float delta)
 
     f32 timeDiff = abs(_elapsedGameTime - float(_currentTime - _timeSinceStart));
 
-#ifndef _DEBUG
+#ifndef WWDWD
     if (timeDiff > 1)
     {
         _accumulatedKickTries++;
         printf("_accumilatedKickTries: %d", _accumulatedKickTries);
-        if (_accumulatedKickTries > 1) {
+        if (_accumulatedKickTries > 2) {
 #ifdef WIN32
             MessageBoxA(glfwGetWin32Window(gameWindow.window),
                 "game clock is not steady, a third-party program might be modifying the delta time of the game.",

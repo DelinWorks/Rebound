@@ -19,7 +19,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
 {
     init(
         _placeholder,
-        "fonts/BetterPixels.ttf"sv,
+        "fonts/bitsy-font-with-arabic.ttf"sv,
         _fontSize,
         false,
         ADVANCEDUI_P1_CAP_INSETS,
@@ -28,7 +28,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
         TEXTFIELD_P1_CLAMP_OFFSET,
         ADVANCEDUI_TEXTURE,
         true,
-        Color3B(117, 179, 255),
+        Color3B::WHITE,
         true,
         maxLength,
         false,
@@ -69,6 +69,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     field->_textFieldRenderer->setHorizontalAlignment(TextHAlignment::CENTER);
     sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
     sprite->setContentSize(_contentsize);
+    sprite->setColor(selected_color);
     setContentSize(_contentsize);
     button = createPlaceholderButton();
     button->setEnabled(false);
@@ -152,9 +153,6 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     if (password_control_button != _NOTHING)
         password_hover.setValue(password_control_button->hitTest(mouseLocationInView, cam, _NOTHING));
 
-    if (password_hover.isChanged() && password_hover.getValue())
-        SoundGlobals::playUiHoverSound();
-
     if (isEnabled())
     {
 #if 1
@@ -230,8 +228,6 @@ void CustomUi::TextField::defocus()
 {
     if (!_isFocused) return;
     field->setString(ShapingEngine::render(cachedString));
-    auto tint = TintTo::create(0.1f, Color3B::WHITE);
-    sprite->runAction(tint);
     field->detachWithIME();
     cursor_control->setVisible(false);
     notifyFocused(this, false);
@@ -242,7 +238,6 @@ void CustomUi::TextField::onEnable()
 {
     auto fade = FadeTo::create(0.1f, 255);
     auto tint = TintTo::create(0.1f, Color3B::WHITE);
-    sprite->runAction(tint);
     sprite->runAction(fade);
     field->runAction(tint);
 }
@@ -253,22 +248,25 @@ void CustomUi::TextField::onDisable()
     auto fade = FadeTo::create(0.1f, 100);
     auto tint = TintTo::create(0.1f, Color3B::GRAY);
     sprite->runAction(fade);
-    sprite->runAction(tint);
     field->runAction(tint);
 }
 
-bool CustomUi::TextField::click(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CustomUi::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!isEnabled())
         return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         focus();
-        SoundGlobals::playUiHoverSound();
         return true;
     }
     else if (!button->hitTest(mouseLocationInView, cam, _NOTHING))
         defocus();
     hover(mouseLocationInView, cam);
+    return false;
+}
+
+bool CustomUi::TextField::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+{
     return false;
 }
 
@@ -280,7 +278,6 @@ Size CustomUi::TextField::getDynamicContentSize()
 void CustomUi::TextField::onFontScaleUpdate(float scale)
 {
     field->_textFieldRenderer->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
-    field->_textFieldRenderer->setScale(1.0 / scale);
     field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
     field->updateSizeAndPosition();
 }

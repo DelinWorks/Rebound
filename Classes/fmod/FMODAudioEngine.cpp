@@ -105,7 +105,7 @@ std::wstring FMODAudioEngine::platformResourcePath(std::wstring filename)
 {
     std::wstring fullPath = L"";
 #if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32
-    fullPath = Darkness::getInstance()->res_path + filename;
+    fullPath = Strings::widen(FileUtils::getInstance()->getDefaultResourceRootPath()) + filename;
 #endif
 #if AX_TARGET_PLATFORM == AX_PLATFORM_ANDROID
     fullPath = L"file:///android_asset/" + filename;
