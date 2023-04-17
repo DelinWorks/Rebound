@@ -259,8 +259,10 @@ bool CustomUi::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
         focus();
         return true;
     }
-    else if (!button->hitTest(mouseLocationInView, cam, _NOTHING))
+    else if (!button->hitTest(mouseLocationInView, cam, _NOTHING) && _isFocused) {
         defocus();
+        return true;
+    }
     hover(mouseLocationInView, cam);
     return false;
 }

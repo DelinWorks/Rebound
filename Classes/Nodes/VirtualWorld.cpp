@@ -26,7 +26,7 @@ void VirtualWorld::refresh(ax::Scene* scene)
 
 		_rt->initWithWidthAndHeight(_currentSize.x, _currentSize.y,
 			ax::backend::PixelFormat::RGBA8);
-		auto p = GameUtils::createGPUProgram("default.frag", "default.vert");
+		auto p = GameUtils::createGPUProgram("deform.frag", "default.vert");
 		_rt->getSprite()->setProgramState(p);
 
 		SET_POSITION_HALF_SCREEN(_rt);

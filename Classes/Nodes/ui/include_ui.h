@@ -6,5 +6,6 @@
 #include "uiHoverEffect.h"
 #include "uiButton.h"
 #include "uiTextField.h"
+#include "uiLabel.h"
 
 #endif

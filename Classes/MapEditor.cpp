@@ -515,11 +515,15 @@ void MapEditor::onInitDone(f32 dt)
         container3->setLayout(CustomUi::FlowLayout(
             CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
             CustomUi::FlowLayoutDirection::STACK_CENTER,
-            20
+            0
         ));
         container2->addChild(container3);
 
-        auto textField = CustomUi::TextField::create();
+        label = CustomUi::Label::create();
+        label->init(L"Enter Your Name", 16, {500, 0});
+        container3->addChild(label);
+
+        textField = CustomUi::TextField::create();
         textField->init("Level Name", 16, { 0, 40 });
         container3->addChild(textField);
 
@@ -528,7 +532,8 @@ void MapEditor::onInitDone(f32 dt)
         container3->addChild(button);
 
         button->_callback = [&](CustomUi::Button* target) {
-             target->sprite->setColor(Color3B(Random::maxInt(255), Random::maxInt(255), Random::maxInt(255)));
+             //target->sprite->setColor(Color3B(Random::maxInt(255), Random::maxInt(255), Random::maxInt(255)));
+            label->setString(Strings::widen(std::string(textField->field->getString())));
         };
 
         buildEntireUi();
@@ -607,7 +612,7 @@ void MapEditor::tick(f32 dt)
 
     elapsedDt += dt * 0.1;
     SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
-    _rt->getSprite()->getTexture()->setAliasTexParameters();
+    //_rt->getSprite()->getTexture()->setAliasTexParameters();
 
     //if (getContainer()) getContainer()->updateLayoutManagers(true);
 
