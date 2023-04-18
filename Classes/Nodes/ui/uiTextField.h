@@ -41,9 +41,9 @@ namespace CustomUi
         bool password = false;
         bool show_password = false;
 
-        void init(std::string_view _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv);
+        void init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv);
 
-        void init(std::string_view _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
+        void init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
             cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
             Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
             Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
@@ -63,6 +63,10 @@ namespace CustomUi
 
         bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
         bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+
+        bool _isLeftCtrlPressed = false;
+        void keyPress(EventKeyboard::KeyCode keyCode);
+        void keyRelease(EventKeyboard::KeyCode keyCode);
 
         Size getDynamicContentSize();
 

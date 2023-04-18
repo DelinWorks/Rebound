@@ -44,6 +44,7 @@ namespace CustomUi
 
         void notifyLayout() override;
 
+        void setString(std::string _text);
         void setString(std::wstring _text);
     };
 }

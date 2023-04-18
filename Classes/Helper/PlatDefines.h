@@ -30,5 +30,33 @@ static std::wstring getCurrentResourcesDirectoryW()
 
     return std::wstring(buffer).substr(0, pos) + L"\\" + LRES_PATH + L"\\";
 }
+
+static void toClipboard(const std::string& s) {
+	OpenClipboard(nullptr);
+	EmptyClipboard();
+	HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, s.size() + 1);
+	if (!hg) {
+		CloseClipboard();
+		return;
+	}
+	memcpy(GlobalLock(hg), s.c_str(), s.size() + 1);
+	GlobalUnlock(hg);
+	SetClipboardData(CF_TEXT, hg);
+	CloseClipboard();
+	GlobalFree(hg);
+}
+
+static std::string fromClipboard()
+{
+	OpenClipboard(nullptr);
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	if (!hData) return "?";
+	char* pszText = static_cast<char*>(GlobalLock(hData));
+	std::string text(pszText);
+	GlobalUnlock(hData);
+	CloseClipboard();
+	return text;
+}
+
 #endif
 #endif

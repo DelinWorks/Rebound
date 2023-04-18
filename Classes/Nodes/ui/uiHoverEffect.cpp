@@ -33,7 +33,7 @@ void CustomUi::HoverEffectGUI::hover()
         _hoverSprite->runAction(
             Sequence::create(
                 CallFunc::create([this]() { _hoverSprite->setVisible(true); }),
-                FadeTo::create(0.1f, 100),
+                FadeTo::create(0.1f, 30),
                 _NOTHING
             )
         );
@@ -45,7 +45,7 @@ void CustomUi::HoverEffectGUI::hover()
         _hoverSprite->stopAllActions();
         _hoverSprite->runAction(
             Sequence::create(
-                FadeTo::create(0, 100),
+                FadeTo::create(0, 30),
                 DelayTime::create(.25 - clampf(_hoverShaderTime1, 0, .25)),
                 FadeTo::create(0.1f, 0),
                 CallFunc::create([this]() { _hoverSprite->setVisible(false); }),

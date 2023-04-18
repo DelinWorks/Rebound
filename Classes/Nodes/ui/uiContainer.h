@@ -16,15 +16,12 @@
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 28 - 24, 28 - 24)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1.png"sv
 
+#define YOURE_NOT_WELCOME_HERE -9
+
+//#define DRAW_NODE_DEBUG
+
 namespace CustomUi
 {
-    inline float _UiScale = 0; // Dynamically modified within runtime.
-
-    inline float _UiScaleMul = 4;
-    inline float _PmtFontScale = 4;
-
-    inline GUI* _pCurrentHeldItem = nullptr;
-
     enum Layout : u8 {
         NONE = 0,
         FLOW = 1,
@@ -62,16 +59,23 @@ namespace CustomUi
 
     class Container : public GUI {
     public:
-        Container() : _layout(Layout::NONE), _borderLayout(BorderLayout::CENTER), _flowLayout(), _contentSizeDebug(nullptr) {}
+        Container();
+        void setBorderLayout(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
+        
         static CustomUi::Container* create();
-        static CustomUi::Container* create(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
+
         void setLayout(FlowLayout layout);
         void setBorderLayoutAnchor();
+
+        void setBackgroundSprite(ax::Vec2 padding = {0, 0});
+        void setBackgroundDim();
 
         void notifyLayout() override;
 
         void calculateContentBoundaries();
         void updateLayoutManagers(bool recursive = false);
+
+        void onEnter() override;
 
         bool _isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave
@@ -80,6 +84,9 @@ namespace CustomUi
         // should be called on onMouseDown or onTouchBegan, it will check on every element and react if mouseLocationInView vector is inside that object on a specific camera and perform a click action or defocus action if outside
         bool press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
         bool release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+
+        void keyPress(EventKeyboard::KeyCode keyCode);
+        void keyRelease(EventKeyboard::KeyCode keyCode);
         
         bool blockMouse() {
             return _isHitSwallowed;
@@ -96,6 +103,9 @@ namespace CustomUi
         void onEnable();
         void onDisable();
 
+        ax::ui::Scale9Sprite* _background = nullptr;
+        ax::LayerColor* _bgDim= nullptr;
+        ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
         DrawNode* _contentSizeDebug;
         bool _closestStaticBorder = false;
 
@@ -105,4 +115,6 @@ namespace CustomUi
         BorderLayout _borderLayout;
         FlowLayout _flowLayout;
     };
+
+    class Separator : public GUI {};
 }

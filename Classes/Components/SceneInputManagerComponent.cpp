@@ -102,6 +102,8 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
         if (keyCode == EventKeyboard::KeyCode::KEY_F5)
             FMODAudioEngine::destroyInstance();
 
+        if (_uiContainer) _uiContainer->keyPress(keyCode);
+
         if (_uiContainer)
             if (_uiContainer->blockKeyboard())
                 return;
@@ -116,6 +118,8 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
                 if (i == (i32)keyCode)
                     _pressedKeys.erase(std::remove(_pressedKeys.begin(), _pressedKeys.end(), (i32)keyCode), _pressedKeys.end());
         } while (false);
+
+        if (_uiContainer) _uiContainer->keyRelease(keyCode);
 
         if (_uiContainer)
             if (_uiContainer->blockKeyboard())
@@ -146,7 +150,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
 
     auto _onMouseDownCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
-        if (_uiContainer && e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT) {
+        if (_uiContainer && (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->_isFocused)) {
             if (_uiContainer->press(e->getLocationInView(), getCamera())) return;
             if (_uiContainer->blockMouse()) return;
         }
@@ -179,7 +183,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     };
 
     auto _onMouseScrollCheck = [&](EventMouse* event) {
-        if (_uiContainer) if (_uiContainer->blockMouse()) return;
+        if (_uiContainer) if (_uiContainer->blockMouse() || _uiContainer->blockKeyboard()) return;
 
         onMouseScroll(event);
     };

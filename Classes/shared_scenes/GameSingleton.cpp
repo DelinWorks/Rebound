@@ -52,7 +52,7 @@ void Darkness::init()
         gameWindow.isCursorLockedToWindow = true;
         gameWindow.isAllowedToLeave = false;
         gameWindow.lastKnownWindowRect = cocos2d::Rect(0, 0, 1280, 720);
-        gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
+        gameWindow.windowPolicy = ResolutionPolicy::EXACT_FIT;
         gameWindow.currentWindowCursor = 0;
         gameWindow.focusState = false;
         gameWindow.guiScale = 1;

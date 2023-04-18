@@ -493,48 +493,10 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
-        auto container = _input->_uiContainer = CustomUi::Container::create(BorderLayout::CENTER);
+        auto container = _input->_uiContainer = CustomUi::Container::create();
+        container->setStatic();
         container->setBorderLayoutAnchor();
         uiNode->addChild(container);
-        container->setStatic();
-        container->setContentSize(visibleSize / 2);
-        //container->setAnchorPoint({ -1, 0.5 });
-
-        auto container2 = CustomUi::Container::create(BorderLayout::TOP, BorderContext::PARENT);
-        container2->setBorderLayoutAnchor();
-        container2->setMargin({ 10, 10 });
-        container2->setLayout(CustomUi::FlowLayout(
-            CustomUi::FlowLayoutSort::SORT_VERTICAL,
-            CustomUi::FlowLayoutDirection::STACK_CENTER,
-            20
-        ));
-        container->addChild(container2);
-
-        auto container3 = CustomUi::Container::create(BorderLayout::CENTER, BorderContext::PARENT);
-        //container2->setBorderLayoutAnchor();
-        container3->setLayout(CustomUi::FlowLayout(
-            CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
-            CustomUi::FlowLayoutDirection::STACK_CENTER,
-            0
-        ));
-        container2->addChild(container3);
-
-        label = CustomUi::Label::create();
-        label->init(L"Enter Your Name", 16, {500, 0});
-        container3->addChild(label);
-
-        textField = CustomUi::TextField::create();
-        textField->init("Level Name", 16, { 0, 40 });
-        container3->addChild(textField);
-
-        auto button = CustomUi::Button::create();
-        button->init(L"لعب جماعي زنجي", 16, { 0, 40 });
-        container3->addChild(button);
-
-        button->_callback = [&](CustomUi::Button* target) {
-             //target->sprite->setColor(Color3B(Random::maxInt(255), Random::maxInt(255), Random::maxInt(255)));
-            label->setString(Strings::widen(std::string(textField->field->getString())));
-        };
 
         buildEntireUi();
 
@@ -850,6 +812,10 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_S)
     {
+        auto panel = CustomUi::DiscardPanel::create();
+        panel->init(L"Set Layer Name", L"name");
+        getContainer()->addChild(panel);
+
         //std::terminate();
         //sqlite3_exec(pdb, std::string("DELETE FROM MapChunkDatas").c_str(), NULL, NULL, NULL);
         //for (const auto& x : *map->layer_groups)
@@ -1067,20 +1033,11 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 void MapEditor::buildEntireUi()
 {
     rebuildableUiNodes->removeAllChildren();
-    statsParentNode = Node::create();
-    statsParentNode->setPosition(Vec2(visibleSize.width / -2 + 5, visibleSize.height / -2));
-    setNodeIgnoreDesignScale(statsParentNode);
-    statsParentNode->addComponent((new UiRescaleComponent(visibleSize))
-        ->enableDesignScaleIgnoring()->setVisibleSizeHints(-2, 5, -2));
-    f32 fontSize = 17 * 2;
-    auto fontName = "fonts/bitsy-font-with-arabic.ttf"sv;
-    _debugText = ax::Label::createWithTTF("", fontName, fontSize);
-    _debugText->enableOutline(Color4B::BLACK, 4);
-    _debugText->getFontAtlas()->setAliasTexParameters();
-    statsParentNode->addChild(_debugText);
-    rebuildableUiNodes->addChild(statsParentNode);
-    _debugText->setScale(0.5);
-    _debugText->setAnchorPoint(Vec2(0, 0));
+    _debugText = CustomUi::Label::create();
+    _debugText->init(L"", 16);
+    getContainer()->addChild(_debugText);
+    ((UiRescaleComponent*)_debugText->getComponent("UiRescaleComponent"))->setVisibleSizeHints(-2, 5, -2);
+    _debugText->setAnchorPoint(Vec2(-0.5, -0.5));
     /* FPS COUNTER CODE BODY */ {
         _debugText->stopAllActions();
         auto update_fps_action = CallFunc::create([&]() {

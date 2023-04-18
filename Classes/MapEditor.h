@@ -198,11 +198,7 @@ public:
 
     ax::MotionStreak* streak;
 
-    CustomUi::Label* label;
-    CustomUi::TextField* textField;
-
-    ax::Node* statsParentNode;
-    ax::Label* _debugText;
+    CustomUi::Label* _debugText;
     //ax::ui::Text* FPSUiText;
     //ax::ui::Text* VertsUiText;
     //ax::ui::Text* BatchesUiText;

@@ -36,7 +36,7 @@ void CustomUi::Label::init(std::wstring _text, std::string_view _fontname, i32 _
 
 void CustomUi::Label::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize);
+    setContentSize(dSize + _padding);
 }
 
 bool CustomUi::Label::hover(ax::Vec2 mouseLocationInView, Camera* cam)
@@ -80,6 +80,8 @@ bool CustomUi::Label::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 Size CustomUi::Label::getDynamicContentSize()
 {
     auto& dSize = field->getContentSize();
+    if (size.x == 0)
+        return dSize / _UiScale;
     auto calc = dSize.x / _UiScale * (size.x / dSize.x);
     return Size(size.x > dSize.x ? dSize.x / _UiScale : calc, dSize.y / _UiScale);
 }
@@ -87,7 +89,7 @@ Size CustomUi::Label::getDynamicContentSize()
 void CustomUi::Label::onFontScaleUpdate(float scale)
 {
     field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
-    field->enableOutline(Color4B::BLACK, 8);
+    field->enableOutline(Color4B::BLACK, 4);
     field->getFontAtlas()->setAliasTexParameters();
 }
 
@@ -103,6 +105,12 @@ void CustomUi::Label::updatePositionAndSize()
 void CustomUi::Label::notifyLayout()
 {
     GUI::notifyLayout();
+    updatePositionAndSize();
+}
+
+void CustomUi::Label::setString(std::string _text)
+{
+    field->setString(_text);
     updatePositionAndSize();
 }
 

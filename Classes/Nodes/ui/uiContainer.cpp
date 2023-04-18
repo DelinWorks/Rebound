@@ -1,14 +1,28 @@
 #include "uiContainer.h"
 
+CustomUi::Container::Container() : _layout(Layout::NONE), _borderLayout(BorderLayout::CENTER), _flowLayout(), _contentSizeDebug(nullptr)
+{
+    _contentSizeDebug = DrawNode::create(1);
+    _isContainer = true;
+    setDynamic();
+#ifdef DRAW_NODE_DEBUG
+    addChild(_contentSizeDebug, 99);
+    _contentSizeDebug->setTag(YOURE_NOT_WELCOME_HERE);
+#endif
+}
+
+void CustomUi::Container::setBorderLayout(BorderLayout border, BorderContext context) {
+    if (context == BorderContext::PARENT)
+        _closestStaticBorder = true;
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+        ->setBorderLayout(_borderLayout = border));
+}
+
 CustomUi::Container* CustomUi::Container::create()
 {
     Container* ref = new Container();
     if (ref->init())
     {
-        ref->_contentSizeDebug = DrawNode::create(1);
-        ref->_isContainer = true;
-        ref->setDynamic();
-        ref->addChild(ref->_contentSizeDebug, 99);
         ref->autorelease();
     }
     else
@@ -16,19 +30,6 @@ CustomUi::Container* CustomUi::Container::create()
         AX_SAFE_DELETE(ref);
     }
     return ref;
-}
-
-CustomUi::Container* CustomUi::Container::create(BorderLayout border, BorderContext context)
-{
-    auto ref = create();
-    if (ref) {
-        if (context == BorderContext::PARENT)
-            ref->_closestStaticBorder = true;
-        ref->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-            ->setBorderLayout(ref->_borderLayout = border));
-        return ref;
-    }
-    else return nullptr;
 }
 
 void CustomUi::Container::setLayout(FlowLayout layout)
@@ -77,6 +78,18 @@ bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Ca
     return false;
 }
 
+void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
+{
+    for (auto& _ : _focusedElements)
+        _->keyPress(keyCode);
+}
+
+void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
+{
+    for (auto& _ : _focusedElements)
+        _->keyRelease(keyCode);
+}
+
 void CustomUi::Container::updateLayoutManagers(bool recursive)
 {
     if (recursive) {
@@ -88,7 +101,6 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
         }
     }
 
-    calculateContentBoundaries();
     switch (_layout) {
     case Layout::FLOW: {
         _flowLayout.build(this);
@@ -97,6 +109,14 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
     default:
         break;
     }
+
+    calculateContentBoundaries();
+}
+
+void CustomUi::Container::onEnter() {
+    GUI::onEnter();
+    onFontScaleUpdate(_UiScale / _UiScaleMul);
+    updateLayoutManagers(true);
 }
 
 void CustomUi::Container::onEnable()
@@ -139,6 +159,23 @@ void CustomUi::Container::setBorderLayoutAnchor()
     }
 }
 
+void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding)
+{
+    _backgroundPadding = padding;
+    _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE, ADVANCEDUI_P1_CAP_INSETS);
+    _background->setTag(YOURE_NOT_WELCOME_HERE);
+    addChild(_background, -1);
+}
+
+void CustomUi::Container::setBackgroundDim()
+{
+    _bgDim = ax::LayerColor::create(Color4B(0, 0, 0, 100));
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    SET_POSITION_MINUS_HALF_SCREEN(_bgDim);
+    _bgDim->setTag(YOURE_NOT_WELCOME_HERE);
+    addChild(_bgDim, -2);
+}
+
 void CustomUi::Container::notifyLayout()
 {
     updateLayoutManagers();
@@ -159,7 +196,8 @@ void CustomUi::Container::calculateContentBoundaries()
     Vec2 dominantSize = Vec2::ZERO;
 
     for (auto& _ : list) {
-        if (DCAST(DrawNode, _)) continue;
+        if (_->getTag() == YOURE_NOT_WELCOME_HERE)
+            continue;
         auto c = DCAST(Container, _);
         if (c) c->calculateContentBoundaries();
         if (!_isDynamic) continue;
@@ -194,8 +232,14 @@ void CustomUi::Container::calculateContentBoundaries()
 
     if (_isDynamic)
         Node::setContentSize(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y));
+
+#ifdef DRAW_NODE_DEBUG
     _contentSizeDebug->clear();
     _contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
+#endif
+
+    if (_background)
+        _background->setContentSize(getContentSize() + _backgroundPadding);
 }
 
 void CustomUi::FlowLayout::build(CustomUi::Container* container)
@@ -211,36 +255,44 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     _spacing.y *= n->getScaleY();
 
     f32 sumSize = 0;
+    u16 listSize = 0;
     for (auto& _ : list) {
+        if (!_ || _->getTag() == YOURE_NOT_WELCOME_HERE) continue;
+        auto cont = DCAST(Container, _);
+        if (cont) cont->calculateContentBoundaries();
         auto cSize = _->getContentSize();
-        cSize.x += _spacing.x * 2;
-        cSize.y += _spacing.y * 2;
-        sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
+        if (cSize.x != 0 && cSize.y != 0) {
+            cSize.x += _spacing.x * 2;
+            cSize.y += _spacing.y * 2;
+            sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
+            listSize++;
+        }
     }
 
     float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
 
-    if (direction == STACK_BOTTOM || direction == STACK_LEFT)
+    if (direction == STACK_BOTTOM || direction == STACK_LEFT || direction == STACK_CENTER)
         std::reverse(list.begin(), list.end());
 
     f32 cumSize = 0;
     if (direction == STACK_CENTER)
-        cumSize = (sumSize - (_spacing.x * 1.5 * list.size()) - _spacing.x) / -2;
+        cumSize = (sumSize - (_spacing.x * 1.5 * listSize) - _spacing.x / 2) / -2;
     for (auto& _ : list) {
-        if (!_ || DCAST(DrawNode, _)) continue;
-        auto cont = DCAST(Container, _);
-        if (cont) cont->calculateContentBoundaries();
+        if (!_ || _->getTag() == YOURE_NOT_WELCOME_HERE) continue;
         auto cSize = _->getContentSize();
+        if (cSize.x == 0 || cSize.y == 0)
+            continue;
         if (_) {
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
-                _->setPositionX(cumSize * (_->getScaleX() == 1 ? 1 : n->getScaleX()) + marginF);
+                _->setPositionX(cumSize * n->getScaleX() + marginF);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
-            } else if (sort == SORT_VERTICAL) {
+            }
+            else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
-                _->setPositionY(cumSize * (_->getScaleY() == 1 ? 1 : n->getScaleY()) + marginF);
+                _->setPositionY(cumSize * n->getScaleY() + marginF);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }

@@ -73,6 +73,7 @@ CustomUi::_UiScale = scale * CustomUi::_UiScaleMul; \
 
 #define SET_POSITION_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / 2), (visibleSize.height / 2)));
 #define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / -2), (visibleSize.height / -2)));
+#define DECOMPOSE_VEC2(V, X, Y) Vec2(V.x * X, V.y * Y)
 
 #define SET_UNIFORM(ps, name, value)  do {   \
 decltype(value) __v = value;                           \

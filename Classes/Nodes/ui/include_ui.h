@@ -1,5 +1,4 @@
-#ifndef __INCLUDE_CUSTOM_UI_H__
-#define __INCLUDE_CUSTOM_UI_H__
+#pragma once
 
 #include "uiContainer.h"
 
@@ -8,4 +7,10 @@
 #include "uiTextField.h"
 #include "uiLabel.h"
 
+#ifndef EXCLUDE_EXTENSIONS
+
+#include "uiDiscardPanel.h"
+
+#else
+#undef EXCLUDE_EXTENSIONS;
 #endif

@@ -11,6 +11,17 @@ using namespace ax;
 
 namespace CustomUi
 {
+    inline float _UiScale = 1; // Dynamically modified within runtime.
+
+    inline float _UiScaleMul = 2;
+    inline float _PmtFontScale = 2;
+    
+    class GUI;
+
+    inline GUI* _pCurrentHeldItem = nullptr;
+
+    inline bool _doNotShowWin32 = false;
+
     struct UiFontDescriptor {
         std::string fontName;
         float fontSize;
@@ -54,6 +65,9 @@ namespace CustomUi
         virtual bool press(Vec2 mouseLocationInView, Camera* cam) = 0;
         virtual bool release(Vec2 mouseLocationInView, Camera* cam) = 0;
 
+        virtual void keyPress(EventKeyboard::KeyCode keyCode);
+        virtual void keyRelease(EventKeyboard::KeyCode keyCode);
+
         void onEnter() override;
         void onExit() override;
 
@@ -83,6 +97,7 @@ namespace CustomUi
         bool _isEnabledState = true;
 
     public:
+        ax::Vec2 _padding = Vec2::ZERO;
         bool _isDynamic = false;
         bool _isContainer = false;
         std::set<GUI*> _focusedElements;

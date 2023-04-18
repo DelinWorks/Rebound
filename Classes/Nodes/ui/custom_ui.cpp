@@ -56,6 +56,14 @@ void CustomUi::GUI::updateEnabled(bool state)
 		}
 }
 
+void CustomUi::GUI::keyPress(EventKeyboard::KeyCode keyCode)
+{
+}
+
+void CustomUi::GUI::keyRelease(EventKeyboard::KeyCode keyCode)
+{
+}
+
 void CustomUi::GUI::onEnter()
 {
 	Node::onEnter();

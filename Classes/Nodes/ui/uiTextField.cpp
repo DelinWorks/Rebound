@@ -1,5 +1,6 @@
 #include "uiTextField.h"
 #include "2d/CCTweenFunction.h"
+#include <regex>
 
 CustomUi::TextField* CustomUi::TextField::create()
 {
@@ -15,7 +16,7 @@ CustomUi::TextField* CustomUi::TextField::create()
     return ret;
 }
 
-void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars)
+void CustomUi::TextField::init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars)
 {
     init(
         _placeholder,
@@ -36,7 +37,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, int _fontSize, Siz
     );
 }
 
-void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
+void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
     ax::Rect _capinsets, ax::Size _contentsize, ax::Rect _clampregion,
     Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
@@ -57,12 +58,10 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
     selected_color = _selected_color;
     password = _password;
     cursor_control_parent = ax::Node::create();
-    field = ax::ui::TextField::create(_placeholder, _fontname, _fontsize * _UiScale);
+    field = ax::ui::TextField::create(Strings::narrow(_placeholder), _fontname, _fontsize * _UiScale);
     field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
-    if (length != -1) {
-        field->setMaxLengthEnabled(true);
-        field->setMaxLength(length);
-    }
+    field->setMaxLengthEnabled(true);
+    field->setMaxLength(length == -1 ? 256 : length);
     field->setPasswordEnabled(_password);
     field->setEnabled(false);
     field->_textFieldRenderer->setVerticalAlignment(TextVAlignment::CENTER);
@@ -134,7 +133,7 @@ void CustomUi::TextField::init(std::string_view _placeholder, std::string_view _
 
 void CustomUi::TextField::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize);
+    setContentSize(dSize + _padding);
     HoverEffectGUI::update(dt);
 }
 
@@ -177,13 +176,9 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
                 cursor_control->setScale(1);
             }
 
-            std::string  sString = TEXT(field->getString());
-            std::size_t doubleSpace = sString.find("  ");
-            while (doubleSpace != std::string::npos)
-            {
-                sString.erase(doubleSpace, 1);
-                doubleSpace = sString.find("  ");
-            }
+            std::string sString = TEXT(field->getString());
+            sString = std::regex_replace(sString, std::regex("[ ]{2,}"), " ");
+            sString = std::regex_replace(sString, std::regex("[\n]"), "");
 
             if (allowedChars.length() > 0) {
                 std::string temp;
@@ -199,8 +194,11 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             if (toUpper)
                 std::transform(sString.begin(), sString.end(), sString.begin(), ::toupper);
 
-            cachedString = ShapingEngine::Helper::widen(sString);
-            field->setString(sString);
+            try {
+                cachedString = ShapingEngine::Helper::widen(sString);
+                field->setString(sString);
+            }
+            catch (std::exception& e) { field->setString(e.what()); };
         }
         else cursor_control->setVisible(false);
     }
@@ -270,6 +268,28 @@ bool CustomUi::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
 bool CustomUi::TextField::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     return false;
+}
+
+void CustomUi::TextField::keyPress(EventKeyboard::KeyCode keyCode)
+{
+#ifdef WIN32 // clipboard implementation works with windows only.
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL)
+        _isLeftCtrlPressed = true;
+    if (_isLeftCtrlPressed && (keyCode == EventKeyboard::KeyCode::KEY_X || keyCode == EventKeyboard::KeyCode::KEY_C)) {
+        toClipboard(std::string(field->getString()));
+        if (keyCode == EventKeyboard::KeyCode::KEY_X)
+            field->setString("");
+    }
+    if (_isLeftCtrlPressed && keyCode == EventKeyboard::KeyCode::KEY_V) {
+        field->setString(std::string(field->getString()) + fromClipboard());
+    }
+#endif
+}
+
+void CustomUi::TextField::keyRelease(EventKeyboard::KeyCode keyCode)
+{
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL)
+        _isLeftCtrlPressed = false;
 }
 
 Size CustomUi::TextField::getDynamicContentSize()

@@ -63,7 +63,7 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
 
 void CustomUi::Button::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize);
+    setContentSize(dSize + _padding);
     HoverEffectGUI::update(dt);
 }
 
@@ -152,6 +152,7 @@ void CustomUi::Button::onFontScaleUpdate(float scale)
 {
     field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
     //field->enableShadow(Color4B(selected_color.r, selected_color.g, selected_color.b, 100), {1,-1}, 1);
-    field->enableOutline(Color4B(selected_color.r, selected_color.g, selected_color.b, 35), 8);
+    field->enableUnderline();
+    //field->enableOutline(Color4B(selected_color.r, selected_color.g, selected_color.b, 35), 4);
     field->getFontAtlas()->setAliasTexParameters();
 }
