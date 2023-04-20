@@ -1,10 +1,16 @@
 #include "custom_ui.h"
 
-void CustomUi::GUI::setContentSize(const Vec2& size)
+void CustomUi::GUI::setContentSize(const Vec2& size, bool recursive)
 {
 	if (!size.equals(getContentSize())) {
 		Node::setContentSize(size);
-		notifyLayout();
+		if (recursive)
+			notifyLayout();
+
+#ifdef DRAW_NODE_DEBUG
+		_contentSizeDebug->clear();
+		_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
+#endif
 	}
 }
 
@@ -56,12 +62,27 @@ void CustomUi::GUI::updateEnabled(bool state)
 		}
 }
 
+CustomUi::GUI::GUI()
+{
+	_contentSizeDebug = DrawNode::create(1);
+#ifdef DRAW_NODE_DEBUG
+	addChild(_contentSizeDebug, 99);
+	_contentSizeDebug->setTag(YOURE_NOT_WELCOME_HERE);
+#endif
+}
+
 void CustomUi::GUI::keyPress(EventKeyboard::KeyCode keyCode)
 {
 }
 
 void CustomUi::GUI::keyRelease(EventKeyboard::KeyCode keyCode)
 {
+}
+
+void CustomUi::GUI::pushModal(GUI* child)
+{
+	_sortChildren = true;
+	addChild(child);
 }
 
 void CustomUi::GUI::onEnter()
@@ -76,12 +97,13 @@ void CustomUi::GUI::onExit()
 	notifyFocused(this, false);
 }
 
-void CustomUi::GUI::notifyFocused(GUI* sender, bool focused)
+void CustomUi::GUI::notifyFocused(GUI* sender, bool focused, bool ignoreSelf)
 {
 	auto cast = DCAST(GUI, getParent());
 	if (cast) {
 		//if (_isFocused == focused) return;
-		_isFocused = focused;
+		if (!ignoreSelf)
+			_isFocused = focused;
 		cast->notifyFocused(sender, focused);
 	}
 	else {

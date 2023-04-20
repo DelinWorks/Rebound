@@ -812,9 +812,11 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_S)
     {
-        auto panel = CustomUi::DiscardPanel::create();
-        panel->init(L"Set Layer Name", L"name");
-        getContainer()->addChild(panel);
+        for (int i = 0; i < 10; i++) {
+            auto panel = CustomUi::DiscardPanel::create();
+            panel->init(L"تحذير", L"فشل الإتصال بالخادم", CustomUi::DiscardButtons::OKAY, CustomUi::DiscardType::MESSAGE);
+            getContainer()->pushModal(panel);
+        }
 
         //std::terminate();
         //sqlite3_exec(pdb, std::string("DELETE FROM MapChunkDatas").c_str(), NULL, NULL, NULL);

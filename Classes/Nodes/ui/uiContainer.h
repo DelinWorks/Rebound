@@ -16,10 +16,6 @@
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 28 - 24, 28 - 24)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1.png"sv
 
-#define YOURE_NOT_WELCOME_HERE -9
-
-//#define DRAW_NODE_DEBUG
-
 namespace CustomUi
 {
     enum Layout : u8 {
@@ -106,8 +102,9 @@ namespace CustomUi
         ax::ui::Scale9Sprite* _background = nullptr;
         ax::LayerColor* _bgDim= nullptr;
         ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
-        DrawNode* _contentSizeDebug;
         bool _closestStaticBorder = false;
+
+        void sortChildren();
 
     protected:
         ax::Vec2 _margin;

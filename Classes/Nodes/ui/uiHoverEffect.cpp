@@ -11,17 +11,45 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     _hoverSprite->setProgramState(_hoverShader);
     _hoverSprite->setVisible(false);
     addChild(_hoverSprite, -1);
+
+    prtcl = ax::ParticleSystemQuad::createWithTotalParticles(300);
+    prtcl->setTexture(ADD_IMAGE("shared/unready/ptrn_bg_hover2.png"));
+    prtcl->setDuration(ParticleSystem::DURATION_INFINITY);
+    prtcl->setGravity({ 0, 0 });
+    prtcl->setEmitterMode(ParticleSystem::Mode::GRAVITY);
+    prtcl->setStartColor(Color4F(1, 1, 1, 0.3));
+    prtcl->setEndColor(Color4F(1, 1, 1, 0));
+    prtcl->setSpeed(20);
+    prtcl->setSpeedVar(10);
+    prtcl->setAngleVar(180);
+    prtcl->setLife(2);
+    prtcl->setLifeVar(1);
+    prtcl->setSpawnFadeIn(1);
+    prtcl->setSpawnAngleVar(180);
+    prtcl->setStartSize(20);
+    prtcl->setStartSizeVar(10);
+    prtcl->setEndSize(10);
+    prtcl->setEmissionRate(30);
+    prtcl->setEmissionShapes(true);
+    prtcl->setBlendAdditive(true);
+    prtcl->simulate(-1, 10);
+    prtcl->pauseEmissions();
+    _hoverSprite->addChild(prtcl, 2);
 }
 
 void CustomUi::HoverEffectGUI::update(f32 dt) {
     if (_hoverSprite->isVisible()) {
-        _hoverSprite->setContentSize(getContentSize() + Vec2(50 * (getContentSize().x / 120), 40));
+        _hoverSprite->setContentSize(getContentSize() + Vec2(30 * (getContentSize().x / 120), 30));
         _hoverShaderTime1 += dt;
         SET_UNIFORM(_hoverShader, "u_time", _hoverShaderTime1);
         _hoverShaderTime2 += dt;
         _hoverShaderTimeLerp2 = LERP(_hoverShaderTimeLerp2, _hoverShaderTime2, 10 * dt);
         SET_UNIFORM(_hoverShader, "u_val", _hoverShaderTimeLerp2);
-    }
+        prtcl->setPosition(_hoverSprite->getContentSize() / 2);
+        prtcl->setEmissionShape(0, ParticleSystem::createRectShape(Vec2::ZERO,
+            { _hoverSprite->getContentSize().x, _hoverSprite->getContentSize().y }));
+        prtcl->resumeEmissions();
+    } else prtcl->pauseEmissions();
 }
 
 void CustomUi::HoverEffectGUI::hover()

@@ -1,14 +1,9 @@
 #include "uiContainer.h"
 
-CustomUi::Container::Container() : _layout(Layout::NONE), _borderLayout(BorderLayout::CENTER), _flowLayout(), _contentSizeDebug(nullptr)
+CustomUi::Container::Container() : _layout(Layout::NONE), _borderLayout(BorderLayout::CENTER), _flowLayout()
 {
-    _contentSizeDebug = DrawNode::create(1);
     _isContainer = true;
     setDynamic();
-#ifdef DRAW_NODE_DEBUG
-    addChild(_contentSizeDebug, 99);
-    _contentSizeDebug->setTag(YOURE_NOT_WELCOME_HERE);
-#endif
 }
 
 void CustomUi::Container::setBorderLayout(BorderLayout border, BorderContext context) {
@@ -42,6 +37,7 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
 {
     _isHitSwallowed = false;
     auto& list = getChildren();
+    sortChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
@@ -56,8 +52,8 @@ bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
 {
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
-    auto& list = getChildren();
     bool isClickSwallowed = false;
+    auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
@@ -80,14 +76,24 @@ bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Ca
 
 void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
 {
-    for (auto& _ : _focusedElements)
+    // REMOVE THIS CODE LATER // ONLY FOR DEBUGGING //
+    if (_focusedElements.size() == 0)
+        if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
+            Darkness::destroyInstance();
+    // // // // // // // // // // // // // // // // //
+
+    for (auto& _ : _focusedElements) {
         _->keyPress(keyCode);
+        break;
+    }
 }
 
 void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
 {
-    for (auto& _ : _focusedElements)
+    for (auto& _ : _focusedElements) {
         _->keyRelease(keyCode);
+        break;
+    }
 }
 
 void CustomUi::Container::updateLayoutManagers(bool recursive)
@@ -231,15 +237,18 @@ void CustomUi::Container::calculateContentBoundaries()
     );
 
     if (_isDynamic)
-        Node::setContentSize(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y));
-
-#ifdef DRAW_NODE_DEBUG
-    _contentSizeDebug->clear();
-    _contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
-#endif
+        setContentSize(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y), false);
 
     if (_background)
         _background->setContentSize(getContentSize() + _backgroundPadding);
+}
+
+void CustomUi::Container::sortChildren()
+{
+    if (!_sortChildren) return;
+
+    auto& list = getChildren();
+    std::sort(list.begin(), list.end(), [](Node* a, Node* b) { return a > b; });
 }
 
 void CustomUi::FlowLayout::build(CustomUi::Container* container)
@@ -251,8 +260,8 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     GameUtils::setNodeIgnoreDesignScale(n);
 
     auto _spacing = Vec2(spacing, spacing);
-    _spacing.x *= n->getScaleX();
-    _spacing.y *= n->getScaleY();
+    //_spacing.x *= n->getScaleX();
+    //_spacing.y *= n->getScaleY();
 
     f32 sumSize = 0;
     u16 listSize = 0;

@@ -284,6 +284,8 @@ void CustomUi::TextField::keyPress(EventKeyboard::KeyCode keyCode)
         field->setString(std::string(field->getString()) + fromClipboard());
     }
 #endif
+    if (keyCode == EventKeyboard::KeyCode::KEY_ENTER)
+        defocus();
 }
 
 void CustomUi::TextField::keyRelease(EventKeyboard::KeyCode keyCode)

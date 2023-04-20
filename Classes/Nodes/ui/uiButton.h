@@ -14,6 +14,9 @@ USING_NS_CC;
 
 namespace CustomUi
 {
+    class Button;
+    using ButtonCallback = std::function<void(Button* target)>;
+
     class Button : public HoverEffectGUI {
     public:
         static CustomUi::Button* create();
@@ -30,7 +33,7 @@ namespace CustomUi
         bool adaptToWindowSize = false;
         bool extend = false;
 
-        std::function<void(Button* target)> _callback;
+        ButtonCallback _callback;
 
         void init(std::wstring _text, int _fontSize, Size _size);
 

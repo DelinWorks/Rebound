@@ -14,24 +14,27 @@ CustomUi::Label* CustomUi::Label::create()
     return ret;
 }
 
-void CustomUi::Label::init(std::wstring _text, i32 _fontsize, Size _size)
+void CustomUi::Label::init(std::wstring _text, i32 _fontsize, Size _size, float _wrap)
 {
     init(
         _text,
         "fonts/bitsy-font-with-arabic.ttf"sv,
         _fontsize,
-        _size
+        _size,
+        _wrap
     );
 }
 
-void CustomUi::Label::init(std::wstring _text, std::string_view _fontname, i32 _fontsize, Size _size)
+void CustomUi::Label::init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size, float _wrap)
 {
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
-    field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
+    field = ax::Label::create();
     addChild(field);
+    text = _text;
     size = _size;
+    wrap = _wrap;
 }
 
 void CustomUi::Label::update(f32 dt) {
@@ -88,7 +91,13 @@ Size CustomUi::Label::getDynamicContentSize()
 
 void CustomUi::Label::onFontScaleUpdate(float scale)
 {
-    field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
+    field->initWithTTF(ShapingEngine::render(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
+    if (wrap != 0) {
+        field->setDimensions(wrap, field->getContentSize().y);
+        field->setOverflow(ax::Label::Overflow::RESIZE_HEIGHT);
+    }
+    field->setHorizontalAlignment(hAlignment);
+    field->setVerticalAlignment(vAlignment);
     field->enableOutline(Color4B::BLACK, 4);
     field->getFontAtlas()->setAliasTexParameters();
 }
@@ -110,12 +119,13 @@ void CustomUi::Label::notifyLayout()
 
 void CustomUi::Label::setString(std::string _text)
 {
+    text = Strings::widen(_text);
     field->setString(_text);
     updatePositionAndSize();
 }
 
 void CustomUi::Label::setString(std::wstring _text)
 {
-    field->setString(Strings::narrow(_text));
+    field->setString(Strings::narrow(text = _text));
     updatePositionAndSize();
 }

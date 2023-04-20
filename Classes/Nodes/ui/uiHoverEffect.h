@@ -14,6 +14,7 @@ namespace CustomUi {
 		void hover();
 
 	private:
+		ax::ParticleSystemQuad* prtcl;
 		ax::backend::ProgramState* _hoverShader = nullptr;
 		ax::Sprite* _hoverSprite = nullptr;
 		f32 _hoverShaderTime1 = 0;

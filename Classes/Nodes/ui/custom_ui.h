@@ -9,6 +9,9 @@
 
 using namespace ax;
 
+#define YOURE_NOT_WELCOME_HERE -69420
+//#define DRAW_NODE_DEBUG
+
 namespace CustomUi
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
@@ -26,6 +29,8 @@ namespace CustomUi
         std::string fontName;
         float fontSize;
     };
+
+    class RequireSort { int crate = 0; };
 
     //#define SHOW_BUTTON_HITBOX
 
@@ -56,7 +61,7 @@ namespace CustomUi
     // Inherit Node GUI Manager
     class GUI : public Node {
     public:
-        GUI() {}
+        GUI();
         virtual ~GUI() {}
 
         // DO NOT ACCESS, USE AdvancedUiContainer
@@ -68,14 +73,18 @@ namespace CustomUi
         virtual void keyPress(EventKeyboard::KeyCode keyCode);
         virtual void keyRelease(EventKeyboard::KeyCode keyCode);
 
+        // This differes from addChild because it adds the passed 
+        // child in the very top and enables sorting, like a stack.
+        void pushModal(GUI* child);
+
         void onEnter() override;
         void onExit() override;
 
-        void notifyFocused(GUI* sender, bool focused);
+        void notifyFocused(GUI* sender, bool focused, bool ignoreSelf = false);
         void notifyEnabled();
         virtual void notifyLayout();
 
-        void setContentSize(const Vec2& size) override;
+        void setContentSize(const Vec2& size, bool recursive = true);
 
         virtual void onFontScaleUpdate(float scale);
 
@@ -95,8 +104,10 @@ namespace CustomUi
     private:
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
+        DrawNode* _contentSizeDebug;
 
     public:
+        bool _sortChildren = false;
         ax::Vec2 _padding = Vec2::ZERO;
         bool _isDynamic = false;
         bool _isContainer = false;

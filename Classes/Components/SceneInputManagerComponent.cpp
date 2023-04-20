@@ -93,8 +93,8 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
         if (!Darkness::getInstance()->gameWindow.isFullscreen)
             GameUtils::GLFW_ClipCursor(false);
 
-        if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
-            Darkness::destroyInstance();
+        //if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
+        //    Darkness::destroyInstance();
 
         if (keyCode == EventKeyboard::KeyCode::KEY_F2)
             Darkness::restartInstance();

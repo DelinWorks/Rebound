@@ -55,6 +55,7 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
     button = createPlaceholderButton();
     button->setEnabled(false);
     button->ignoreContentAdaptWithSize(false);
+    sprite->setVisible(false);
     addChild(sprite, 0);
     addChild(button);
     addChild(field);
@@ -105,19 +106,11 @@ void CustomUi::Button::defocus()
 
 void CustomUi::Button::onEnable()
 {
-    auto fade = FadeTo::create(0.1f, 255);
-    auto tint = TintTo::create(0.1f, Color3B::WHITE);
-    sprite->runAction(fade);
-    field->runAction(tint);
 }
 
 void CustomUi::Button::onDisable()
 {
     defocus();
-    auto fade = FadeTo::create(0.1f, 100);
-    auto tint = TintTo::create(0.1f, Color3B::GRAY);
-    sprite->runAction(fade);
-    field->runAction(tint);
 }
 
 bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
@@ -126,7 +119,10 @@ bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
         return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         _pCurrentHeldItem = this;
-        onDisable();
+        auto fade = FadeTo::create(0.1f, 100);
+        auto tint = TintTo::create(0.1f, Color3B::GRAY);
+        field->runAction(fade);
+        field->runAction(tint);
         return true;
     }
     hover(mouseLocationInView, cam);
@@ -135,7 +131,10 @@ bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
 
 bool CustomUi::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
-    onEnable();
+    auto fade = FadeTo::create(0.1f, 255);
+    auto tint = TintTo::create(0.1f, Color3B::WHITE);
+    field->runAction(fade);
+    field->runAction(tint);
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         _callback(this);
         SoundGlobals::playUiHoverSound();
