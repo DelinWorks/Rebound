@@ -19,21 +19,21 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     prtcl->setEmitterMode(ParticleSystem::Mode::GRAVITY);
     prtcl->setStartColor(Color4F(1, 1, 1, 0.3));
     prtcl->setEndColor(Color4F(1, 1, 1, 0));
-    prtcl->setSpeed(20);
-    prtcl->setSpeedVar(10);
+    prtcl->setSpeed(10);
+    prtcl->setSpeedVar(3);
     prtcl->setAngleVar(180);
-    prtcl->setLife(2);
+    prtcl->setLife(3);
     prtcl->setLifeVar(1);
     prtcl->setSpawnFadeIn(1);
     prtcl->setSpawnAngleVar(180);
-    prtcl->setStartSize(20);
+    prtcl->setStartSize(15);
     prtcl->setStartSizeVar(10);
-    prtcl->setEndSize(10);
+    prtcl->setEndSize(0);
     prtcl->setEmissionRate(30);
     prtcl->setEmissionShapes(true);
     prtcl->setBlendAdditive(true);
     prtcl->simulate(-1, 10);
-    prtcl->pauseEmissions();
+    prtcl->setFixedFPS(20);
     _hoverSprite->addChild(prtcl, 2);
 }
 
@@ -48,8 +48,8 @@ void CustomUi::HoverEffectGUI::update(f32 dt) {
         prtcl->setPosition(_hoverSprite->getContentSize() / 2);
         prtcl->setEmissionShape(0, ParticleSystem::createRectShape(Vec2::ZERO,
             { _hoverSprite->getContentSize().x, _hoverSprite->getContentSize().y }));
-        prtcl->resumeEmissions();
-    } else prtcl->pauseEmissions();
+        prtcl->setTimeScale(1);
+    } else prtcl->setTimeScale(0);
 }
 
 void CustomUi::HoverEffectGUI::hover()

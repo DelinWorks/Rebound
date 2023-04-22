@@ -156,7 +156,7 @@ public:
     f32 cameraScale;
     i32 cameraScaleIndex = 5;
     //f32 possibleCameraScales[29] = { 0.05F, 0.1F, 0.2F, 0.3F, 0.4F, 0.6F, 0.8F, 1, 1.5F, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18, 22, 26, 32, 48, 64, 80, 96, 100};
-    f32 possibleCameraScales[16] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70, 90 };
+    f32 possibleCameraScales[15] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70 };
 
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;

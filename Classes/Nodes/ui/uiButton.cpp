@@ -14,6 +14,11 @@ CustomUi::Button* CustomUi::Button::create()
     return ret;
 }
 
+CustomUi::Button::~Button() {
+    if (CustomUi::_pCurrentHeldItem == this)
+        CustomUi::_pCurrentHeldItem = nullptr;
+}
+
 void CustomUi::Button::init(std::wstring _text, int _fontSize, Size _size)
 {
     init(
@@ -118,6 +123,7 @@ bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
     if (!isEnabled())
         return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
+        if (_pCurrentHeldItem) _pCurrentHeldItem->release({ INFINITY, INFINITY }, cam);
         _pCurrentHeldItem = this;
         auto fade = FadeTo::create(0.1f, 100);
         auto tint = TintTo::create(0.1f, Color3B::GRAY);

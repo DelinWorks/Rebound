@@ -33,6 +33,8 @@ namespace CustomUi
         bool adaptToWindowSize = false;
         bool extend = false;
 
+        ~Button();
+
         ButtonCallback _callback;
 
         void init(std::wstring _text, int _fontSize, Size _size);

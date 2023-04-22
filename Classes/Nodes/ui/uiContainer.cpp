@@ -76,6 +76,8 @@ bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Ca
 
 void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
 {
+    if (_pCurrentHeldItem) return;
+
     // REMOVE THIS CODE LATER // ONLY FOR DEBUGGING //
     if (_focusedElements.size() == 0)
         if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
@@ -90,6 +92,8 @@ void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
 
 void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
 {
+    if (_pCurrentHeldItem) return;
+
     for (auto& _ : _focusedElements) {
         _->keyRelease(keyCode);
         break;

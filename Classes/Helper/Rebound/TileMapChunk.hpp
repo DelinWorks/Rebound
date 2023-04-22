@@ -18,7 +18,7 @@ public:
 
 typedef u32 TileID;
 
-#define CHUNK_SIZE 128.0
+#define CHUNK_SIZE 32.0
 #define CHUNK_BUFFER_SIZE (CHUNK_SIZE*CHUNK_SIZE)
 
 #define TILE_FLAG_ROTATE (TileID(1) << 31)
@@ -27,19 +27,22 @@ typedef u32 TileID;
 #define TILE_FLAG_ALL    (TILE_FLAG_ROTATE | TILE_FLAG_FLIP_X | TILE_FLAG_FLIP_Y)
 #define TILE_FLAG_NONE   ~(TILE_FLAG_ALL)
 
-#define VERTEX_SIZE_0 9
-#define VERTEX_SIZE_1 11
+#define VERTEX_SIZE_NO_ANIMATIONS 9
+
+#define VERTEX_SIZE_ANIMATED_2_ATRIBS 11
+#define VERTEX_SIZE_ANIMATED_4_ATRIBS 13
+#define VERTEX_SIZE_ANIMATED_8_ATRIBS 19
 
     class EmptyVertexIndexCache {
     public:
         void fill() {
             if (!_isFill) {
                 vertices.clear();
-                vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * VERTEX_SIZE_0 * 4 /* tiles.x * tiles.y * vertex_size * vertices */);
+                vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * VERTEX_SIZE_NO_ANIMATIONS * 4 /* tiles.x * tiles.y * vertex_size * vertices */);
                 indices.clear(CustomCommand::IndexFormat::U_SHORT);
                 for (u8 y1 = CHUNK_SIZE; y1 > 0; y1--)
                     for (u8 x1 = 0; x1 < CHUNK_SIZE; x1++) {
-                        u16 startindex = vertices.size() / VERTEX_SIZE_0;
+                        u16 startindex = vertices.size() / VERTEX_SIZE_NO_ANIMATIONS;
 
                         vertices.insert(vertices.end(), {
                             0,0,0,  0,0,0,0,   0,0,
@@ -198,7 +201,9 @@ typedef u32 TileID;
             _material->setTexture(_texture, ax::NTextureData::Usage::None);
             _material->setTransparent(true);
             _material->setForce2DQueue(true);
-            _material->getStateBlock().setCullFace(false);
+            _material->getStateBlock().setCullFace(true);
+            _material->getStateBlock().setCullFaceSide(ax::CullFaceSide::BACK);
+            _material->getStateBlock().setDepthTest(false);
             _material->retain();
         }
 
@@ -394,7 +399,7 @@ typedef u32 TileID;
         }
 
         static i32 buildVertexIndex(TileArray* tileArr, Tileset* tileset, std::vector<f32>& vertices, IndexArray& indices, bool resize) {
-            i32 vertexSize = VERTEX_SIZE_0;
+            i32 vertexSize = VERTEX_SIZE_NO_ANIMATIONS;
             vertices.clear();
             vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * vertexSize * 4 /* tiles.x * tiles.y * vertex_size * vertices */);
             indices.clear(CustomCommand::IndexFormat::U_SHORT);
@@ -475,9 +480,9 @@ typedef u32 TileID;
                 buildVertexIndex(_tileArr, _tileset, vertices, indices, true);
                 if (vertices.size() == 0)
                     return nullptr;
-                return Mesh::create(vertices, VERTEX_SIZE_0, indices, attribs);
+                return Mesh::create(vertices, VERTEX_SIZE_NO_ANIMATIONS, indices, attribs);
             }
-            else return Mesh::create(emptyVIC.getVertex(), VERTEX_SIZE_0, emptyVIC.getIndex(), attribs);
+            else return Mesh::create(emptyVIC.getVertex(), VERTEX_SIZE_NO_ANIMATIONS, emptyVIC.getIndex(), attribs);
         }
 
         /* Build vertex cache for a specified TileArray* object.
@@ -511,16 +516,16 @@ typedef u32 TileID;
             for (auto& _ : tiles->cachedTilesetArr->_tileSets) {
                 auto& vertices = tiles->vertexCache[_->_firstGid];
                 auto coord = calculateTileCoords(newGid, _);
-                i32 startIndex = index * VERTEX_SIZE_0 * 4;
+                i32 startIndex = index * VERTEX_SIZE_NO_ANIMATIONS * 4;
                 if (coord._outOfRange) coord = { 0,0,0,0 };
-                vertices[(7 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.U;
-                vertices[(8 + startIndex) + VERTEX_SIZE_0 * 0] = coord.tl.V;
-                vertices[(7 + startIndex) + VERTEX_SIZE_0 * 1] = coord.tr.U;
-                vertices[(8 + startIndex) + VERTEX_SIZE_0 * 1] = coord.tr.V;
-                vertices[(7 + startIndex) + VERTEX_SIZE_0 * 2] = coord.bl.U;
-                vertices[(8 + startIndex) + VERTEX_SIZE_0 * 2] = coord.bl.V;
-                vertices[(7 + startIndex) + VERTEX_SIZE_0 * 3] = coord.br.U;
-                vertices[(8 + startIndex) + VERTEX_SIZE_0 * 3] = coord.br.V;
+                vertices[(7 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 0] = coord.tl.U;
+                vertices[(8 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 0] = coord.tl.V;
+                vertices[(7 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 1] = coord.tr.U;
+                vertices[(8 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 1] = coord.tr.V;
+                vertices[(7 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 2] = coord.bl.U;
+                vertices[(8 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 2] = coord.bl.V;
+                vertices[(7 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 3] = coord.br.U;
+                vertices[(8 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 3] = coord.br.V;
             }
 
             return prevT == 0;
@@ -626,7 +631,7 @@ typedef u32 TileID;
                 {
                     auto c = SingleTilesetChunkRenderer::create();
                     c->_mesh = nullptr;
-                    c->_vertexSize = VERTEX_SIZE_0;
+                    c->_vertexSize = VERTEX_SIZE_NO_ANIMATIONS;
                     c->_tiles = _tiles;
                     c->_tileset = _;
                     c->_chunkDirty = true;

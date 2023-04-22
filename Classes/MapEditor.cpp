@@ -697,8 +697,8 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     _x = round(_x / map->_tileSize.x);
     _y = round(_y / map->_tileSize.y);
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    for (int x = _x; x < _x + 2048; x++)
-        for (int y = _y; y < _y + 2048; y++) {
+    for (int x = _x; x < _x + 1; x++)
+        for (int y = _y; y < _y + 1; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_ROTATE;
@@ -812,9 +812,9 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_S)
     {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             auto panel = CustomUi::DiscardPanel::create();
-            panel->init(L"تحذير", L"فشل الإتصال بالخادم", CustomUi::DiscardButtons::OKAY, CustomUi::DiscardType::MESSAGE);
+            panel->init(L"تحذير", L"فشل الإتصال بالخادم", CustomUi::DiscardButtons::YES_NO, CustomUi::DiscardType::MESSAGE);
             getContainer()->pushModal(panel);
         }
 
