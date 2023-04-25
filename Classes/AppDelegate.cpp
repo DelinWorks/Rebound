@@ -408,6 +408,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     window_focus_callback(Darkness::getInstance()->gameWindow.window, true);
 #endif
 
+    ShapingEngine::Options::_convertToArabicNumbers = true;
+
     Darkness::getInstance()->initAntiCheat();
 
     //auto frameSize = glview->getFrameSize();

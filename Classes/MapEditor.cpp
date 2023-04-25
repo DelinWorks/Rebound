@@ -14,7 +14,7 @@ Scene* MapEditor::createScene()
 
 MapEditor::~MapEditor()
 {
-    std::cout << sqlite3_close(pdb) << std::endl;
+    RLOGE(true, "sqlite3_close result: {}", sqlite3_close(pdb));
 }
 
 #define GRID_COLOR Color4F::BLACK
@@ -174,8 +174,8 @@ bool MapEditor::init()
     _input->_oldMouseLocation = Vec2(0, 0);
     _input->_newMouseLocation = Vec2(0, 0);
 
-    streak = MotionStreak::create(0.1, 1, 8, Color3B::WHITE, "streak.png");
-    uiNode->addChild(streak);
+    //streak = MotionStreak::create(0.1, 1, 8, Color3B::WHITE, "streak.png");
+    //uiNode->addChild(streak);
 
     return true;
 }
@@ -493,6 +493,13 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
+        auto color = Color3B(0, 255, 65);
+        auto hsv = HSV(color);
+        hsv.h += 180;
+        color = hsv.toColor3B();
+
+        RLOG("hsv: {}, {}, {}", color.r, color.g, color.b);
+
         auto container = _input->_uiContainer = CustomUi::Container::create();
         container->setStatic();
         container->setBorderLayoutAnchor();
@@ -593,7 +600,7 @@ void MapEditor::tick(f32 dt)
 
     //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
 
-    streak->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
+    //streak->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
 
     //for (auto& i : findNodesByTag(this, 91))
     //    ((ParticleSystemQuad*)i)->setEmissionShape(0, ParticleSystem::createCircleShape({ 0,0 }, pos.x * 2));
@@ -883,7 +890,7 @@ void MapEditor::onMouseDown(ax::Event* event)
         printf("%d\n", ++cur);
         auto mouseClick = DrawNode::create(1);
         mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
-        mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 32));
+        mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 16));
         DESTROY(mouseClick, .5);
         uiNode->addChild(mouseClick, 999);
     }
@@ -911,7 +918,8 @@ void MapEditor::onMouseUp(ax::Event* event)
         isRemoving = false;
         Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
         editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-        std::cout << "remove_selection_tool: begin:" << rect.origin.x << "," << rect.origin.y << " end:" << rect.size.width << "," << rect.size.height << "\n";
+        RLOG("remove_selection_tool: begin: {},{} end: {},{}",
+            rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         removeSelectionNode->clear();
     }
 }
@@ -1043,17 +1051,17 @@ void MapEditor::buildEntireUi()
     /* FPS COUNTER CODE BODY */ {
         _debugText->stopAllActions();
         auto update_fps_action = CallFunc::create([&]() {
-            char buff[14];
-            char buffDt[14];
+            wchar_t buff[14];
+            wchar_t buffDt[14];
             fps_dt += (_director->getInstance()->getDeltaTime() - fps_dt) * 0.25f;
-            snprintf(buff, sizeof(buff), "%.1lf", 1.0F / fps_dt);
-            snprintf(buffDt, sizeof(buffDt), "%.1lf", fps_dt * 1000);
-            std::string buffAsStdStr = buff;
-            std::string buffAsStdStrDt = buffDt;
+            _snwprintf(buff, sizeof(buff), L"%.1lf", 1.0F / fps_dt);
+            _snwprintf(buffDt, sizeof(buffDt), L"%.1lf", fps_dt * 1000);
+            std::wstring buffAsStdStr = buff;
+            std::wstring buffAsStdStrDt = buffDt;
             i32 verts = (i32)Director::getInstance()->getRenderer()->getDrawnVertices();
             i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
-            std::string text = FMT("T: %d | C: %d\n", 0, 0) + "D3D11: " + buffAsStdStr + " / " + buffAsStdStrDt + "ms\n" +
-                FMT("Draw Calls: %d / ", batches) + FMT("Verts Drawn: %d", verts);
+            std::wstring text = WFMT(L"T: %d | C: %d\n", 0, 0) + L"D3D11: " + buffAsStdStr + L" / " + buffAsStdStrDt + L"ms\n" +
+                WFMT(L"%s: %d / ", L"دفعات الرسم", batches) + WFMT(L"%s: %d", L"الرؤوس المرسومة", verts);
             _debugText->setString(text);
         });
         auto wait_fps_action = DelayTime::create(0.5f);

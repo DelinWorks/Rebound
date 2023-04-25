@@ -88,6 +88,7 @@ auto __loc = (ps)->getUniformLocation(name);  \
 } while(false) 
 
 #define FMT StringUtils::format
+#define WFMT StringUtils::wformat
 
 #define DESTROY(n, t) n->addComponent(new DestroyNodeComponent(t));
 

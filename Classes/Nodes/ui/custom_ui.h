@@ -10,7 +10,7 @@
 using namespace ax;
 
 #define YOURE_NOT_WELCOME_HERE -69420
-//#define DRAW_NODE_DEBUG
+#define DRAW_NODE_DEBUG
 
 namespace CustomUi
 {
@@ -29,8 +29,6 @@ namespace CustomUi
         std::string fontName;
         float fontSize;
     };
-
-    class RequireSort { int crate = 0; };
 
     //#define SHOW_BUTTON_HITBOX
 

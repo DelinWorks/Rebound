@@ -196,8 +196,6 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
-    ax::MotionStreak* streak;
-
     CustomUi::Label* _debugText;
     //ax::ui::Text* FPSUiText;
     //ax::ui::Text* VertsUiText;

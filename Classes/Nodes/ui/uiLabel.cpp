@@ -117,15 +117,14 @@ void CustomUi::Label::notifyLayout()
     updatePositionAndSize();
 }
 
-void CustomUi::Label::setString(std::string _text)
+void CustomUi::Label::setString(std::wstring _text)
 {
-    text = Strings::widen(_text);
-    field->setString(_text);
+    field->setString(ShapingEngine::render(text = _text));
     updatePositionAndSize();
 }
 
-void CustomUi::Label::setString(std::wstring _text)
+void CustomUi::Label::setString(std::string _text)
 {
-    field->setString(Strings::narrow(text = _text));
-    updatePositionAndSize();
+    text = Strings::widen(_text);
+    setString(text);
 }
