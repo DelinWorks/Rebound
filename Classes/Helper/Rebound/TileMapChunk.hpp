@@ -72,6 +72,7 @@ typedef u32 TileID;
     inline ax::Node* tileMapVirtualCamera = nullptr;
     inline EmptyVertexIndexCache emptyVIC;
     inline f32 chunkMeshCreateCount;
+    inline float zPositionMultiplier = 1;
 
     struct UV {
         f32 U;
@@ -197,7 +198,7 @@ typedef u32 TileID;
         Tileset(ax::Texture2D* _texture) {
             this->_texture = _texture;
             _texture->setAliasTexParameters();
-            _material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_TEXTURE, false);
+            _material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_COLOR, false);
             _material->setTexture(_texture, ax::NTextureData::Usage::None);
             _material->setTransparent(true);
             _material->setForce2DQueue(true);
@@ -686,7 +687,7 @@ typedef u32 TileID;
                     _->_chunkDirty = true;
                 Mat4 transform = Mat4::IDENTITY;
                 transform.multiply(parentTransform);
-                transform.translate(ax::Vec3(pos.x, pos.y, 0));
+                transform.translate(ax::Vec3(pos.x, pos.y, -100 * zPositionMultiplier));
                 _->visit(renderer, transform, parentFlags);
                 _chunkDirty = false;
             }

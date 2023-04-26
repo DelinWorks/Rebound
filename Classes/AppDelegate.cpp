@@ -432,7 +432,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //            smallResolutionSize.width / designResolutionSize.width));
     //}
 
-    Director::getInstance()->setProjection(ax::Director::Projection::_2D);
+    Director::getInstance()->setProjection(ax::Director::Projection::_3D);
 
     register_all_packages();
 

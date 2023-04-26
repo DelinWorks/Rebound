@@ -804,8 +804,11 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     if (keyCode == EventKeyboard::KeyCode::KEY_H)
         grid->setVisible(!grid->isVisible());
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_G)
-        isEditorHideGrid = true;
+    if (keyCode == EventKeyboard::KeyCode::KEY_G) {
+        auto action = ActionFloat::create(0.25, zPositionMultiplier, zPositionMultiplier < 0.5 ? 1 : 0,
+            [&](float value) { zPositionMultiplier = tweenfunc::backEaseInOut(value); });
+        runAction(action);
+    }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_P)
     {
