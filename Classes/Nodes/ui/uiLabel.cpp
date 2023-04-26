@@ -98,7 +98,7 @@ void CustomUi::Label::onFontScaleUpdate(float scale)
     }
     field->setHorizontalAlignment(hAlignment);
     field->setVerticalAlignment(vAlignment);
-    field->enableOutline(Color4B::BLACK, 4);
+    field->enableOutline(Color4B::BLACK, 2);
     field->getFontAtlas()->setAliasTexParameters();
 }
 

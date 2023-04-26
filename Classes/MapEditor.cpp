@@ -92,13 +92,13 @@ bool MapEditor::init()
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
-    for (i32 i = -(map->_gridSize / map->_tileSize.x) * 7; i <= +(map->_gridSize / map->_tileSize.x) * 8; i++)
+    for (i32 i = -(map->_gridSize / map->_tileSize.x) * 8; i <= +(map->_gridSize / map->_tileSize.x) * 8; i++)
     {
-        gridDN->drawLine(Vec2(i * map->_tileSize.x, -map->_gridSize / 2 * 7), Vec2(i * map->_tileSize.x, +map->_gridSize / 2 * 8), GRID_COLOR);
+        gridDN->drawLine(Vec2(i * map->_tileSize.x, -map->_gridSize / 2 * 8), Vec2(i * map->_tileSize.x, +map->_gridSize / 2 * 8), GRID_COLOR);
     }
-    for (i32 i = -(map->_gridSize / 2 / map->_tileSize.y) * 7; i <= +(map->_gridSize / 2 / map->_tileSize.y) * 8; i++)
+    for (i32 i = -(map->_gridSize / 2 / map->_tileSize.y) * 8; i <= +(map->_gridSize / 2 / map->_tileSize.y) * 8; i++)
     {
-        gridDN->drawLine(Vec2(-map->_gridSize * 7, i * map->_tileSize.y), Vec2(+map->_gridSize * 8, i * map->_tileSize.y), GRID_COLOR);
+        gridDN->drawLine(Vec2(-map->_gridSize * 8, i * map->_tileSize.y), Vec2(+map->_gridSize * 8, i * map->_tileSize.y), GRID_COLOR);
     }
     gridDN->setPosition(0, 0);
     grid->addChild(gridDN);

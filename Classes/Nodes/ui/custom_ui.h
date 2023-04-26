@@ -16,8 +16,8 @@ namespace CustomUi
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
 
-    inline float _UiScaleMul = 2;
-    inline float _PmtFontScale = 2;
+    inline float _UiScaleMul = 1;
+    inline float _PmtFontScale = 1;
     
     class GUI;
 
