@@ -22,6 +22,7 @@ void VirtualWorld::refresh(ax::Scene* scene)
 		if (!_rt) {
 			scene->addChild(_rt = ax::RenderTexture::create(_currentSize.x, _currentSize.y), -1);
 			//_rt->addComponent((new UiRescaleComponent(visibleSize))->setVisibleSizeHints()->enableDesignScaleIgnoring());
+			//_rt->setPositionZ(-100000);
 		}
 
 		_rt->initWithWidthAndHeight(_currentSize.x, _currentSize.y,
@@ -32,7 +33,7 @@ void VirtualWorld::refresh(ax::Scene* scene)
 		SET_POSITION_HALF_SCREEN(_rt);
 		SET_POSITION_MINUS_HALF_SCREEN(_camera->getChildren().at(0));
 
-		GameUtils::setNodeIgnoreDesignScale(_rt, true);
+		GameUtils::setNodeIgnoreDesignScale(_rt, true, 1);
 	}
 }
 

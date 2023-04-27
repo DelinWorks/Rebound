@@ -198,13 +198,13 @@ typedef u32 TileID;
         Tileset(ax::Texture2D* _texture) {
             this->_texture = _texture;
             _texture->setAliasTexParameters();
-            _material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_COLOR, false);
+            _material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_TEXTURE, false);
             _material->setTexture(_texture, ax::NTextureData::Usage::None);
             _material->setTransparent(true);
             _material->setForce2DQueue(true);
             _material->getStateBlock().setCullFace(true);
-            _material->getStateBlock().setCullFaceSide(ax::CullFaceSide::BACK);
-            _material->getStateBlock().setDepthTest(false);
+            _material->getStateBlock().setCullFaceSide(ax::CullFaceSide::NONE);
+            _material->getStateBlock().setDepthFunction(ax::DepthFunction::ALWAYS);
             _material->retain();
         }
 
@@ -420,12 +420,12 @@ typedef u32 TileID;
 
                     if (!coord._outOfRange) {
                         Color4F tc = Color4F::WHITE;
-
+                        auto zPos = Random::rangeFloat(-1000, 1000);
                         vertices.insert(vertices.end(), {
-                            x, y,           0,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
-                            x + sx, y,      0,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
-                            x, y + sy,      0,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
-                            x + sx, y + sy, 0,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
+                            x, y,           zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
+                            x + sx, y,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
+                            x, y + sy,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
+                            x + sx, y + sy, zPos,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
                             });
 
                         indices.insert<u16>(indices.size(),
@@ -687,7 +687,8 @@ typedef u32 TileID;
                     _->_chunkDirty = true;
                 Mat4 transform = Mat4::IDENTITY;
                 transform.multiply(parentTransform);
-                transform.translate(ax::Vec3(pos.x, pos.y, -100 * zPositionMultiplier));
+                transform.translate(ax::Vec3(pos.x, pos.y, 0));
+                transform.scale({ 1, 1, zPositionMultiplier });
                 _->visit(renderer, transform, parentFlags);
                 _chunkDirty = false;
             }

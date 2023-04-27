@@ -200,7 +200,7 @@ Vec2 GameUtils::convertFromScreenToSpace(const Vec2& locationInView, Node* cam, 
         //.rotateByAngle(cam->getPosition(), -AX_DEGREES_TO_RADIANS(cam->getRotation()));
 }
 
-void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling) {
+void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling, float nestedScale) {
     Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
     float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
@@ -209,17 +209,17 @@ void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling
     // If resolution policy is other than SHOW_ALL then we set
     // the scale to x and y value. and there will be no stretching.
     if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
-        node->setScaleX(x);
-        node->setScaleY(y);
+        node->setScaleX(x * nestedScale);
+        node->setScaleY(y * nestedScale);
     }
     // If the scale dimensions are the same, then we just
     // set the scale to the x or y value, any will suffice.
     else if (x == y)
-        node->setScale(x);
+        node->setScale(x * nestedScale);
     // If somehow the scale dimensions are different, then we just
     // see which dimension is bigger and set the scale to that
     // value so that any ui node doesn't stretch and deform.
-    else node->setScale(x < y ? y : x);
+    else node->setScale((x < y ? y : x) * nestedScale);
 }
 
 Size GameUtils::getWinDiff() {
