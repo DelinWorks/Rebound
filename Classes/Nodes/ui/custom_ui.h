@@ -3,6 +3,7 @@
 
 #include "axmol.h"
 #include "Helper/short_types.h"
+#include "Helper/Logging.hpp"
 #include <ui/CocosGUI.h>
 #include <ui/UIButton.h>
 #include <ui/UITextField.h>
@@ -10,7 +11,8 @@
 using namespace ax;
 
 #define YOURE_NOT_WELCOME_HERE -69420
-#define DRAW_NODE_DEBUG
+#define CONTAINER_FLOW_TAG -69421
+//#define DRAW_NODE_DEBUG
 
 namespace CustomUi
 {
@@ -18,6 +20,7 @@ namespace CustomUi
 
     inline float _UiScaleMul = 1;
     inline float _PmtFontScale = 1;
+    inline float _PxArtMultiplier = 2;
     
     class GUI;
 
@@ -60,7 +63,7 @@ namespace CustomUi
     class GUI : public Node {
     public:
         GUI();
-        virtual ~GUI() {}
+        ~GUI();
 
         // DO NOT ACCESS, USE AdvancedUiContainer
         virtual bool hover(Vec2 mouseLocationInView, Camera* cam) = 0;
@@ -105,6 +108,7 @@ namespace CustomUi
         DrawNode* _contentSizeDebug;
 
     public:
+        bool _containerFlow = false;
         bool _sortChildren = false;
         ax::Vec2 _padding = Vec2::ZERO;
         bool _isDynamic = false;

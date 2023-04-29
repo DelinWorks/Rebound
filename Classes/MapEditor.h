@@ -109,21 +109,7 @@ public:
 
     TilesetArray* tilesetArr;
 
-    //ax::Vec2 parseVector2D(std::string position);
-    //ax::backend::ProgramState* createGPUProgram(std::string resources_frag_shader_path, std::string resources_vertex_shader_path);
-    //ax::Vec2 convertFromScreenToSpace(ax::Vec2 LocationInView, ax::Size& visibleSize, bool reverseY);
-    //ax::Vec2 convertFromSpaceToTileSpace(ax::Vec2 LocationInSpace);
-    //ax::Vec2 convertFromTileSpaceToSpace(ax::Vec2 LocationInTileSpace);
-    //ax::Vec2 convertFromSpaceToChunkSpace(ax::Vec2 LocationInSpace);
-    //ax::Vec2 convertFromChunkSpaceToSpace(ax::Vec2 LocationInChunkSpace);
-    //void resetEditorChunkCache();
-    //bool addChunkIfNotExists(ax::Vec2 LocationInChunkSpace, i32 tileGID);
-    //bool addTileIfNotExists(ax::Vec2 LocationInTileSpace, i32 tileGID = 0, i32 rot = 0, std::string hex = "FFFFFFFF");
-    //bool removeTileIfNotExists(ax::Vec2 LocationInTileSpace);
-    //std::string createCSVFromChunk(Chunk* chunk);
     void updateDirectorToStatsCount(i32 tileCount, i32 chunkCount);
-    //bool unloadChunk(Chunk* ref);
-    //void reorderChunks();
     void menuCloseCallback(ax::Ref* pSender);
     void buildEntireUi();
 
@@ -145,9 +131,7 @@ public:
     ax::BlendFunc*             map_default_tile_shader_blend;
 
     ax::Size visibleSize;
-    //ZOrder* orderSystem;
     ax::Node* grid;
-    //ax::DrawNode* chunkGrid;
     ax::DrawNode* deltaEditing;
     ax::Node* cameraLocation;
     ax::Vec2 oldSelectionPlace;
@@ -155,8 +139,9 @@ public:
     ax::Vec2 chunkSelectionPlace;
     f32 cameraScale;
     i32 cameraScaleIndex = 5;
-    //f32 possibleCameraScales[29] = { 0.05F, 0.1F, 0.2F, 0.3F, 0.4F, 0.6F, 0.8F, 1, 1.5F, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18, 22, 26, 32, 48, 64, 80, 96, 100};
     f32 possibleCameraScales[15] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70 };
+    CustomUi::Button* cameraScaleB;
+    CustomUi::Label* cameraScaleL;
 
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;
@@ -197,20 +182,9 @@ public:
     ax::DrawNode* WorldBoundsLimit;
 
     CustomUi::Label* _debugText;
-    //ax::ui::Text* FPSUiText;
-    //ax::ui::Text* VertsUiText;
-    //ax::ui::Text* BatchesUiText;
-    //ax::ui::Text* ChunkUiText;
 
-    void set_cameraScaleUiText(f32 scale);
+    void setCameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
-    ax::Node* cameraScaleUi;
-    ax::Node* cameraScaleUiAlphaSpriteCascade;
-    ax::ui::Text* cameraScaleUiText;
-    ax::Sprite* cameraScaleUiSpNormal;
-    ax::Sprite* cameraScaleUiSpSmall;
-    ax::Sprite* cameraScaleUiSpBig;
-    ax::ui::Button* cameraScaleResetButton;
 
     // Custom Tile Spawn Code
     i32 cur = 0;

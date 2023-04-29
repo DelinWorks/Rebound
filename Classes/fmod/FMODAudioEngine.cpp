@@ -13,7 +13,7 @@ void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line) {
     if (result != FMOD_OK)
     {
 #ifdef WIN32
-        printf("%s(%d): FMOD error: %s\n", file, line, FMOD_ErrorString(result));
+        RLOGE(false, "{}({}): FMOD error: {}\n", file, line, FMOD_ErrorString(result));
 #endif
     }
 }
@@ -159,13 +159,13 @@ bool FMODAudioEngine::lazyInit()
     
     if (version < FMOD_VERSION)
     {
-        printf("FMOD: lib version %08x doesn't match header version %08x\n", version, FMOD_VERSION);
+        RLOGE(false, "FMOD: lib version {} doesn't match header version {}", version, FMOD_VERSION);
     }
     
     result = _system->createChannelGroup("TOP_NODE", &_channelGroup);
     ERRCHECK(result);
 
-    printf("FMOD: lib version %08x\n      Engine has been Initialized with Update\n      MAX_CHANNELS: 256\n      CHANNEL_GROUP: TOP_NODE\n", version);
+    RLOGE(true, "FMOD: lib version {}\n      Engine has been Initialized with Update\n      MAX_CHANNELS: 256\n      CHANNEL_GROUP: TOP_NODE", version);
     Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
     return true;
 }

@@ -12,7 +12,7 @@ uniform sampler2D u_tex0;
 
 void main()
 {
-	float waveu = sin((v_texCoord.x + u_time) * 20.0) * 0.5 * 0.05 * 0.1;
-	float wavev = cos((v_texCoord.y + u_time) * 20.0) * 0.5 * 0.05 * 0.1;
+	float waveu = sin((v_texCoord.x + u_time) * 20.0) * 0.5 * 0.05;
+	float wavev = sin((v_texCoord.y + u_time) * 20.0) * 0.5 * 0.05;
 	gl_FragColor = v_fragmentColor * texture2D(u_tex0, v_texCoord + vec2(wavev, waveu));
 }

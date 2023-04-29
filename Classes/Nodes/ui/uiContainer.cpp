@@ -6,6 +6,9 @@ CustomUi::Container::Container() : _layout(Layout::NONE), _borderLayout(BorderLa
     setDynamic();
 }
 
+CustomUi::Container::~Container() {
+}
+
 void CustomUi::Container::setBorderLayout(BorderLayout border, BorderContext context) {
     if (context == BorderContext::PARENT)
         _closestStaticBorder = true;
@@ -36,8 +39,7 @@ void CustomUi::Container::setLayout(FlowLayout layout)
 bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     _isHitSwallowed = false;
-    auto& list = getChildren();
-    sortChildren();
+    auto& list = getSortedChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
@@ -53,7 +55,7 @@ bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
     bool isClickSwallowed = false;
-    auto& list = getChildren();
+    auto& list = getSortedChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
@@ -137,35 +139,35 @@ void CustomUi::Container::onDisable()
 {
 }
 
-void CustomUi::Container::setBorderLayoutAnchor()
+void CustomUi::Container::setBorderLayoutAnchor(ax::Vec2 offset)
 {
     switch (_borderLayout) {
     case BorderLayout::TOP:
-        setAnchorPoint({ 0, 0.5 });
+        setAnchorPoint(Vec2(0, 0.5) + offset);
         break;
     case BorderLayout::TOP_RIGHT:
-        setAnchorPoint({ 0.5, 0.5 });
+        setAnchorPoint(Vec2(0.5, 0.5) + offset);
         break;
     case BorderLayout::RIGHT:
-        setAnchorPoint({ 0.5, 0 });
+        setAnchorPoint(Vec2(0.5, 0) + offset);
         break;
     case BorderLayout::BOTTOM_RIGHT:
-        setAnchorPoint({ 0.5, -0.5 });
+        setAnchorPoint(Vec2(0.5, -0.5) + offset);
         break;
     case BorderLayout::BOTTOM:
-        setAnchorPoint({ 0, -0.5 });
+        setAnchorPoint(Vec2(0, -0.5) + offset);
         break;
     case BorderLayout::BOTTOM_LEFT:
-        setAnchorPoint({ -0.5, -0.5 });
+        setAnchorPoint(Vec2(-0.5, -0.5) + offset);
         break;
     case BorderLayout::LEFT:
-        setAnchorPoint({ -0.5, 0 });
+        setAnchorPoint(Vec2(-0.5, 0) + offset);
         break;
     case BorderLayout::TOP_LEFT:
-        setAnchorPoint({ -0.5, 0.5 });
+        setAnchorPoint(Vec2(-0.5, 0.5) + offset);
         break;
     default:
-        setAnchorPoint({ 0, 0 });
+        setAnchorPoint(Vec2(0, 0) + offset);
     }
 }
 
@@ -174,6 +176,15 @@ void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding)
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE, ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
+    addChild(_background, -1);
+}
+
+void CustomUi::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale)
+{
+    _backgroundPadding = padding;
+    _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED, ADVANCEDUI_P1_CAP_INSETS);
+    _background->setTag(YOURE_NOT_WELCOME_HERE);
+    _background->setScale(scale.x, scale.y);
     addChild(_background, -1);
 }
 
@@ -247,12 +258,11 @@ void CustomUi::Container::calculateContentBoundaries()
         _background->setContentSize(getContentSize() + _backgroundPadding);
 }
 
-void CustomUi::Container::sortChildren()
+Vector<Node*>& CustomUi::Container::getSortedChildren()
 {
-    if (!_sortChildren) return;
-
     auto& list = getChildren();
-    std::sort(list.begin(), list.end(), [](Node* a, Node* b) { return a > b; });
+    std::sort(list.begin(), list.end(), [](Node* a, Node* b) { return a->_ID < b->_ID; });
+    return list;
 }
 
 void CustomUi::FlowLayout::build(CustomUi::Container* container)
@@ -284,7 +294,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
 
     float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
 
-    if (direction == STACK_BOTTOM || direction == STACK_LEFT || direction == STACK_CENTER)
+    if (reverseStack && (direction == STACK_BOTTOM || direction == STACK_LEFT || direction == STACK_CENTER))
         std::reverse(list.begin(), list.end());
 
     f32 cumSize = 0;
@@ -299,13 +309,13 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
-                _->setPositionX(cumSize * n->getScaleX() + marginF);
+                _->setPositionX(round(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleX()) + marginF));
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             }
             else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
-                _->setPositionY(cumSize * n->getScaleY() + marginF);
+                _->setPositionY(round(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleY()) + marginF));
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }

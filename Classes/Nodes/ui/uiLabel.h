@@ -21,6 +21,9 @@ namespace CustomUi
 
         void init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size = Size(0, 0), float _wrap = 0);
 
+        bool hasOutline = false;
+        void enableOutline();
+
         void update(f32 dt) override;
 
         bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;

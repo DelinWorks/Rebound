@@ -11,6 +11,7 @@ VirtualWorld::~VirtualWorld()
 {
 	AX_SAFE_RELEASE(_camera);
 	AX_SAFE_RELEASE(_world);
+	AX_SAFE_RELEASE(_rt);
 }
 
 void VirtualWorld::refresh(ax::Scene* scene)
@@ -20,7 +21,7 @@ void VirtualWorld::refresh(ax::Scene* scene)
 		auto visibleSize = _glview->getVisibleSize();
 
 		if (!_rt) {
-			scene->addChild(_rt = ax::RenderTexture::create(_currentSize.x, _currentSize.y), -1);
+			scene->addChild(_rt = ax::RenderTexture::create(), -1);
 			//_rt->addComponent((new UiRescaleComponent(visibleSize))->setVisibleSizeHints()->enableDesignScaleIgnoring());
 			//_rt->setPositionZ(-100000);
 		}
@@ -45,4 +46,9 @@ void VirtualWorld::render(ax::Scene* scene, ax::Color4F bg)
 	_world->visit(ax::Director::getInstance()->getRenderer(),
 		invMatrix, ax::Node::FLAGS_TRANSFORM_DIRTY);
 	_rt->end();
+}
+
+VirtualWorldSpace::~VirtualWorldSpace()
+{
+	LOG_RELEASE;
 }

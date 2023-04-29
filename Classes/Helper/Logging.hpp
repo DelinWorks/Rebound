@@ -12,8 +12,22 @@
 
 USING_NS_CC;
 
-#define RLOG Rebound::log
-#define RLOGE Rebound::loge
+inline int _loggerCurrColor;
+inline const char* _loggerCurrFileName;
+inline int _loggerCurrLine;
+
+#define RLOG _loggerCurrColor = 11; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log
+#define RLOGW _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log
+#define RLOGE _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::loge
+
+#define LOG_RELEASE RLOGW("destructor called for {} _ID: {}", typeid(this).name(), _ID)
+
+#ifdef NDEBUG
+#define RLOG 
+#define RLOGW
+#define RLOGE
+#define LOG_RELEASE
+#endif
 
 namespace Rebound
 {
@@ -21,9 +35,9 @@ namespace Rebound
 	void log(fmt::format_string<T...> fmt, T&&... args) {
 #ifdef WIN32
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(hConsole, 9);
+		SetConsoleTextAttribute(hConsole, _loggerCurrColor);
 #endif
-		fmt::print("[{:%H:%M:%S}] {}\n", fmt::gmtime(std::time(NULL)), fmt::format(fmt, std::forward<T>(args)...));
+		fmt::print("[{}({})] {}\n", _loggerCurrFileName, _loggerCurrLine, fmt::format(fmt, std::forward<T>(args)...));
 #ifdef WIN32
 		SetConsoleTextAttribute(hConsole, 15);
 #endif
@@ -35,7 +49,7 @@ namespace Rebound
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(hConsole, assert ? 10 : 4);
 #endif
-		fmt::print("[{:%H:%M:%S}] {}\n", fmt::gmtime(std::time(NULL)), fmt::format(fmt, std::forward<T>(args)...));
+		fmt::print("[{}({})] {}\n", _loggerCurrFileName, _loggerCurrLine, fmt::format(fmt, std::forward<T>(args)...));
 #ifdef WIN32
 		SetConsoleTextAttribute(hConsole, 15);
 #endif

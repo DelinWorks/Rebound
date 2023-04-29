@@ -14,10 +14,10 @@
 #include "Helper/short_types.h"
 #include "Helper/win32_error.h"
 #include "Helper/PlatDefines.h"
-
+#include "Helper/Logging.hpp"
 #include "Helper/Math.h"
 
-#define MATH_PI                     3.14159265358979323846f
+#define MATH_PI                     3.141592653f
 
 #define CALL0(__selector__, ...) std::bind(&__selector__, this, ##__VA_ARGS__)
 #define CALL1(__selector__, ...) \
@@ -41,7 +41,7 @@
 #define REBUILD_UI if (Darkness::getInstance()->gameWindow.isScreenSizeDirty) \
 { \
 visibleSize = Director::getInstance()->getVisibleSize(); \
-std::cout << "resize game window: Size(" << Darkness::getInstance()->gameWindow.windowSize.width << ", " << Darkness::getInstance()->gameWindow.windowSize.height << ")\n"; \
+RLOG("resize game window: [{},{}]", Darkness::getInstance()->gameWindow.windowSize.width, Darkness::getInstance()->gameWindow.windowSize.height); \
 rebuildEntireUi(); \
 Darkness::getInstance()->gameWindow.isScreenSizeDirty = false; \
 }
@@ -149,9 +149,12 @@ exposedTex->setAliasTexParameters(); \
 else \
 exposedTex->setAntiAliasTexParameters();
 
-#define BENCHMARK_SECTION_BEGIN(name) const char* benchmark_bb7_name = name; auto benchmark_bb7_start = std::chrono::high_resolution_clock::now();
-#define BENCHMARK_SECTION_END() auto benchmark_bb7_end = std::chrono::high_resolution_clock::now(); \
-printf("benchmark %s took: %d millis, %d micros\n", benchmark_bb7_name, std::chrono::duration_cast<std::chrono::milliseconds>(benchmark_bb7_end - benchmark_bb7_start).count(), std::chrono::duration_cast<std::chrono::microseconds>(benchmark_bb7_end - benchmark_bb7_start).count());
+inline const char* benchmark_bb7_name;
+inline std::chrono::steady_clock::time_point benchmark_bb7_start;
+inline std::chrono::steady_clock::time_point benchmark_bb7_end;
+#define BENCHMARK_SECTION_BEGIN(name) benchmark_bb7_name = name; benchmark_bb7_start = std::chrono::high_resolution_clock::now();
+#define BENCHMARK_SECTION_END() benchmark_bb7_end = std::chrono::high_resolution_clock::now(); \
+RLOG("benchmark {} took: {} millis, {} micros", benchmark_bb7_name, std::chrono::duration_cast<std::chrono::milliseconds>(benchmark_bb7_end - benchmark_bb7_start).count(), std::chrono::duration_cast<std::chrono::microseconds>(benchmark_bb7_end - benchmark_bb7_start).count());
 
 #define ADD_IMAGE Director::getInstance()->getTextureCache()->addImage
 

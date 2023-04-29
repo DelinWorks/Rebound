@@ -15,6 +15,7 @@ Scene* MapEditor::createScene()
 MapEditor::~MapEditor()
 {
     RLOGE(true, "sqlite3_close result: {}", sqlite3_close(pdb));
+    LOG_RELEASE;
 }
 
 #define GRID_COLOR Color4F::BLACK
@@ -500,11 +501,6 @@ void MapEditor::onInitDone(f32 dt)
 
         RLOG("hsv: {}, {}, {}", color.r, color.g, color.b);
 
-        auto container = _input->_uiContainer = CustomUi::Container::create();
-        container->setStatic();
-        container->setBorderLayoutAnchor();
-        uiNode->addChild(container);
-
         buildEntireUi();
 
         isInitDone = true;
@@ -580,7 +576,7 @@ void MapEditor::tick(f32 dt)
     REBUILD_UI;
 
     elapsedDt += dt * 0.1;
-    SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
+    //SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
     //_rt->getSprite()->getTexture()->setAliasTexParameters();
 
     //if (getContainer()) getContainer()->updateLayoutManagers(true);
@@ -918,11 +914,11 @@ void MapEditor::onMouseUp(ax::Event* event)
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
+        if (!isRemoving) return;
         isRemoving = false;
         Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
         editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-        RLOG("remove_selection_tool: begin: {},{} end: {},{}",
-            rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+        RLOG("remove_selection_tool: begin: {},{} end: {},{}", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         removeSelectionNode->clear();
     }
 }
@@ -966,7 +962,7 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
     cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
     _camera->setZoom(cameraScale);
     setWorldBoundsLayerColorTransforms(_camera);
-    set_cameraScaleUiText(cameraScale);
+    setCameraScaleUiText(cameraScale);
 }
 
 void MapEditor::onMouseScroll(ax::Event* event)
@@ -1045,9 +1041,75 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 
 void MapEditor::buildEntireUi()
 {
+    auto container = _input->_uiContainer = CustomUi::Container::create();
+    container->setStatic();
+    container->setContentSize(visibleSize);
+    container->setBorderLayoutAnchor();
+    uiNode->addChild(container);
+
+    auto topRightContainer = CustomUi::Container::create();
+    topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
+    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, false));
+    topRightContainer->setBorderLayoutAnchor();
+    topRightContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
+    container->addChild(topRightContainer);
+
+    auto menuContainer = CustomUi::Container::create();
+    menuContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+    menuContainer->setTag(CONTAINER_FLOW_TAG);
+    topRightContainer->addChild(menuContainer);
+
+    auto padding = Size(0, 30);
+
+    auto fileB = CustomUi::Button::create();
+    fileB->init(L"File", 16, padding);
+    menuContainer->addChild(fileB);
+
+    auto editB = CustomUi::Button::create();
+    editB->init(L"Edit", 16, padding);
+    menuContainer->addChild(editB);
+
+    auto settingsB = CustomUi::Button::create();
+    settingsB->init(L"Menu", 16, padding);
+    menuContainer->addChild(settingsB);
+
+    auto cameraScaleContainer = CustomUi::Container::create();
+    cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
+    cameraScaleContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_RIGHT, 10, 0, false));
+    cameraScaleContainer->setBorderLayoutAnchor();
+    cameraScaleContainer->setMargin({ 0, 1 });
+    container->addChild(cameraScaleContainer);
+
+    cameraScaleB = CustomUi::Button::create();
+    cameraScaleB->initIcon("editor_zoom_aligned.png", {10, 0});
+    cameraScaleB->_callback = [&](CustomUi::Button* target) {
+        if (cameraScale != 1)
+        {
+            i32 i = 0;
+            i32 n = (sizeof(possibleCameraScales) / sizeof(possibleCameraScales[0])) - 1;
+            while (i < n)
+            {
+                if (possibleCameraScales[i] == 1.0F)
+                    break;
+                i++;
+            }
+            cameraScaleIndex = i;
+            cameraScale = possibleCameraScales[cameraScaleIndex];
+            _camera->setZoom(cameraScale);
+            setCameraScaleUiText(cameraScale);
+        }
+    };
+    cameraScaleContainer->addChild(cameraScaleB);
+
+    cameraScaleL = CustomUi::Label::create();
+    cameraScaleL->init(L"", 16);
+    cameraScaleL->enableOutline();
+    cameraScaleContainer->addChild(cameraScaleL);
+
     rebuildableUiNodes->removeAllChildren();
     _debugText = CustomUi::Label::create();
     _debugText->init(L"", 16);
+    _debugText->enableOutline();
     getContainer()->addChild(_debugText);
     ((UiRescaleComponent*)_debugText->getComponent("UiRescaleComponent"))->setVisibleSizeHints(-2, 5, -2);
     _debugText->setAnchorPoint(Vec2(-0.5, -0.5));
@@ -1064,7 +1126,7 @@ void MapEditor::buildEntireUi()
             i32 verts = (i32)Director::getInstance()->getRenderer()->getDrawnVertices();
             i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
             std::wstring text = WFMT(L"T: %d | C: %d\n", 0, 0) + L"D3D11: " + buffAsStdStr + L" / " + buffAsStdStrDt + L"ms\n" +
-                WFMT(L"%s: %d / ", L"دفعات الرسم", batches) + WFMT(L"%s: %d", L"الرؤوس المرسومة", verts);
+                WFMT(L"%s: %d / ", L"دفعات الرسم", batches) + WFMT(L"%s: %d", L"العقد المرسومة", verts);
             _debugText->setString(text);
         });
         auto wait_fps_action = DelayTime::create(0.5f);
@@ -1072,90 +1134,6 @@ void MapEditor::buildEntireUi()
         auto seq_repeat_forever = RepeatForever::create(make_seq);
         _debugText->runAction(seq_repeat_forever);
     }
-
-    // Camera Ui Scale Text And Sprites
-    //{
-    //    cameraScaleUi = Node::create();
-    //    cameraScaleUi->setCascadeOpacityEnabled(true);
-    //    setNodeIgnoreDesignScale(cameraScaleUi);
-    //    f32 posY = visibleSize.height / 2 - 10;
-    //    cameraScaleUi->addComponent((new CustomComponents::UiRescaleComponent(visibleSize))
-    //        ->enableDesignScaleIgnoring()->setVisibleSizeHints(0, 0, 2, -10));
-    //    cameraScaleUi->setPositionY(posY);
-    //    cameraScaleUiText = ui::Text::create("x1.0", "fonts/SourceCodePro-Regular.ttf", 24);
-    //    //cameraScaleUiText->setTextHorizontalAlignment(ax::TextHAlignment::RIGHT);
-    //    cameraScaleUiText->setPositionX(5);
-    //    cameraScaleUiText->setAnchorPoint(Vec2(0.5, 1));
-    //    setUiTextDefaultShade(cameraScaleUiText);
-    //    cameraScaleUi->addChild(cameraScaleUiText);
-    //    cameraScaleUiAlphaSpriteCascade = Node::create();
-    //    cameraScaleUiAlphaSpriteCascade->setCascadeOpacityEnabled(true);
-    //    cameraScaleUi->addChild(cameraScaleUiAlphaSpriteCascade);
-    //    cameraScaleUiSpNormal = Sprite::createWithSpriteFrameName("editor_camera_zoom_x1.png");
-    //    cameraScaleUiSpSmall = Sprite::createWithSpriteFrameName("editor_camera_zoom_small.png");
-    //    cameraScaleUiSpBig = Sprite::createWithSpriteFrameName("editor_camera_zoom_big.png");
-    //    cameraScaleUiSpNormal->setAnchorPoint(Vec2(1, 1));
-    //    cameraScaleUiSpSmall->setAnchorPoint(Vec2(1, 1));
-    //    cameraScaleUiSpBig->setAnchorPoint(Vec2(1, 1));
-    //    cameraScaleUiSpNormal->setPositionX(-40);
-    //    cameraScaleUiSpSmall->setPositionX(-40);
-    //    cameraScaleUiSpBig->setPositionX(-40);
-    //    cameraScaleUi->addChild(cameraScaleUiText);
-    //    cameraScaleUiAlphaSpriteCascade->addChild(cameraScaleUiSpNormal);
-    //    cameraScaleUiAlphaSpriteCascade->addChild(cameraScaleUiSpSmall);
-    //    cameraScaleUiAlphaSpriteCascade->addChild(cameraScaleUiSpBig);
-    //    cameraScaleResetButton = CustomUi::createPlaceholderButton();
-    //    uiHitEvents.push_back(cameraScaleResetButton);
-    //    cameraScaleResetButton->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
-    //        switch (type)
-    //        {
-    //        case ui::Widget::TouchEventType::BEGAN:
-    //        {
-    //            auto anim = FadeTo::create(0.1, 120);
-    //            cameraScaleUiAlphaSpriteCascade->runAction(anim);
-    //            set_cameraScaleUiText(cameraScale);
-    //            break;
-    //        }
-    //        case ui::Widget::TouchEventType::ENDED:
-    //        {
-    //            auto anim = FadeTo::create(0.1, 255);
-    //            cameraScaleUiAlphaSpriteCascade->runAction(anim);
-    //            if (cameraScale != 1)
-    //            {
-    //                i32 i = 0;
-    //                i32 n = (sizeof(possibleCameraScales) / sizeof(possibleCameraScales[0])) - 1;
-    //                while (i < n)
-    //                {
-    //                    if (possibleCameraScales[i] == 1.0F)
-    //                        break;
-    //                    i++;
-    //                }
-    //                cameraScaleIndex = i;
-    //                cameraScale = possibleCameraScales[cameraScaleIndex];
-    //                /*_defaultCamera->runAction(ease);
-    //                auto moveAnim = MoveTo::create(5.3f, Vec3(0, 0, _defaultCamera->getPositionZ()));
-    //                auto ease1 = EaseElasticOut::create(moveAnim);
-    //                cameraLocation->runAction(ease1);*/
-    //                set_cameraScaleUiText(cameraScale);
-    //            }
-    //            break;
-    //        }
-    //        case ui::Widget::TouchEventType::CANCELED:
-    //        {
-    //            isUiObstructing = false;
-    //            auto anim = FadeTo::create(0.1, 255);
-    //            cameraScaleUiAlphaSpriteCascade->runAction(anim);
-    //            set_cameraScaleUiText(cameraScale);
-    //            break;
-    //        }
-    //        default:
-    //            break;
-    //        }
-    //        });
-    //    CustomUi::hookPlaceholderButtonToNode(cameraScaleUiSpNormal, cameraScaleResetButton);
-    //    rebuildableUiNodes->addChild(cameraScaleUi, 1);
-    //    set_cameraScaleUiText(cameraScale);
-    //}
 
     rebuildEntireUi();
 }
@@ -1247,46 +1225,23 @@ Rect MapEditor::createRemoveToolTileSelectionBox(Vec2 start_pos, Vec2 end_pos, i
     return rect;
 }
 
-void MapEditor::set_cameraScaleUiText(f32 scale)
+void MapEditor::setCameraScaleUiText(f32 scale)
 {
-    //if (scale == 1)
-    //{
-    //    cameraScaleUiSpNormal->setOpacity(255);
-    //    cameraScaleUiSpSmall->setOpacity(0);
-    //    cameraScaleUiSpBig->setOpacity(0);
-    //}
+    char buff[8];
+    snprintf(buff, sizeof(buff), "x%g", scale);
+    std::string buffAsStdStr = buff;
+    cameraScaleL->setString(buffAsStdStr);
 
-    //if (scale < 1)
-    //{
-    //    cameraScaleUiSpNormal->setOpacity(0);
-    //    cameraScaleUiSpSmall->setOpacity(255);
-    //    cameraScaleUiSpBig->setOpacity(0);
-    //}
-
-    //if (scale > 1)
-    //{
-    //    cameraScaleUiSpNormal->setOpacity(0);
-    //    cameraScaleUiSpSmall->setOpacity(0);
-    //    cameraScaleUiSpBig->setOpacity(255);
-    //}
-
-    //char buff[8];
-    //snprintf(buff, sizeof(buff), "x%g", scale);
-    //str buffAsStdStr = buff;
-    //cameraScaleUiText->setString(buffAsStdStr);
-
-    //auto setVisiable = FadeTo::create(0.1f, 255);
-    //auto setOpacityDelay = DelayTime::create(2);
-    //auto setInvisiable = FadeTo::create(1, 100);
-    //auto seq = Sequence::create(setVisiable, setOpacityDelay, setInvisiable, nullptr);
-    //seq->setTag(7);
-    //cameraScaleUi->stopAllActionsByTag(7);
-    //cameraScaleUi->runAction(seq);
-    
-    //f32 spritesPosX = round(cameraScaleUiText->getContentSize().width / -2);
-    //cameraScaleUiSpNormal->setPositionX(spritesPosX);
-    //cameraScaleUiSpSmall->setPositionX(spritesPosX);
-    //cameraScaleUiSpBig->setPositionX(spritesPosX);
+    cameraScaleB->enable();
+    if (scale < 1.0)
+        cameraScaleB->icon->setSpriteFrame("editor_zoomed_in.png");
+    else if (scale > 1.0)
+        cameraScaleB->icon->setSpriteFrame("editor_zoomed_out.png");
+    else
+    {
+        cameraScaleB->icon->setSpriteFrame("editor_zoom_aligned.png");
+        cameraScaleB->disable();
+    }
 }
 
 void MapEditor::setWorldBoundsLayerColorTransforms(VirtualCamera* cam)

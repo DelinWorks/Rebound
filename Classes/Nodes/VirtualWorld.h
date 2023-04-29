@@ -5,7 +5,7 @@
 #include "VirtualCamera.h"
 
 class VirtualWorldSpace : public ax::Node {
-
+	~VirtualWorldSpace();
 };
 
 class VirtualWorld {

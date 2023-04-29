@@ -204,12 +204,12 @@ typedef u32 TileID;
             _material->setForce2DQueue(true);
             _material->getStateBlock().setCullFace(true);
             _material->getStateBlock().setCullFaceSide(ax::CullFaceSide::NONE);
-            _material->getStateBlock().setDepthFunction(ax::DepthFunction::ALWAYS);
             _material->retain();
         }
 
         ~Tileset() {
             _material->release();
+            LOG_RELEASE;
         }
     };
 
@@ -268,6 +268,7 @@ typedef u32 TileID;
             for (auto& _ : _tileSets)
                 AX_SAFE_RELEASE(_);
             _tileSets.clear();
+            LOG_RELEASE;
         }
 
         i32 retainedChunks = 0;
@@ -327,6 +328,7 @@ typedef u32 TileID;
             for (auto& [_, v] : vertexCache)
                 v.clear();
             vertexCache.clear();
+            LOG_RELEASE;
         }
 
         //protected:
@@ -420,12 +422,11 @@ typedef u32 TileID;
 
                     if (!coord._outOfRange) {
                         Color4F tc = Color4F::WHITE;
-                        auto zPos = Random::rangeFloat(-1000, 1000);
                         vertices.insert(vertices.end(), {
-                            x, y,           zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
-                            x + sx, y,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
-                            x, y + sy,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
-                            x + sx, y + sy, zPos,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
+                            x, y,           0,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
+                            x + sx, y,      0,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
+                            x, y + sy,      0,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
+                            x + sx, y + sy, 0,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
                             });
 
                         indices.insert<u16>(indices.size(),
@@ -552,7 +553,8 @@ typedef u32 TileID;
         }
 
         ~SingleTilesetChunkRenderer() {
-            //AX_SAFE_RELEASE_NULL(_mesh);
+            AX_SAFE_RELEASE_NULL(_mesh);
+            LOG_RELEASE;
         }
 
         void unload() {
@@ -618,6 +620,7 @@ typedef u32 TileID;
             AX_SAFE_RELEASE(_tiles);
             _tilesetArr->retainedChunks--;
             AX_SAFE_RELEASE(_tilesetArr);
+            LOG_RELEASE;
         }
 
         i32 count = 0;

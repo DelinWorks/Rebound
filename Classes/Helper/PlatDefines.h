@@ -6,7 +6,8 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 #ifdef WIN32
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#define __FILENAMEPASS__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define __FILENAME__ (strrchr(__FILENAMEPASS__, '\\') ? strrchr(__FILENAMEPASS__, '\\') + 1 : __FILENAMEPASS__)
 #endif
 
 #define RES_PATH "Resources"

@@ -71,6 +71,11 @@ CustomUi::GUI::GUI()
 #endif
 }
 
+CustomUi::GUI::~GUI()
+{
+	LOG_RELEASE;
+}
+
 void CustomUi::GUI::keyPress(EventKeyboard::KeyCode keyCode)
 {
 }

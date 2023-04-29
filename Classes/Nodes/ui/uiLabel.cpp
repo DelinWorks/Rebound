@@ -37,9 +37,14 @@ void CustomUi::Label::init(std::wstring& _text, std::string_view _fontname, i32 
     wrap = _wrap;
 }
 
+void CustomUi::Label::enableOutline()
+{
+    hasOutline = true;
+}
+
 void CustomUi::Label::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize + _padding);
+    setContentSize(dSize * (_UiScale * field->getScale()) + _padding);
 }
 
 bool CustomUi::Label::hover(ax::Vec2 mouseLocationInView, Camera* cam)
@@ -98,7 +103,8 @@ void CustomUi::Label::onFontScaleUpdate(float scale)
     }
     field->setHorizontalAlignment(hAlignment);
     field->setVerticalAlignment(vAlignment);
-    field->enableOutline(Color4B::BLACK, 2);
+    if (hasOutline)
+        field->enableOutline(Color4B::BLACK, 2);
     field->getFontAtlas()->setAliasTexParameters();
 }
 

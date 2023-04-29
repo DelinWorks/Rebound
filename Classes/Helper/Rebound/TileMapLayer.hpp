@@ -21,6 +21,10 @@ namespace TileSystem {
 			return nullptr;
 		}
 
+		~Layer() {
+			LOG_RELEASE;
+		}
+
 		ChunkRenderer* getChunkAtPos(Vec2 pos, TileID hintGid = -1) {
 			pos.x = round(pos.x); pos.y = round(pos.y);
 			auto iter = _chunks.find(pos);

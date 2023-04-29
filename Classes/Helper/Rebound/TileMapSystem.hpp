@@ -32,6 +32,7 @@ namespace TileSystem {
         ~Map() {
             tileMapVirtualCamera = nullptr;
             AX_SAFE_RELEASE(_tilesetArr);
+            LOG_RELEASE;
         }
 
         void addLayer(Layer* _layer) {

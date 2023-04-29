@@ -15,6 +15,7 @@
 
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 28 - 24, 28 - 24)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1.png"sv
+#define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped.png"sv
 
 namespace CustomUi
 {
@@ -42,13 +43,13 @@ namespace CustomUi
     public:
         FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
             FlowLayoutDirection _direction = FlowLayoutDirection::STACK_RIGHT,
-            float _spacing = 0, float _margin = 0, i16 _maxNodes = -1)
-            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), maxNodes(_maxNodes) { }
+            float _spacing = 0, float _margin = 0, bool _reverseStack = true)
+            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack) { }
         FlowLayoutSort sort;
         FlowLayoutDirection direction;
         float spacing;
         float margin;
-        i16 maxNodes;
+        bool reverseStack;
 
         void build(CustomUi::Container* container);
     };
@@ -58,12 +59,15 @@ namespace CustomUi
         Container();
         void setBorderLayout(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
         
+        ~Container();
+
         static CustomUi::Container* create();
 
         void setLayout(FlowLayout layout);
-        void setBorderLayoutAnchor();
+        void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ZERO);
 
         void setBackgroundSprite(ax::Vec2 padding = {0, 0});
+        void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
         void setBackgroundDim();
 
         void notifyLayout() override;
@@ -104,7 +108,7 @@ namespace CustomUi
         ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
         bool _closestStaticBorder = false;
 
-        void sortChildren();
+        Vector<Node*>& getSortedChildren();
 
     protected:
         ax::Vec2 _margin;

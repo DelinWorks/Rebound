@@ -3,26 +3,15 @@
 SceneInputManagerComponent::SceneInputManagerComponent() : _keyboardListener(nullptr), _mouseListener(nullptr), _touchListener(nullptr), onKeyEvent(nullptr) {
     setName(__func__);
     setEnabled(true);
+    autorelease();
 }
 
 SceneInputManagerComponent::~SceneInputManagerComponent() {
-    Director::getInstance()->getScheduler()->unscheduleUpdate(this);
-
-    if (_keyboardListener)
-        Director::getInstance()->getEventDispatcher()->removeEventListener(_keyboardListener);
-    if (_mouseListener)
-        Director::getInstance()->getEventDispatcher()->removeEventListener(_mouseListener);
-    if (_touchListener)
-        Director::getInstance()->getEventDispatcher()->removeEventListener(_touchListener);
-
-    AX_SAFE_DELETE(_keyboardListener);
-    AX_SAFE_DELETE(_mouseListener);
-    AX_SAFE_DELETE(_touchListener);
+    LOG_RELEASE;
 }
 
 void SceneInputManagerComponent::onAdd() {
-    AXLOG("Input manager initialized for %s", std::string(_owner->getName()).c_str());
-    Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
+    RLOG("Input manager initialized for {}", _owner->getName());
 }
 
 void SceneInputManagerComponent::update(f32 dt) {

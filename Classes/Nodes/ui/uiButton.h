@@ -22,6 +22,7 @@ namespace CustomUi
         static CustomUi::Button* create();
         UiFontDescriptor desc;
         ax::Label* field;
+        ax::Sprite* icon;
         ui::Scale9Sprite* sprite;
         ui::Button* button;
         std::string normal_sp;
@@ -32,17 +33,19 @@ namespace CustomUi
         ChangeValue<bool> hover_cv;
         bool adaptToWindowSize = false;
         bool extend = false;
+        bool hitboxIsExtent = false;
 
         ~Button();
 
         ButtonCallback _callback;
 
         void init(std::wstring _text, int _fontSize, Size _size);
+        void initIcon(std::string frameName, Size _padding = Size(0, 0), bool hitboxIsExtent = true);
 
         void init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
             cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
             Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-            Color3B _selected_color, bool _allowExtend);
+            Color3B _selected_color, bool _allowExtend, bool isIcon);
 
         void update(f32 dt) override;
 
