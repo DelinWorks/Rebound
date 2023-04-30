@@ -298,6 +298,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
         std::reverse(list.begin(), list.end());
 
     f32 cumSize = 0;
+
     if (direction == STACK_CENTER)
         cumSize = (sumSize - (_spacing.x * 1.5 * listSize) - _spacing.x / 2) / -2;
     for (auto& _ : list) {

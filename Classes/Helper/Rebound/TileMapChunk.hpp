@@ -422,11 +422,12 @@ typedef u32 TileID;
 
                     if (!coord._outOfRange) {
                         Color4F tc = Color4F::WHITE;
+                        float zPos = Random::rangeFloat(-1000, 1000);
                         vertices.insert(vertices.end(), {
-                            x, y,           0,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
-                            x + sx, y,      0,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
-                            x, y + sy,      0,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
-                            x + sx, y + sy, 0,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
+                            x, y,           zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
+                            x + sx, y,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
+                            x, y + sy,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.bl.U, coord.bl.V,
+                            x + sx, y + sy, zPos,  tc.r, tc.g, tc.b, tc.a,  coord.br.U, coord.br.V,
                             });
 
                         indices.insert<u16>(indices.size(),

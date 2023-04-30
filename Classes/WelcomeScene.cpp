@@ -87,8 +87,6 @@ void WelcomeScene::update(f32 dt)
         GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
         auto scene = MapEditor::createScene();
         Director::getInstance()->pushScene(scene);
-
-        Ref::printLeaks();
     }
 
     animTime += dt;

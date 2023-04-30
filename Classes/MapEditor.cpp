@@ -575,7 +575,10 @@ void MapEditor::tick(f32 dt)
 {
     REBUILD_UI;
 
-    elapsedDt += dt * 0.1;
+    elapsedDt += dt;
+
+    //TileSystem::zPositionMultiplier = 1.0 + sin(elapsedDt) * 0.1;
+
     //SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
     //_rt->getSprite()->getTexture()->setAliasTexParameters();
 
@@ -1049,13 +1052,13 @@ void MapEditor::buildEntireUi()
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
-    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, false));
+    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_BOTTOM, 0, 0, false));
     topRightContainer->setBorderLayoutAnchor();
-    topRightContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     container->addChild(topRightContainer);
 
     auto menuContainer = CustomUi::Container::create();
     menuContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+    menuContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     menuContainer->setTag(CONTAINER_FLOW_TAG);
     topRightContainer->addChild(menuContainer);
 
@@ -1073,6 +1076,7 @@ void MapEditor::buildEntireUi()
     settingsB->init(L"Menu", 16, padding);
     menuContainer->addChild(settingsB);
 
+
     auto cameraScaleContainer = CustomUi::Container::create();
     cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
     cameraScaleContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_RIGHT, 10, 0, false));
@@ -1080,8 +1084,36 @@ void MapEditor::buildEntireUi()
     cameraScaleContainer->setMargin({ 0, 1 });
     container->addChild(cameraScaleContainer);
 
+    auto editContainer = CustomUi::Container::create();
+    editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 10, 0, false));
+    editContainer->setTag(CONTAINER_FLOW_TAG);
+    editContainer->setBorderLayoutAnchor();
+    editContainer->setMargin({ 0, 1 });
+
+    auto undoB = CustomUi::Button::create();
+    undoB->initIcon("editor_undo", {10, 17});
+    editContainer->addChild(undoB);
+
+    auto placeB = CustomUi::Button::create();
+    placeB->initIcon("editor_place", { 10, 17 });
+    editContainer->addChild(placeB);
+
+    auto bucketB = CustomUi::Button::create();
+    bucketB->initIcon("editor_bucket_fill", { 10, 17 });
+    editContainer->addChild(bucketB);
+
+    auto removeB = CustomUi::Button::create();
+    removeB->initIcon("editor_remove", { 10, 17 });
+    editContainer->addChild(removeB);
+
+    auto selectB = CustomUi::Button::create();
+    selectB->initIcon("editor_select", { 10, 17 });
+    editContainer->addChild(selectB);
+
+    topRightContainer->addChild(editContainer);
+
     cameraScaleB = CustomUi::Button::create();
-    cameraScaleB->initIcon("editor_zoom_aligned.png", {10, 0});
+    cameraScaleB->initIcon("editor_zoom_aligned", {10, 0});
     cameraScaleB->_callback = [&](CustomUi::Button* target) {
         if (cameraScale != 1)
         {
@@ -1105,6 +1137,8 @@ void MapEditor::buildEntireUi()
     cameraScaleL->init(L"", 16);
     cameraScaleL->enableOutline();
     cameraScaleContainer->addChild(cameraScaleL);
+
+
 
     rebuildableUiNodes->removeAllChildren();
     _debugText = CustomUi::Label::create();
@@ -1234,12 +1268,12 @@ void MapEditor::setCameraScaleUiText(f32 scale)
 
     cameraScaleB->enable();
     if (scale < 1.0)
-        cameraScaleB->icon->setSpriteFrame("editor_zoomed_in.png");
+        cameraScaleB->icon->setSpriteFrame("editor_zoomed_in");
     else if (scale > 1.0)
-        cameraScaleB->icon->setSpriteFrame("editor_zoomed_out.png");
+        cameraScaleB->icon->setSpriteFrame("editor_zoomed_out");
     else
     {
-        cameraScaleB->icon->setSpriteFrame("editor_zoom_aligned.png");
+        cameraScaleB->icon->setSpriteFrame("editor_zoom_aligned");
         cameraScaleB->disable();
     }
 }

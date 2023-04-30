@@ -12,7 +12,7 @@ using namespace ax;
 
 #define YOURE_NOT_WELCOME_HERE -69420
 #define CONTAINER_FLOW_TAG -69421
-//#define DRAW_NODE_DEBUG
+#define DRAW_NODE_DEBUG
 
 namespace CustomUi
 {
