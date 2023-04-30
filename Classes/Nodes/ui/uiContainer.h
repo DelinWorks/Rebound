@@ -20,8 +20,13 @@
 namespace CustomUi
 {
     enum Layout : u8 {
-        NONE = 0,
-        FLOW = 1,
+        LAYOUT_NONE = 0,
+        LAYOUT_FLOW = 1,
+    };
+
+    enum Constraint : u8 {
+        CONSTRAINT_NONE = 0,
+        CONSTRAINT_DEPENDENCY = 1,
     };
 
     enum FlowLayoutSort : u8 {
@@ -54,6 +59,17 @@ namespace CustomUi
         void build(CustomUi::Container* container);
     };
 
+    class DependencyConstraint {
+    public:
+        DependencyConstraint(Container* _parent = nullptr, BorderLayout _position = CENTER, Vec2 _offset = ax::Vec2::ZERO)
+            : parent(_parent), position(_position), offset(_offset) { }
+        Container* parent;
+        BorderLayout position;
+        Vec2 offset;
+
+        void build(CustomUi::Container* container);
+    };
+
     class Container : public GUI {
     public:
         Container();
@@ -64,7 +80,10 @@ namespace CustomUi
         static CustomUi::Container* create();
 
         void setLayout(FlowLayout layout);
+        void setConstraint(DependencyConstraint layout);
+
         void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ZERO);
+        void setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset = ax::Vec2::ZERO);
 
         void setBackgroundSprite(ax::Vec2 padding = {0, 0});
         void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
@@ -113,8 +132,10 @@ namespace CustomUi
     protected:
         ax::Vec2 _margin;
         Layout _layout;
+        Constraint _constraint;
         BorderLayout _borderLayout;
         FlowLayout _flowLayout;
+        DependencyConstraint _depConst;
     };
 
     class Separator : public GUI {};

@@ -1,6 +1,7 @@
 #include "uiContainer.h"
 
-CustomUi::Container::Container() : _layout(Layout::NONE), _borderLayout(BorderLayout::CENTER), _flowLayout()
+CustomUi::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE),
+                                   _borderLayout(BorderLayout::CENTER), _flowLayout(), _depConst()
 {
     _isContainer = true;
     setDynamic();
@@ -33,7 +34,13 @@ CustomUi::Container* CustomUi::Container::create()
 void CustomUi::Container::setLayout(FlowLayout layout)
 {
     _flowLayout = layout;
-    _layout = Layout::FLOW;
+    _layout = Layout::LAYOUT_FLOW;
+}
+
+void CustomUi::Container::setConstraint(DependencyConstraint layout)
+{
+    _depConst = layout;
+    _constraint = Constraint::CONSTRAINT_DEPENDENCY;
 }
 
 bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -114,8 +121,17 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
     }
 
     switch (_layout) {
-    case Layout::FLOW: {
+    case Layout::LAYOUT_FLOW: {
         _flowLayout.build(this);
+        break;
+    }
+    default:
+        break;
+    }
+
+    switch (_constraint) {
+    case Constraint::CONSTRAINT_DEPENDENCY: {
+        _depConst.build(this);
         break;
     }
     default:
@@ -142,6 +158,38 @@ void CustomUi::Container::onDisable()
 void CustomUi::Container::setBorderLayoutAnchor(ax::Vec2 offset)
 {
     switch (_borderLayout) {
+    case BorderLayout::TOP:
+        setAnchorPoint(Vec2(0, 0.5) + offset);
+        break;
+    case BorderLayout::TOP_RIGHT:
+        setAnchorPoint(Vec2(0.5, 0.5) + offset);
+        break;
+    case BorderLayout::RIGHT:
+        setAnchorPoint(Vec2(0.5, 0) + offset);
+        break;
+    case BorderLayout::BOTTOM_RIGHT:
+        setAnchorPoint(Vec2(0.5, -0.5) + offset);
+        break;
+    case BorderLayout::BOTTOM:
+        setAnchorPoint(Vec2(0, -0.5) + offset);
+        break;
+    case BorderLayout::BOTTOM_LEFT:
+        setAnchorPoint(Vec2(-0.5, -0.5) + offset);
+        break;
+    case BorderLayout::LEFT:
+        setAnchorPoint(Vec2(-0.5, 0) + offset);
+        break;
+    case BorderLayout::TOP_LEFT:
+        setAnchorPoint(Vec2(-0.5, 0.5) + offset);
+        break;
+    default:
+        setAnchorPoint(Vec2(0, 0) + offset);
+    }
+}
+
+void CustomUi::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset)
+{
+    switch (border) {
     case BorderLayout::TOP:
         setAnchorPoint(Vec2(0, 0.5) + offset);
         break;
@@ -294,7 +342,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
 
     float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
 
-    if (reverseStack && (direction == STACK_BOTTOM || direction == STACK_LEFT || direction == STACK_CENTER))
+    if (reverseStack)
         std::reverse(list.begin(), list.end());
 
     f32 cumSize = 0;
@@ -322,4 +370,44 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
         }
         /*else continue;*/
     }
+}
+
+void CustomUi::DependencyConstraint::build(CustomUi::Container* container)
+{
+    parent->updateLayoutManagers();
+
+    Vec2 anchor = ax::Vec2::ZERO;
+
+    switch (position) {
+    case BorderLayout::TOP:
+        anchor = (Vec2(0, 0.5) + offset);
+        break;
+    case BorderLayout::TOP_RIGHT:
+        anchor = (Vec2(0.5, 0.5) + offset);
+        break;
+    case BorderLayout::RIGHT:
+        anchor = (Vec2(0.5, 0) + offset);
+        break;
+    case BorderLayout::BOTTOM_RIGHT:
+        anchor = (Vec2(0.5, -0.5) + offset);
+        break;
+    case BorderLayout::BOTTOM:
+        anchor = (Vec2(0, -0.5) + offset);
+        break;
+    case BorderLayout::BOTTOM_LEFT:
+        anchor = (Vec2(-0.5, -0.5) + offset);
+        break;
+    case BorderLayout::LEFT:
+        anchor = (Vec2(-0.5, 0) + offset);
+        break;
+    case BorderLayout::TOP_LEFT:
+        anchor = (Vec2(-0.5, 0.5) + offset);
+        break;
+    default:
+        anchor = (Vec2(0, 0) + offset);
+    }
+
+    container->setPosition(parent->getPosition() +
+        ((parent->getContentSize() * (anchor + offset)) +
+            Vec2(parent->getContentSize().x / 2, -parent->getContentSize().y / 2)));
 }

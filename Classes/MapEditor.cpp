@@ -1052,7 +1052,7 @@ void MapEditor::buildEntireUi()
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
-    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_BOTTOM, 0, 0, false));
+    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, false));
     topRightContainer->setBorderLayoutAnchor();
     container->addChild(topRightContainer);
 
@@ -1076,6 +1076,44 @@ void MapEditor::buildEntireUi()
     settingsB->init(L"Menu", 16, padding);
     menuContainer->addChild(settingsB);
 
+    auto editContainer = CustomUi::Container::create();
+    editContainer->setBorderLayoutAnchor(BorderLayout::LEFT);
+    editContainer->setConstraint(CustomUi::DependencyConstraint(topRightContainer, RIGHT, {.05, 0}));
+    editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+    editContainer->setTag(CONTAINER_FLOW_TAG);
+    editContainer->setMargin({ 0, 1 });
+
+    padding = { 15, 10 };
+
+    auto undoB = CustomUi::Button::create();
+    undoB->initIcon("editor_undo", padding);
+    editContainer->addChild(undoB);
+
+    auto redoB = CustomUi::Button::create();
+    redoB->initIcon("editor_redo", padding);
+    editContainer->addChild(redoB);
+
+    //auto placeB = CustomUi::Button::create();
+    //placeB->initIcon("editor_place", padding);
+    //editContainer->addChild(placeB);
+
+    //auto bucketB = CustomUi::Button::create();
+    //bucketB->initIcon("editor_bucket_fill", padding);
+    //editContainer->addChild(bucketB);
+
+    //auto removeB = CustomUi::Button::create();
+    //removeB->initIcon("editor_remove", padding);
+    //editContainer->addChild(removeB);
+
+    //auto selectB = CustomUi::Button::create();
+    //selectB->initIcon("editor_select", padding);
+    //editContainer->addChild(selectB);
+
+    //auto rectFillB = CustomUi::Button::create();
+    //rectFillB->initIcon("editor_rectangle_fill", padding);
+    //editContainer->addChild(rectFillB);
+
+    container->addChild(editContainer);
 
     auto cameraScaleContainer = CustomUi::Container::create();
     cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
@@ -1083,34 +1121,6 @@ void MapEditor::buildEntireUi()
     cameraScaleContainer->setBorderLayoutAnchor();
     cameraScaleContainer->setMargin({ 0, 1 });
     container->addChild(cameraScaleContainer);
-
-    auto editContainer = CustomUi::Container::create();
-    editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 10, 0, false));
-    editContainer->setTag(CONTAINER_FLOW_TAG);
-    editContainer->setBorderLayoutAnchor();
-    editContainer->setMargin({ 0, 1 });
-
-    auto undoB = CustomUi::Button::create();
-    undoB->initIcon("editor_undo", {10, 17});
-    editContainer->addChild(undoB);
-
-    auto placeB = CustomUi::Button::create();
-    placeB->initIcon("editor_place", { 10, 17 });
-    editContainer->addChild(placeB);
-
-    auto bucketB = CustomUi::Button::create();
-    bucketB->initIcon("editor_bucket_fill", { 10, 17 });
-    editContainer->addChild(bucketB);
-
-    auto removeB = CustomUi::Button::create();
-    removeB->initIcon("editor_remove", { 10, 17 });
-    editContainer->addChild(removeB);
-
-    auto selectB = CustomUi::Button::create();
-    selectB->initIcon("editor_select", { 10, 17 });
-    editContainer->addChild(selectB);
-
-    topRightContainer->addChild(editContainer);
 
     cameraScaleB = CustomUi::Button::create();
     cameraScaleB->initIcon("editor_zoom_aligned", {10, 0});
