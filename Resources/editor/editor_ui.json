@@ -3,8 +3,8 @@
     {
       "filename": "icons",
       "frame": {
-        "x": 1,
-        "y": 1,
+        "x": 0,
+        "y": 0,
         "w": 128,
         "h": 256
       },
@@ -28,8 +28,8 @@
     {
       "filename": "editor_import",
       "frame": {
-        "x": 131,
-        "y": 1,
+        "x": 0,
+        "y": 256,
         "w": 18,
         "h": 26
       },
@@ -44,81 +44,6 @@
       "sourceSize": {
         "w": 18,
         "h": 26
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "editor_rotate_r",
-      "frame": {
-        "x": 151,
-        "y": 1,
-        "w": 24,
-        "h": 14
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 24,
-        "h": 14
-      },
-      "sourceSize": {
-        "w": 24,
-        "h": 14
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "editor_rotate_l",
-      "frame": {
-        "x": 151,
-        "y": 17,
-        "w": 24,
-        "h": 14
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 24,
-        "h": 14
-      },
-      "sourceSize": {
-        "w": 24,
-        "h": 14
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "editor_flip_v",
-      "frame": {
-        "x": 131,
-        "y": 33,
-        "w": 19,
-        "h": 19
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 19,
-        "h": 19
-      },
-      "sourceSize": {
-        "w": 19,
-        "h": 19
       },
       "pivot": {
         "x": 0.5,
@@ -128,8 +53,8 @@
     {
       "filename": "editor_flip_h",
       "frame": {
-        "x": 152,
-        "y": 33,
+        "x": 0,
+        "y": 282,
         "w": 19,
         "h": 19
       },
@@ -151,24 +76,24 @@
       }
     },
     {
-      "filename": "editor_zoomed_in",
+      "filename": "editor_flip_v",
       "frame": {
-        "x": 131,
-        "y": 54,
-        "w": 18,
-        "h": 18
+        "x": 18,
+        "y": 256,
+        "w": 19,
+        "h": 19
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 18,
-        "h": 18
+        "w": 19,
+        "h": 19
       },
       "sourceSize": {
-        "w": 18,
-        "h": 18
+        "w": 19,
+        "h": 19
       },
       "pivot": {
         "x": 0.5,
@@ -178,8 +103,33 @@
     {
       "filename": "editor_zoom_aligned",
       "frame": {
-        "x": 151,
-        "y": 54,
+        "x": 0,
+        "y": 301,
+        "w": 18,
+        "h": 18
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 18,
+        "h": 18
+      },
+      "sourceSize": {
+        "w": 18,
+        "h": 18
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "editor_zoomed_in",
+      "frame": {
+        "x": 0,
+        "y": 319,
         "w": 18,
         "h": 18
       },
@@ -203,8 +153,8 @@
     {
       "filename": "editor_zoomed_out",
       "frame": {
-        "x": 131,
-        "y": 74,
+        "x": 0,
+        "y": 337,
         "w": 18,
         "h": 18
       },
@@ -219,31 +169,6 @@
       "sourceSize": {
         "w": 18,
         "h": 18
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "editor_file",
-      "frame": {
-        "x": 151,
-        "y": 74,
-        "w": 14,
-        "h": 17
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 14,
-        "h": 17
-      },
-      "sourceSize": {
-        "w": 14,
-        "h": 17
       },
       "pivot": {
         "x": 0.5,
@@ -253,8 +178,8 @@
     {
       "filename": "editor_move",
       "frame": {
-        "x": 151,
-        "y": 93,
+        "x": 0,
+        "y": 355,
         "w": 17,
         "h": 17
       },
@@ -268,6 +193,31 @@
       },
       "sourceSize": {
         "w": 17,
+        "h": 17
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "editor_file",
+      "frame": {
+        "x": 0,
+        "y": 372,
+        "w": 14,
+        "h": 17
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 14,
+        "h": 17
+      },
+      "sourceSize": {
+        "w": 14,
         "h": 17
       },
       "pivot": {
@@ -278,8 +228,8 @@
     {
       "filename": "editor_add_text",
       "frame": {
-        "x": 131,
-        "y": 94,
+        "x": 0,
+        "y": 389,
         "w": 11,
         "h": 16
       },
@@ -301,61 +251,11 @@
       }
     },
     {
-      "filename": "editor_remove",
+      "filename": "editor_rotate_l",
       "frame": {
-        "x": 131,
-        "y": 112,
-        "w": 14,
-        "h": 13
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
         "x": 0,
-        "y": 0,
-        "w": 14,
-        "h": 13
-      },
-      "sourceSize": {
-        "w": 14,
-        "h": 13
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "editor_bucket_fill",
-      "frame": {
-        "x": 147,
-        "y": 112,
-        "w": 14,
-        "h": 13
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 14,
-        "h": 13
-      },
-      "sourceSize": {
-        "w": 14,
-        "h": 13
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "editor_random",
-      "frame": {
-        "x": 131,
-        "y": 127,
-        "w": 13,
+        "y": 405,
+        "w": 24,
         "h": 14
       },
       "rotated": false,
@@ -363,11 +263,11 @@
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 13,
+        "w": 24,
         "h": 14
       },
       "sourceSize": {
-        "w": 13,
+        "w": 24,
         "h": 14
       },
       "pivot": {
@@ -376,24 +276,24 @@
       }
     },
     {
-      "filename": "editor_select",
+      "filename": "editor_rotate_r",
       "frame": {
-        "x": 146,
-        "y": 127,
-        "w": 14,
-        "h": 13
+        "x": 11,
+        "y": 389,
+        "w": 24,
+        "h": 14
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 14,
-        "h": 13
+        "w": 24,
+        "h": 14
       },
       "sourceSize": {
-        "w": 14,
-        "h": 13
+        "w": 24,
+        "h": 14
       },
       "pivot": {
         "x": 0.5,
@@ -403,8 +303,8 @@
     {
       "filename": "editor_settings",
       "frame": {
-        "x": 146,
-        "y": 142,
+        "x": 14,
+        "y": 372,
         "w": 14,
         "h": 14
       },
@@ -426,12 +326,37 @@
       }
     },
     {
-      "filename": "editor_rectangle_fill",
+      "filename": "editor_random",
       "frame": {
-        "x": 131,
-        "y": 158,
+        "x": 28,
+        "y": 372,
+        "w": 13,
+        "h": 14
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 13,
+        "h": 14
+      },
+      "sourceSize": {
+        "w": 13,
+        "h": 14
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "editor_bucket_fill",
+      "frame": {
+        "x": 17,
+        "y": 355,
         "w": 14,
-        "h": 11
+        "h": 13
       },
       "rotated": false,
       "trimmed": false,
@@ -439,11 +364,11 @@
         "x": 0,
         "y": 0,
         "w": 14,
-        "h": 11
+        "h": 13
       },
       "sourceSize": {
         "w": 14,
-        "h": 11
+        "h": 13
       },
       "pivot": {
         "x": 0.5,
@@ -453,8 +378,8 @@
     {
       "filename": "editor_place",
       "frame": {
-        "x": 147,
-        "y": 158,
+        "x": 18,
+        "y": 301,
         "w": 14,
         "h": 13
       },
@@ -476,24 +401,24 @@
       }
     },
     {
-      "filename": "editor_visible",
+      "filename": "editor_remove",
       "frame": {
-        "x": 131,
-        "y": 143,
-        "w": 13,
-        "h": 8
+        "x": 19,
+        "y": 275,
+        "w": 14,
+        "h": 13
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 13,
-        "h": 8
+        "w": 14,
+        "h": 13
       },
       "sourceSize": {
-        "w": 13,
-        "h": 8
+        "w": 14,
+        "h": 13
       },
       "pivot": {
         "x": 0.5,
@@ -501,12 +426,37 @@
       }
     },
     {
-      "filename": "editor_unlock",
+      "filename": "editor_select",
       "frame": {
-        "x": 162,
-        "y": 127,
+        "x": 19,
+        "y": 288,
+        "w": 14,
+        "h": 13
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 14,
+        "h": 13
+      },
+      "sourceSize": {
+        "w": 14,
+        "h": 13
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "editor_redo",
+      "frame": {
+        "x": 18,
+        "y": 314,
         "w": 13,
-        "h": 11
+        "h": 13
       },
       "rotated": false,
       "trimmed": false,
@@ -514,10 +464,60 @@
         "x": 0,
         "y": 0,
         "w": 13,
-        "h": 11
+        "h": 13
       },
       "sourceSize": {
         "w": 13,
+        "h": 13
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "editor_undo",
+      "frame": {
+        "x": 18,
+        "y": 327,
+        "w": 13,
+        "h": 13
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 13,
+        "h": 13
+      },
+      "sourceSize": {
+        "w": 13,
+        "h": 13
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "editor_rectangle_fill",
+      "frame": {
+        "x": 18,
+        "y": 340,
+        "w": 14,
+        "h": 11
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 14,
+        "h": 11
+      },
+      "sourceSize": {
+        "w": 14,
         "h": 11
       },
       "pivot": {
@@ -528,8 +528,8 @@
     {
       "filename": "editor_lock",
       "frame": {
-        "x": 162,
-        "y": 140,
+        "x": 31,
+        "y": 351,
         "w": 13,
         "h": 11
       },
@@ -553,8 +553,8 @@
     {
       "filename": "editor_invisible",
       "frame": {
-        "x": 131,
-        "y": 171,
+        "x": 31,
+        "y": 362,
         "w": 13,
         "h": 8
       },
@@ -576,24 +576,24 @@
       }
     },
     {
-      "filename": "editor_redo",
+      "filename": "editor_unlock",
       "frame": {
-        "x": 163,
-        "y": 112,
-        "w": 12,
-        "h": 12
+        "x": 31,
+        "y": 314,
+        "w": 13,
+        "h": 11
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 12,
-        "h": 12
+        "w": 13,
+        "h": 11
       },
       "sourceSize": {
-        "w": 12,
-        "h": 12
+        "w": 13,
+        "h": 11
       },
       "pivot": {
         "x": 0.5,
@@ -601,24 +601,24 @@
       }
     },
     {
-      "filename": "editor_undo",
+      "filename": "editor_visible",
       "frame": {
-        "x": 163,
-        "y": 153,
-        "w": 12,
-        "h": 12
+        "x": 32,
+        "y": 301,
+        "w": 13,
+        "h": 8
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 12,
-        "h": 12
+        "w": 13,
+        "h": 8
       },
       "sourceSize": {
-        "w": 12,
-        "h": 12
+        "w": 13,
+        "h": 8
       },
       "pivot": {
         "x": 0.5,
@@ -630,11 +630,11 @@
     "app": "http://free-tex-packer.com",
     "version": "0.6.7",
     "image": "editor_ui.png",
-    "alias": true,
+	"alias": true,
     "format": "RGBA8888",
     "size": {
-      "w": 176,
-      "h": 258
+      "w": 128,
+      "h": 419
     },
     "scale": 1
   }

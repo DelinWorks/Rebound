@@ -359,12 +359,14 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
                 _->setPositionX(round(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleX()) + marginF));
+                _->setPositionY(0);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             }
             else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
                 _->setPositionY(round(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleY()) + marginF));
+                _->setPositionX(0);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }

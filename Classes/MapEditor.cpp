@@ -1052,13 +1052,14 @@ void MapEditor::buildEntireUi()
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
-    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, false));
+    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 10, 0, true));
     topRightContainer->setBorderLayoutAnchor();
+    topRightContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     container->addChild(topRightContainer);
 
     auto menuContainer = CustomUi::Container::create();
     menuContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
-    menuContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
+    //menuContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
     menuContainer->setTag(CONTAINER_FLOW_TAG);
     topRightContainer->addChild(menuContainer);
 
@@ -1077,13 +1078,12 @@ void MapEditor::buildEntireUi()
     menuContainer->addChild(settingsB);
 
     auto editContainer = CustomUi::Container::create();
-    editContainer->setBorderLayoutAnchor(BorderLayout::LEFT);
-    editContainer->setConstraint(CustomUi::DependencyConstraint(topRightContainer, RIGHT, {.05, 0}));
+    //editContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
     editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
     editContainer->setTag(CONTAINER_FLOW_TAG);
     editContainer->setMargin({ 0, 1 });
 
-    padding = { 15, 10 };
+    padding = { 50, 10 };
 
     auto undoB = CustomUi::Button::create();
     undoB->initIcon("editor_undo", padding);
@@ -1092,6 +1092,10 @@ void MapEditor::buildEntireUi()
     auto redoB = CustomUi::Button::create();
     redoB->initIcon("editor_redo", padding);
     editContainer->addChild(redoB);
+
+    auto moveB = CustomUi::Button::create();
+    moveB->initIcon("editor_move", padding);
+    editContainer->addChild(moveB);
 
     //auto placeB = CustomUi::Button::create();
     //placeB->initIcon("editor_place", padding);
@@ -1113,7 +1117,7 @@ void MapEditor::buildEntireUi()
     //rectFillB->initIcon("editor_rectangle_fill", padding);
     //editContainer->addChild(rectFillB);
 
-    container->addChild(editContainer);
+    topRightContainer->addChild(editContainer);
 
     auto cameraScaleContainer = CustomUi::Container::create();
     cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
