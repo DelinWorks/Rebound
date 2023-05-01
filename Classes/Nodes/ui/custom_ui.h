@@ -10,8 +10,10 @@
 
 using namespace ax;
 
+#define CONTAINER_FLOW_TAG -6942
+
 #define YOURE_NOT_WELCOME_HERE -69420
-#define CONTAINER_FLOW_TAG -69421
+#define CONTAINER_CLOSE_TAG -69421
 //#define DRAW_NODE_DEBUG
 
 namespace CustomUi
@@ -111,7 +113,7 @@ namespace CustomUi
         DrawNode* _contentSizeDebug;
 
     public:
-        ax::Vec2 _anchorOffset;
+        ax::Vec2 _anchorOffset = ax::Vec2::ONE;
         ax::Vec2 _anchorPoint;
         bool _containerFlow = false;
         bool _sortChildren = false;

@@ -265,7 +265,7 @@ void CustomUi::Container::calculateContentBoundaries()
     Vec2 dominantSize = Vec2::ZERO;
 
     for (auto& _ : list) {
-        if (_->getTag() == YOURE_NOT_WELCOME_HERE)
+        if (_->getTag() <= YOURE_NOT_WELCOME_HERE)
             continue;
         auto c = DCAST(Container, _);
         if (c) c->calculateContentBoundaries();
@@ -294,13 +294,13 @@ void CustomUi::Container::calculateContentBoundaries()
         }
     }
 
-    auto scaledMargin = ax::Vec2(
+    auto scaledMargin = Math::getEven(ax::Vec2(
         _margin.x * 2 * n->getScaleX(),
         _margin.y * 2 * n->getScaleY()
-    );
+    ));
 
     if (_isDynamic)
-        setContentSize(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y), false);
+        setContentSize(Math::getEven(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y)), false);
 
     if (_background)
         _background->setContentSize(getContentSize() + _backgroundPadding);
@@ -328,7 +328,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     f32 sumSize = 0;
     u16 listSize = 0;
     for (auto& _ : list) {
-        if (!_ || _->getTag() == YOURE_NOT_WELCOME_HERE) continue;
+        if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
         auto cont = DCAST(Container, _);
         if (cont) cont->calculateContentBoundaries();
         auto cSize = _->getContentSize();
@@ -350,7 +350,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     if (direction == STACK_CENTER)
         cumSize = (sumSize - (_spacing.x * 1.5 * listSize) - _spacing.x / 2) / -2;
     for (auto& _ : list) {
-        if (!_ || _->getTag() == YOURE_NOT_WELCOME_HERE) continue;
+        if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
         auto cSize = _->getContentSize();
         if (cSize.x == 0 || cSize.y == 0)
             continue;
@@ -358,14 +358,14 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
-                _->setPositionX(round(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleX()) + marginF));
+                _->setPositionX(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleX()) + marginF));
                 _->setPositionY(0);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             }
             else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
-                _->setPositionY(round(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleY()) + marginF));
+                _->setPositionY(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleY()) + marginF));
                 _->setPositionX(0);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
@@ -409,7 +409,5 @@ void CustomUi::DependencyConstraint::build(CustomUi::Container* container)
         anchor = (Vec2(0, 0) + offset);
     }
 
-    container->setPosition(parent->getPosition() +
-        ((parent->getContentSize() * (anchor + offset)) +
-            Vec2(parent->getContentSize().x / 2, -parent->getContentSize().y / 2)));
+    container->setPosition(parent->getContentSize() * anchor);
 }

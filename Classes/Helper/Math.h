@@ -41,6 +41,22 @@ namespace Math
         d.x /= static_cast<float>(c);
         d.y /= static_cast<float>(c);
     }
+
+    inline f32 getEven(f32 x) {
+        return round(x / 2) * 2;
+    }
+
+    inline ax::Vec2 getEven(const ax::Vec2& v) {
+        return ax::Vec2(getEven(v.x), getEven(v.y));
+    }
+
+    inline f32 getOdd(f32 x) {
+        return 2 * ((int)(x / 2.0f)) + 1;
+    }
+
+    inline ax::Vec2 getOdd(const ax::Vec2& v) {
+        return ax::Vec2(getOdd(v.x), getOdd(v.y));
+    }
 }
 
 #endif

@@ -34,6 +34,7 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     prtcl->setBlendAdditive(true);
     prtcl->simulate(-1, 10);
     prtcl->setFixedFPS(20);
+    prtcl->setPositionType(ax::ParticleSystem::PositionType::GROUPED);
     _hoverSprite->addChild(prtcl, 2);
 }
 

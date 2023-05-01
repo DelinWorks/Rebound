@@ -110,6 +110,7 @@ void CustomUi::GUI::setAnchorPoint(const ax::Vec2& anchor)
 
 void CustomUi::GUI::setAnchorOffset(const ax::Vec2& anchorOffset)
 {
+	_anchorOffset = anchorOffset;
 	Node::setAnchorPoint(_anchorPoint * anchorOffset);
 }
 
