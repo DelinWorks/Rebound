@@ -12,7 +12,7 @@ using namespace ax;
 
 #define YOURE_NOT_WELCOME_HERE -69420
 #define CONTAINER_FLOW_TAG -69421
-#define DRAW_NODE_DEBUG
+//#define DRAW_NODE_DEBUG
 
 namespace CustomUi
 {
@@ -81,6 +81,9 @@ namespace CustomUi
         void onEnter() override;
         void onExit() override;
 
+        virtual void setAnchorPoint(const ax::Vec2& anchor) override;
+        void setAnchorOffset(const ax::Vec2& anchorOffset);
+
         void notifyFocused(GUI* sender, bool focused, bool ignoreSelf = false);
         void notifyEnabled();
         virtual void notifyLayout();
@@ -108,6 +111,8 @@ namespace CustomUi
         DrawNode* _contentSizeDebug;
 
     public:
+        ax::Vec2 _anchorOffset;
+        ax::Vec2 _anchorPoint;
         bool _containerFlow = false;
         bool _sortChildren = false;
         ax::Vec2 _padding = Vec2::ZERO;

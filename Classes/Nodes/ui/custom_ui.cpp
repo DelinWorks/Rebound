@@ -102,6 +102,17 @@ void CustomUi::GUI::onExit()
 	notifyFocused(this, false);
 }
 
+void CustomUi::GUI::setAnchorPoint(const ax::Vec2& anchor)
+{
+	_anchorPoint = anchor;
+	Node::setAnchorPoint(anchor);
+}
+
+void CustomUi::GUI::setAnchorOffset(const ax::Vec2& anchorOffset)
+{
+	Node::setAnchorPoint(_anchorPoint * anchorOffset);
+}
+
 void CustomUi::GUI::notifyFocused(GUI* sender, bool focused, bool ignoreSelf)
 {
 	auto cast = DCAST(GUI, getParent());

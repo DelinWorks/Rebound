@@ -805,7 +805,7 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_G) {
         auto action = ActionFloat::create(0.25, zPositionMultiplier, zPositionMultiplier < 0.5 ? 1 : 0,
-            [&](float value) { zPositionMultiplier = tweenfunc::backEaseInOut(value); });
+            [&](ax::Node* target, float value) { zPositionMultiplier = tweenfunc::backEaseInOut(value); });
         runAction(action);
     }
 
@@ -889,7 +889,6 @@ void MapEditor::onMouseDown(ax::Event* event)
     {
         isPlacing = true;
 
-        printf("%d\n", ++cur);
         auto mouseClick = DrawNode::create(1);
         mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
         mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 16));
@@ -1096,6 +1095,32 @@ void MapEditor::buildEntireUi()
     auto moveB = CustomUi::Button::create();
     moveB->initIcon("editor_move", padding);
     editContainer->addChild(moveB);
+
+    auto closeCont = CustomUi::Container::create();
+    closeCont->setBorderLayoutAnchor(TOP_LEFT);
+    closeCont->setConstraint(CustomUi::DependencyConstraint(topRightContainer, BOTTOM_RIGHT));
+    topRightContainer->addChild(closeCont);
+
+    auto closeB = CustomUi::Button::create();
+    closeB->initIcon("editor_arrow_tl", {10, 10});
+    closeCont->addChild(closeB);
+
+    closeB->_callbackObjects.push_back(topRightContainer);
+    closeB->_callbackObjects.push_back(closeCont);
+
+    closeB->_callback = [&](CustomUi::Button* target) {
+        auto& objs = target->_callbackObjects;
+
+        for (auto& _ : objs)
+        {
+            auto action = ActionFloat::create(0.08, 1, -1, [](ax::Node* target, float v) {
+                auto s = DCAST(CustomUi::GUI, target);
+                s->setAnchorOffset({ v,v });
+            });
+            action->setTarget(_);
+            _->runAction(action);
+        }
+    };
 
     //auto placeB = CustomUi::Button::create();
     //placeB->initIcon("editor_place", padding);

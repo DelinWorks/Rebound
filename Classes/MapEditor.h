@@ -186,8 +186,6 @@ public:
     void setCameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
 
-    // Custom Tile Spawn Code
-    i32 cur = 0;
 };
 
 #endif

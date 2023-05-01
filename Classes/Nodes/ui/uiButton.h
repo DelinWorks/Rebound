@@ -37,6 +37,7 @@ namespace CustomUi
 
         ~Button();
 
+        std::vector<ax::Node*> _callbackObjects;
         ButtonCallback _callback;
 
         void init(std::wstring _text, int _fontSize, Size _size);
