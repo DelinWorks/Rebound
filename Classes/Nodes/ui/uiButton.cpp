@@ -111,7 +111,7 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             Math::clamp(field->getContentSize().height / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
         button->setContentSize(sprite->getContentSize() * 1.01);
     }
-    else button->setContentSize(icon->getContentSize() * _PxArtMultiplier + (hitboxIsExtent ? clampoffset : Size{ 0,0 }));
+    else button->setContentSize(icon->getContentSize() * 1.01 * _PxArtMultiplier + (hitboxIsExtent ? clampoffset : Size{ 0,0 }));
 
     if (isEnabled())
     {
