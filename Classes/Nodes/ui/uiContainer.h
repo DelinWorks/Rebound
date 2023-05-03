@@ -82,8 +82,8 @@ namespace CustomUi
         void setLayout(FlowLayout layout);
         void setConstraint(DependencyConstraint layout);
 
-        void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ZERO);
-        void setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset = ax::Vec2::ZERO);
+        void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ONE);
+        void setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset = ax::Vec2::ONE);
 
         void setBackgroundSprite(ax::Vec2 padding = {0, 0});
         void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});

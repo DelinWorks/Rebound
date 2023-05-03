@@ -159,31 +159,31 @@ void CustomUi::Container::setBorderLayoutAnchor(ax::Vec2 offset)
 {
     switch (_borderLayout) {
     case BorderLayout::TOP:
-        setAnchorPoint(Vec2(0, 0.5) + offset);
+        setAnchorPoint(Vec2(0, 0.5) * offset);
         break;
     case BorderLayout::TOP_RIGHT:
-        setAnchorPoint(Vec2(0.5, 0.5) + offset);
+        setAnchorPoint(Vec2(0.5, 0.5) * offset);
         break;
     case BorderLayout::RIGHT:
-        setAnchorPoint(Vec2(0.5, 0) + offset);
+        setAnchorPoint(Vec2(0.5, 0) * offset);
         break;
     case BorderLayout::BOTTOM_RIGHT:
-        setAnchorPoint(Vec2(0.5, -0.5) + offset);
+        setAnchorPoint(Vec2(0.5, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM:
-        setAnchorPoint(Vec2(0, -0.5) + offset);
+        setAnchorPoint(Vec2(0, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM_LEFT:
-        setAnchorPoint(Vec2(-0.5, -0.5) + offset);
+        setAnchorPoint(Vec2(-0.5, -0.5) * offset);
         break;
     case BorderLayout::LEFT:
-        setAnchorPoint(Vec2(-0.5, 0) + offset);
+        setAnchorPoint(Vec2(-0.5, 0) * offset);
         break;
     case BorderLayout::TOP_LEFT:
-        setAnchorPoint(Vec2(-0.5, 0.5) + offset);
+        setAnchorPoint(Vec2(-0.5, 0.5) * offset);
         break;
     default:
-        setAnchorPoint(Vec2(0, 0) + offset);
+        setAnchorPoint(Vec2(0, 0) * offset);
     }
 }
 
@@ -191,31 +191,31 @@ void CustomUi::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 of
 {
     switch (border) {
     case BorderLayout::TOP:
-        setAnchorPoint(Vec2(0, 0.5) + offset);
+        setAnchorPoint(Vec2(0, 0.5) * offset);
         break;
     case BorderLayout::TOP_RIGHT:
-        setAnchorPoint(Vec2(0.5, 0.5) + offset);
+        setAnchorPoint(Vec2(0.5, 0.5) * offset);
         break;
     case BorderLayout::RIGHT:
-        setAnchorPoint(Vec2(0.5, 0) + offset);
+        setAnchorPoint(Vec2(0.5, 0) * offset);
         break;
     case BorderLayout::BOTTOM_RIGHT:
-        setAnchorPoint(Vec2(0.5, -0.5) + offset);
+        setAnchorPoint(Vec2(0.5, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM:
-        setAnchorPoint(Vec2(0, -0.5) + offset);
+        setAnchorPoint(Vec2(0, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM_LEFT:
-        setAnchorPoint(Vec2(-0.5, -0.5) + offset);
+        setAnchorPoint(Vec2(-0.5, -0.5) * offset);
         break;
     case BorderLayout::LEFT:
-        setAnchorPoint(Vec2(-0.5, 0) + offset);
+        setAnchorPoint(Vec2(-0.5, 0) * offset);
         break;
     case BorderLayout::TOP_LEFT:
-        setAnchorPoint(Vec2(-0.5, 0.5) + offset);
+        setAnchorPoint(Vec2(-0.5, 0.5) * offset);
         break;
     default:
-        setAnchorPoint(Vec2(0, 0) + offset);
+        setAnchorPoint(Vec2(0, 0) * offset);
     }
 }
 

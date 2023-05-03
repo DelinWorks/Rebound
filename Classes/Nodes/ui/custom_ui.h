@@ -15,6 +15,7 @@ using namespace ax;
 #define YOURE_NOT_WELCOME_HERE -69420
 #define CONTAINER_CLOSE_TAG -69421
 //#define DRAW_NODE_DEBUG
+//#define SHOW_BUTTON_HITBOX
 
 namespace CustomUi
 {
@@ -35,13 +36,11 @@ namespace CustomUi
         float fontSize;
     };
 
-    //#define SHOW_BUTTON_HITBOX
-
     inline ui::Button* createPlaceholderButton()
     {
         auto button = ui::Button::create();
 #ifdef SHOW_BUTTON_HITBOX
-        button->loadTextureNormal("shared/debug/button.png");
+        button->loadTextureNormal("pixel.png");
         button->setOpacity(120);
 #else
         button->setVisible(false);
