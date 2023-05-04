@@ -40,7 +40,8 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
 
 void CustomUi::HoverEffectGUI::update(f32 dt) {
     if (_hoverSprite->isVisible()) {
-        _hoverSprite->setContentSize(getContentSize() + Vec2(30 * (getContentSize().x / 120), 30));
+        //_hoverSprite->setContentSize(getContentSize() + Vec2(30 * (getContentSize().x / 120), 30));
+        _hoverSprite->setContentSize(getContentSize());
         _hoverShaderTime1 += dt;
         SET_UNIFORM(_hoverShader, "u_time", _hoverShaderTime1);
         _hoverShaderTime2 += dt;

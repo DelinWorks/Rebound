@@ -25,7 +25,7 @@ namespace CustomUi
         INPUT = 1
     };
 
-    class DiscardPanel : public Container {
+    class DiscardPanel : public Modal {
     public:
         static CustomUi::DiscardPanel* create(BorderLayout border = BorderLayout::CENTER, BorderContext context = BorderContext::SCREEN_SPACE);
 

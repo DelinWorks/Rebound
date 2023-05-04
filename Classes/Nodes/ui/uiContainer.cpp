@@ -46,7 +46,7 @@ void CustomUi::Container::setConstraint(DependencyConstraint layout)
 bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     _isHitSwallowed = false;
-    auto& list = getSortedChildren();
+    auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
@@ -62,7 +62,7 @@ bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
     bool isClickSwallowed = false;
-    auto& list = getSortedChildren();
+    auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
@@ -304,13 +304,6 @@ void CustomUi::Container::calculateContentBoundaries()
 
     if (_background)
         _background->setContentSize(getContentSize() + _backgroundPadding);
-}
-
-Vector<Node*>& CustomUi::Container::getSortedChildren()
-{
-    auto& list = getChildren();
-    std::sort(list.begin(), list.end(), [](Node* a, Node* b) { return a->_ID < b->_ID; });
-    return list;
 }
 
 void CustomUi::FlowLayout::build(CustomUi::Container* container)

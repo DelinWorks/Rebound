@@ -14,6 +14,7 @@ using namespace ax;
 
 #define YOURE_NOT_WELCOME_HERE -69420
 #define CONTAINER_CLOSE_TAG -69421
+
 //#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
 
@@ -27,6 +28,7 @@ namespace CustomUi
     
     class GUI;
 
+    inline std::stack<GUI*> _modalStack;
     inline GUI* _pCurrentHeldItem = nullptr;
 
     inline bool _doNotShowWin32 = false;

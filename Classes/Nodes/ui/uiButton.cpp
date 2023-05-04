@@ -19,7 +19,7 @@ CustomUi::Button::~Button() {
         CustomUi::_pCurrentHeldItem = nullptr;
 }
 
-void CustomUi::Button::init(std::wstring _text, int _fontSize, Size _size)
+void CustomUi::Button::init(std::wstring _text, int _fontSize, Size _size, Size _hitboxPadding)
 {
     init(
         _text,
@@ -33,11 +33,12 @@ void CustomUi::Button::init(std::wstring _text, int _fontSize, Size _size)
         true,
         Color3B(117, 179, 255),
         true,
-        false
+        false,
+        _hitboxPadding
     );
 }
 
-void CustomUi::Button::initIcon(std::string frameName, Size _padding, bool hitboxIsExtent)
+void CustomUi::Button::initIcon(std::string _frameName, Size _hitboxPadding)
 {
     init(
         L"",
@@ -46,20 +47,20 @@ void CustomUi::Button::initIcon(std::string frameName, Size _padding, bool hitbo
         ADVANCEDUI_P1_CAP_INSETS,
         Size(0, 0),
         Rect(0, 0, 0, 0),
-        _padding,
-        frameName,
+        Size(0, 0),
+        _frameName,
         true,
         Color3B(117, 179, 255),
         true,
-        true
+        true,
+        _hitboxPadding
     );
-    this->hitboxIsExtent = hitboxIsExtent;
 }
 
 void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
     cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
     Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-    Color3B _selected_color, bool _allowExtend, bool isIcon)
+    Color3B _selected_color, bool _allowExtend, bool _isIcon , ax::Size _hitboxpadding)
 {
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
@@ -71,9 +72,10 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
     clampregion = _clampregion;
     clampoffset = _clampoffset;
     capinsets = _capinsets;
+    hitboxpadding = _hitboxpadding;
     selected_color = _selected_color;
     setContentSize(_contentsize);
-    if (isIcon) {
+    if (_isIcon) {
         icon = ax::Sprite::createWithSpriteFrameName(_normal_sp);
         addChild(icon, 0);
     }
@@ -109,9 +111,10 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 
         sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
             Math::clamp(field->getContentSize().height / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
-        button->setContentSize(sprite->getContentSize() * 1.01);
+        button->setContentSize(sprite->getContentSize() + _padding / 2 + hitboxpadding);
     }
-    else button->setContentSize(icon->getContentSize() * 1.01 * _PxArtMultiplier + (hitboxIsExtent ? clampoffset : Size{ 0,0 }));
+    else
+        button->setContentSize((icon->getContentSize() + _padding / 2 + hitboxpadding) * _PxArtMultiplier);
 
     if (isEnabled())
     {

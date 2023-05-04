@@ -127,9 +127,8 @@ namespace CustomUi
         ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
         bool _closestStaticBorder = false;
 
-        Vector<Node*>& getSortedChildren();
-
     protected:
+        bool _isMinimized = true;
         ax::Vec2 _margin;
         Layout _layout;
         Constraint _constraint;

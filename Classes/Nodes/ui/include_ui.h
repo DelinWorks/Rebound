@@ -6,10 +6,11 @@
 #include "uiButton.h"
 #include "uiTextField.h"
 #include "uiLabel.h"
+#include "uiModal.h"
+#include "uiDiscardPanel.h"
 
 #ifndef EXCLUDE_EXTENSIONS
 
-#include "uiDiscardPanel.h"
 
 #else
 #undef EXCLUDE_EXTENSIONS;
@@ -38,6 +39,15 @@ namespace CustomUi {
                     {
                         auto g = DCAST(CustomUi::GUI, _);
                         bool isClosed = g->_anchorOffset.x < 0;
+                        for (auto& _ : objs[0]->getChildren()) {
+                            auto cc = DCAST(Container, _);
+                            if (cc && cc != objs[1])
+                            {
+                                if (!isClosed)
+                                    cc->disable();
+                                else cc->enable();
+                            }
+                        }
                         auto action = ActionFloat::create(0.08, isClosed ? -1 : 1, isClosed ? 1 : -1, [g](ax::Node* target, float v) {
                             auto s = DCAST(CustomUi::Container, target);
                         s->setAnchorOffset({ v,v });
@@ -46,7 +56,8 @@ namespace CustomUi {
                         action->setTarget(_);
                         _->runAction(action);
                         target->icon->setSpriteFrame(isClosed ? "editor_arrow_tl" : "editor_arrow_br");                                                                                                        \
-                            break;
+                        
+                        break;
                     }
             };
         }

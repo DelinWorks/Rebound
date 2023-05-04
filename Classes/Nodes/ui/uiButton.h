@@ -12,6 +12,8 @@ USING_NS_CC;
 #define BUTTON_P1_CLAMP_REGION Rect(380, 40, visibleSize.width + getWinDiff().width, 40)
 #define BUTTON_P1_CLAMP_OFFSET Size(30, 0)
 
+#define BUTTON_HITBOX_CORNER_TOLERANCE Size(3, 3)
+
 namespace CustomUi
 {
     class Button;
@@ -30,23 +32,23 @@ namespace CustomUi
         cocos2d::Rect capinsets;
         cocos2d::Rect clampregion;
         cocos2d::Size clampoffset;
+        cocos2d::Size hitboxpadding;
         ChangeValue<bool> hover_cv;
         bool adaptToWindowSize = false;
         bool extend = false;
-        bool hitboxIsExtent = false;
 
         ~Button();
 
         std::vector<ax::Node*> _callbackObjects;
         ButtonCallback _callback;
 
-        void init(std::wstring _text, int _fontSize, Size _size);
-        void initIcon(std::string frameName, Size _padding = Size(0, 0), bool hitboxIsExtent = true);
+        void init(std::wstring _text, int _fontSize, Size _size = ax::Size::ZERO, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
+        void initIcon(std::string _frameName, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
 
         void init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
             cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
             Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-            Color3B _selected_color, bool _allowExtend, bool isIcon);
+            Color3B _selected_color, bool _allowExtend, bool _isIcon, Size _hitboxpadding);
 
         void update(f32 dt) override;
 

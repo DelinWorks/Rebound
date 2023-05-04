@@ -74,6 +74,8 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
 
     discardCallback = [&](CustomUi::Button* target)
     {
+        Modal::popSelf();
+
         stack->disable();
 
         _bgDim->setOpacity(100);
@@ -113,9 +115,15 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
 
 bool CustomUi::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
-    notifyFocused(this, !_isFocused, true);
+    if (_modalStack.size() == 0) // Object was poped before
+        return false;
+
     Container::hover(mouseLocationInView, cam);
-    return true;
+    if (_modalStack.top() == this) {
+        notifyFocused(this, !_isFocused, true);
+        return true;
+    }
+    else return false;
 }
 
 bool CustomUi::DiscardPanel::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)

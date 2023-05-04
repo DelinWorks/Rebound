@@ -821,7 +821,7 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_S)
     {
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 10; i++) {
             auto panel = CustomUi::DiscardPanel::create();
             panel->init(L"تحذير", L"فشل الإتصال بالخادم", CustomUi::DiscardButtons::YES_NO, CustomUi::DiscardType::MESSAGE);
             getContainer()->pushModal(panel);
@@ -1051,7 +1051,7 @@ void MapEditor::buildEntireUi()
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
-    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 10, 0, true));
+    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, true));
     topRightContainer->setBorderLayoutAnchor();
     topRightContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     container->addChild(topRightContainer);
@@ -1062,18 +1062,22 @@ void MapEditor::buildEntireUi()
     menuContainer->setTag(CONTAINER_FLOW_TAG);
     topRightContainer->addChild(menuContainer);
 
-    auto padding = Size(0, 30);
+    auto padding = Size(2, 10);
+    auto hpadding = Size(3, 20);
 
     auto fileB = CustomUi::Button::create();
-    fileB->init(L"File", 16, padding);
+    fileB->init(L"File", 16, ax::Vec2::ZERO, hpadding);
+    fileB->_padding = padding;
     menuContainer->addChild(fileB);
 
     auto editB = CustomUi::Button::create();
-    editB->init(L"Edit", 16, padding);
+    editB->init(L"Edit", 16, ax::Vec2::ZERO, hpadding);
+    editB->_padding = padding;
     menuContainer->addChild(editB);
 
     auto settingsB = CustomUi::Button::create();
-    settingsB->init(L"Menu", 16, padding);
+    settingsB->init(L"Menu", 16, ax::Vec2::ZERO, hpadding);
+    settingsB->_padding = padding;
     menuContainer->addChild(settingsB);
 
     auto editContainer = CustomUi::Container::create();
@@ -1082,18 +1086,21 @@ void MapEditor::buildEntireUi()
     editContainer->setTag(CONTAINER_FLOW_TAG);
     editContainer->setMargin({ 0, 1 });
 
-    padding = { 50, 10 };
+    padding = { 52, 5 };
 
     auto undoB = CustomUi::Button::create();
-    undoB->initIcon("editor_undo", padding);
+    undoB->initIcon("editor_undo");
+    undoB->_padding = padding;
     editContainer->addChild(undoB);
 
     auto redoB = CustomUi::Button::create();
-    redoB->initIcon("editor_redo", padding);
+    redoB->initIcon("editor_redo");
+    redoB->_padding = padding;
     editContainer->addChild(redoB);
 
     auto moveB = CustomUi::Button::create();
-    moveB->initIcon("editor_move", padding);
+    moveB->initIcon("editor_move");
+    moveB->_padding = padding;
     editContainer->addChild(moveB);
 
     CONTAINER_MAKE_MINIMIZABLE(topRightContainer);
@@ -1128,7 +1135,7 @@ void MapEditor::buildEntireUi()
     container->addChild(cameraScaleContainer);
 
     cameraScaleB = CustomUi::Button::create();
-    cameraScaleB->initIcon("editor_zoom_aligned", {10, 0});
+    cameraScaleB->initIcon("editor_zoom_aligned");
     cameraScaleB->_callback = [&](CustomUi::Button* target) {
         if (cameraScale != 1)
         {
