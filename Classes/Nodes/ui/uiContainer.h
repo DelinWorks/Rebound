@@ -14,8 +14,8 @@
 #include "Components/UiRescaleComponent.h"
 
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 28 - 24, 28 - 24)
-#define ADVANCEDUI_TEXTURE "9_slice_box_1.png"sv
-#define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped.png"sv
+#define ADVANCEDUI_TEXTURE "9_slice_box_1"sv
+#define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped"sv
 
 namespace CustomUi
 {

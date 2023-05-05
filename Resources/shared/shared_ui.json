@@ -1,7 +1,7 @@
 {
   "frames": [
     {
-      "filename": "slider_pressbar.png",
+      "filename": "slider_pressbar",
       "frame": {
         "x": 0,
         "y": 0,
@@ -26,7 +26,7 @@
       }
     },
     {
-      "filename": "slider_back.png",
+      "filename": "slider_back",
       "frame": {
         "x": 0,
         "y": 14,
@@ -51,7 +51,7 @@
       }
     },
     {
-      "filename": "ptrn_bg_hover2.png",
+      "filename": "ptrn_bg_hover2",
       "frame": {
         "x": 0,
         "y": 28,
@@ -76,7 +76,7 @@
       }
     },
     {
-      "filename": "ptrn_bg_hover_shader_alpha_edge.png",
+      "filename": "ptrn_bg_hover_shader_alpha_edge",
       "frame": {
         "x": 0,
         "y": 43,
@@ -101,7 +101,7 @@
       }
     },
     {
-      "filename": "loading_circle_small.png",
+      "filename": "loading_circle_small",
       "frame": {
         "x": 0,
         "y": 83,
@@ -126,7 +126,7 @@
       }
     },
     {
-      "filename": "editor_camera_zoom_small.png",
+      "filename": "editor_camera_zoom_small",
       "frame": {
         "x": 64,
         "y": 83,
@@ -151,7 +151,7 @@
       }
     },
     {
-      "filename": "editor_camera_zoom_x1.png",
+      "filename": "editor_camera_zoom_x1",
       "frame": {
         "x": 80,
         "y": 43,
@@ -176,7 +176,7 @@
       }
     },
     {
-      "filename": "editor_camera_zoom_big.png",
+      "filename": "editor_camera_zoom_big",
       "frame": {
         "x": 104,
         "y": 83,
@@ -201,7 +201,7 @@
       }
     },
     {
-      "filename": "login_guest.png",
+      "filename": "login_guest",
       "frame": {
         "x": 120,
         "y": 28,
@@ -226,7 +226,7 @@
       }
     },
     {
-      "filename": "ptrn_bg_hover_shader.png",
+      "filename": "ptrn_bg_hover_shader",
       "frame": {
         "x": 120,
         "y": 60,
@@ -251,7 +251,7 @@
       }
     },
     {
-      "filename": "login.png",
+      "filename": "login",
       "frame": {
         "x": 152,
         "y": 28,
@@ -276,7 +276,7 @@
       }
     },
     {
-      "filename": "show_password.png",
+      "filename": "show_password",
       "frame": {
         "x": 152,
         "y": 60,
@@ -301,7 +301,7 @@
       }
     },
     {
-      "filename": "hide_password.png",
+      "filename": "hide_password",
       "frame": {
         "x": 144,
         "y": 92,
@@ -326,7 +326,7 @@
       }
     },
     {
-      "filename": "ptrn_bg_hover.png",
+      "filename": "ptrn_bg_hover",
       "frame": {
         "x": 0,
         "y": 147,
@@ -351,7 +351,7 @@
       }
     },
     {
-      "filename": "9_slice_box_2.png",
+      "filename": "9_slice_box_2",
       "frame": {
         "x": 28,
         "y": 147,
@@ -376,7 +376,7 @@
       }
     },
     {
-      "filename": "9_slice_box_1.png",
+      "filename": "9_slice_box_1",
       "frame": {
         "x": 56,
         "y": 147,
@@ -401,7 +401,7 @@
       }
     },
     {
-      "filename": "9_slice_box_1_cramped.png",
+      "filename": "9_slice_box_1_cramped",
       "frame": {
         "x": 84,
         "y": 124,
@@ -426,7 +426,7 @@
       }
     },
     {
-      "filename": "text_cursor.png",
+      "filename": "text_cursor",
       "frame": {
         "x": 64,
         "y": 123,
@@ -451,7 +451,7 @@
       }
     },
     {
-      "filename": "slidernode_disable.png",
+      "filename": "slidernode_disable",
       "frame": {
         "x": 84,
         "y": 152,
@@ -476,7 +476,7 @@
       }
     },
     {
-      "filename": "slidernode_normal.png",
+      "filename": "slidernode_normal",
       "frame": {
         "x": 104,
         "y": 152,
@@ -501,7 +501,7 @@
       }
     },
     {
-      "filename": "slidernode_press.png",
+      "filename": "slidernode_press",
       "frame": {
         "x": 124,
         "y": 123,
@@ -529,7 +529,7 @@
   "meta": {
     "app": "http://free-tex-packer.com",
     "version": "0.6.7",
-    "image": "shared_ui.png",
+    "image": "shared_ui",
 	"alias": true,
     "alias": true,
     "format": "RGBA8888",

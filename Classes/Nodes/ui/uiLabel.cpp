@@ -96,7 +96,7 @@ Size CustomUi::Label::getDynamicContentSize()
 
 void CustomUi::Label::onFontScaleUpdate(float scale)
 {
-    field->initWithTTF(ShapingEngine::render(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
+    field->initWithTTF(ShapingEngine::Helper::narrow(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
     if (wrap != 0) {
         field->setDimensions(wrap, field->getContentSize().y);
         field->setOverflow(ax::Label::Overflow::RESIZE_HEIGHT);
@@ -125,7 +125,7 @@ void CustomUi::Label::notifyLayout()
 
 void CustomUi::Label::setString(std::wstring _text)
 {
-    field->setString(ShapingEngine::render(text = _text));
+    field->setString(ShapingEngine::Helper::narrow(text = _text));
     updatePositionAndSize();
 }
 

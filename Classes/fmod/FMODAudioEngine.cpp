@@ -249,7 +249,7 @@ void FMODAudioEngine::releaseSound(const std::wstring &filename)
     }
     else
     {
-        wprintf(L"FMOD: The specified resource %s is not loaded, so it can't be unloaded\n", filename.c_str());
+        RLOGE(false, "FMOD: The specified resource %s is not loaded, so it can't be unloaded\n", NRW(filename).c_str());
     }
 }
 
@@ -272,12 +272,12 @@ FMOD::Sound* FMODAudioEngine::load(const std::wstring &filename)
     FMOD::Sound *sound;
     if (!is_file_existw(filename.c_str()))
     {
-        wprintf(L"FMOD: preload file not found %s\n", filename.c_str());
+        RLOGE(false, "FMOD: preload file not found {}\n", NRW(filename).c_str());
         return NULL;
     }
-    result = _system->createSound(Strings::narrow(filename).c_str(), FMOD_DEFAULT, 0, &sound);
+    result = _system->createSound(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    wprintf(L"FMOD: preload file %s was loaded to memory.\n", Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str());
+    RLOG("FMOD: preload file {} was loaded to memory.\n", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -287,12 +287,12 @@ FMOD::Sound* FMODAudioEngine::loadStream(const std::wstring& filename)
     FMOD::Sound* sound;
     if (!is_file_existw(filename.c_str()))
     {
-        wprintf(L"FMOD: stream file not found %s\n", filename.c_str());
+        RLOGE(false, "FMOD: stream file not found {}\n", NRW(filename).c_str());
         return NULL;
     }
-    result = _system->createStream(Strings::narrow(filename).c_str(), FMOD_DEFAULT, 0, &sound);
+    result = _system->createStream(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    wprintf(L"FMOD: preload file %s was streamed.\n", Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str());
+    RLOG("FMOD: preload file {} was streamed.\n", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -405,7 +405,7 @@ bool FMODAudioEngine::destroySoundChannel(std::string soundName)
     }
     else
     {
-        printf("FMOD: sound by name %s wasn't found.\n", soundName.c_str());
+        RLOG("FMOD: sound by name {} wasn't found.\n", soundName.c_str());
         return false;
     }
 }
@@ -423,7 +423,7 @@ void FMODAudioEngine::pauseSound(std::string soundName)
     }
     else
     {
-        printf("FMOD: sound by name %s wasn't found.\n", soundName.c_str());
+        RLOGE(false, "FMOD: sound by name {} wasn't found.\n", soundName.c_str());
     }
 }
 
@@ -440,7 +440,7 @@ void FMODAudioEngine::resumeSound(std::string soundName)
     }
     else
     {
-        printf("FMOD: sound by name %s wasn't found.\n", soundName.c_str());
+         RLOGE(false, "FMOD: sound by name {} wasn't found.\n", soundName.c_str());
     }
 }
 

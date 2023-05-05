@@ -16,8 +16,7 @@ Vignette* Vignette::create(ax::Size visibleSize) {
 }
 
 Vignette* Vignette::init(ax::Size visibleSize) {
-    auto tex = Director::getInstance()->getTextureCache()->addImage("omf_2.png");
-    tex->setAliasTexParameters();
+    auto tex = ADD_IMAGE_ALIAS(tex, "omf_2.png");
     initWithTexture(tex);
     setContentSize(visibleSize);
     Program = createGPUProgram("shaders/vignette.fsh", "shaders/vignette.vsh");

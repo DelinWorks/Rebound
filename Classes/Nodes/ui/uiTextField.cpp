@@ -43,6 +43,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
+    _hoverOffset = { 10, 10 };
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());

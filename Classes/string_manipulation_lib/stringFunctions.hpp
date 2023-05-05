@@ -12,6 +12,9 @@
 #define CCP(d) (const char*)d
 #define CWCP(d) (const wchar_t*)d
 
+#define NRW Strings::narrow
+#define WDN Strings::widen
+
 #define MAX_WC2MB_ALLOCATION 1024
 
 namespace Strings {

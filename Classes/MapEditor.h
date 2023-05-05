@@ -161,7 +161,7 @@ public:
     bool isLocationEditable = false;
     bool isPlacing = false;
     ax::Rect createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box);
-    ax::Rect createRemoveToolTileSelectionBox(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize);
+    ax::Rect createEditToolSelectionBox(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize);
     ax::Vec2 removeSelectionStartPos;
     ax::DrawNode* removeSelectionNode;
     bool isRemoving = false;

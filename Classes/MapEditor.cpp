@@ -60,7 +60,7 @@ bool MapEditor::init()
     uiNode->addChild(rebuildableUiNodes);
     SET_POSITION_HALF_SCREEN(uiNode);
     _world->addChild(uiNodeNonFollow, 17);
-    _world->addChild(gridNode, 9);
+    _world->addChild(gridNode, 11);
 
     //uiNode->addComponent(new FollowNodeTransformComponent(getDefaultCamera()));
 
@@ -89,7 +89,7 @@ bool MapEditor::init()
 
     TileSystem::tileMapVirtualCamera = _camera;
     map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000000, 1000000));
-    _world->addChild(map, 999);
+    _world->addChild(map, 10);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
@@ -699,12 +699,10 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
-    std::vector v = { 1,2,3 };
-    _x = round(_x / map->_tileSize.x);
-    _y = round(_y / map->_tileSize.y);
+    std::vector v = { 82 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    for (int x = _x; x < _x + 10; x++)
-        for (int y = _y; y < _y + 10; y++) {
+    for (int x = _x; x < _width; x++)
+        for (int y = _y; y < _height; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_ROTATE;
@@ -732,7 +730,7 @@ void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
 void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize)
 {
     if (isRemoving)
-        createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
+        createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
 
     if (isPlacing || isRemoving)
     {
@@ -753,7 +751,10 @@ void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& r
             vY += _newY;
             if (isPlacing)
             {
-                editUpdate_place(vX, vY, placeStampSize.width, placeStampSize.height);
+                vX = round(vX / map->_tileSize.x);
+                vY = round(vY / map->_tileSize.y);
+                //auto rect = createEditToolSelectionBox(Vec2(vX, vY), Vec2(placeStampSize.width, placeStampSize.height), map->_tileSize.x);
+                editUpdate_place(vX, vY, vX + 1, vY + 1);
                 // break the loop cuz we dont want the stamp to be lined with frame lag
                 // cuz that shit steals a TON of frames just skip it if its over 10 units on any axis
                 if (placeStampSize.width > 10 || placeStampSize.height > 10)
@@ -809,21 +810,11 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
         runAction(action);
     }
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_P)
-    {
-        auto proj = Director::getInstance()->getProjection();
-
-        if (proj == Director::Projection::_3D)
-            Director::getInstance()->setProjection(Director::Projection::_2D);
-        else
-            Director::getInstance()->setProjection(Director::Projection::_3D);
-    }
-
     if (keyCode == EventKeyboard::KeyCode::KEY_S)
     {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             auto panel = CustomUi::DiscardPanel::create();
-            panel->init(L"تحذير", L"فشل الإتصال بالخادم", CustomUi::DiscardButtons::YES_NO, CustomUi::DiscardType::MESSAGE);
+            panel->init(L"WARNING", L"User Interface Test !!!", CustomUi::DiscardButtons::YES_NO, CustomUi::DiscardType::MESSAGE);
             getContainer()->pushModal(panel);
         }
 
@@ -841,18 +832,6 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
         //            SQLITE_CRASH_CHECK(result);
         //        }
         //sqlite3_wal_checkpoint(pdb, NULL);
-    }
-
-    if (keyCode == EventKeyboard::KeyCode::KEY_W)
-    {
-        _defaultCamera->runAction(
-            RepeatForever::create(
-                Sequence::create(
-                    RotateBy::create(3, 360),
-                    _NOTHING
-                )
-            )
-        ); 
     }
 }
 
@@ -918,8 +897,8 @@ void MapEditor::onMouseUp(ax::Event* event)
     {
         if (!isRemoving) return;
         isRemoving = false;
-        Rect rect = createRemoveToolTileSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
-        editUpdate_remove(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+        Rect rect = createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
+        editUpdate_place(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         RLOG("remove_selection_tool: begin: {},{} end: {},{}", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         removeSelectionNode->clear();
     }
@@ -1180,7 +1159,7 @@ void MapEditor::buildEntireUi()
             i32 verts = (i32)Director::getInstance()->getRenderer()->getDrawnVertices();
             i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
             std::wstring text = WFMT(L"T: %d | C: %d\n", 0, 0) + L"D3D11: " + buffAsStdStr + L" / " + buffAsStdStrDt + L"ms\n" +
-                WFMT(L"%s: %d / ", L"دفعات الرسم", batches) + WFMT(L"%s: %d", L"العقد المرسومة", verts);
+                WFMT(L"%s: %d / ", L"Draw Calls", batches) + WFMT(L"%s: %d", L"Vertices Drawn", verts);
             _debugText->setString(text);
         });
         auto wait_fps_action = DelayTime::create(0.5f);
@@ -1260,7 +1239,7 @@ ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _t
     return Rect(start_pos.x, start_pos.y, end_pos.x, end_pos.y);
 }
 
-Rect MapEditor::createRemoveToolTileSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _tileSize)
+Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _tileSize)
 {
     if (removeSelectionNode == nullptr) {
         removeSelectionNode = DrawNode::create();
@@ -1268,6 +1247,12 @@ Rect MapEditor::createRemoveToolTileSelectionBox(Vec2 start_pos, Vec2 end_pos, i
     }
     SelectionBox::Box box = SelectionBox::Box();
     Rect rect = createSelection(start_pos, end_pos, _tileSize, box);
+
+    rect.origin.x = rect.origin.x / map->_tileSize.x;
+    rect.origin.y = rect.origin.y / map->_tileSize.y;
+    rect.size.x = rect.size.x / map->_tileSize.x;
+    rect.size.y = rect.size.y / map->_tileSize.y;
+
     removeSelectionNode->clear();
     removeSelectionNode->setLineWidth(1);
     removeSelectionNode->drawLine(box.left.begin, box.left.end, SELECTION_SQUARE_DENIED);

@@ -27,6 +27,8 @@ typedef u32 TileID;
 #define TILE_FLAG_ALL    (TILE_FLAG_ROTATE | TILE_FLAG_FLIP_X | TILE_FLAG_FLIP_Y)
 #define TILE_FLAG_NONE   ~(TILE_FLAG_ALL)
 
+#define COLOR_BLEED_TOLERANCE 0.001
+
 #define VERTEX_SIZE_NO_ANIMATIONS 9
 
 #define VERTEX_SIZE_ANIMATED_2_ATRIBS 11
@@ -72,7 +74,7 @@ typedef u32 TileID;
     inline ax::Node* tileMapVirtualCamera = nullptr;
     inline EmptyVertexIndexCache emptyVIC;
     inline f32 chunkMeshCreateCount;
-    inline float zPositionMultiplier = 1;
+    inline float zPositionMultiplier = 0;
 
     struct UV {
         f32 U;
@@ -369,10 +371,10 @@ typedef u32 TileID;
                 f32 columnM = (column + tileset->_tileSize.x);
                 f32 rowM = (row + tileset->_tileSize.y);
 
-                column /= tileset->_textureSize.x;
-                row /= tileset->_textureSize.y;
-                columnM /= tileset->_textureSize.x;
-                rowM /= tileset->_textureSize.y;
+                column /= tileset->_textureSize.x - COLOR_BLEED_TOLERANCE;
+                row /= tileset->_textureSize.y - COLOR_BLEED_TOLERANCE;
+                columnM /= tileset->_textureSize.x + COLOR_BLEED_TOLERANCE;
+                rowM /= tileset->_textureSize.y + COLOR_BLEED_TOLERANCE;
 
                 row = 1.0 - row;
                 rowM = 1.0 - rowM;
@@ -456,6 +458,10 @@ typedef u32 TileID;
 
                     index++;
                 }
+
+            //if (vertices.size() != 0)
+            //    RLOG("Chunk Model Built with a Stride of {} has {} Vertices, {} Indices, Approx {}KiB Memory Taken", VERTEX_SIZE_NO_ANIMATIONS, vertices.size(), indices.size(),
+            //        (vertices.size() + indices.size()) * sizeof(float) * VERTEX_SIZE_NO_ANIMATIONS);
 
             return vertexSize;
         }

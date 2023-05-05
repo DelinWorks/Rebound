@@ -13,6 +13,8 @@ namespace CustomUi {
 		void update(f32 dt);
 		void hover();
 
+		ax::Vec2 _hoverOffset = ax::Vec2::ZERO;
+
 	private:
 		ax::ParticleSystemQuad* prtcl;
 		ax::backend::ProgramState* _hoverShader = nullptr;

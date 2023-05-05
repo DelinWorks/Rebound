@@ -156,7 +156,8 @@ inline std::chrono::steady_clock::time_point benchmark_bb7_end;
 #define BENCHMARK_SECTION_END() benchmark_bb7_end = std::chrono::high_resolution_clock::now(); \
 RLOG("benchmark {} took: {} millis, {} micros", benchmark_bb7_name, std::chrono::duration_cast<std::chrono::milliseconds>(benchmark_bb7_end - benchmark_bb7_start).count(), std::chrono::duration_cast<std::chrono::microseconds>(benchmark_bb7_end - benchmark_bb7_start).count());
 
-#define ADD_IMAGE Director::getInstance()->getTextureCache()->addImage
+#define ADD_IMAGE(T) Director::getInstance()->getTextureCache()->addImage(T)
+#define ADD_IMAGE_ALIAS(N, T) Director::getInstance()->getTextureCache()->addImage(T); N->setAliasTexParameters();
 
 USING_NS_CC;
 
