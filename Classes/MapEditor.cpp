@@ -730,7 +730,7 @@ void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
 void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize)
 {
     if (isRemoving)
-        createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
+        createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocationInView, _camera, false), map->_tileSize.x);
 
     if (isPlacing || isRemoving)
     {
