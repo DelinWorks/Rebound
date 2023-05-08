@@ -139,6 +139,15 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
     }
 
     calculateContentBoundaries();
+
+    if (recursive) {
+        auto& list = getChildren();
+        for (auto& _ : list) {
+            auto cast = DCAST(Container, _);
+            if (cast)
+                cast->updateLayoutManagers(true);
+        }
+    }
 }
 
 void CustomUi::Container::onEnter() {

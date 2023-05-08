@@ -437,7 +437,9 @@ void MapEditor::onInitDone(f32 dt)
         auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
 
         tilesetArr->addTileset(texture1);
-        tilesetArr->addTileset(texture2);
+        auto i = new Image();
+        i->initWithImageFile("maps/level1/textures/atlas_002.png");
+        tilesetArr->addTextureBleedTileset(i);
 
         map->setTilesetArray(tilesetArr);
 
