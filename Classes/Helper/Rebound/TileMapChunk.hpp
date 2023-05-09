@@ -239,24 +239,24 @@ typedef u32 TileID;
         }
 
         void addTextureBleedTileset(ax::Image* image) {
-            image->getData();
-            auto bleed = new Image();
-            int nWidth = image->getWidth() + image->getWidth() / _tileSize.x * 2;
-            int nHeight = image->getHeight() + image->getHeight() / _tileSize.y * 2;
-            int dataLen = nWidth * nHeight * 4;
-            uint8_t* data = (uint8_t*)malloc(dataLen);
-            memset(data, 255, dataLen);
-            for (int x = 0; x < image->getWidth(); x++)
-                for (int y = 0; y < image->getHeight(); y++) {
-                    data[(x * image->getWidth() + y) * 4] = 0;
-                }
-            bleed->initWithRawData(data, dataLen, nWidth, nHeight, 0);
-            bleed->saveToFile("C:\\Users\\turky\\Desktop\\output.png", false);
-            free(data);
-            //auto ts = new Tileset();
-            //ts->autorelease();
-            //ts->retain();
-            //addTileset(ts);
+            //image->getData();
+            //auto bleed = new Image();
+            //int nWidth = image->getWidth() + image->getWidth() / _tileSize.x * 2;
+            //int nHeight = image->getHeight() + image->getHeight() / _tileSize.y * 2;
+            //int dataLen = nWidth * nHeight * 4;
+            //uint8_t* data = (uint8_t*)malloc(dataLen);
+            //memset(data, 255, dataLen);
+            //for (int x = 0; x < image->getWidth(); x++)
+            //    for (int y = 0; y < image->getHeight(); y++) {
+            //        data[(x * image->getWidth() + y) * 4] = 0;
+            //    }
+            //bleed->initWithRawData(data, dataLen, nWidth, nHeight, 0);
+            //bleed->saveToFile("C:\\Users\\turky\\Desktop\\output.png", false);
+            //free(data);
+            ////auto ts = new Tileset();
+            ////ts->autorelease();
+            ////ts->retain();
+            ////addTileset(ts);
         }
 
         void reloadTextures() {

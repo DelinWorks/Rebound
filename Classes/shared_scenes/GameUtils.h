@@ -57,7 +57,7 @@ for (auto& _ : list) { \
             while (parent) { \
                 parent = DCAST(CustomUi::Container, parent->getParent()); \
                 if (!parent) break; \
-                if (!parent->_isDynamic) { \
+                if (!parent->isContainerDynamic()) { \
                     i->windowSizeChange(parent->getContentSize()); \
                     break; \
                 } \

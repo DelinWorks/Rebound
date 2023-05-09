@@ -3,7 +3,8 @@
 CustomUi::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE),
                                    _borderLayout(BorderLayout::CENTER), _flowLayout(), _depConst()
 {
-    _isContainer = true;
+    setCascadeOpacityEnabled(true);
+    setAsContainer();
     setDynamic();
 }
 
@@ -88,12 +89,12 @@ void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
     if (_pCurrentHeldItem) return;
 
     // REMOVE THIS CODE LATER // ONLY FOR DEBUGGING //
-    if (_focusedElements.size() == 0)
+    if (getFocusSet().size() == 0)
         if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
             Darkness::destroyInstance();
     // // // // // // // // // // // // // // // // //
 
-    for (auto& _ : _focusedElements) {
+    for (auto& _ : getFocusSet()) {
         _->keyPress(keyCode);
         break;
     }
@@ -103,7 +104,7 @@ void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
 {
     if (_pCurrentHeldItem) return;
 
-    for (auto& _ : _focusedElements) {
+    for (auto& _ : getFocusSet()) {
         _->keyRelease(keyCode);
         break;
     }
@@ -251,6 +252,7 @@ void CustomUi::Container::setBackgroundDim()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     SET_POSITION_MINUS_HALF_SCREEN(_bgDim);
     _bgDim->setTag(YOURE_NOT_WELCOME_HERE);
+    _bgDim->setScale(10);
     addChild(_bgDim, -2);
 }
 
@@ -278,7 +280,7 @@ void CustomUi::Container::calculateContentBoundaries()
             continue;
         auto c = DCAST(Container, _);
         if (c) c->calculateContentBoundaries();
-        if (!_isDynamic) continue;
+        if (!isContainerDynamic()) continue;
         auto size = _->getContentSize();
         float eq = _->getPositionX();
         if (eq > highestX) {
@@ -308,7 +310,7 @@ void CustomUi::Container::calculateContentBoundaries()
         _margin.y * 2 * n->getScaleY()
     ));
 
-    if (_isDynamic)
+    if (isContainerDynamic())
         setContentSize(Math::getEven(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y)), false);
 
     if (_background)
@@ -376,9 +378,10 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     }
 }
 
-void CustomUi::DependencyConstraint::build(CustomUi::Container* container)
+void CustomUi::DependencyConstraint::build(CustomUi::GUI* element)
 {
-    parent->updateLayoutManagers();
+    auto container = DCAST(Container, parent);
+    if (container) container->updateLayoutManagers();
 
     Vec2 anchor = ax::Vec2::ZERO;
 
@@ -411,5 +414,10 @@ void CustomUi::DependencyConstraint::build(CustomUi::Container* container)
         anchor = (Vec2(0, 0) + offset);
     }
 
-    container->setPosition(parent->getContentSize() * anchor);
+    anchor *= parent->getScale();
+
+    if (worldPos)
+        element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
+    else
+        element->setPosition(parent->getContentSize() * anchor);
 }

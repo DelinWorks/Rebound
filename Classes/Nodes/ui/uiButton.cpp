@@ -97,7 +97,7 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
 
 void CustomUi::Button::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize + _padding);
+    setContentSize(dSize + getUiPadding());
     HoverEffectGUI::update(dt);
 }
 
@@ -111,16 +111,18 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 
         sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
             Math::clamp(field->getContentSize().height / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
-        button->setContentSize(sprite->getContentSize() + _padding / 2 + hitboxpadding);
+        button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
     }
     else
-        button->setContentSize((icon->getContentSize() + _padding / 2 + hitboxpadding) * _PxArtMultiplier);
+        button->setContentSize((icon->getContentSize() + getUiPadding() / 2 + hitboxpadding) * _PxArtMultiplier);
 
     if (isEnabled())
     {
 #if 1
-        if (!_pCurrentHeldItem)
-            hover_cv.setValue(_isHovered = button->hitTest(mouseLocationInView, cam, _NOTHING));
+        if (!_pCurrentHeldItem) {
+            setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
+            hover_cv.setValue(isUiHovered());
+        }
 
         if (hover_cv.isChanged())
             HoverEffectGUI::hover();
@@ -162,7 +164,8 @@ void CustomUi::Button::onDisable()
     }
     else icon->runAction(fade);
 
-    hover_cv.setValue(_isHovered = false);
+    setUiHovered(false);
+    hover_cv.setValue(false);
     HoverEffectGUI::hover();
     defocus();
 }

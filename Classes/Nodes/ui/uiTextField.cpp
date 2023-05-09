@@ -43,7 +43,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
-    _hoverOffset = { 10, 10 };
+    setHoverOffset({ 10, 10 });
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
@@ -134,7 +134,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
 
 void CustomUi::TextField::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize + _padding);
+    setContentSize(dSize + getUiPadding());
     HoverEffectGUI::update(dt);
 }
 
@@ -156,7 +156,8 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     if (isEnabled())
     {
 #if 1
-        hover_cv.setValue(_isHovered = button->hitTest(mouseLocationInView, cam, _NOTHING));
+        setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
+        hover_cv.setValue(isUiHovered());
 
         if (hover_cv.isChanged())
             HoverEffectGUI::hover();
@@ -165,7 +166,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         password_hover->setValue(false);
 #endif
 
-        if (_isFocused)
+        if (isUiFocused())
         {
             cursor_control->setVisible(true);
             if (field->getString().length() > 0) {
@@ -214,7 +215,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 void CustomUi::TextField::focus()
 {
     field->attachWithIME();
-    if (_isFocused) return;
+    if (isUiFocused()) return;
     field->setString(ShapingEngine::Helper::narrow(cachedString));
     sprite->stopAllActions();
     auto fade = FadeTo::create(0.1f, 255);
@@ -225,7 +226,7 @@ void CustomUi::TextField::focus()
 
 void CustomUi::TextField::defocus()
 {
-    if (!_isFocused) return;
+    if (!isUiFocused()) return;
     field->setString(ShapingEngine::render(cachedString));
     field->detachWithIME();
     cursor_control->setVisible(false);
@@ -258,7 +259,7 @@ bool CustomUi::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
         focus();
         return true;
     }
-    else if (!button->hitTest(mouseLocationInView, cam, _NOTHING) && _isFocused) {
+    else if (!button->hitTest(mouseLocationInView, cam, _NOTHING) && isUiFocused()) {
         defocus();
         return true;
     }

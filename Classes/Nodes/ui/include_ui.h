@@ -11,7 +11,6 @@
 
 #ifndef EXCLUDE_EXTENSIONS
 
-
 #else
 #undef EXCLUDE_EXTENSIONS;
 #endif
@@ -30,35 +29,28 @@ namespace CustomUi {
             auto closeB = CustomUi::Button::create();
             closeB->initIcon("editor_arrow_tl", { 5, 5 });
             closeCont->addChild(closeB);
-            closeB->_callbackObjects.push_back(c);
-            closeB->_callbackObjects.push_back(closeCont);
-            closeB->_callback = [&](CustomUi::Button* target) {
-                auto& objs = target->_callbackObjects;
-                RLOGW("POSITION: {}, {}", objs[1]->getWorldPosition().x, objs[1]->getWorldPosition().y);                                                                                                                   \
-                    for (auto& _ : objs)
+            closeB->_callback = [=](CustomUi::Button* target) {
+                RLOGW("POSITION: {}, {}", closeCont->getWorldPosition().x, closeCont->getWorldPosition().y);                                                                                                                   \
+
+                auto g = DCAST(CustomUi::GUI, c);
+                bool isClosed = g->getUiAnchorOffset().x < 0;
+                for (auto& _ : c->getChildren()) {
+                    auto cc = DCAST(Container, _);
+                    if (cc && cc != closeCont)
                     {
-                        auto g = DCAST(CustomUi::GUI, _);
-                        bool isClosed = g->_anchorOffset.x < 0;
-                        for (auto& _ : objs[0]->getChildren()) {
-                            auto cc = DCAST(Container, _);
-                            if (cc && cc != objs[1])
-                            {
-                                if (!isClosed)
-                                    cc->disable();
-                                else cc->enable();
-                            }
-                        }
-                        auto action = ActionFloat::create(0.08, isClosed ? -1 : 1, isClosed ? 1 : -1, [g](ax::Node* target, float v) {
-                            auto s = DCAST(CustomUi::Container, target);
-                        s->setAnchorOffset({ v,v });
-                        s->getChildByTag<CustomUi::Container*>(CONTAINER_CLOSE_TAG)->updateLayoutManagers();
-                            });
-                        action->setTarget(_);
-                        _->runAction(action);
-                        target->icon->setSpriteFrame(isClosed ? "editor_arrow_tl" : "editor_arrow_br");                                                                                                        \
-                        
-                        break;
+                        if (!isClosed)
+                            cc->disable();
+                        else cc->enable();
                     }
+                }
+                auto action = ActionFloat::create(0.08, isClosed ? -1 : 1, isClosed ? 1 : -1, [=](float v) {
+                    auto s = DCAST(CustomUi::Container, c);
+                    s->setAnchorOffset({ v,v });
+                    s->getChildByTag<CustomUi::Container*>(CONTAINER_CLOSE_TAG)->updateLayoutManagers();
+                });
+                action->setTarget(c);
+                c->runAction(action);
+                target->icon->setSpriteFrame(isClosed ? "editor_arrow_tl" : "editor_arrow_br");
             };
         }
     };

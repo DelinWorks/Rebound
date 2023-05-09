@@ -5,6 +5,7 @@ CustomUi::Label* CustomUi::Label::create()
     CustomUi::Label* ret = new CustomUi::Label();
     if (((Node*)ret)->init())
     {
+        ret->setCascadeOpacityEnabled(true);
         ret->autorelease();
     }
     else
@@ -44,7 +45,7 @@ void CustomUi::Label::enableOutline()
 
 void CustomUi::Label::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize * (_UiScale * field->getScale()) + _padding);
+    setContentSize(dSize * (_UiScale * field->getScale()) + getUiPadding());
 }
 
 bool CustomUi::Label::hover(ax::Vec2 mouseLocationInView, Camera* cam)

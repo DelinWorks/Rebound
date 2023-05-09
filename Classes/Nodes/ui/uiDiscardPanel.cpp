@@ -120,7 +120,7 @@ bool CustomUi::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::C
 
     Container::hover(mouseLocationInView, cam);
     if (_modalStack.top() == this) {
-        notifyFocused(this, !_isFocused, true);
+        notifyFocused(this, !isUiFocused(), true);
         return true;
     }
     else return false;

@@ -85,6 +85,8 @@ bool MapEditor::init()
     //mapSizeX = snap(mapSizeX, chunkSize / tileSize);
     //mapSizeY = snap(mapSizeY, chunkSize / tileSize);
 
+    //_defaultCamera->setBackgroundBrush(ax::CameraBackgroundBrush::createColorBrush(Color4F::RED, 0));
+
     VirtualWorld::refresh(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
@@ -437,9 +439,9 @@ void MapEditor::onInitDone(f32 dt)
         auto texture2 = Director::getInstance()->getTextureCache()->addImage("maps/level1/textures/atlas_001.png");
 
         tilesetArr->addTileset(texture1);
-        auto i = new Image();
-        i->initWithImageFile("maps/level1/textures/atlas_002.png");
-        tilesetArr->addTextureBleedTileset(i);
+        tilesetArr->addTileset(texture2);
+        //auto i = new Image();
+        //i->initWithImageFile("maps/level1/textures/atlas_002.png");
 
         map->setTilesetArray(tilesetArr);
 
@@ -501,7 +503,7 @@ void MapEditor::onInitDone(f32 dt)
         hsv.h += 180;
         color = hsv.toColor3B();
 
-        RLOG("hsv: {}, {}, {}", color.r, color.g, color.b);
+        RLOG("hsv: {},{},{}", color.r, color.g, color.b);
 
         buildEntireUi();
 
@@ -581,8 +583,11 @@ void MapEditor::tick(f32 dt)
 
     //TileSystem::zPositionMultiplier = 1.0 + sin(elapsedDt) * 0.1;
 
-    //SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", elapsedDt);
-    //_rt->getSprite()->getTexture()->setAliasTexParameters();
+    //SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", float(elapsedDt * 0.1));
+    ////_rt->getSprite()->getTexture()->setAliasTexParameters();
+    //_rt->getSprite()->setSkewX(sin(elapsedDt * 6) * 10);
+    //_rt->getSprite()->setSkewY(cos(elapsedDt * 10) * 10);
+    //_rt->getSprite()->setScale(1.25);
 
     //if (getContainer()) getContainer()->updateLayoutManagers(true);
 
@@ -808,7 +813,7 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_G) {
         auto action = ActionFloat::create(0.25, zPositionMultiplier, zPositionMultiplier < 0.5 ? 1 : 0,
-            [&](ax::Node* target, float value) { zPositionMultiplier = tweenfunc::backEaseInOut(value); });
+            [=](float value) { zPositionMultiplier = tweenfunc::backEaseInOut(value); });
         runAction(action);
     }
 
@@ -1048,18 +1053,85 @@ void MapEditor::buildEntireUi()
 
     auto fileB = CustomUi::Button::create();
     fileB->init(L"File", 16, ax::Vec2::ZERO, hpadding);
-    fileB->_padding = padding;
+    fileB->setUiPadding(padding);
     menuContainer->addChild(fileB);
+
+    fileB->_callback = [=](CustomUi::Button* target) {
+        auto fcontainer = CustomUi::Container::create();
+        auto vis = Director::getInstance()->getVisibleSize();
+        fcontainer->setBorderLayoutAnchor(TOP_LEFT);
+        fcontainer->setConstraint(CustomUi::DependencyConstraint(target, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
+        fcontainer->setBackgroundSprite();
+        fcontainer->setBackgroundDim();
+
+        auto lb = CustomUi::Label::create();
+        lb->init(L"File Menu Created!", 16);
+        lb->setUiPadding({ 20, 10 });
+        fcontainer->addChild(lb);
+
+        fcontainer->runAction(Sequence::create(
+            DelayTime::create(1),
+            FadeOut::create(1),
+            CallFunc::create([=]() { fcontainer->removeFromParent(); }),
+            nullptr
+        ));
+
+        container->addChild(fcontainer);
+    };
 
     auto editB = CustomUi::Button::create();
     editB->init(L"Edit", 16, ax::Vec2::ZERO, hpadding);
-    editB->_padding = padding;
+    editB->setUiPadding(padding);
     menuContainer->addChild(editB);
+
+    editB->_callback = [=](CustomUi::Button* target) {
+        auto fcontainer = CustomUi::Container::create();
+        auto vis = Director::getInstance()->getVisibleSize();
+        fcontainer->setBorderLayoutAnchor(TOP_LEFT);
+        fcontainer->setConstraint(CustomUi::DependencyConstraint(target, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
+        fcontainer->setBackgroundSprite();
+
+        auto lb = CustomUi::Label::create();
+        lb->init(L"Edit Menu Created!", 16);
+        lb->setUiPadding({ 20, 10 });
+        fcontainer->addChild(lb);
+
+        fcontainer->runAction(Sequence::create(
+            DelayTime::create(1),
+            FadeOut::create(1),
+            CallFunc::create([=]() { fcontainer->removeFromParent(); }),
+            nullptr
+        ));
+
+        container->addChild(fcontainer);
+    };
 
     auto settingsB = CustomUi::Button::create();
     settingsB->init(L"Menu", 16, ax::Vec2::ZERO, hpadding);
-    settingsB->_padding = padding;
+    settingsB->setUiPadding(padding);
     menuContainer->addChild(settingsB);
+
+    settingsB->_callback = [=](CustomUi::Button* target) {
+        auto fcontainer = CustomUi::Container::create();
+        auto vis = Director::getInstance()->getVisibleSize();
+        fcontainer->setBorderLayoutAnchor(TOP_LEFT);
+        fcontainer->setConstraint(CustomUi::DependencyConstraint(target, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
+        fcontainer->setBackgroundSprite();
+
+        auto lb = CustomUi::Label::create();
+        lb->init(L"Settings Menu Created!", 16);
+        lb->setUiPadding({ 20, 10 });
+        fcontainer->addChild(lb);
+
+        fcontainer->runAction(Sequence::create(
+            DelayTime::create(1),
+            FadeOut::create(1),
+            CallFunc::create([=]() { fcontainer->removeFromParent(); }),
+            nullptr
+        ));
+
+        container->addChild(fcontainer);
+    };
 
     auto editContainer = CustomUi::Container::create();
     //editContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
@@ -1071,17 +1143,17 @@ void MapEditor::buildEntireUi()
 
     auto undoB = CustomUi::Button::create();
     undoB->initIcon("editor_undo");
-    undoB->_padding = padding;
+    undoB->setUiPadding(padding);
     editContainer->addChild(undoB);
 
     auto redoB = CustomUi::Button::create();
     redoB->initIcon("editor_redo");
-    redoB->_padding = padding;
+    redoB->setUiPadding(padding);
     editContainer->addChild(redoB);
 
     auto moveB = CustomUi::Button::create();
     moveB->initIcon("editor_move");
-    moveB->_padding = padding;
+    moveB->setUiPadding(padding);
     editContainer->addChild(moveB);
 
     CONTAINER_MAKE_MINIMIZABLE(topRightContainer);

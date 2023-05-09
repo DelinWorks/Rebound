@@ -22,6 +22,7 @@ namespace CustomUi
     class Button : public HoverEffectGUI {
     public:
         static CustomUi::Button* create();
+
         UiFontDescriptor desc;
         ax::Label* field;
         ax::Sprite* icon;
@@ -36,12 +37,10 @@ namespace CustomUi
         ChangeValue<bool> hover_cv;
         bool adaptToWindowSize = false;
         bool extend = false;
-
-        ~Button();
-
-        std::vector<ax::Node*> _callbackObjects;
         ButtonCallback _callback;
 
+        ~Button();
+        
         void init(std::wstring _text, int _fontSize, Size _size = ax::Size::ZERO, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
         void initIcon(std::string _frameName, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
 

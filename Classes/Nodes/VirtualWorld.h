@@ -18,7 +18,7 @@ public:
 
 	ax::Vec2 _currentSize;
 	ax::GLView* _glview;
-	ax::RenderTexture* _rt;
+	std::vector<ax::RenderTexture*> _rts;
 	VirtualCamera* _camera;
 	VirtualWorldSpace* _world;
 };

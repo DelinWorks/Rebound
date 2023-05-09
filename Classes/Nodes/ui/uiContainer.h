@@ -61,13 +61,16 @@ namespace CustomUi
 
     class DependencyConstraint {
     public:
-        DependencyConstraint(Container* _parent = nullptr, BorderLayout _position = CENTER, Vec2 _offset = ax::Vec2::ZERO)
-            : parent(_parent), position(_position), offset(_offset) { }
-        Container* parent;
+        DependencyConstraint(GUI* _parent = nullptr, BorderLayout _position = CENTER, Vec2 _offset = ax::Vec2::ZERO,
+            bool _worldPos = false, Vec2 _worldPosOffset = ax::Vec2::ZERO)
+            : parent(_parent), position(_position), offset(_offset), worldPos(_worldPos), worldPosOffset(_worldPosOffset) { }
+        GUI* parent;
         BorderLayout position;
         Vec2 offset;
+        bool worldPos;
+        Vec2 worldPosOffset;
 
-        void build(CustomUi::Container* container);
+        void build(CustomUi::GUI* element);
     };
 
     class Container : public GUI {
@@ -112,7 +115,7 @@ namespace CustomUi
         }
 
         bool blockKeyboard() {
-            return _isHitSwallowed || _isFocused;
+            return _isHitSwallowed || isUiFocused();
         }
 
         void setMargin(ax::Vec2 margin) {

@@ -108,21 +108,44 @@ namespace CustomUi
         void setDynamic() { _isDynamic = true; }
         void setStatic() { _isDynamic = false; }
 
+        bool isContainerDynamic() { return _isDynamic; };
+
+        void setAsContainer() { _isContainer = true; }
+        void setContainerFlow() { _containerFlow = true; }
+
+        const std::set<GUI*>& getFocusSet() { return _focusedElements; }
+
+        void setUiAnchorOffset(const ax::Vec2& anchorOffset) { _anchorOffset = anchorOffset; }
+        ax::Vec2 getUiAnchorOffset() { return _anchorOffset; }
+
+        void setUiAnchorPoint(const ax::Vec2& anchorPoint) { _anchorPoint = anchorPoint; }
+        ax::Vec2 getUiAnchorPoint() { return _anchorPoint; }
+
+        void setUiPadding(const ax::Vec2& padding) { _padding = padding; }
+        ax::Vec2 getUiPadding() { return _padding; }
+
+        void setUiFocused(bool isFocused) { _isFocused = isFocused; }
+        bool isUiFocused() { return _isFocused; }
+
+        void setUiHovered(bool isHovered) { _isHovered = isHovered; }
+        bool isUiHovered() { return _isHovered; }
+
+        void setUiEnabled(bool isEnabled) { _isEnabled = isEnabled; }
+        bool isUiEnabled() { return _isEnabled; }
+
     private:
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
         DrawNode* _contentSizeDebug;
 
-    public:
         ax::Vec2 _anchorOffset = ax::Vec2::ONE;
         ax::Vec2 _anchorPoint;
-        bool _containerFlow = false;
-        bool _sortChildren = false;
         ax::Vec2 _padding = Vec2::ZERO;
-        bool _isDynamic = false;
         bool _isContainer = false;
+        bool _isDynamic = false;
+        bool _containerFlow = false;
         std::set<GUI*> _focusedElements;
-        bool _isForceFocused = false;
+
         bool _isFocused = false;
         bool _isHovered = false;
         bool _isEnabled = true;

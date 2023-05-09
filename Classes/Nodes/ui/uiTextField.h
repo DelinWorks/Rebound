@@ -18,6 +18,7 @@ namespace CustomUi
     class TextField : public HoverEffectGUI {
     public:
         static CustomUi::TextField* create();
+
         UiFontDescriptor desc;
         ui::TextField* field;
         std::wstring cachedString;

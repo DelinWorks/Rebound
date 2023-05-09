@@ -86,7 +86,6 @@ void CustomUi::GUI::keyRelease(EventKeyboard::KeyCode keyCode)
 
 void CustomUi::GUI::pushModal(GUI* child)
 {
-	_sortChildren = true;
 	addChild(child);
 }
 
