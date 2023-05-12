@@ -6,6 +6,14 @@
 
 class VirtualWorldSpace : public ax::Node {
 	~VirtualWorldSpace();
+
+public:
+	ax::RenderTexture* rtPass = nullptr;
+	Color4F rtClear = Color4F(0, 0, 0, 0);
+
+	void render(const Mat4& transformMatrix = Mat4::IDENTITY);
+	void renderPass(const Mat4& transformMatrix = Mat4::IDENTITY);
+	void renderCompositePass(ax::RenderTexture* composite, const Mat4& transformMatrix = Mat4::IDENTITY);
 };
 
 class VirtualWorld {
@@ -20,7 +28,7 @@ public:
 	ax::GLView* _glview;
 	std::vector<ax::RenderTexture*> _rts;
 	VirtualCamera* _camera;
-	VirtualWorldSpace* _world;
+	std::vector<VirtualWorldSpace*> _worlds;
 };
 
 #endif 

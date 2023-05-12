@@ -23,6 +23,6 @@ void main()
     	texture2D(u_tex0, uv - 0.001).r,
     	texture2D(u_tex0, uv).g,
     	texture2D(u_tex0, uv + 0.001).b,
-    	1.0
+    	texture2D(u_tex0, uv + 0.001).a
     );
 }

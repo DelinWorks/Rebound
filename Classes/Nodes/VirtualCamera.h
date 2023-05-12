@@ -11,7 +11,8 @@ public:
 
 	void setZoom(float zoom);
 
-	ax::Mat4 getInverseMatrix(ax::Vec2 _frameSize);
+	ax::Mat4 getWorldSpaceMatrix();
+	ax::Mat4 getScreenSpaceMatrix();
 };
 
 #endif 

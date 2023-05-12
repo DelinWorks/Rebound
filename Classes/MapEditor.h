@@ -125,6 +125,8 @@ public:
 
     TileArray* tarr;
 
+    ax::ProgressTimer* prog;
+
     ax::Sprite*                map_sprite_stamp;
     ax::Texture2D*             map_default_tex;
     ax::backend::ProgramState* map_default_tile_shader;

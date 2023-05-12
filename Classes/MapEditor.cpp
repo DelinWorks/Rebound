@@ -59,8 +59,8 @@ bool MapEditor::init()
     addChild(uiNode, 17);
     uiNode->addChild(rebuildableUiNodes);
     SET_POSITION_HALF_SCREEN(uiNode);
-    _world->addChild(uiNodeNonFollow, 17);
-    _world->addChild(gridNode, 11);
+    _worlds[0]->addChild(uiNodeNonFollow, 17);
+    _worlds[0]->addChild(gridNode, 11);
 
     //uiNode->addComponent(new FollowNodeTransformComponent(getDefaultCamera()));
 
@@ -91,7 +91,7 @@ bool MapEditor::init()
 
     TileSystem::tileMapVirtualCamera = _camera;
     map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000000, 1000000));
-    _world->addChild(map, 10);
+    _worlds[1]->addChild(map, 10);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
@@ -143,7 +143,7 @@ bool MapEditor::init()
     gridNode->addChild(WorldBoundsLimit, 2);
 
     deltaEditing = DrawNode::create(100);
-    _world->addChild(deltaEditing);
+    _worlds[0]->addChild(deltaEditing);
 
     selectionPlaceSquare = DrawNode::create(1);
     selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_ALLOWED);
@@ -179,6 +179,10 @@ bool MapEditor::init()
 
     //streak = MotionStreak::create(0.1, 1, 8, Color3B::WHITE, "streak.png");
     //uiNode->addChild(streak);
+
+    prog = ProgressTimer::create(Sprite::create("Untitled.png"));
+    prog->setType(ax::ProgressTimer::Type::RADIAL);
+    _worlds[1]->addChild(prog);
 
     return true;
 }
@@ -581,12 +585,14 @@ void MapEditor::tick(f32 dt)
 
     elapsedDt += dt;
 
+    prog->setPercentage(100 - fmod(elapsedDt, 100));
+
     //TileSystem::zPositionMultiplier = 1.0 + sin(elapsedDt) * 0.1;
 
-    //SET_UNIFORM(_rt->getSprite()->getProgramState(), "u_time", float(elapsedDt * 0.1));
+    //SET_UNIFORM(_rts[1]->getSprite()->getProgramState(), "u_time", float(elapsedDt * 0.1));
     ////_rt->getSprite()->getTexture()->setAliasTexParameters();
-    //_rt->getSprite()->setSkewX(sin(elapsedDt * 6) * 10);
-    //_rt->getSprite()->setSkewY(cos(elapsedDt * 10) * 10);
+    //_rts[1]->getSprite()->setSkewX(sin(elapsedDt * 6) * 10);
+    //_rts[1]->getSprite()->setSkewY(cos(elapsedDt * 10) * 10);
     //_rt->getSprite()->setScale(1.25);
 
     //if (getContainer()) getContainer()->updateLayoutManagers(true);
@@ -706,7 +712,7 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
-    std::vector v = { 82 };
+    std::vector v = { 1 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
