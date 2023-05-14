@@ -191,30 +191,35 @@ namespace GameUtils
 
     std::vector<Node*> findNodesByTag(Node* parent, int tag, bool containParent = true, std::vector<Node*> list = std::vector<Node*>(), bool recursive = false);
 
-namespace Editor {
-        enum UndoRedoAction {
-            UNDOREDO_TILEMAP = 0,
+    namespace Editor {
+
+        enum UndoRedoCategory {
+            UNDOREDO_NONE = 0,
+            UNDOREDO_TILEMAP = 1,
         };
 
         class UndoRedoAffectedTiles {
         public:
             TileSystem::Map* map;
-            std::map<ax::Vec2, uint32_t> tiles;
+            std::map<ax::Vec2, u32> prev_tiles;
+            std::map<ax::Vec2, u32> next_tiles;
 
-            void addOrIgnoreTile(ax::Vec2 pos, uint32_t gid);
+            void addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid);
+            void addOrIgnoreTileNext(ax::Vec2 pos, u32 gid);
         };
 
-        class UndoRedoCommand {
+        class UndoRedoState {
         public:
-            UndoRedoAction action;
+            UndoRedoCategory action = UndoRedoCategory::UNDOREDO_NONE;
 
             UndoRedoAffectedTiles affected;
 
-            void redo();
-            void undo();
+            void applyUndoState();
+            void applyRedoState();
 
         private:
-            void undoTilemapEdit();
+            void applyUndoStateTilemapEdit();
+            void applyRedoStateTilemapEdit();
         };
     }
 }

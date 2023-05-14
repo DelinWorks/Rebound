@@ -62,6 +62,8 @@ using namespace Math;
 
 #include "Nodes/VirtualWorld.h"
 
+#include "Helper/DataStructures/HAFStack.hpp"
+
 using namespace TileSystem;
 
 class MapEditor : public ax::Scene, public SceneInputManager, public VirtualWorldManager
@@ -183,8 +185,14 @@ public:
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
 
     bool isCtrlPressed = false;
-    std::stack<GameUtils::Editor::UndoRedoCommand> _undo;
-    std::stack<GameUtils::Editor::UndoRedoCommand> _redo;
+    HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _undo;
+    HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
+
+    void editorUndoRedoMax(int m);
+    void editorUndo();
+    void editorRedo();
+    void editorPushUndoState();
+    GameUtils::Editor::UndoRedoState& editorUndoTopOrDummy();
 };
 
 #endif

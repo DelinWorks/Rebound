@@ -57,6 +57,22 @@ namespace Math
     inline ax::Vec2 getOdd(const ax::Vec2& v) {
         return ax::Vec2(getOdd(v.x), getOdd(v.y));
     }
+
+    inline int cantorPair(int x, int y) {
+        return (x + y) * (x + y + 1) / 2 + y;
+    }
+
+    inline ax::Vec2 cantorUnpair(int z) {
+        ax::Vec2 v;
+        int w = floor((sqrt(8 * z + 1) - 1) / 2);
+        int t = (w * w + w) / 2;
+        v.y = z - t;
+        v.x = w - v.y;
+        return v;
+    }
+
+#define CANTOR_PAIR Math::cantorPair
+#define CANTOR_UNPAIR Math::cantorUnpair
 }
 
 #endif

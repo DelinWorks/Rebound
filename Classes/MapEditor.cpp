@@ -509,6 +509,8 @@ void MapEditor::onInitDone(f32 dt)
 
         buildEntireUi();
 
+        editorUndoRedoMax(100); // save 100 undo redo states maximum
+
         isInitDone = true;
     }
     else {
@@ -710,7 +712,8 @@ void MapEditor::lateUpdate(f32 dt)
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     std::vector v = { 1 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    auto& undoCmd = _undo.top();
+    auto& undoCmd = editorUndoTopOrDummy();
+    undoCmd.action = Editor::UNDOREDO_TILEMAP;
     undoCmd.affected.map = map;
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
@@ -721,9 +724,9 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
                 gid |= TILE_FLAG_FLIP_X;
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_FLIP_Y;
-            undoCmd.action = Editor::UNDOREDO_TILEMAP;
-            undoCmd.affected.addOrIgnoreTile(ax::Vec2(x, y), map->getTileAt({ float(x), float(y) }));
+            undoCmd.affected.addOrIgnoreTilePrev({ float(x), float(y) }, map->getTileAt({ float(x), float(y) }));
             map->setTileAt({ float(x), float(y) }, gid);
+            undoCmd.affected.addOrIgnoreTileNext({ float(x), float(y) }, gid);
         }
     BENCHMARK_SECTION_END();
 }
@@ -811,21 +814,9 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) { isCtrlPressed = true; }
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_Z) {
-        if (_undo.size() != 0) {
-            _undo.top().undo();
-            _redo.push(_undo.top());
-            _undo.pop();
-        }
-    }
+    if (keyCode == EventKeyboard::KeyCode::KEY_Z) editorUndo();
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_Y) {
-        if (_redo.size() != 0) {
-            _redo.top().redo();
-            _undo.push(_redo.top());
-            _redo.pop();
-        }
-    }
+    if (keyCode == EventKeyboard::KeyCode::KEY_Y) editorRedo();
 
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
@@ -868,12 +859,9 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
-    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) { isCtrlPressed = false; }
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) isCtrlPressed = false;
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
-    {
-        isEditorDragging = false;
-    }
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT) isEditorDragging = false;
 }
 
 void MapEditor::onMouseDown(ax::Event* event)
@@ -885,24 +873,10 @@ void MapEditor::onMouseDown(ax::Event* event)
         isEditorDragging = true;
     }
 
-    if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_5)
-    {
-        for (auto n : findNodesByTag(this, 91))
-        {
-            auto p = (ParticleSystemQuad*)n;
-
-            //if (p->isUpdatePaused())
-            //    p->resumeUpdate();
-            //else
-            //    p->pauseUpdate();
-        }
-    }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
+        editorPushUndoState();
         isPlacing = true;
-
-        _undo.push(Editor::UndoRedoCommand());
-
         auto mouseClick = DrawNode::create(1);
         mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
         mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 16));
@@ -911,8 +885,8 @@ void MapEditor::onMouseDown(ax::Event* event)
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
+        editorPushUndoState();
         isRemoving = true;
-        _undo.push(Editor::UndoRedoCommand());
         removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
     }
 }
@@ -1405,4 +1379,40 @@ void MapEditor::setWorldBoundsLayerColorTransforms(VirtualCamera* cam)
     LeftMapSizeNode->setScaleX(cameraScale);
     LeftMapSizeNode->setScaleY(cameraScale);
     LeftMapSizeNode->setPositionY(cam->getPositionY());
+}
+
+void MapEditor::editorUndoRedoMax(int m)
+{
+    _undo.set_capacity(m);
+    _redo.set_capacity(m);
+}
+
+void MapEditor::editorUndo()
+{
+    if (_undo.size() > 0) {
+        _redo.push(_undo.top());
+        _undo.top().applyUndoState();
+        _undo.pop();
+    }
+}
+
+void MapEditor::editorRedo()
+{
+    if (_redo.size() > 0) {
+        _undo.push(_redo.top());
+        _redo.top().applyRedoState();
+        _redo.pop();
+    }
+}
+
+void MapEditor::editorPushUndoState() {
+    _undo.push(Editor::UndoRedoState());
+    _redo.reset();
+}
+
+GameUtils::Editor::UndoRedoState& MapEditor::editorUndoTopOrDummy()
+{
+    if (_undo.size() == 0)
+        editorPushUndoState();
+    return _undo.top();
 }

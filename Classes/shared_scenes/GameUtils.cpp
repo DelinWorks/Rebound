@@ -328,32 +328,44 @@ std::vector<Node*> GameUtils::findNodesByTag(Node* parent, int tag, bool contain
     return nodes;
 }
 
-void GameUtils::Editor::UndoRedoCommand::redo()
+void GameUtils::Editor::UndoRedoState::applyUndoState()
 {
     switch (action) {
     case UNDOREDO_TILEMAP:
-        undoTilemapEdit();
+        applyUndoStateTilemapEdit();
         break;
     }
 }
 
-void GameUtils::Editor::UndoRedoCommand::undo()
+void GameUtils::Editor::UndoRedoState::applyRedoState()
 {
     switch (action) {
-        case UNDOREDO_TILEMAP:
-            undoTilemapEdit();
-            break;
+    case UNDOREDO_TILEMAP:
+        applyRedoStateTilemapEdit();
+        break;
     }
 }
 
-void GameUtils::Editor::UndoRedoCommand::undoTilemapEdit()
+void GameUtils::Editor::UndoRedoState::applyUndoStateTilemapEdit()
 {
-    for (auto& _ : affected.tiles)
-        affected.map->setTileAt(_.first, _.second);
+    for (auto& _ : affected.prev_tiles)
+        affected.map->setTileAt({ _.first.x, _.first.y }, _.second);
 }
 
-void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTile(ax::Vec2 pos, uint32_t gid)
+void GameUtils::Editor::UndoRedoState::applyRedoStateTilemapEdit()
 {
-    if (tiles.find(pos) == tiles.end())
-        tiles.emplace(pos, gid);
+    for (auto& _ : affected.next_tiles)
+        affected.map->setTileAt({ _.first.x, _.first.y }, _.second);
+}
+
+void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid)
+{
+    if (prev_tiles.find({ pos.x, pos.y }) == prev_tiles.end())
+        prev_tiles.emplace(pos, gid);
+}
+
+void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTileNext(ax::Vec2 pos, u32 gid)
+{
+    if (next_tiles.find({ pos.x, pos.y }) == next_tiles.end())
+        next_tiles.emplace(pos, gid);
 }
