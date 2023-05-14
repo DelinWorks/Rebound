@@ -16,13 +16,13 @@ public:
 	void renderCompositePass(ax::RenderTexture* composite, const Mat4& transformMatrix = Mat4::IDENTITY);
 };
 
-class VirtualWorld {
+class VirtualWorldManager {
 public:
-	VirtualWorld();
-	~VirtualWorld();
+	VirtualWorldManager();
+	~VirtualWorldManager();
 	
-	void refresh(ax::Scene* scene);
-	void render(ax::Scene* scene, ax::Color4F bg = ax::Color4F(0, 0, 0, 0));
+	void resizeRenderTextures(ax::Scene* scene);
+	void renderAllPasses(ax::Scene* scene, ax::Color4F bg = ax::Color4F(0, 0, 0, 0));
 
 	ax::Vec2 _currentSize;
 	ax::GLView* _glview;

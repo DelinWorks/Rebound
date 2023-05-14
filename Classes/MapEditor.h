@@ -64,7 +64,7 @@ using namespace Math;
 
 using namespace TileSystem;
 
-class MapEditor : public ax::Scene, public SceneInputManager, public VirtualWorld
+class MapEditor : public ax::Scene, public SceneInputManager, public VirtualWorldManager
 {
 public:
     static ax::Scene* createScene();
@@ -117,15 +117,9 @@ public:
 
     sqlite3* pdb;
 
-    std::vector<float> vertices;
-    ax::MeshRenderer* renderer;
-    TileTexCoords coord{ { 0,0 }, { 1,0 }, { 0,1 }, { 1,1 } };
-
     TileSystem::Map* map;
 
     TileArray* tarr;
-
-    ax::ProgressTimer* prog;
 
     ax::Sprite*                map_sprite_stamp;
     ax::Texture2D*             map_default_tex;
@@ -188,6 +182,7 @@ public:
     void setCameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
 
+    std::stack<GameUtils::Editor::UndoRedoCommand> _undo;
 };
 
 #endif

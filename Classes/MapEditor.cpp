@@ -3,6 +3,8 @@
 USING_NS_CC;
 using namespace backend;
 
+using namespace GameUtils;
+
 void MapEditor::updateDirectorToStatsCount(i32 tileCount, i32 chunkCount)
 {
 }
@@ -87,7 +89,7 @@ bool MapEditor::init()
 
     //_defaultCamera->setBackgroundBrush(ax::CameraBackgroundBrush::createColorBrush(Color4F::RED, 0));
 
-    VirtualWorld::refresh(this);
+    VirtualWorldManager::resizeRenderTextures(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
     map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000000, 1000000));
@@ -179,10 +181,6 @@ bool MapEditor::init()
 
     //streak = MotionStreak::create(0.1, 1, 8, Color3B::WHITE, "streak.png");
     //uiNode->addChild(streak);
-
-    prog = ProgressTimer::create(Sprite::create("Untitled.png"));
-    prog->setType(ax::ProgressTimer::Type::RADIAL);
-    _worlds[1]->addChild(prog);
 
     return true;
 }
@@ -509,6 +507,8 @@ void MapEditor::onInitDone(f32 dt)
 
         RLOG("hsv: {},{},{}", color.r, color.g, color.b);
 
+        _undo.push(Editor::UndoRedoCommand());
+
         buildEntireUi();
 
         isInitDone = true;
@@ -584,8 +584,6 @@ void MapEditor::tick(f32 dt)
     REBUILD_UI;
 
     elapsedDt += dt;
-
-    prog->setPercentage(100 - fmod(elapsedDt, 100));
 
     //TileSystem::zPositionMultiplier = 1.0 + sin(elapsedDt) * 0.1;
 
@@ -714,6 +712,7 @@ void MapEditor::lateUpdate(f32 dt)
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     std::vector v = { 1 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
+    auto& undoCmd = _undo.top();
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
@@ -723,6 +722,8 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
                 gid |= TILE_FLAG_FLIP_X;
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_FLIP_Y;
+            undoCmd.action = Editor::UNDOREDO_TILEMAP;
+            undoCmd.affected.addOrSetTile(new Editor::TileGidPos(map->getTileAt({ float(x), float(y) }), ax::Vec2(float(x), float(y))));
             map->setTileAt({ float(x), float(y) }, gid);
         }
     BENCHMARK_SECTION_END();
@@ -904,7 +905,11 @@ void MapEditor::onMouseUp(ax::Event* event)
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
-        isPlacing = false;
+        if (isPlacing) {
+
+            _undo.push(Editor::UndoRedoCommand());
+            isPlacing = false;
+        }
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
@@ -1016,7 +1021,7 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     // calls visit before update which makes the game have
     // a one frame delay which can be frustration.
     tick(_director->getDeltaTime());
-    VirtualWorld::render(this, Color4F(LAYER_BACKGROUND_COLOR));
+    VirtualWorldManager::renderAllPasses(this, Color4F(LAYER_BACKGROUND_COLOR));
     Scene::visit(renderer, parentTransform, parentFlags);
 }
 

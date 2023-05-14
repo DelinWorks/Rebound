@@ -1,6 +1,6 @@
 #include "VirtualWorld.h"
 
-VirtualWorld::VirtualWorld()
+VirtualWorldManager::VirtualWorldManager()
 {
 	_glview = ax::Director::getInstance()->getOpenGLView();
 	_camera = new VirtualCamera();
@@ -12,7 +12,7 @@ VirtualWorld::VirtualWorld()
 	_rts.emplace_back(nullptr);
 }
 
-VirtualWorld::~VirtualWorld()
+VirtualWorldManager::~VirtualWorldManager()
 {
 	AX_SAFE_RELEASE(_camera);
 	for (auto& _ : _worlds)
@@ -21,7 +21,7 @@ VirtualWorld::~VirtualWorld()
 		AX_SAFE_RELEASE(_);
 }
 
-void VirtualWorld::refresh(ax::Scene* scene)
+void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)
 {
 	if (_currentSize != _glview->getFrameSize()) {
 		_currentSize = _glview->getFrameSize();
@@ -47,15 +47,12 @@ void VirtualWorld::refresh(ax::Scene* scene)
 
 			GameUtils::setNodeIgnoreDesignScale(_, true, 1);
 		}
-
-		auto p = GameUtils::createGPUProgram("outline.frag", "default.vert");
-		_rts[1]->getSprite()->setProgramState(p);
 	}
 }
 
-void VirtualWorld::render(ax::Scene* scene, ax::Color4F bg)
+void VirtualWorldManager::renderAllPasses(ax::Scene* scene, ax::Color4F bg)
 {
-	refresh(scene);
+	resizeRenderTextures(scene);
 
 	// Transform the nodes by the inverse of the camera world matrix.
 	auto invW = _camera->getWorldSpaceMatrix().getInversed();
@@ -78,15 +75,15 @@ void VirtualWorld::render(ax::Scene* scene, ax::Color4F bg)
 
 void VirtualWorldSpace::render(const Mat4& transformMatrix)
 {
-	visit(ax::Director::getInstance()->getRenderer(),
+	Node::visit(ax::Director::getInstance()->getRenderer(), 
 		transformMatrix, FLAGS_TRANSFORM_DIRTY);
 }
 
 void VirtualWorldSpace::renderPass(const Mat4& transformMatrix)
 {
-	rtPass->beginWithClear(rtClear.r, rtClear.g, rtClear.b, rtClear.a);
-	render(transformMatrix);
-	rtPass->end();
+	rtPass -> beginWithClear(rtClear.r, rtClear.g, rtClear.b, rtClear.a);
+	this   -> render(transformMatrix);
+	rtPass -> end();
 }
 
 void VirtualWorldSpace::renderCompositePass(ax::RenderTexture* composite, const Mat4& transformMatrix)

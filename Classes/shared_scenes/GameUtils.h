@@ -1,7 +1,6 @@
-#include <string>
+#pragma once
 
-#ifndef _GameUtils_H__
-#define _GameUtils_H__
+#include <string>
 
 #define USING_NS_GAMEUTILS using namespace GameUtils
 
@@ -190,7 +189,41 @@ namespace GameUtils
     std::vector<Component*> findComponentsByName(Node* parent, std::string_view name, bool containParent = true, std::vector<Component*> list = std::vector<Component*>(), bool recursive = false);
 
     std::vector<Node*> findNodesByTag(Node* parent, int tag, bool containParent = true, std::vector<Node*> list = std::vector<Node*>(), bool recursive = false);
-}
 
-#endif
-// END OF GAME UTILITIES
+namespace Editor {
+        enum UndoRedoAction {
+            UNDOREDO_TILEMAP = 0,
+        };
+
+        class TileGidPos {
+        public:
+            TileGidPos(uint32_t gid, ax::Vec2 pos) : gid(gid), pos(pos) {}
+
+            uint32_t gid;
+            ax::Vec2 pos;
+        };
+
+        class UndoRedoAffectedTiles {
+        public:
+            std::unordered_set<TileGidPos*> tiles;
+
+            ~UndoRedoAffectedTiles() {
+                for (auto& _ : tiles) delete _;
+            }
+
+            void addOrSetTile(TileGidPos* t);
+        };
+
+        class UndoRedoCommand {
+        public:
+            UndoRedoAction action;
+
+            UndoRedoAffectedTiles affected;
+
+            void undo();
+
+        private:
+            void undoTilemapEdit();
+        };
+    }
+}

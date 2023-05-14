@@ -327,3 +327,16 @@ std::vector<Node*> GameUtils::findNodesByTag(Node* parent, int tag, bool contain
 
     return nodes;
 }
+
+void GameUtils::Editor::UndoRedoCommand::undo()
+{
+}
+
+void GameUtils::Editor::UndoRedoCommand::undoTilemapEdit()
+{
+}
+
+void GameUtils::Editor::UndoRedoAffectedTiles::addOrSetTile(TileGidPos* t)
+{
+    tiles.emplace(t);
+}
