@@ -507,8 +507,6 @@ void MapEditor::onInitDone(f32 dt)
 
         RLOG("hsv: {},{},{}", color.r, color.g, color.b);
 
-        _undo.push(Editor::UndoRedoCommand());
-
         buildEntireUi();
 
         isInitDone = true;
@@ -713,6 +711,7 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     std::vector v = { 1 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
     auto& undoCmd = _undo.top();
+    undoCmd.affected.map = map;
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)];
@@ -723,7 +722,7 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
             if (Random::float01() > 0.5)
                 gid |= TILE_FLAG_FLIP_Y;
             undoCmd.action = Editor::UNDOREDO_TILEMAP;
-            undoCmd.affected.addOrSetTile(new Editor::TileGidPos(map->getTileAt({ float(x), float(y) }), ax::Vec2(float(x), float(y))));
+            undoCmd.affected.addOrIgnoreTile(ax::Vec2(x, y), map->getTileAt({ float(x), float(y) }));
             map->setTileAt({ float(x), float(y) }, gid);
         }
     BENCHMARK_SECTION_END();
@@ -810,6 +809,24 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     if (keyCode == EventKeyboard::KeyCode::KEY_2) map->bindLayer(1);
     if (keyCode == EventKeyboard::KeyCode::KEY_3) map->bindLayer(2);
 
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) { isCtrlPressed = true; }
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_Z) {
+        if (_undo.size() != 0) {
+            _undo.top().undo();
+            _redo.push(_undo.top());
+            _undo.pop();
+        }
+    }
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_Y) {
+        if (_redo.size() != 0) {
+            _redo.top().redo();
+            _undo.push(_redo.top());
+            _redo.pop();
+        }
+    }
+
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
         isEditorDragging = true;
@@ -851,6 +868,8 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
+    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) { isCtrlPressed = false; }
+
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
         isEditorDragging = false;
@@ -882,6 +901,8 @@ void MapEditor::onMouseDown(ax::Event* event)
     {
         isPlacing = true;
 
+        _undo.push(Editor::UndoRedoCommand());
+
         auto mouseClick = DrawNode::create(1);
         mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
         mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 16));
@@ -891,6 +912,7 @@ void MapEditor::onMouseDown(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         isRemoving = true;
+        _undo.push(Editor::UndoRedoCommand());
         removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
     }
 }
@@ -906,8 +928,6 @@ void MapEditor::onMouseUp(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
         if (isPlacing) {
-
-            _undo.push(Editor::UndoRedoCommand());
             isPlacing = false;
         }
     }

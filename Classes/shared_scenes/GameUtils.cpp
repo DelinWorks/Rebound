@@ -328,15 +328,32 @@ std::vector<Node*> GameUtils::findNodesByTag(Node* parent, int tag, bool contain
     return nodes;
 }
 
+void GameUtils::Editor::UndoRedoCommand::redo()
+{
+    switch (action) {
+    case UNDOREDO_TILEMAP:
+        undoTilemapEdit();
+        break;
+    }
+}
+
 void GameUtils::Editor::UndoRedoCommand::undo()
 {
+    switch (action) {
+        case UNDOREDO_TILEMAP:
+            undoTilemapEdit();
+            break;
+    }
 }
 
 void GameUtils::Editor::UndoRedoCommand::undoTilemapEdit()
 {
+    for (auto& _ : affected.tiles)
+        affected.map->setTileAt(_.first, _.second);
 }
 
-void GameUtils::Editor::UndoRedoAffectedTiles::addOrSetTile(TileGidPos* t)
+void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTile(ax::Vec2 pos, uint32_t gid)
 {
-    tiles.emplace(t);
+    if (tiles.find(pos) == tiles.end())
+        tiles.emplace(pos, gid);
 }

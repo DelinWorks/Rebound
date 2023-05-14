@@ -15,6 +15,7 @@
 #include "Helper/PlatDefines.h"
 #include "Helper/Logging.hpp"
 #include "Helper/Math.h"
+#include "Helper/Rebound/TileMapSystem.hpp"
 
 #define MATH_PI                     3.141592653f
 
@@ -195,23 +196,12 @@ namespace Editor {
             UNDOREDO_TILEMAP = 0,
         };
 
-        class TileGidPos {
-        public:
-            TileGidPos(uint32_t gid, ax::Vec2 pos) : gid(gid), pos(pos) {}
-
-            uint32_t gid;
-            ax::Vec2 pos;
-        };
-
         class UndoRedoAffectedTiles {
         public:
-            std::unordered_set<TileGidPos*> tiles;
+            TileSystem::Map* map;
+            std::map<ax::Vec2, uint32_t> tiles;
 
-            ~UndoRedoAffectedTiles() {
-                for (auto& _ : tiles) delete _;
-            }
-
-            void addOrSetTile(TileGidPos* t);
+            void addOrIgnoreTile(ax::Vec2 pos, uint32_t gid);
         };
 
         class UndoRedoCommand {
@@ -220,6 +210,7 @@ namespace Editor {
 
             UndoRedoAffectedTiles affected;
 
+            void redo();
             void undo();
 
         private:

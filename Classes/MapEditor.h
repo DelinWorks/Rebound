@@ -182,7 +182,9 @@ public:
     void setCameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
 
+    bool isCtrlPressed = false;
     std::stack<GameUtils::Editor::UndoRedoCommand> _undo;
+    std::stack<GameUtils::Editor::UndoRedoCommand> _redo;
 };
 
 #endif
