@@ -6,8 +6,7 @@ varying vec4 v_fragmentColor;
 varying vec2 v_texCoord;
 #endif
 
-const float blurSize = 1.0/2048.0;
-const float intensity = 0.5;
+const float blurSize = 1.0/512.0;
 
 uniform sampler2D u_tex0;
 

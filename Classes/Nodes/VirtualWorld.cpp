@@ -48,7 +48,7 @@ void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)
 			GameUtils::setNodeIgnoreDesignScale(_, true, 1);
 		}
 
-		auto p = GameUtils::createGPUProgram("chrom.frag", "default.vert");
+		auto p = GameUtils::createGPUProgram("bloom.frag", "default.vert");
 		_rts[1]->getSprite()->setProgramState(p);
 	}
 }

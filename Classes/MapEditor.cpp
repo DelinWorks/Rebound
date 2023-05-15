@@ -588,7 +588,7 @@ void MapEditor::tick(f32 dt)
     //TileSystem::zPositionMultiplier = 1.0 + sin(elapsedDt) * 0.1;
 
     //SET_UNIFORM(_rts[1]->getSprite()->getProgramState(), "u_time", float(elapsedDt * 0.1));
-    ////_rt->getSprite()->getTexture()->setAliasTexParameters();
+    //_rt->getSprite()->getTexture()->setAliasTexParameters();
     //_rts[1]->getSprite()->setSkewX(sin(elapsedDt * 6) * 10);
     //_rts[1]->getSprite()->setSkewY(cos(elapsedDt * 10) * 10);
     //_rt->getSprite()->setScale(1.25);
@@ -1061,29 +1061,6 @@ void MapEditor::buildEntireUi()
     fileB->setUiPadding(padding);
     menuContainer->addChild(fileB);
 
-    fileB->_callback = [=](CustomUi::Button* target) {
-        auto fcontainer = CustomUi::Container::create();
-        auto vis = Director::getInstance()->getVisibleSize();
-        fcontainer->setBorderLayoutAnchor(TOP_LEFT);
-        fcontainer->setConstraint(CustomUi::DependencyConstraint(target, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
-        fcontainer->setBackgroundSprite();
-        fcontainer->setBackgroundDim();
-
-        auto lb = CustomUi::Label::create();
-        lb->init(L"File Menu Created!", 16);
-        lb->setUiPadding({ 20, 10 });
-        fcontainer->addChild(lb);
-
-        fcontainer->runAction(Sequence::create(
-            DelayTime::create(1),
-            FadeOut::create(1),
-            CallFunc::create([=]() { fcontainer->removeFromParent(); }),
-            nullptr
-        ));
-
-        container->addChild(fcontainer);
-    };
-
     auto editB = CustomUi::Button::create();
     editB->init(L"Edit", 16, ax::Vec2::ZERO, hpadding);
     editB->setUiPadding(padding);
@@ -1150,6 +1127,35 @@ void MapEditor::buildEntireUi()
     undoB->initIcon("editor_undo");
     undoB->setUiPadding(padding);
     editContainer->addChild(undoB);
+
+    fileB->_callback = [=](CustomUi::Button* target) {
+        auto fcontainer = CustomUi::Container::create();
+        auto vis = Director::getInstance()->getVisibleSize();
+        fcontainer->setBorderLayoutAnchor(TOP_LEFT);
+        fcontainer->setConstraint(CustomUi::DependencyConstraint(editContainer, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
+        fcontainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER));
+        fcontainer->setMargin({ 0, 10 });
+        fcontainer->setBackgroundSprite();
+        fcontainer->setBlocking();
+        fcontainer->setDismissible();
+
+        auto lb = CustomUi::Button::create();
+        lb->init(L"New Map", 16);
+        lb->setUiPadding({ 20, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"Open Map", 16);
+        lb->setUiPadding({ 20, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"Import Texture", 16);
+        lb->setUiPadding({ 20, 5 });
+        fcontainer->addChild(lb);
+
+        container->addChild(fcontainer);
+    };
 
     auto redoB = CustomUi::Button::create();
     redoB->initIcon("editor_redo");

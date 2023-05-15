@@ -92,6 +92,9 @@ namespace CustomUi
         void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
         void setBackgroundDim();
 
+        void setBlocking();
+        void setDismissible();
+
         void notifyLayout() override;
 
         void calculateContentBoundaries();
@@ -131,6 +134,8 @@ namespace CustomUi
         bool _closestStaticBorder = false;
 
     protected:
+        bool _isBlocking = false;
+        bool _isDismissible = false;
         bool _isMinimized = true;
         ax::Vec2 _margin;
         Layout _layout;

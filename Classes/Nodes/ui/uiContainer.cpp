@@ -55,7 +55,7 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
             if (n->hover(_isHitSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
                 _isHitSwallowed = true;
     }
-    return _isHitSwallowed;
+    return _isHitSwallowed || _isBlocking;
 }
 
 bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -71,7 +71,9 @@ bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
             if (n->press(isClickSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
                 isClickSwallowed = true;
     }
-    return isClickSwallowed;
+    if (_isDismissible && !isClickSwallowed)
+        removeFromParent();
+    return isClickSwallowed || _isBlocking;
 }
 
 bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -254,6 +256,16 @@ void CustomUi::Container::setBackgroundDim()
     _bgDim->setTag(YOURE_NOT_WELCOME_HERE);
     _bgDim->setScale(10);
     addChild(_bgDim, -2);
+}
+
+void CustomUi::Container::setBlocking()
+{
+    _isBlocking = true;
+}
+
+void CustomUi::Container::setDismissible()
+{
+    _isDismissible = true;
 }
 
 void CustomUi::Container::notifyLayout()
