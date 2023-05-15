@@ -6,12 +6,11 @@
 template<class T>
 class HeapAllocatedFixedStack {
 public:
-
-	FixedStack() {
+	HeapAllocatedFixedStack() {
 		pool = new std::list<T>();
 	}
 
-	~FixedStack() {
+	~HeapAllocatedFixedStack() {
 		delete pool;
 	}
 
