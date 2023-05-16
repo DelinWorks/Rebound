@@ -14,6 +14,9 @@
 #define LRES_PATH L"Resources"
 
 #if WIN32
+#include <windows.h>
+#include <commdlg.h>
+
 static std::wstring getCurrentDirectoryW()
 {
     WCHAR buffer[MAX_PATH];
@@ -57,6 +60,29 @@ static std::string fromClipboard()
 	GlobalUnlock(hData);
 	CloseClipboard();
 	return text;
+}
+
+static std::wstring getSingleFileDialog(HWND window)
+{
+	OPENFILENAME ofn;       // common dialog box structure
+	TCHAR szFile[260] = { 0 };       // if using TCHAR macros
+
+	// Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = window;
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = L"All\0*.*\0png\0*.png\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+	if (GetOpenFileName(&ofn) == TRUE)
+		return ofn.lpstrFile;
+	return L"";
 }
 
 #endif

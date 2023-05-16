@@ -95,7 +95,7 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
         (buttons == DiscardButtons::SUBMIT_CANCEL ? L"CANCEL" : L"OKAY"));
 
     auto cancel = CustomUi::Button::create();
-    cancel->init(cancelText, 16, { 0, 40 });
+    cancel->init(cancelText, 16);
     buttonStack->addChild(cancel);
 
     cancel->_callback = discardCallback;
@@ -106,7 +106,7 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
             (buttons == DiscardButtons::SUBMIT_CANCEL ? L"SUBMIT" : L""));
 
         auto okay = eventButton = CustomUi::Button::create();
-        okay->init(okayText, 16, { 0, 40 });
+        okay->init(okayText, 16);
         buttonStack->addChild(okay);
     }
 

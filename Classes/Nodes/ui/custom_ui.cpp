@@ -76,6 +76,21 @@ CustomUi::GUI::~GUI()
 	LOG_RELEASE;
 }
 
+bool CustomUi::GUI::hover(Vec2 mouseLocationInView, Camera* cam)
+{
+	return false;
+}
+
+bool CustomUi::GUI::press(Vec2 mouseLocationInView, Camera* cam)
+{
+	return false;
+}
+
+bool CustomUi::GUI::release(Vec2 mouseLocationInView, Camera* cam)
+{
+	return false;
+}
+
 void CustomUi::GUI::keyPress(EventKeyboard::KeyCode keyCode)
 {
 }

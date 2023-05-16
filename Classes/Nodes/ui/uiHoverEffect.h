@@ -16,7 +16,7 @@ namespace CustomUi {
 		void setHoverOffset(const ax::Vec2& hoverOffset) { _hoverOffset = hoverOffset; }
 		ax::Vec2 getHoverOffset() { return _hoverOffset; }
 
-	private:
+	protected:
 		ax::Vec2 _hoverOffset = ax::Vec2::ZERO;
 		ax::ParticleSystemQuad* _prtcl;
 		ax::backend::ProgramState* _hoverShader = nullptr;

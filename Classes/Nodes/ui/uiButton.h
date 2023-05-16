@@ -30,6 +30,7 @@ namespace CustomUi
         ui::Button* button;
         std::string normal_sp;
         Color3B selected_color;
+        cocos2d::Size field_size;
         cocos2d::Rect capinsets;
         cocos2d::Rect clampregion;
         cocos2d::Size clampoffset;
@@ -37,6 +38,7 @@ namespace CustomUi
         ChangeValue<bool> hover_cv;
         bool adaptToWindowSize = false;
         bool extend = false;
+
         ButtonCallback _callback;
 
         ~Button();

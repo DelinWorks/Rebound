@@ -72,7 +72,6 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     sprite->setColor(selected_color);
     setContentSize(_contentsize);
     button = createPlaceholderButton();
-    button->setEnabled(false);
     cursor_control = Sprite::createWithSpriteFrameName("text_cursor");
     if (password) {
         password_control = Sprite::createWithSpriteFrameName("hide_password");

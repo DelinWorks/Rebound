@@ -42,7 +42,7 @@ void CustomUi::Button::initIcon(std::string _frameName, Size _hitboxPadding)
 {
     init(
         L"",
-        "fonts/bitsy-font-with-arabic.ttf"sv,
+        "",
         0,
         ADVANCEDUI_P1_CAP_INSETS,
         Size(0, 0),
@@ -65,7 +65,6 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
-    scheduleUpdate();
     adaptToWindowSize = _adaptToWindowSize;
     extend = _allowExtend;
     normal_sp = _normal_sp;
@@ -74,13 +73,14 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
     capinsets = _capinsets;
     hitboxpadding = _hitboxpadding;
     selected_color = _selected_color;
-    setContentSize(_contentsize);
+    field_size = _contentsize;
     if (_isIcon) {
         icon = ax::Sprite::createWithSpriteFrameName(_normal_sp);
         addChild(icon, 0);
     }
     else {
         field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
+        field->updateContent();
         sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
         sprite->setContentSize(_contentsize);
         sprite->setColor(selected_color);
@@ -89,8 +89,6 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
         addChild(field, 1);
     }
     button = createPlaceholderButton();
-    button->setEnabled(false);
-    button->ignoreContentAdaptWithSize(false);
     addChild(button);
     _callback = [] (Button*) {};
 }
@@ -122,6 +120,7 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         if (!_pCurrentHeldItem) {
             setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
             hover_cv.setValue(isUiHovered());
+            if (field) { if (isUiHovered()) field->enableUnderline(); else field->disableEffect(); }
         }
 
         if (hover_cv.isChanged())
@@ -156,8 +155,8 @@ void CustomUi::Button::onEnable()
 
 void CustomUi::Button::onDisable()
 {
-    auto fade = FadeTo::create(0.1f, 100);
-    auto tint = TintTo::create(0.1f, Color3B::GRAY);
+    auto fade = FadeTo::create(0, 100);
+    auto tint = TintTo::create(0, Color3B::GRAY);
     if (field) {
         field->runAction(fade);
         field->runAction(tint);
@@ -180,10 +179,14 @@ bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
         auto fade = FadeTo::create(0, 100);
         auto tint = TintTo::create(0, Color3B::GRAY);
         if (field) {
+            field->stopAllActions();
             field->runAction(fade);
             field->runAction(tint);
         }
-        else icon->runAction(fade);
+        else {
+            icon->stopAllActions();
+            icon->runAction(fade);
+        }
         return true;
     }
     hover(mouseLocationInView, cam);
@@ -204,6 +207,7 @@ bool CustomUi::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         SoundGlobals::playUiHoverSound();
         return true;
     }
+    return false;
 }
 
 Size CustomUi::Button::getDynamicContentSize()
@@ -215,6 +219,11 @@ void CustomUi::Button::onFontScaleUpdate(float scale)
 {
     if (field) {
         field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
+        if (field_size.x != 0 || field_size.y != 0) {
+            field->setDimensions(field_size.x * scale * _PmtFontScale, field_size.y * scale * _PmtFontScale);
+            field->setHorizontalAlignment(ax::TextHAlignment::LEFT);
+            _prtcl->setAngleVar(0);
+        }
         //field->enableShadow(Color4B(selected_color.r, selected_color.g, selected_color.b, 100), {1,-1}, 1);
         //field->enableUnderline();
         //field->enableOutline(Color4B(selected_color.r, selected_color.g, selected_color.b, 35), 4);

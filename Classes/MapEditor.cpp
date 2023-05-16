@@ -836,7 +836,7 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     {
         for (int i = 0; i < 1; i++) {
             auto panel = CustomUi::DiscardPanel::create();
-            panel->init(L"WARNING", L"User Interface Test !!!", CustomUi::DiscardButtons::YES_NO, CustomUi::DiscardType::MESSAGE);
+            panel->init(L"WARNING", L"User Interface Test !!!", CustomUi::DiscardButtons::YES_NO, CustomUi::DiscardType::INPUT);
             getContainer()->pushModal(panel);
         }
 
@@ -855,6 +855,14 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
         //        }
         //sqlite3_wal_checkpoint(pdb, NULL);
     }
+
+#ifdef WIN32
+    if (keyCode == EventKeyboard::KeyCode::KEY_T)
+    {
+        auto s = getSingleFileDialog(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window));
+        RLOG("Texture Path: {}", Strings::narrow(s));
+    }
+#endif
 }
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
@@ -1034,11 +1042,18 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 
 void MapEditor::buildEntireUi()
 {
+    CustomUi::callbackAccess.clear();
+
     auto container = _input->_uiContainer = CustomUi::Container::create();
     container->setStatic();
     container->setContentSize(visibleSize);
     container->setBorderLayoutAnchor();
     uiNode->addChild(container);
+    CustomUi::callbackAccess.emplace("main", container);
+
+    auto test = CustomUi::Slider::create();
+    test->init({ 128, 16 });
+    container->addChild(test);
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
@@ -1120,6 +1135,7 @@ void MapEditor::buildEntireUi()
     editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
     editContainer->setTag(CONTAINER_FLOW_TAG);
     editContainer->setMargin({ 0, 1 });
+    CustomUi::callbackAccess.emplace("edit_container", editContainer);
 
     padding = { 52, 5 };
 
@@ -1128,11 +1144,16 @@ void MapEditor::buildEntireUi()
     undoB->setUiPadding(padding);
     editContainer->addChild(undoB);
 
+    auto extContainer = CustomUi::Container::create();
+
+    CustomUi::callbackAccess.emplace("ext_edit_container", extContainer);
+
     fileB->_callback = [=](CustomUi::Button* target) {
         auto fcontainer = CustomUi::Container::create();
         auto vis = Director::getInstance()->getVisibleSize();
         fcontainer->setBorderLayoutAnchor(TOP_LEFT);
-        fcontainer->setConstraint(CustomUi::DependencyConstraint(editContainer, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
+        fcontainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["ext_edit_container"],
+            BOTTOM_LEFT, { -0.55, 0.55 }, true, vis / -2));
         fcontainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER));
         fcontainer->setMargin({ 0, 10 });
         fcontainer->setBackgroundSprite();
@@ -1140,21 +1161,144 @@ void MapEditor::buildEntireUi()
         fcontainer->setDismissible();
 
         auto lb = CustomUi::Button::create();
+        lb->init(L"-- Resources ------", 16);
+        lb->disable();
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
         lb->init(L"New Map", 16);
-        lb->setUiPadding({ 20, 5 });
+        lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Open Map", 16);
-        lb->setUiPadding({ 20, 5 });
+        lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Import Texture", 16);
-        lb->setUiPadding({ 20, 5 });
+        lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
 
-        container->addChild(fcontainer);
+        lb = CustomUi::Button::create();
+        lb->init(L"Reload Textures", 16);
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"-- Changes --------", 16);
+        lb->disable();
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"Save", 16);
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"Save and Exit", 16);
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"Exit without Saving", 16);
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"-- Other ----------", 16);
+        lb->disable();
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb = CustomUi::Button::create();
+        lb->init(L"More Options...", 16);
+        lb->setUiPadding({ 10, 5 });
+        fcontainer->addChild(lb);
+
+        lb->_callback = [=](CustomUi::Button* target) {
+            fcontainer->removeFromParent();
+            auto fcontainer1 = CustomUi::Container::create();
+            auto vis = Director::getInstance()->getVisibleSize();
+            fcontainer1->setBorderLayoutAnchor(TOP_LEFT);
+            fcontainer1->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["ext_edit_container"],
+                BOTTOM_LEFT, { -0.55, 0.55 }, true, vis / -2));
+            fcontainer1->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER));
+            fcontainer1->setMargin({ 0, 10 });
+            fcontainer1->setBackgroundSprite();
+            fcontainer1->setBlocking();
+            fcontainer1->setDismissible();
+
+            auto lb = CustomUi::Button::create();
+            lb->init(L"-- Resources --------------------------", 16);
+            lb->disable();
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"Import .TTF/.OTF Font File", 16);
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"-- Passes -----------------------------", 16);
+            lb->disable();
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"Open Render Pass Editor", 16);
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"-- TileMaps ---------------------------", 16);
+            lb->disable();
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"Switch to Bilinear Rendering", 16);
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"-- Shaders ----------------------------", 16);
+            lb->disable();
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"Import GLSL Shader", 16);
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"Compile GLSL v3.0 Compliant Shader Code", 16);
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"-- Native -----------------------------", 16);
+            lb->disable();
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            lb = CustomUi::Button::create();
+            lb->init(L"SQLite Vacuum File", 16);
+            lb->setUiPadding({ 10, 5 });
+            fcontainer1->addChild(lb);
+
+            CustomUi::Functions::menuContentFitButtons(fcontainer1);
+
+            CustomUi::callbackAccess["main"]->addChild(fcontainer1);
+        };
+
+        CustomUi::Functions::menuContentFitButtons(fcontainer);
+
+        CustomUi::callbackAccess["main"]->addChild(fcontainer);
     };
 
     auto redoB = CustomUi::Button::create();
@@ -1169,25 +1313,38 @@ void MapEditor::buildEntireUi()
 
     CONTAINER_MAKE_MINIMIZABLE(topRightContainer);
 
-    //auto placeB = CustomUi::Button::create();
-    //placeB->initIcon("editor_place", padding);
-    //editContainer->addChild(placeB);
+    auto vis = Director::getInstance()->getVisibleSize();
+    extContainer->setBorderLayoutAnchor(TOP_LEFT);
+    extContainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["edit_container"],
+        BOTTOM_LEFT, { -0.02, 0 }));
+    extContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 30));
+    extContainer->setMargin({ 20, 10 });
+    extContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
+    extContainer->setTag(GUI_ELEMENT_EXCLUDE);
 
-    //auto bucketB = CustomUi::Button::create();
-    //bucketB->initIcon("editor_bucket_fill", padding);
-    //editContainer->addChild(bucketB);
+    padding = Vec2(20, 8);
 
-    //auto removeB = CustomUi::Button::create();
-    //removeB->initIcon("editor_remove", padding);
-    //editContainer->addChild(removeB);
+    auto placeB = CustomUi::Button::create();
+    placeB->initIcon("editor_place", padding);
+    extContainer->addChild(placeB);
 
-    //auto selectB = CustomUi::Button::create();
-    //selectB->initIcon("editor_select", padding);
-    //editContainer->addChild(selectB);
+    auto bucketB = CustomUi::Button::create();
+    bucketB->initIcon("editor_bucket_fill", padding);
+    extContainer->addChild(bucketB);
 
-    //auto rectFillB = CustomUi::Button::create();
-    //rectFillB->initIcon("editor_rectangle_fill", padding);
-    //editContainer->addChild(rectFillB);
+    auto removeB = CustomUi::Button::create();
+    removeB->initIcon("editor_remove", padding);
+    extContainer->addChild(removeB);
+
+    auto selectB = CustomUi::Button::create();
+    selectB->initIcon("editor_select", padding);
+    extContainer->addChild(selectB);
+
+    auto rectFillB = CustomUi::Button::create();
+    rectFillB->initIcon("editor_rectangle_fill", padding);
+    extContainer->addChild(rectFillB);
+
+    editContainer->addChild(extContainer);
 
     topRightContainer->addChild(editContainer);
 

@@ -139,8 +139,9 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
 
     auto _onMouseDownCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
-        if (_uiContainer && (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->isUiFocused())) {
-            if (_uiContainer->press(e->getLocationInView(), getCamera())) return;
+        if (_uiContainer) {
+            if ((e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->isUiFocused()))
+                if (_uiContainer->press(e->getLocationInView(), getCamera())) return;
             if (_uiContainer->blockMouse()) return;
         }
 

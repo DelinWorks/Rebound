@@ -14,6 +14,7 @@ using namespace ax;
 
 #define YOURE_NOT_WELCOME_HERE -69420
 #define CONTAINER_CLOSE_TAG -69421
+#define GUI_ELEMENT_EXCLUDE -69422
 
 //#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
@@ -33,6 +34,8 @@ namespace CustomUi
 
     inline bool _doNotShowWin32 = false;
 
+    inline std::map<std::string, GUI*> callbackAccess;
+
     struct UiFontDescriptor {
         std::string fontName;
         float fontSize;
@@ -48,6 +51,10 @@ namespace CustomUi
         button->setVisible(false);
         button->setOpacity(0);
 #endif
+        button->setTouchEnabled(false);
+        button->setSwallowTouches(false);
+        button->setEnabled(false);
+        button->ignoreContentAdaptWithSize(false);
         return button;
     }
 
@@ -69,10 +76,10 @@ namespace CustomUi
         ~GUI();
 
         // DO NOT ACCESS, USE AdvancedUiContainer
-        virtual bool hover(Vec2 mouseLocationInView, Camera* cam) = 0;
+        virtual bool hover(Vec2 mouseLocationInView, Camera* cam);
         // DO NOT ACCESS, USE AdvancedUiContainer
-        virtual bool press(Vec2 mouseLocationInView, Camera* cam) = 0;
-        virtual bool release(Vec2 mouseLocationInView, Camera* cam) = 0;
+        virtual bool press(Vec2 mouseLocationInView, Camera* cam);
+        virtual bool release(Vec2 mouseLocationInView, Camera* cam);
 
         virtual void keyPress(EventKeyboard::KeyCode keyCode);
         virtual void keyRelease(EventKeyboard::KeyCode keyCode);
