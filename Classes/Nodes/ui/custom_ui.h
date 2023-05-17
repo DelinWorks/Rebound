@@ -6,6 +6,7 @@
 #include "Helper/Logging.hpp"
 #include <ui/CocosGUI.h>
 #include <ui/UIButton.h>
+#include <ui/UISlider.h>
 #include <ui/UITextField.h>
 
 using namespace ax;

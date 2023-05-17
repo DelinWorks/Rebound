@@ -33,15 +33,14 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     _prtcl->setEmissionRate(100);
     _prtcl->setEmissionShapes(true);
     _prtcl->setBlendAdditive(true);
-    _prtcl->simulate(-1, 10);
     _prtcl->setFixedFPS(20);
     _prtcl->setPositionType(ax::ParticleSystem::PositionType::GROUPED);
+    _prtcl->setVisible(false);
     _hoverSprite->addChild(_prtcl, 2);
 }
 
 void CustomUi::HoverEffectGUI::update(f32 dt) {
     if (_hoverSprite->isVisible()) {
-        //_hoverSprite->setContentSize(getContentSize() + Vec2(30 * (getContentSize().x / 120), 30));
         _hoverSprite->setContentSize(getContentSize() + _hoverOffset);
         _hoverShaderTime1 += dt;
         SET_UNIFORM(_hoverShader, "u_time", _hoverShaderTime1);
@@ -49,10 +48,8 @@ void CustomUi::HoverEffectGUI::update(f32 dt) {
         _hoverShaderTimeLerp2 = LERP(_hoverShaderTimeLerp2, _hoverShaderTime2, 10 * dt);
         SET_UNIFORM(_hoverShader, "u_val", _hoverShaderTimeLerp2);
         _prtcl->setPosition((_hoverSprite->getContentSize() + _hoverOffset) / 2);
+        _prtcl->setOpacity(_hoverSprite->getOpacity() / 0.1176470588235294);
     }
-    _prtcl->setEmissionShape(0, ParticleSystem::createRectShape(Vec2::ZERO,
-        { _hoverSprite->getContentSize().x + _hoverOffset.x, _hoverSprite->getContentSize().y + _hoverOffset.y }));
-    _prtcl->setOpacity(_hoverSprite->getOpacity() / 0.1176470588235294);
 }
 
 void CustomUi::HoverEffectGUI::hover()
@@ -61,26 +58,27 @@ void CustomUi::HoverEffectGUI::hover()
 
     if (isUiHovered()) {
         _hoverSprite->stopAllActions();
-        auto seq = Sequence::create(
-            CallFunc::create([this]() { _hoverSprite->setVisible(true); }),
-            FadeTo::create(0.1f, 30),
-            _NOTHING
-        );
-        _hoverSprite->runAction(seq);
+        _hoverSprite->setVisible(true);
+        _prtcl->setVisible(true);
+        update(0);
+        _prtcl->setEmissionShape(0, ParticleSystem::createRectShape(Vec2::ZERO,
+            { _hoverSprite->getContentSize().x + _hoverOffset.x, _hoverSprite->getContentSize().y + _hoverOffset.y }));
+        if (!_isPrtclSimulated) {
+            _prtcl->simulate(10, 20);
+            _isPrtclSimulated = true;
+        }
+        _hoverSprite->runAction(FadeTo::create(0.1f, 30));
         if (_hoverShaderTime2 > 0.3)
             _hoverShaderTimeLerp2 = 0;
         _hoverShaderTime2 = 0.0f;
-        _prtcl->setTimeScale(1);
-        _prtcl->simulate(10, 20);
         SoundGlobals::playUiHoverSound();
     } else {
-        _prtcl->setTimeScale(0);
         _hoverSprite->stopAllActions();
         auto seq = Sequence::create(
             FadeTo::create(0, 30),
             DelayTime::create(.25 - clampf(_hoverShaderTime1, 0, .25)),
             FadeTo::create(0.5, 0),
-            CallFunc::create([this]() { _hoverSprite->setVisible(false); }),
+            CallFunc::create([this]() { _hoverSprite->setVisible(false); _prtcl->setVisible(false); }),
             _NOTHING
         );
         _hoverSprite->runAction(seq);

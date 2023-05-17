@@ -12,7 +12,7 @@ USING_NS_CC;
 #define BUTTON_P1_CLAMP_REGION Rect(380, 40, visibleSize.width + getWinDiff().width, 40)
 #define BUTTON_P1_CLAMP_OFFSET Size(30, 0)
 
-#define BUTTON_HITBOX_CORNER_TOLERANCE Size(3, 3)
+#define SLIDER_HITBOX_CORNER_TOLERANCE Size(12, 20)
 
 namespace CustomUi
 {
@@ -47,6 +47,10 @@ namespace CustomUi
         void onEnable() override;
 
         void onDisable() override;
+
+        bool isHeld = false;
+        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
     };

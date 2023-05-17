@@ -19,6 +19,7 @@ namespace CustomUi {
 	protected:
 		ax::Vec2 _hoverOffset = ax::Vec2::ZERO;
 		ax::ParticleSystemQuad* _prtcl;
+		bool _isPrtclSimulated = false;
 		ax::backend::ProgramState* _hoverShader = nullptr;
 		ax::Sprite* _hoverSprite = nullptr;
 		f32 _hoverShaderTime1 = 0;

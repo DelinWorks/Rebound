@@ -1051,9 +1051,18 @@ void MapEditor::buildEntireUi()
     uiNode->addChild(container);
     CustomUi::callbackAccess.emplace("main", container);
 
-    auto test = CustomUi::Slider::create();
-    test->init({ 128, 16 });
-    container->addChild(test);
+    //auto testC = CustomUi::Container::create();
+    //testC->setBorderLayout(BorderLayout::CENTER, BorderContext::PARENT);
+    ////testC->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, false));
+
+    //for (int i = 0; i < 800; i++) {
+    //    auto test = CustomUi::Button::create();
+    //    test->init(L"Nigger", 16);
+    //    testC->addChild(test);
+    //}
+    //container->addChild(testC);
+
+    ////testC->disable();
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
@@ -1393,7 +1402,7 @@ void MapEditor::buildEntireUi()
         auto update_fps_action = CallFunc::create([&]() {
             wchar_t buff[14];
             wchar_t buffDt[14];
-            fps_dt += (_director->getInstance()->getDeltaTime() - fps_dt) * 0.25f;
+            fps_dt += (_director->getInstance()->getDeltaTime() - fps_dt) * 0.5f;
             _snwprintf(buff, sizeof(buff), L"%.1lf", 1.0F / fps_dt);
             _snwprintf(buffDt, sizeof(buffDt), L"%.1lf", fps_dt * 1000);
             std::wstring buffAsStdStr = buff;

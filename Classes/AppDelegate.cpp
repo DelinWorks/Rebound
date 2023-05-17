@@ -395,8 +395,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     //director->setAnimationInterval(1.0f / 60);
 #ifdef _DEBUG
-    director->setAnimationInterval(0);
 #endif
+    director->setAnimationInterval(0);
     // Set the design resolution
     if (!Darkness::getInstance()->console.isHeadless)
         glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);

@@ -14,7 +14,7 @@
 #include "Components/UiRescaleComponent.h"
 
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 4, 4)
-#define ADVANCEDUI_SLIDER_CAP_INSETS Rect(2, 2, 1, 1)
+#define ADVANCEDUI_SLIDER_CAP_INSETS Rect(2, 2, 2, 2)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1"sv
 #define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped"sv
 
