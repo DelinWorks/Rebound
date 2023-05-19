@@ -152,7 +152,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         EventMouse* e = (EventMouse*)event;
         if (_uiContainer && e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT) {
             if (_uiContainer->release(e->getLocationInView(), getCamera())) return;
-            if (_uiContainer->blockMouse()) return;
+            //if (_uiContainer->blockMouse()) return;
         }
 
         onMouseUp(event);
@@ -173,6 +173,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     };
 
     auto _onMouseScrollCheck = [&](EventMouse* event) {
+        _uiContainer->mouseScroll(event);
         if (_uiContainer) if (_uiContainer->blockMouse() || _uiContainer->blockKeyboard()) return;
 
         onMouseScroll(event);

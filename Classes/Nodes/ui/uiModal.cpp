@@ -12,6 +12,7 @@ void CustomUi::Modal::pushSelf()
 
 void CustomUi::Modal::popSelf()
 {
-	if (_modalStack.top()  == this)
-		_modalStack.pop();
+	if (_modalStack.size() > 0)
+		if (_modalStack.top() == this)
+			_modalStack.pop();
 }

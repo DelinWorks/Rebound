@@ -76,34 +76,9 @@
       }
     },
     {
-      "filename": "9_slice_box_1_inv",
-      "frame": {
-        "x": 1,
-        "y": 70,
-        "w": 28,
-        "h": 28
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 28,
-        "h": 28
-      },
-      "sourceSize": {
-        "w": 28,
-        "h": 28
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
       "filename": "ptrn_bg_hover",
       "frame": {
-        "x": 31,
+        "x": 1,
         "y": 70,
         "w": 28,
         "h": 28
@@ -128,6 +103,31 @@
     {
       "filename": "9_slice_box_1",
       "frame": {
+        "x": 31,
+        "y": 70,
+        "w": 28,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 28,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 28,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "9_slice_box_1_cramped",
+      "frame": {
         "x": 61,
         "y": 60,
         "w": 28,
@@ -151,7 +151,7 @@
       }
     },
     {
-      "filename": "9_slice_box_1_cramped",
+      "filename": "9_slice_box_1_inv",
       "frame": {
         "x": 1,
         "y": 100,
@@ -176,35 +176,10 @@
       }
     },
     {
-      "filename": "9_slice_box_1_gray",
+      "filename": "text_cursor",
       "frame": {
         "x": 31,
         "y": 100,
-        "w": 28,
-        "h": 28
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 28,
-        "h": 28
-      },
-      "sourceSize": {
-        "w": 28,
-        "h": 28
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "text_cursor",
-      "frame": {
-        "x": 83,
-        "y": 18,
         "w": 10,
         "h": 24
       },
@@ -229,7 +204,7 @@
       "filename": "slider_bar",
       "frame": {
         "x": 91,
-        "y": 44,
+        "y": 18,
         "w": 7,
         "h": 6
       },
@@ -253,8 +228,8 @@
     {
       "filename": "slider_progress",
       "frame": {
-        "x": 83,
-        "y": 52,
+        "x": 91,
+        "y": 26,
         "w": 7,
         "h": 6
       },
@@ -279,7 +254,7 @@
       "filename": "slider_knob",
       "frame": {
         "x": 83,
-        "y": 44,
+        "y": 18,
         "w": 6,
         "h": 6
       },
@@ -305,7 +280,6 @@
     "app": "http://free-tex-packer.com",
     "version": "0.6.7",
     "image": "shared_ui.png",
-    "alias": true,
     "format": "RGBA8888",
     "size": {
       "w": 100,

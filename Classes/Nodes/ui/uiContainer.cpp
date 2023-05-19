@@ -52,8 +52,12 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     {
         auto n = DCAST(GUI, list.at(i));
         if (n)
-            if (n->hover(_isHitSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
+            if (n->hover((_isHitSwallowed && _pCurrentHeldItem != n) ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
                 _isHitSwallowed = true;
+    }
+    if (_bgButton && !_isHitSwallowed) {
+        if (_bgButton->hitTest(mouseLocationInView, cam, nullptr))
+            _isHitSwallowed = true;
     }
     return _isHitSwallowed || _isBlocking;
 }
@@ -68,8 +72,12 @@ bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     {
         auto n = DCAST(GUI, list.at(i));
         if (n)
-            if (n->press(isClickSwallowed ? Vec2(INFINITY, INFINITY) : mouseLocationInView, cam))
+            if (n->press(isClickSwallowed ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
                 isClickSwallowed = true;
+    }
+    if (_bgButton && !isClickSwallowed) {
+        if (_bgButton->hitTest(mouseLocationInView, cam, nullptr))
+            isClickSwallowed = true;
     }
     if (_isDismissible && !isClickSwallowed)
         removeFromParent();
@@ -110,6 +118,11 @@ void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
         _->keyRelease(keyCode);
         break;
     }
+}
+
+void CustomUi::Container::mouseScroll(EventMouse* event) {
+    if (_pCurrentHoveredItem)
+        _pCurrentHoveredItem->mouseScroll(event);
 }
 
 void CustomUi::Container::updateLayoutManagers(bool recursive)
@@ -231,12 +244,26 @@ void CustomUi::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 of
     }
 }
 
-void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding)
+void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType type)
 {
     _backgroundPadding = padding;
-    _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE, ADVANCEDUI_P1_CAP_INSETS);
+    _background = ax::ui::Scale9Sprite::create();
+    switch (type) {
+    case BgSpriteType::BG_NORMAL:
+        _background->setSpriteFrame(ADVANCEDUI_TEXTURE);
+        break;
+    case BgSpriteType::BG_INVERTED:
+        _background->setSpriteFrame(ADVANCEDUI_TEXTURE_INV);
+        break;
+    case BgSpriteType::BG_GRAY:
+        _background->setSpriteFrame(ADVANCEDUI_TEXTURE_GRAY);
+        break;
+    }
+    _background->setCapInsets(ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
-    addChild(_background, -1);
+    if (type != BgSpriteType::BG_GRAY)
+    _background->setProgramState(_backgroundShader);
+    Node::addChild(_background, -1);
 }
 
 void CustomUi::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale)
@@ -245,7 +272,8 @@ void CustomUi::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED, ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
     _background->setScale(scale.x, scale.y);
-    addChild(_background, -1);
+    _background->setProgramState(_backgroundShader);
+    Node::addChild(_background, -1);
 }
 
 void CustomUi::Container::setBackgroundDim()
@@ -255,7 +283,7 @@ void CustomUi::Container::setBackgroundDim()
     SET_POSITION_MINUS_HALF_SCREEN(_bgDim);
     _bgDim->setTag(YOURE_NOT_WELCOME_HERE);
     _bgDim->setScale(10);
-    addChild(_bgDim, -2);
+    Node::addChild(_bgDim, -2);
 }
 
 void CustomUi::Container::setBlocking()
@@ -268,10 +296,30 @@ void CustomUi::Container::setDismissible()
     _isDismissible = true;
 }
 
+void CustomUi::Container::setBackgroundBlocking()
+{
+    _bgButton = createPlaceholderButton();
+    _bgButton->setContentSize(getContentSize());
+    _bgButton->setTag(GUI_ELEMENT_EXCLUDE);
+    addChild(_bgButton);
+}
+
 void CustomUi::Container::notifyLayout()
 {
     updateLayoutManagers();
     GUI::notifyLayout();
+}
+
+void CustomUi::Container::addSpecialChild(CustomUi::GUI* gui)
+{
+    _allButtons.push_back(gui);
+}
+
+void CustomUi::Container::addChildAsContainer(CustomUi::GUI* gui) {
+    auto cont = CustomUi::Container::create();
+    cont->setTag(CONTAINER_FLOW_TAG);
+    cont->addChild(gui);
+    Node::addChild(cont);
 }
 
 void CustomUi::Container::calculateContentBoundaries()
@@ -297,36 +345,39 @@ void CustomUi::Container::calculateContentBoundaries()
         float eq = _->getPositionX();
         if (eq > highestX) {
             highestX = eq;
-            highestSize.x = size.x * (_->getScaleX() == 1 ? 1 : n->getScaleX());
+            highestSize.x = size.x * (c ? 1 : n->getScaleX());
         }
 
         eq = _->getPositionY();
         if (eq > highestY) {
             highestY = eq;
-            highestSize.y = size.y * (_->getScaleY() == 1 ? 1 : n->getScaleY());
+            highestSize.y = size.y * (c ? 1 : n->getScaleY());
         }
 
         if (size.x > dominantSize.x) {
-            highestSize.x = size.x * (_->getScaleX() == 1 ? 1 : n->getScaleX());
+            highestSize.x = size.x * (c ? 1 : n->getScaleX());
             dominantSize.x = size.x;
         }
 
         if (size.y > dominantSize.y) {
-            highestSize.y = size.y * (_->getScaleY() == 1 ? 1 : n->getScaleY());
+            highestSize.y = size.y * (c ? 1 : n->getScaleY());
             dominantSize.y = size.y;
         }
     }
 
-    auto scaledMargin = Math::getEven(ax::Vec2(
+    auto scaledMargin = ax::Vec2(
         _margin.x * 2 * n->getScaleX(),
         _margin.y * 2 * n->getScaleY()
-    ));
+    );
 
     if (isContainerDynamic())
         setContentSize(Math::getEven(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y)), false);
 
     if (_background)
         _background->setContentSize(getContentSize() + _backgroundPadding);
+
+    if (_bgButton)
+        _bgButton->setContentSize(getContentSize());
 }
 
 void CustomUi::FlowLayout::build(CustomUi::Container* container)
@@ -424,10 +475,25 @@ void CustomUi::DependencyConstraint::build(CustomUi::GUI* element)
         anchor = (Vec2(0, 0) + offset);
     }
 
-    anchor *= parent->getScale();
+    if (parent) anchor *= parent->getScale();
 
     if (worldPos)
         element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
     else
         element->setPosition(parent->getContentSize() * anchor);
+}
+
+CustomUi::Separator* CustomUi::Separator::create(Vec2 size)
+{
+    CustomUi::Separator* ref = new CustomUi::Separator();
+    if (ref->init())
+    {
+        ref->setContentSize(size);
+        ref->autorelease();
+    }
+    else
+    {
+        AX_SAFE_DELETE(ref);
+    }
+    return ref;
 }

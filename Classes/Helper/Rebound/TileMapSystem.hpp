@@ -23,6 +23,9 @@ namespace TileSystem {
                 ref->_gridSize = CHUNK_SIZE * 6;
 
                 ref->autorelease();
+
+                ref->setCascadeOpacityEnabled(true);
+
                 return ref;
             }
             AX_SAFE_DELETE(ref);

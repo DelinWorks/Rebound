@@ -92,7 +92,7 @@ bool MapEditor::init()
     VirtualWorldManager::resizeRenderTextures(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
-    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000000, 1000000));
+    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
     _worlds[1]->addChild(map, 10);
 
     grid = Node::create();
@@ -1051,18 +1051,13 @@ void MapEditor::buildEntireUi()
     uiNode->addChild(container);
     CustomUi::callbackAccess.emplace("main", container);
 
-    //auto testC = CustomUi::Container::create();
-    //testC->setBorderLayout(BorderLayout::CENTER, BorderContext::PARENT);
-    ////testC->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, false));
-
-    //for (int i = 0; i < 800; i++) {
-    //    auto test = CustomUi::Button::create();
-    //    test->init(L"Nigger", 16);
-    //    testC->addChild(test);
-    //}
-    //container->addChild(testC);
-
-    ////testC->disable();
+    auto img = CustomUi::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
+    img->enableGridSelection(map->_tileSize);
+    auto c = TO_CONTAINER(img);
+    c->setBackgroundSprite(ax::Vec2::ZERO, CustomUi::BgSpriteType::BG_GRAY);
+    c->setBackgroundBlocking();
+    c->setMargin({ 10, 10 });
+    container->addChild(c);
 
     auto topRightContainer = CustomUi::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
@@ -1076,6 +1071,7 @@ void MapEditor::buildEntireUi()
     //menuContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
     menuContainer->setTag(CONTAINER_FLOW_TAG);
     topRightContainer->addChild(menuContainer);
+    menuContainer->setBackgroundBlocking();
 
     auto padding = Size(2, 10);
     auto hpadding = Size(3, 20);
@@ -1096,9 +1092,11 @@ void MapEditor::buildEntireUi()
         fcontainer->setBorderLayoutAnchor(TOP_LEFT);
         fcontainer->setConstraint(CustomUi::DependencyConstraint(target, TOP_RIGHT, { 0, 0.1 }, true, vis / -2));
         fcontainer->setBackgroundSprite();
+        fcontainer->setBackgroundBlocking();
 
         auto lb = CustomUi::Label::create();
         lb->init(L"Edit Menu Created!", 16);
+        lb->field->getContentSize();
         lb->setUiPadding({ 20, 10 });
         fcontainer->addChild(lb);
 
@@ -1144,6 +1142,7 @@ void MapEditor::buildEntireUi()
     editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
     editContainer->setTag(CONTAINER_FLOW_TAG);
     editContainer->setMargin({ 0, 1 });
+    editContainer->setBackgroundBlocking();
     CustomUi::callbackAccess.emplace("edit_container", editContainer);
 
     padding = { 52, 5 };
@@ -1168,66 +1167,97 @@ void MapEditor::buildEntireUi()
         fcontainer->setBackgroundSprite();
         fcontainer->setBlocking();
         fcontainer->setDismissible();
+        fcontainer->setBackgroundBlocking();
 
         auto lb = CustomUi::Button::create();
-        lb->init(L"-- Resources ------", 16);
+        lb->init(L"-- Resources ----------", 16);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"New Map", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Open Map", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Import Texture", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Reload Textures", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- Changes --------", 16);
+        lb->init(L"-- Changes ------------", 16);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Save", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Save and Exit", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
         lb->init(L"Exit without Saving", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- Other ----------", 16);
+        lb->init(L"-- Other --------------", 16);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
+
+        auto slc = CustomUi::Container::create();
+        slc->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+        slc->setMargin({ 0, 0 });
+        slc->setTag(CONTAINER_FLOW_TAG);
+
+        auto opl = CustomUi::Label::create();
+        opl->init(L"UI Opacity  ", 16);
+        slc->addChild(opl);
+
+        auto sl = CustomUi::Slider::create();
+        sl->init({ 64, 6 });
+        slc->addChild(sl);
+
+        sl->_callback = [&](float v, CustomUi::Slider*) {
+            getContainer()->setUiOpacity(v);
+        };
+
+        fcontainer->addChild(slc);
 
         lb = CustomUi::Button::create();
         lb->init(L"More Options...", 16);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChild(lb);
+        fcontainer->addChildAsContainer(lb);
+        fcontainer->addSpecialChild(lb);
 
-        lb->_callback = [=](CustomUi::Button* target) {
+        /*lb->_callback = [=](CustomUi::Button* target) {
             fcontainer->removeFromParent();
             auto fcontainer1 = CustomUi::Container::create();
             auto vis = Director::getInstance()->getVisibleSize();
@@ -1303,7 +1333,7 @@ void MapEditor::buildEntireUi()
             CustomUi::Functions::menuContentFitButtons(fcontainer1);
 
             CustomUi::callbackAccess["main"]->addChild(fcontainer1);
-        };
+        };*/
 
         CustomUi::Functions::menuContentFitButtons(fcontainer);
 
@@ -1325,11 +1355,12 @@ void MapEditor::buildEntireUi()
     auto vis = Director::getInstance()->getVisibleSize();
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
     extContainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["edit_container"],
-        BOTTOM_LEFT, { -0.02, 0 }));
+        BOTTOM_LEFT, { -0.02, 0.018 }));
     extContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 30));
     extContainer->setMargin({ 20, 10 });
     extContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
+    extContainer->setBackgroundBlocking();
 
     padding = Vec2(20, 8);
 
@@ -1359,9 +1390,10 @@ void MapEditor::buildEntireUi()
 
     auto cameraScaleContainer = CustomUi::Container::create();
     cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
-    cameraScaleContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_RIGHT, 10, 0, false));
+    cameraScaleContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 20, 0, false));
     cameraScaleContainer->setBorderLayoutAnchor();
-    cameraScaleContainer->setMargin({ 0, 1 });
+    cameraScaleContainer->setMargin({ 0, 2 });
+    cameraScaleContainer->setBackgroundBlocking();
     container->addChild(cameraScaleContainer);
 
     cameraScaleB = CustomUi::Button::create();

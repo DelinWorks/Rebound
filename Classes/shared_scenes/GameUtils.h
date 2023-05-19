@@ -67,9 +67,9 @@ for (auto& _ : list) { \
     } \
 } \
 auto scale = Darkness::getInstance()->gameWindow.guiScale; \
+CustomUi::_UiScale = scale * CustomUi::_UiScaleMul; \
 if (getContainer()) { getContainer()->updateLayoutManagers(true); \
     getContainer()->onFontScaleUpdate(scale); } \
-CustomUi::_UiScale = scale * CustomUi::_UiScaleMul; \
 
 #define SET_POSITION_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / 2), (visibleSize.height / 2)));
 #define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / -2), (visibleSize.height / -2)));

@@ -9,6 +9,8 @@
 #include <ui/UISlider.h>
 #include <ui/UITextField.h>
 
+#include "shared_scenes/GameUtils.h"
+
 using namespace ax;
 
 #define CONTAINER_FLOW_TAG -6942
@@ -20,22 +22,30 @@ using namespace ax;
 //#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
 
+#define IS_LOCATION_INVALID(L) (L.x == UINT16_MAX || L.y == UINT16_MAX)
+#define INVALID_LOCATION Vec2(UINT16_MAX, UINT16_MAX)
+
 namespace CustomUi
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
 
     inline float _UiScaleMul = 1;
     inline float _PmtFontScale = 1;
+    inline float _PmtFontOutline = 2;
+    inline bool _ForceOutline = true;
     inline float _PxArtMultiplier = 2;
-    
+
     class GUI;
 
     inline std::stack<GUI*> _modalStack;
     inline GUI* _pCurrentHeldItem = nullptr;
+    inline GUI* _pCurrentHoveredItem = nullptr;
 
     inline bool _doNotShowWin32 = false;
 
     inline std::map<std::string, GUI*> callbackAccess;
+
+    inline ax::backend::ProgramState* _backgroundShader;
 
     struct UiFontDescriptor {
         std::string fontName;
@@ -76,6 +86,8 @@ namespace CustomUi
         GUI();
         ~GUI();
 
+        void setUiOpacity(float opacity);
+
         // DO NOT ACCESS, USE AdvancedUiContainer
         virtual bool hover(Vec2 mouseLocationInView, Camera* cam);
         // DO NOT ACCESS, USE AdvancedUiContainer
@@ -84,6 +96,8 @@ namespace CustomUi
 
         virtual void keyPress(EventKeyboard::KeyCode keyCode);
         virtual void keyRelease(EventKeyboard::KeyCode keyCode);
+
+        virtual void mouseScroll(EventMouse* event);
 
         // This differes from addChild because it adds the passed 
         // child in the very top and enables sorting, like a stack.
@@ -110,8 +124,8 @@ namespace CustomUi
         void enable();
         void disable();
 
-        virtual void onEnable() = 0;
-        virtual void onDisable() = 0;
+        virtual void onEnable();
+        virtual void onDisable();
 
         void setDynamic() { _isDynamic = true; }
         void setStatic() { _isDynamic = false; }
@@ -141,7 +155,9 @@ namespace CustomUi
         void setUiEnabled(bool isEnabled) { _isEnabled = isEnabled; }
         bool isUiEnabled() { return _isEnabled; }
 
-    private:
+        virtual Size getFitContentSize();
+
+    protected:
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
         DrawNode* _contentSizeDebug;
@@ -157,6 +173,8 @@ namespace CustomUi
         bool _isFocused = false;
         bool _isHovered = false;
         bool _isEnabled = true;
+
+        friend class FlowLayout;
     };
 }
 

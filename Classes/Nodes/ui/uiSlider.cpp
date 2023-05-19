@@ -47,14 +47,24 @@ void CustomUi::Slider::init(
     button->setContentSize(_contentsize * _PxArtMultiplier + SLIDER_HITBOX_CORNER_TOLERANCE);
     addChild(button);
     addChild(slider);
+    _callback = [](float, Slider*) {};
+    update(0);
 }
 
 void CustomUi::Slider::update(f32 dt)
 {
     slider->setEnabled(isUiHovered());
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize + getUiPadding());
+    setContentSize(dSize + getUiPadding() + SLIDER_HITBOX_CORNER_TOLERANCE / 1.5);
     HoverEffectGUI::update(dt);
+    if (_pCurrentHeldItem == this) {
+        auto v = slider->getPercent();
+        if (currentValue != v) {
+            currentValue = v;
+            _callback(currentValue, this);
+            RLOG("Slider: {}", currentValue * 255);
+        }
+    }
 }
 
 bool CustomUi::Slider::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
@@ -106,4 +116,9 @@ bool CustomUi::Slider::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 Size CustomUi::Slider::getDynamicContentSize()
 {
     return slider->getContentSize() * _PxArtMultiplier;
+}
+
+Size CustomUi::Slider::getFitContentSize()
+{
+    return slider->getContentSize() * 2 + SLIDER_HITBOX_CORNER_TOLERANCE;
 }

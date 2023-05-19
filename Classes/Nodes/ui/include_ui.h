@@ -9,6 +9,7 @@
 #include "uiLabel.h"
 #include "uiModal.h"
 #include "uiDiscardPanel.h"
+#include "uiImageView.h"
 
 #ifndef EXCLUDE_EXTENSIONS
 
@@ -17,6 +18,8 @@
 #endif
 
 #define CONTAINER_MAKE_MINIMIZABLE CustomUi::Functions::makeMinimizable
+
+#define TO_CONTAINER(T) CustomUi::Functions::containerize(T)
 
 namespace CustomUi {
     class Functions {
@@ -59,17 +62,32 @@ namespace CustomUi {
         static void menuContentFitButtons(CustomUi::Container* c, float maxWidth = INFINITY, float prefferedHeight = 0) {
             auto size = ax::Vec2(0, prefferedHeight);
             for (auto& _ : c->getChildren()) {
-                auto b = DCAST(CustomUi::Button, _);
+                auto b = DCAST(CustomUi::GUI, _);
+                auto c = DCAST(CustomUi::Container, _);
+                if (c) c->updateLayoutManagers();
                 if (b) {
-                    auto x = b->field->getContentSize().x;
+                    auto x = b->getFitContentSize().x;
+                    if (x > size.x) size.x = x;
+                }
+            }
+            for (auto& _ : c->_allButtons) {
+                if (_) {
+                    auto x = _->getFitContentSize().x;
                     if (x > size.x) size.x = x;
                 }
             }
             if (size.x > maxWidth) size.x = maxWidth;
-            for (auto& _ : c->getChildren()) {
+            for (auto& _ : c->_allButtons) {
                 auto b = DCAST(CustomUi::Button, _);
                 if (b) b->field_size = size * (1.0 / _UiScale);
             }
+        }
+
+        static CustomUi::Container* containerize(CustomUi::GUI* g) {
+            auto cont = CustomUi::Container::create();
+            cont->setTag(CONTAINER_FLOW_TAG);
+            cont->addChild(g);
+            return cont;
         }
     };
 }

@@ -28,14 +28,16 @@ void CustomUi::Label::init(std::wstring _text, i32 _fontsize, Size _size, float 
 
 void CustomUi::Label::init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size, float _wrap)
 {
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     field = ax::Label::create();
     addChild(field);
     text = _text;
     size = _size;
     wrap = _wrap;
+    onFontScaleUpdate(_UiScale);
+    update(0);
 }
 
 void CustomUi::Label::enableOutline()
@@ -88,7 +90,7 @@ bool CustomUi::Label::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 
 Size CustomUi::Label::getDynamicContentSize()
 {
-    auto& dSize = field->getContentSize();
+    auto dSize = field->getContentSize() - Vec2(0, (_ForceOutline ? _PmtFontOutline * 2 : 0));
     if (size.x == 0)
         return dSize / _UiScale;
     auto calc = dSize.x / _UiScale * (size.x / dSize.x);
@@ -104,14 +106,14 @@ void CustomUi::Label::onFontScaleUpdate(float scale)
     }
     field->setHorizontalAlignment(hAlignment);
     field->setVerticalAlignment(vAlignment);
-    if (hasOutline)
-        field->enableOutline(Color4B::BLACK, 2);
+    if (hasOutline || _ForceOutline)
+        field->enableOutline(Color4B::BLACK, _PmtFontOutline * _UiScale);
     field->getFontAtlas()->setAliasTexParameters();
 }
 
 void CustomUi::Label::updatePositionAndSize()
 {
-    auto& dSize = field->getContentSize();
+    auto dSize = field->getContentSize() * Vec2(1.0, 1.0 / (_ForceOutline ? _PmtFontOutline * 2 : 1));
     if (dSize.x > size.x && size.x != 0)
         field->setScale(size.x / dSize.x / _UiScale);
     else 

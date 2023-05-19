@@ -581,7 +581,7 @@ typedef u32 TileID;
         }
 
         ~SingleTilesetChunkRenderer() {
-            AX_SAFE_RELEASE_NULL(_mesh);
+            //AX_SAFE_RELEASE_NULL(_mesh);
             LOG_RELEASE;
         }
 
@@ -609,7 +609,7 @@ typedef u32 TileID;
                 }
                 _chunkDirty = false;
             }
-            if (_mesh)
+            if (_mesh && getDisplayedOpacity())
                 MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }
 
@@ -636,6 +636,8 @@ typedef u32 TileID;
                 desc._tiles->retain();
                 desc._tilesetArr->retainedChunks++;
                 desc._tilesetArr->retain();
+
+                ref->setCascadeOpacityEnabled(true);
 
                 return ref;
             }

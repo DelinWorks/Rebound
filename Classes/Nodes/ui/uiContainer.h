@@ -16,6 +16,8 @@
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 4, 4)
 #define ADVANCEDUI_SLIDER_CAP_INSETS Rect(2, 2, 2, 2)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1"sv
+#define ADVANCEDUI_TEXTURE_INV "9_slice_box_1_inv"sv
+#define ADVANCEDUI_TEXTURE_GRAY "9_slice_box_1_gray"sv
 #define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped"sv
 
 namespace CustomUi
@@ -48,7 +50,7 @@ namespace CustomUi
     class FlowLayout {
     public:
         FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
-            FlowLayoutDirection _direction = FlowLayoutDirection::STACK_RIGHT,
+            FlowLayoutDirection _direction = FlowLayoutDirection::STACK_CENTER,
             float _spacing = 0, float _margin = 0, bool _reverseStack = true)
             : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack) { }
         FlowLayoutSort sort;
@@ -74,6 +76,12 @@ namespace CustomUi
         void build(CustomUi::GUI* element);
     };
 
+    enum BgSpriteType {
+        BG_NORMAL = 0,
+        BG_INVERTED = 1,
+        BG_GRAY = 2
+    };
+
     class Container : public GUI {
     public:
         Container();
@@ -89,12 +97,13 @@ namespace CustomUi
         void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ONE);
         void setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset = ax::Vec2::ONE);
 
-        void setBackgroundSprite(ax::Vec2 padding = {0, 0});
+        void setBackgroundSprite(ax::Vec2 padding = {0, 0}, BgSpriteType type = BgSpriteType::BG_NORMAL);
         void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
         void setBackgroundDim();
 
         void setBlocking();
         void setDismissible();
+        void setBackgroundBlocking();
 
         void notifyLayout() override;
 
@@ -113,9 +122,11 @@ namespace CustomUi
 
         void keyPress(EventKeyboard::KeyCode keyCode);
         void keyRelease(EventKeyboard::KeyCode keyCode);
+
+        void mouseScroll(EventMouse* event);
         
         bool blockMouse() {
-            return _isHitSwallowed;
+            return _isHitSwallowed || _pCurrentHeldItem;
         }
 
         bool blockKeyboard() {
@@ -129,10 +140,15 @@ namespace CustomUi
         void onEnable();
         void onDisable();
 
+        void addSpecialChild(CustomUi::GUI* gui);
+        void addChildAsContainer(CustomUi::GUI* gui);
+
+        ui::Button* _bgButton = nullptr;
         ax::ui::Scale9Sprite* _background = nullptr;
         ax::LayerColor* _bgDim= nullptr;
         ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
         bool _closestStaticBorder = false;
+        std::vector<CustomUi::GUI*> _allButtons;
 
     protected:
         bool _isBlocking = false;
@@ -146,5 +162,8 @@ namespace CustomUi
         DependencyConstraint _depConst;
     };
 
-    class Separator : public GUI {};
+    class Separator : public GUI {
+    public:
+        static Separator* create(ax::Vec2 size);
+    };
 }

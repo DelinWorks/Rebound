@@ -62,9 +62,9 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
     Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
     Color3B _selected_color, bool _allowExtend, bool _isIcon , ax::Size _hitboxpadding)
 {
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     adaptToWindowSize = _adaptToWindowSize;
     extend = _allowExtend;
     normal_sp = _normal_sp;
@@ -108,7 +108,7 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             field->setScale(1 / _UiScale);
 
         sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
-            Math::clamp(field->getContentSize().height / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
         button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
     }
     else
@@ -120,7 +120,7 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         if (!_pCurrentHeldItem) {
             setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
             hover_cv.setValue(isUiHovered());
-            if (field) { if (isUiHovered()) field->enableUnderline(); else field->disableEffect(); }
+            if (field) { if (isUiHovered()) field->enableUnderline(); else field->disableEffect(ax::LabelEffect::UNDERLINE); }
         }
 
         if (hover_cv.isChanged())
@@ -215,6 +215,12 @@ Size CustomUi::Button::getDynamicContentSize()
     return sprite ? sprite->getContentSize() : (icon->getContentSize() * _PxArtMultiplier + clampoffset);
 }
 
+Size CustomUi::Button::getFitContentSize()
+{
+    if (!field) return Size();
+    return field->getContentSize() + Vec2((_ForceOutline ? _PmtFontOutline : 1), 0);
+}
+
 void CustomUi::Button::onFontScaleUpdate(float scale)
 {
     if (field) {
@@ -225,9 +231,8 @@ void CustomUi::Button::onFontScaleUpdate(float scale)
             _prtcl->setAngleVar(0);
             _prtcl->setSpeed(20);
         }
-        //field->enableShadow(Color4B(selected_color.r, selected_color.g, selected_color.b, 100), {1,-1}, 1);
-        //field->enableUnderline();
-        //field->enableOutline(Color4B(selected_color.r, selected_color.g, selected_color.b, 35), 4);
+        if (_ForceOutline)
+            field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
         field->getFontAtlas()->setAliasTexParameters();
     }
     else icon->setScale(/*1.0 / scale * */_PxArtMultiplier);

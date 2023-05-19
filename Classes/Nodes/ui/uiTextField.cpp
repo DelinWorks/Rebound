@@ -43,10 +43,10 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     setHoverOffset({ 10, 10 });
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     scheduleUpdate();
     adaptToWindowSize = _adaptToWindowSize;
     extend = _allowExtend;
@@ -70,6 +70,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
     sprite->setContentSize(_contentsize);
     sprite->setColor(selected_color);
+    sprite->setProgramState(CustomUi::_backgroundShader);
     setContentSize(_contentsize);
     button = createPlaceholderButton();
     cursor_control = Sprite::createWithSpriteFrameName("text_cursor");
@@ -146,7 +147,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 
     sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
         Darkness::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
-        Math::clamp(field->getContentSize().height / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+        Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * _UiScale : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
     button->setContentSize(sprite->getContentSize());
 
     if (password_control_button != _NOTHING)
@@ -304,5 +305,7 @@ void CustomUi::TextField::onFontScaleUpdate(float scale)
 {
     field->_textFieldRenderer->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
     field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
+    if (_ForceOutline)
+        field->_textFieldRenderer->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
     field->updateSizeAndPosition();
 }

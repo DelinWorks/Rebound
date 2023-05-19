@@ -27,10 +27,10 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
     stack->setLayout(CustomUi::FlowLayout(
         CustomUi::FlowLayoutSort::SORT_VERTICAL,
         CustomUi::FlowLayoutDirection::STACK_CENTER,
-        30
+        10
     ));
     stack->setBorderLayoutAnchor();
-    stack->setMargin({ 30, 30 });
+    stack->setMargin({ 30, 15 });
     stack->setBackgroundSprite();
     addChild(stack);
 
@@ -43,27 +43,22 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
     auto label = CustomUi::Label::create();
     label->init(header, 16 * (type == DiscardType::INPUT ? 2 : 1));
     //label->_padding = { 100, 0 };
-    stack->addChild(label);
+    stack->addChild(TO_CONTAINER(label));
 
-    auto separator = CustomUi::Separator::create();
-    separator->setContentSize({ 1, 1 });
-    stack->addChild(separator);
+    //auto separator = CustomUi::Separator::create({0, 0});
+    //stack->addChild(TO_CONTAINER(separator));
 
     if (type == DiscardType::INPUT) {
         auto textField = CustomUi::TextField::create();
         textField->init(placeholder_or_text, 16, { 200, 40 });
-        stack->addChild(textField);
+        stack->addChild(TO_CONTAINER(textField));
     }
     else {
         auto text = CustomUi::Label::create();
         text->init(placeholder_or_text, 16 * 1, { 0, 0 }, 0);
         text->hAlignment = ax::TextHAlignment::CENTER;
-        stack->addChild(text);
+        stack->addChild(TO_CONTAINER(text));
     }
-
-    separator = CustomUi::Separator::create();
-    separator->setContentSize({ 1, 10 });
-    stack->addChild(separator);
 
     auto buttonStack = CustomUi::Container::create();
     buttonStack->setLayout(CustomUi::FlowLayout(
@@ -71,6 +66,9 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
         CustomUi::FlowLayoutDirection::STACK_CENTER,
         100
     ));
+
+    //separator = CustomUi::Separator::create({ 0, 10 });
+    //stack->addChild(TO_CONTAINER(separator));
 
     discardCallback = [&](CustomUi::Button* target)
     {
@@ -110,12 +108,12 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
         buttonStack->addChild(okay);
     }
 
-    stack->addChild(buttonStack);
+    stack->addChild(TO_CONTAINER(buttonStack));
 }
 
 bool CustomUi::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
-    if (_modalStack.size() == 0) // Object was poped before
+    if (_modalStack.size() == 0) // Object was popped before
         return false;
 
     Container::hover(mouseLocationInView, cam);

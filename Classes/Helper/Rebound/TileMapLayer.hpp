@@ -15,6 +15,9 @@ namespace TileSystem {
 				ref->_layerColor = Color4F::WHITE;
 
 				ref->autorelease();
+
+				ref->setCascadeOpacityEnabled(true);
+
 				return ref;
 			}
 			AX_SAFE_DELETE(ref);

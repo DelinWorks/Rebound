@@ -58,6 +58,10 @@ namespace Math
         return ax::Vec2(getOdd(v.x), getOdd(v.y));
     }
 
+    inline ax::Vec2 getRound(const ax::Vec2& v) {
+        return ax::Vec2(round(v.x), round(v.y));
+    }
+
     inline int cantorPair(int x, int y) {
         return (x + y) * (x + y + 1) / 2 + y;
     }
@@ -70,6 +74,43 @@ namespace Math
         v.x = w - v.y;
         return v;
     }
+
+    inline int closestPowerOfTwo(int n) {
+        int log2n = log2(n);
+        if (n - pow(2, log2n) >= pow(2, log2n + 1) - n)
+            return pow(2, log2n + 1);
+        else
+            return pow(2, log2n);
+    }
+
+    inline int closestMultipleRound(int num, int factor) {
+        int quotient = num / factor;
+        int closestMultiple = factor * quotient;
+        if (num > closestMultiple + factor / 2) {
+            closestMultiple += factor;
+        }
+        return closestMultiple;
+    }
+
+    inline int closestMultipleCeil(int num, int factor) {
+        int quotient = num / factor;
+        int closestMultiple = factor * quotient;
+        if (num > closestMultiple) {
+            closestMultiple += factor;
+        }
+        return closestMultiple;
+    }
+
+    inline int closestMultipleFloor(int num, int factor) {
+        int quotient = num / factor;
+        int closestMultiple = factor * quotient;
+        return closestMultiple;
+    }
+
+#define CPT Math::closestPowerOfTwo
+#define CMR Math::closestMultipleRound
+#define CMC Math::closestMultipleCeil
+#define CMF Math::closestMultipleFloor
 
 #define CANTOR_PAIR Math::cantorPair
 #define CANTOR_UNPAIR Math::cantorUnpair

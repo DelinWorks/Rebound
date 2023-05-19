@@ -69,11 +69,31 @@ CustomUi::GUI::GUI()
 	addChild(_contentSizeDebug, 99);
 	_contentSizeDebug->setTag(YOURE_NOT_WELCOME_HERE);
 #endif
+
+	if (!_backgroundShader) {
+		_backgroundShader = GameUtils::createGPUProgram("ui_opacity.frag", "default.vert");
+		SET_UNIFORM(_backgroundShader, "ui_alpha", 0.8f);
+	}
 }
 
 CustomUi::GUI::~GUI()
 {
 	LOG_RELEASE;
+}
+
+void CustomUi::GUI::setUiOpacity(float opacity)
+{
+	SET_UNIFORM(_backgroundShader, "ui_alpha", opacity);
+	if (opacity < 0.5 && !_ForceOutline)
+	{
+		_ForceOutline = true;
+		onFontScaleUpdate(_UiScale / _UiScaleMul);
+	}
+	if (opacity > 0.5 && _ForceOutline)
+	{
+		_ForceOutline = false;
+		onFontScaleUpdate(_UiScale / _UiScaleMul);
+	}
 }
 
 bool CustomUi::GUI::hover(Vec2 mouseLocationInView, Camera* cam)
@@ -96,6 +116,10 @@ void CustomUi::GUI::keyPress(EventKeyboard::KeyCode keyCode)
 }
 
 void CustomUi::GUI::keyRelease(EventKeyboard::KeyCode keyCode)
+{
+}
+
+void CustomUi::GUI::mouseScroll(EventMouse* event)
 {
 }
 
@@ -182,4 +206,17 @@ void CustomUi::GUI::disable()
 {
 	_isEnabled = false;
 	notifyEnabled();
+}
+
+void CustomUi::GUI::onEnable()
+{
+}
+
+void CustomUi::GUI::onDisable()
+{
+}
+
+Size CustomUi::GUI::getFitContentSize()
+{
+	return getContentSize();
 }

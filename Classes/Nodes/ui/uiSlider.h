@@ -17,7 +17,7 @@ USING_NS_CC;
 namespace CustomUi
 {
     class Slider;
-    using SliderCallback = std::function<void(Slider* target)>;
+    using SliderCallback = std::function<void(float p, Slider* target)>;
 
     class Slider : public HoverEffectGUI {
     public:
@@ -30,6 +30,7 @@ namespace CustomUi
         cocos2d::Rect capinsets;
         ChangeValue<bool> hover_cv;
 
+        float currentValue;
         SliderCallback _callback;
         
         void init(Size _contentsize = ax::Size::ZERO);
@@ -53,5 +54,7 @@ namespace CustomUi
         bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
+
+        Size getFitContentSize();
     };
 }

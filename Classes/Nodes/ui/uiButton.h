@@ -68,6 +68,8 @@ namespace CustomUi
 
         Size getDynamicContentSize();
 
+        Size getFitContentSize();
+
         void onFontScaleUpdate(float scale) override;
     };
 }
