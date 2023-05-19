@@ -362,14 +362,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
         glfwSetWindowFocusCallback(window->getWindow(), window_focus_callback);
         glfwSetWindowCloseCallback(window->getWindow(), window_close_callback);
         glfwSetWindowAspectRatio(window->getWindow(), 16, 9);
-        Image* img = new Image();
-        img->initWithImageFile("cursor.png");
-        GLFWimage* icon = new GLFWimage();
-        icon->width = img->getWidth();
-        icon->height = img->getHeight();
-        icon->pixels = img->getData();
-        GLFWcursor* cursor = glfwCreateCursor(icon, 1, 1);
-        glfwSetCursor(window->getWindow(), cursor);
         Darkness::getInstance()->gameWindow.window = window->getWindow();
 #else
         glview = GLViewImpl::create("Dark Dimensions");
@@ -431,6 +423,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //        MIN(smallResolutionSize.height / designResolutionSize.height,
     //            smallResolutionSize.width / designResolutionSize.width));
     //}
+
+    Darkness::getInstance()->setCursorNormal();
 
     Director::getInstance()->setProjection(ax::Director::Projection::_3D);
 

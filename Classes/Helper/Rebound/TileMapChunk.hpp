@@ -92,9 +92,9 @@ typedef u32 TileID;
         UV saved_bl{ 0,0 };
         UV saved_br{ 0,0 };
 
-        bool is90 = false;
         bool isH = false;
         bool isV = false;
+        bool is90 = false;
 
         bool isSaved = false;
 
@@ -183,6 +183,14 @@ typedef u32 TileID;
             else if (rotation == 3) {
                 rotate90();
             }
+        }
+
+        TileID state() {
+            TileID gid = 0;
+            gid |= isH ? TILE_FLAG_FLIP_X : 0;
+            gid |= isV ? TILE_FLAG_FLIP_Y : 0;
+            gid |= is90 ? TILE_FLAG_ROTATE : 0;
+            return gid;
         }
 
         bool _outOfRange = false;

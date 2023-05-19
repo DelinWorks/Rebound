@@ -162,7 +162,10 @@ public:
     ax::Rect createEditToolSelectionBox(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize);
     ax::Vec2 removeSelectionStartPos;
     ax::DrawNode* removeSelectionNode;
+    ax::Vec2 selectionPosition;
     bool isRemoving = false;
+
+    TileSystem::TileTexCoords editorTileCoords;
 
     std::string dbPath;
     std::string dbName = "map.daumap";
@@ -180,6 +183,8 @@ public:
     ax::DrawNode* WorldBoundsLimit;
 
     CustomUi::Label* _debugText;
+
+    CustomUi::ImageView* _tilesetPicker;
 
     void setCameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);

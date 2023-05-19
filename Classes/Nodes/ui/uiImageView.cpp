@@ -88,7 +88,7 @@ bool CustomUi::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam
                 selection->drawSolidRect(Vec2(pos.x * gridSize.x, -(pos.y * gridSize.y)),
                     Vec2(pos.x * gridSize.x + gridSize.x, -(pos.y * gridSize.y + gridSize.y)),
                     Color4F(0, 0.58f, 1.0f, 0.5f));
-                RLOG("ImageView press location at: {},{}", pos.x, pos.y);
+                selectedIndex = pos.y * (textureSize.x / gridSize.x) + pos.x;
             }
         }
     }
@@ -105,6 +105,9 @@ void CustomUi::ImageView::enableGridSelection(ax::Size _gridsize)
 {
     gridSize = _gridsize;
     textureSize = Size(CMF(textureSize.x, gridSize.x), CMF(textureSize.y, gridSize.y));
+    image->setTextureRect(Rect(0, 0, textureSize.x, textureSize.y));
+    grid->setPosition(0, textureSize.y);
+    selection->setPosition(0, textureSize.y);
 
     grid->clear();
     for (int x = 0; x <= textureSize.x / gridSize.x; x++)

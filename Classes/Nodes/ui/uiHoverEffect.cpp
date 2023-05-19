@@ -57,6 +57,7 @@ void CustomUi::HoverEffectGUI::hover()
     if (isUiFocused()) return;
 
     if (isUiHovered()) {
+        //_pCurrentHoveredItem = this;
         _hoverSprite->stopAllActions();
         _hoverSprite->setVisible(true);
         _prtcl->setVisible(true);
@@ -73,6 +74,8 @@ void CustomUi::HoverEffectGUI::hover()
         _hoverShaderTime2 = 0.0f;
         SoundGlobals::playUiHoverSound();
     } else {
+        //if (_pCurrentHoveredItem == this)
+        //    _pCurrentHoveredItem = nullptr;
         _hoverSprite->stopAllActions();
         auto seq = Sequence::create(
             FadeTo::create(0, 30),

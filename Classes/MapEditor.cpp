@@ -92,7 +92,7 @@ bool MapEditor::init()
     VirtualWorldManager::resizeRenderTextures(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
-    map = TileSystem::Map::create(Vec2(16, 16), 1, Vec2(1000, 1000));
+    map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(1000, 1000));
     _worlds[1]->addChild(map, 10);
 
     grid = Node::create();
@@ -509,7 +509,7 @@ void MapEditor::onInitDone(f32 dt)
 
         buildEntireUi();
 
-        editorUndoRedoMax(100); // save 100 undo redo states maximum
+        editorUndoRedoMax(0); // save 100 undo redo states maximum
 
         isInitDone = true;
     }
@@ -710,20 +710,15 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
-    std::vector v = { 1 };
+    if (selectionPlace == selectionPosition) return;
+    std::vector v = { _tilesetPicker->selectedIndex + 1 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
     auto& undoCmd = editorUndoTopOrDummy();
     undoCmd.action = Editor::UNDOREDO_TILEMAP;
     undoCmd.affected.map = map;
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
-            TileID gid = v[Random::maxInt(v.size() - 1)];
-            if (Random::float01() > 0.5)
-                gid |= TILE_FLAG_ROTATE;
-            if (Random::float01() > 0.5)
-                gid |= TILE_FLAG_FLIP_X;
-            if (Random::float01() > 0.5)
-                gid |= TILE_FLAG_FLIP_Y;
+            TileID gid = v[Random::maxInt(v.size() - 1)] | editorTileCoords.state();
             undoCmd.affected.addOrIgnoreTilePrev({ float(x), float(y) }, map->getTileAt({ float(x), float(y) }));
             map->setTileAt({ float(x), float(y) }, gid);
             undoCmd.affected.addOrIgnoreTileNext({ float(x), float(y) }, gid);
@@ -786,6 +781,8 @@ void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& r
             //    continue;
             //}
         }
+        if (selectionPlace != selectionPosition)
+            selectionPosition = selectionPlace;
     }
 
 
@@ -876,7 +873,7 @@ void MapEditor::onMouseDown(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
 
-    if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
+    if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_MIDDLE)
     {
         isEditorDragging = true;
     }
@@ -884,6 +881,7 @@ void MapEditor::onMouseDown(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
         editorPushUndoState();
+        selectionPosition = Vec2(INFINITY, INFINITY);
         isPlacing = true;
         auto mouseClick = DrawNode::create(1);
         mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
@@ -903,7 +901,7 @@ void MapEditor::onMouseUp(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
 
-    if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_4)
+    if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_MIDDLE)
     {
         isEditorDragging = false;
     }
@@ -917,6 +915,7 @@ void MapEditor::onMouseUp(ax::Event* event)
     {
         if (!isRemoving) return;
         isRemoving = false;
+        selectionPosition = Vec2(INFINITY, INFINITY);
         Rect rect = createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
         editUpdate_place(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         RLOG("remove_selection_tool: begin: {},{} end: {},{}", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
@@ -961,7 +960,7 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
     Vec2 pos = cameraLocation->getPosition();
     Vec2 newPos = pos.lerp(targetPos, 1.0F - (postCamScl / preCamScl));
     cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
-    _camera->setZoom(cameraScale);
+    _camera->setZoom(cameraScale / map->_contentScale);
     setWorldBoundsLayerColorTransforms(_camera);
     setCameraScaleUiText(cameraScale);
 }
@@ -1051,12 +1050,14 @@ void MapEditor::buildEntireUi()
     uiNode->addChild(container);
     CustomUi::callbackAccess.emplace("main", container);
 
-    auto img = CustomUi::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
-    img->enableGridSelection(map->_tileSize);
-    auto c = TO_CONTAINER(img);
-    c->setBackgroundSprite(ax::Vec2::ZERO, CustomUi::BgSpriteType::BG_GRAY);
+    _tilesetPicker = CustomUi::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
+    _tilesetPicker->enableGridSelection(map->_tileSize);
+    auto c = TO_CONTAINER(_tilesetPicker);
+    c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
+    c->setBorderLayoutAnchor(BorderLayout::BOTTOM_RIGHT);
+    c->setBackgroundSprite(ax::Vec2::ZERO, CustomUi::BG_GRAY);
     c->setBackgroundBlocking();
-    c->setMargin({ 10, 10 });
+    c->setMargin({ 3, 3 });
     container->addChild(c);
 
     auto topRightContainer = CustomUi::Container::create();
@@ -1355,34 +1356,64 @@ void MapEditor::buildEntireUi()
     auto vis = Director::getInstance()->getVisibleSize();
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
     extContainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["edit_container"],
-        BOTTOM_LEFT, { -0.02, 0.018 }));
-    extContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 30));
+        BOTTOM_LEFT, { -0.02, -0.05 }));
+    extContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 50));
     extContainer->setMargin({ 20, 10 });
     extContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
     extContainer->setBackgroundBlocking();
 
-    padding = Vec2(20, 8);
+    auto rowContainer = CustomUi::Container::create();
+    rowContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 30, 0, false));
 
-    auto placeB = CustomUi::Button::create();
-    placeB->initIcon("editor_place", padding);
-    extContainer->addChild(placeB);
+    padding = Vec2(8, 8);
 
-    auto bucketB = CustomUi::Button::create();
-    bucketB->initIcon("editor_bucket_fill", padding);
-    extContainer->addChild(bucketB);
+    auto extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_place", padding);
+    rowContainer->addChild(extEditB);
 
-    auto removeB = CustomUi::Button::create();
-    removeB->initIcon("editor_remove", padding);
-    extContainer->addChild(removeB);
+    extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_bucket_fill", padding);
+    rowContainer->addChild(extEditB);
 
-    auto selectB = CustomUi::Button::create();
-    selectB->initIcon("editor_select", padding);
-    extContainer->addChild(selectB);
+    extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_remove", padding);
+    rowContainer->addChild(extEditB);
 
-    auto rectFillB = CustomUi::Button::create();
-    rectFillB->initIcon("editor_rectangle_fill", padding);
-    extContainer->addChild(rectFillB);
+    extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_select", padding);
+    rowContainer->addChild(extEditB);
+
+    extContainer->addChild(rowContainer);
+
+    rowContainer = CustomUi::Container::create();
+    rowContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 30, 0, false));
+
+    extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_flip_v", padding);
+    rowContainer->addChild(extEditB);
+
+    extEditB->_callback = [&](CustomUi::Button* target) {
+        editorTileCoords.flipV();
+    };
+
+    extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_flip_h", padding);
+    rowContainer->addChild(extEditB);
+
+    extEditB->_callback = [&](CustomUi::Button* target) {
+        editorTileCoords.flipH();
+    };
+
+    extEditB = CustomUi::Button::create();
+    extEditB->initIcon("editor_rotate_r", padding);
+    rowContainer->addChild(extEditB);
+
+    extEditB->_callback = [&](CustomUi::Button* target) {
+        editorTileCoords.cw();
+    };
+
+    extContainer->addChild(rowContainer);
 
     editContainer->addChild(extContainer);
 

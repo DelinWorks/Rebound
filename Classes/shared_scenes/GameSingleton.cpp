@@ -78,6 +78,34 @@ ax::Controller::KeyStatus Darkness::getKeyState(ax::Controller::Key key)
     return ax::Controller::KeyStatus{0,0,0};
 }
 
+void Darkness::setCursorNormal()
+{
+    if (!cursor) {
+        Image* img = new Image();
+        img->initWithImageFile("cursor.png");
+        GLFWimage* icon = new GLFWimage();
+        icon->width = img->getWidth();
+        icon->height = img->getHeight();
+        icon->pixels = img->getData();
+        cursor = glfwCreateCursor(icon, 1, 1);
+    }
+    glfwSetCursor(gameWindow.window, cursor);
+}
+
+void Darkness::setCursorHand()
+{
+    if (!hand) {
+        Image* img = new Image();
+        img->initWithImageFile("cursor_selected.png");
+        GLFWimage* icon = new GLFWimage();
+        icon->width = img->getWidth();
+        icon->height = img->getHeight();
+        icon->pixels = img->getData();
+        hand = glfwCreateCursor(icon, 5, 1);
+    }
+    glfwSetCursor(gameWindow.window, hand);
+}
+
 void Darkness::destroyInstance()
 {
     glfwHideWindow(Darkness::getInstance()->gameWindow.window);

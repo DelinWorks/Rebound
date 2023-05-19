@@ -139,6 +139,10 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
 
     auto _onMouseDownCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
+
+        if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
+            Darkness::getInstance()->setCursorHand();
+
         if (_uiContainer) {
             if ((e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->isUiFocused()))
                 if (_uiContainer->press(e->getLocationInView(), getCamera())) return;
@@ -150,6 +154,10 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
 
     auto _onMouseUpCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
+
+        if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
+            Darkness::getInstance()->setCursorNormal();
+
         if (_uiContainer && e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT) {
             if (_uiContainer->release(e->getLocationInView(), getCamera())) return;
             //if (_uiContainer->blockMouse()) return;
@@ -166,6 +174,12 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         _newMouseLocation = _mouseLocation;
         _mouseLocationDelta = _oldMouseLocation - _newMouseLocation;
         _mouseLocationInView = e->getLocationInView();
+
+        //if (CustomUi::_pCurrentHoveredItem)
+        //    Darkness::getInstance()->setCursorHand();
+        //else
+        //    Darkness::getInstance()->setCursorNormal();
+
         if (_uiContainer)
             if (_uiContainer->blockMouse()) return;
 

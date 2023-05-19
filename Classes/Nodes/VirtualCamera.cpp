@@ -18,7 +18,7 @@ ax::Mat4 VirtualCamera::getWorldSpaceMatrix()
 	auto visibleSize = director->getVisibleSize();
 	auto screenSize = director->getOpenGLView()->getFrameSize();
 	auto ratio = Vec2(visibleSize.x / screenSize.x, visibleSize.y / screenSize.y);
-	matrix.scale(ax::Vec3(ratio.x, ratio.y, 1));
+	matrix.scale(ax::Vec3(ratio.x, ratio.x, 1));
 	return matrix;
 }
 

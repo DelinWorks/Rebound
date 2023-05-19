@@ -51,7 +51,12 @@ public:
 
     GameConsole console;
 
+    GLFWcursor* cursor = nullptr;
+    GLFWcursor* hand = nullptr;
     GameWindowDescriptor gameWindow;
+
+    void setCursorNormal();
+    void setCursorHand();
 
     void setupController();
     ax::Controller::KeyStatus getKeyState(ax::Controller::Key key);

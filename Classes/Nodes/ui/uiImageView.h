@@ -24,8 +24,8 @@ namespace CustomUi
         ax::DrawNode* grid;
         ax::DrawNode* selection;
         ax::Size gridSize;
-        int selectedIndex = 0;
         ax::Vec2 pressLocation;
+        int selectedIndex = 0;
         
         bool init(ax::Size _contentsize = ax::Size::ZERO, ax::Texture2D* texture = nullptr);
 

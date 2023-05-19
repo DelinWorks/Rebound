@@ -261,7 +261,7 @@ void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType typ
     }
     _background->setCapInsets(ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
-    if (type != BgSpriteType::BG_GRAY)
+    //if (type != BgSpriteType::BG_GRAY)
     _background->setProgramState(_backgroundShader);
     Node::addChild(_background, -1);
 }
