@@ -29,11 +29,16 @@ bool CustomUi::ImageView::init(Size _contentsize, ax::Texture2D* texture) {
     texture->setAliasTexParameters();
     image = Sprite::createWithTexture(texture);
     textureSize = Size(texture->getPixelsWide(), texture->getPixelsHigh());
+    bg = Sprite::create("pixel.png");
+    bg->setContentSize(textureSize);
     grid = DrawNode::create(1);
     selection = DrawNode::create(1);
     auxButton->setContentSize(image->getContentSize());
     image->setAnchorPoint({ 0, 1 });
+    bg->setAnchorPoint({ 0, 1 });
+    bg->setColor({ 128,128,128 });
     image->addChild(auxButton);
+    imageP->addChild(bg);
     imageP->addChild(image);
     image->addChild(grid);
     image->addChild(selection);
@@ -54,6 +59,7 @@ bool CustomUi::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         mousePos = mouseLocationInView;
         image->setPosition(image->getPositionX() + (mousePos.x - oldMousePos.x) * (1.0 / (imageP->getScaleX() * getScaleX())),
             image->getPositionY() + (mousePos.y - oldMousePos.y) * (1.0 / (imageP->getScaleX() * getScaleX())));
+        bg->setPosition(image->getPosition());
         image->setPositionX(Math::clamp(image->getPositionX(), -textureSize.x, 0));
         image->setPositionY(Math::clamp(image->getPositionY(), 0, textureSize.y));
         if (!pressLocation.fuzzyEquals(mouseLocationInView, 4)) pressLocation = INVALID_LOCATION;

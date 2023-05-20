@@ -1055,7 +1055,7 @@ void MapEditor::buildEntireUi()
     auto c = TO_CONTAINER(_tilesetPicker);
     c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
     c->setBorderLayoutAnchor(BorderLayout::BOTTOM_RIGHT);
-    c->setBackgroundSprite(ax::Vec2::ZERO, CustomUi::BG_GRAY);
+    c->setBackgroundSpriteCramped(ax::Vec2::ZERO);
     c->setBackgroundBlocking();
     c->setMargin({ 3, 3 });
     container->addChild(c);

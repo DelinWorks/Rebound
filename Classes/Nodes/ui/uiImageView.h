@@ -19,6 +19,7 @@ namespace CustomUi
         ax::ClippingRectangleNode* scissor;
         ax::Node* imageP;
         ax::Sprite* image;
+        ax::Sprite* bg;
         ax::Size textureSize;
         ax::Vec2 mousePos;
         ax::DrawNode* grid;
