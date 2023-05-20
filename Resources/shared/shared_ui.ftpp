@@ -2,86 +2,66 @@
   "meta": {
     "version": "0.6.7"
   },
-  "savePath": "D:\\Development\\Projects\\DarknessAmongUs\\Resources\\shared",
+  "savePath": "",
   "images": [
     {
       "name": "9_slice_box_1.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/9_slice_box_1.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1.png",
       "folder": ""
     },
     {
-      "name": "9_slice_box_2.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/9_slice_box_2.png",
+      "name": "9_slice_box_1_gray.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_gray.png",
       "folder": ""
     },
     {
-      "name": "editor_camera_zoom_big.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/editor_camera_zoom_big.png",
+      "name": "9_slice_box_1_cramped.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped.png",
       "folder": ""
     },
     {
-      "name": "editor_camera_zoom_small.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/editor_camera_zoom_small.png",
+      "name": "9_slice_box_1_inv.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_inv.png",
       "folder": ""
     },
     {
-      "name": "editor_camera_zoom_x1.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/editor_camera_zoom_x1.png",
+      "name": "ptrn_bg_hover.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover.png",
       "folder": ""
     },
     {
-      "name": "hide_password.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/hide_password.png",
+      "name": "ptrn_bg_hover2.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover2.png",
       "folder": ""
     },
     {
-      "name": "loading_circle_small.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/loading_circle_small.png",
+      "name": "ptrn_bg_hover_shader.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover_shader.png",
       "folder": ""
     },
     {
-      "name": "login.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/login.png",
+      "name": "ptrn_bg_hover_shader_alpha_edge.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover_shader_alpha_edge.png",
       "folder": ""
     },
     {
-      "name": "login_guest.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/login_guest.png",
+      "name": "slider_bar.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/slider_bar.png",
       "folder": ""
     },
     {
-      "name": "show_password.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/show_password.png",
+      "name": "slider_knob.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/slider_knob.png",
       "folder": ""
     },
     {
-      "name": "slider_back.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/slider_back.png",
-      "folder": ""
-    },
-    {
-      "name": "slider_pressbar.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/slider_pressbar.png",
-      "folder": ""
-    },
-    {
-      "name": "slidernode_disable.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/slidernode_disable.png",
-      "folder": ""
-    },
-    {
-      "name": "slidernode_normal.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/slidernode_normal.png",
-      "folder": ""
-    },
-    {
-      "name": "slidernode_press.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/slidernode_press.png",
+      "name": "slider_progress.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/slider_progress.png",
       "folder": ""
     },
     {
       "name": "text_cursor.png",
-      "path": "D:/Development/Projects/DarknessAmongUs-/Resources/shared/unready/text_cursor.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/text_cursor.png",
       "folder": ""
     }
   ],
@@ -89,16 +69,16 @@
   "packOptions": {
     "textureName": "shared_ui",
     "textureFormat": "png",
-    "removeFileExtension": false,
+    "removeFileExtension": true,
     "prependFolderName": true,
     "base64Export": false,
     "tinify": false,
-    "tinifyKey": "GBtvqCpjxHyRSMYCLr981KJz5DSnhZvL",
+    "tinifyKey": "",
     "scale": 1,
     "filter": "none",
     "exporter": "JSON (array)",
     "fileName": "pack-result",
-    "savePath": "D:\\Development\\Projects\\DarknessAmongUs\\Resources\\shared",
+    "savePath": "",
     "width": 2048,
     "height": 2048,
     "fixedSize": false,
@@ -109,8 +89,8 @@
     "allowTrim": false,
     "trimMode": "trim",
     "alphaThreshold": "0",
-    "detectIdentical": false,
-    "packer": "MaxRectsBin",
-    "packerMethod": "BestShortSideFit"
+    "detectIdentical": true,
+    "packer": "MaxRectsPacker",
+    "packerMethod": "Smart"
   }
 }
