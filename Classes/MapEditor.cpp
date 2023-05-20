@@ -452,6 +452,24 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("decoration");
         map->bindLayer(0);
 
+        //auto img = new Image();
+        //img->initWithImageFile("C:/Users/turky/Pictures/Untitled1(Photo)(noise_scale)(Level1)(x6.000000).png");
+        //int len = compressBound(img->getDataLen());
+        //uint8_t* compressed = new uint8_t[len];
+        //zlibString::compress_array(img->getData(), img->getDataLen(), compressed, &len);
+        //std::string encoded = Strings::to_base64(compressed, len);
+
+        //uint8_t* data = Strings::from_base64_arr(encoded, &len);
+        //auto s = img->getHeight() * img->getWidth() * 4;
+        //uint8_t* uncompressed = new uint8_t[s];
+        //zlibString::decompress_array(data, len, uncompressed, s);
+        //RLOG("");
+
+        //delete[] compressed;
+        //delete[] data;
+        //delete[] uncompressed;
+        //img->release();
+        
         //tilesetArr->addTileset(texture1);
         //tilesetArr->addTileset(texture2);
 
@@ -716,6 +734,7 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     auto& undoCmd = editorUndoTopOrDummy();
     undoCmd.action = Editor::UNDOREDO_TILEMAP;
     undoCmd.affected.map = map;
+    undoCmd.affected.layer_idx = map->_layerIdx;
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)] | editorTileCoords.state();

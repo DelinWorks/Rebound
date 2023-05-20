@@ -59,9 +59,9 @@ bool CustomUi::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         mousePos = mouseLocationInView;
         image->setPosition(image->getPositionX() + (mousePos.x - oldMousePos.x) * (1.0 / (imageP->getScaleX() * getScaleX())),
             image->getPositionY() + (mousePos.y - oldMousePos.y) * (1.0 / (imageP->getScaleX() * getScaleX())));
-        bg->setPosition(image->getPosition());
         image->setPositionX(Math::clamp(image->getPositionX(), -textureSize.x, 0));
         image->setPositionY(Math::clamp(image->getPositionY(), 0, textureSize.y));
+        bg->setPosition(image->getPosition());
         if (!pressLocation.fuzzyEquals(mouseLocationInView, 4)) pressLocation = INVALID_LOCATION;
     }
     auto b = button->hitTest(mouseLocationInView, cam, nullptr);

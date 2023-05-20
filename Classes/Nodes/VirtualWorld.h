@@ -10,6 +10,8 @@ class VirtualWorldSpace : public ax::Node {
 public:
 	ax::RenderTexture* rtPass = nullptr;
 	Color4F rtClear = Color4F(0, 0, 0, 0);
+	Mat4 transform;
+	bool skipSameTransform = false;
 
 	void render(const Mat4& transformMatrix = Mat4::IDENTITY);
 	void renderPass(const Mat4& transformMatrix = Mat4::IDENTITY);

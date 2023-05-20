@@ -25,6 +25,7 @@ ax::Mat4 VirtualCamera::getWorldSpaceMatrix()
 ax::Mat4 VirtualCamera::getScreenSpaceMatrix()
 {
 	auto matrix = Mat4::IDENTITY;
+	matrix *= Mat4::IDENTITY;
 	auto director = Director::getInstance();
 	auto visibleSize = director->getVisibleSize();
 	auto screenSize = director->getOpenGLView()->getFrameSize();

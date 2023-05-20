@@ -201,6 +201,7 @@ namespace GameUtils
         class UndoRedoAffectedTiles {
         public:
             TileSystem::Map* map;
+            u16 layer_idx;
             std::map<ax::Vec2, u32> prev_tiles;
             std::map<ax::Vec2, u32> next_tiles;
 

@@ -140,8 +140,10 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     auto _onMouseDownCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
 
-        if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
+        if (e->getMouseButton() != EventMouse::MouseButton::BUTTON_MIDDLE)
             Darkness::getInstance()->setCursorHand();
+        else
+            Darkness::getInstance()->setCursorHold();
 
         if (_uiContainer) {
             if ((e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->isUiFocused()))
@@ -155,8 +157,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     auto _onMouseUpCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
 
-        if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
-            Darkness::getInstance()->setCursorNormal();
+        Darkness::getInstance()->setCursorNormal();
 
         if (_uiContainer && e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT) {
             if (_uiContainer->release(e->getLocationInView(), getCamera())) return;

@@ -53,10 +53,12 @@ public:
 
     GLFWcursor* cursor = nullptr;
     GLFWcursor* hand = nullptr;
+    GLFWcursor* hold = nullptr;
     GameWindowDescriptor gameWindow;
 
     void setCursorNormal();
     void setCursorHand();
+    void setCursorHold();
 
     void setupController();
     ax::Controller::KeyStatus getKeyState(ax::Controller::Key key);

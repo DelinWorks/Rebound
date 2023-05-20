@@ -50,7 +50,8 @@ namespace TileSystem {
             addLayer(l);
         }
 
-        void bindLayer(i16 idx) {
+        void bindLayer(u16 idx) {
+            _layerIdx = idx;
             _layerBind = _layers[idx];
         }
 
@@ -130,6 +131,7 @@ namespace TileSystem {
 
         TilesetArray* _tilesetArr;
         Layer* _layerBind;
+        u16 _layerIdx;
         std::vector<Layer*> _layers;
 
         void cacheVertices(bool _resize) {

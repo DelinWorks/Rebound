@@ -106,6 +106,20 @@ void Darkness::setCursorHand()
     glfwSetCursor(gameWindow.window, hand);
 }
 
+void Darkness::setCursorHold()
+{
+    if (!hold) {
+        Image* img = new Image();
+        img->initWithImageFile("cursor_held.png");
+        GLFWimage* icon = new GLFWimage();
+        icon->width = img->getWidth();
+        icon->height = img->getHeight();
+        icon->pixels = img->getData();
+        hold = glfwCreateCursor(icon, 5, 1);
+    }
+    glfwSetCursor(gameWindow.window, hold);
+}
+
 void Darkness::destroyInstance()
 {
     glfwHideWindow(Darkness::getInstance()->gameWindow.window);

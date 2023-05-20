@@ -348,12 +348,14 @@ void GameUtils::Editor::UndoRedoState::applyRedoState()
 
 void GameUtils::Editor::UndoRedoState::applyUndoStateTilemapEdit()
 {
+    affected.map->bindLayer(affected.layer_idx);
     for (auto& _ : affected.prev_tiles)
         affected.map->setTileAt({ _.first.x, _.first.y }, _.second);
 }
 
 void GameUtils::Editor::UndoRedoState::applyRedoStateTilemapEdit()
 {
+    affected.map->bindLayer(affected.layer_idx);
     for (auto& _ : affected.next_tiles)
         affected.map->setTileAt({ _.first.x, _.first.y }, _.second);
 }
