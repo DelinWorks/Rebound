@@ -1167,11 +1167,6 @@ void MapEditor::buildEntireUi()
 
     padding = { 52, 5 };
 
-    auto undoB = CustomUi::Button::create();
-    undoB->initIcon("editor_undo");
-    undoB->setUiPadding(padding);
-    editContainer->addChild(undoB);
-
     auto extContainer = CustomUi::Container::create();
 
     CustomUi::callbackAccess.emplace("ext_edit_container", extContainer);
@@ -1360,10 +1355,23 @@ void MapEditor::buildEntireUi()
         CustomUi::callbackAccess["main"]->addChild(fcontainer);
     };
 
-    auto redoB = CustomUi::Button::create();
+    undoB = CustomUi::Button::create();
+    undoB->initIcon("editor_undo");
+    undoB->setUiPadding(padding);
+    editContainer->addChild(undoB);
+
+    undoB->_callback = [&](CustomUi::Button* target) {
+        editorUndo();
+    };
+
+    redoB = CustomUi::Button::create();
     redoB->initIcon("editor_redo");
     redoB->setUiPadding(padding);
     editContainer->addChild(redoB);
+
+    redoB->_callback = [&](CustomUi::Button* target) {
+        editorRedo();
+    };
 
     auto moveB = CustomUi::Button::create();
     moveB->initIcon("editor_move");
@@ -1641,6 +1649,19 @@ void MapEditor::editorUndoRedoMax(int m)
     _redo.set_capacity(m);
 }
 
+void MapEditor::editorUndoRedoUpdateState()
+{
+    if (_undo.size() == 0)
+        undoB->disable();
+    else
+        undoB->enable();
+
+    if (_redo.size() == 0)
+        redoB->disable();
+    else
+        redoB->enable();
+}
+
 void MapEditor::editorUndo()
 {
     if (_undo.size() > 0) {
@@ -1648,6 +1669,7 @@ void MapEditor::editorUndo()
         _undo.top().applyUndoState();
         _undo.pop();
     }
+    editorUndoRedoUpdateState();
 }
 
 void MapEditor::editorRedo()
@@ -1657,16 +1679,19 @@ void MapEditor::editorRedo()
         _redo.top().applyRedoState();
         _redo.pop();
     }
+    editorUndoRedoUpdateState();
 }
 
 void MapEditor::editorPushUndoState() {
     _undo.push(Editor::UndoRedoState());
     _redo.reset();
+    editorUndoRedoUpdateState();
 }
 
 GameUtils::Editor::UndoRedoState& MapEditor::editorUndoTopOrDummy()
 {
     if (_undo.size() == 0)
         editorPushUndoState();
+    editorUndoRedoUpdateState();
     return _undo.top();
 }

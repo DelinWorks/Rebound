@@ -150,7 +150,10 @@ void CustomUi::Button::onEnable()
         field->runAction(fade);
         field->runAction(tint);
     }
-    else icon->runAction(fade);
+    else {
+        icon->stopAllActions();
+        icon->runAction(fade);
+    }
 }
 
 void CustomUi::Button::onDisable()
@@ -161,7 +164,10 @@ void CustomUi::Button::onDisable()
         field->runAction(fade);
         field->runAction(tint);
     }
-    else icon->runAction(fade);
+    else {
+        icon->stopAllActions();
+        icon->runAction(fade);
+    }
 
     setUiHovered(false);
     hover_cv.setValue(false);

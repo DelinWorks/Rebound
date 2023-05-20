@@ -194,10 +194,13 @@ public:
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
 
     void editorUndoRedoMax(int m);
+    void editorUndoRedoUpdateState();
     void editorUndo();
     void editorRedo();
     void editorPushUndoState();
     GameUtils::Editor::UndoRedoState& editorUndoTopOrDummy();
+    CustomUi::Button* undoB;
+    CustomUi::Button* redoB;
 };
 
 #endif
