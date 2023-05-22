@@ -70,6 +70,9 @@ namespace CustomUi
 
         Size getFitContentSize();
 
+        void enableIconHighlight();
+        void disableIconHighlight();
+
         void onFontScaleUpdate(float scale) override;
     };
 }

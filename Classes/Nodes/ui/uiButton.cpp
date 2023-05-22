@@ -227,6 +227,16 @@ Size CustomUi::Button::getFitContentSize()
     return field->getContentSize() + Vec2((_ForceOutline ? _PmtFontOutline : 1), 0);
 }
 
+void CustomUi::Button::enableIconHighlight()
+{
+    icon->setColor(Color3B(0, 237, 255));
+}
+
+void CustomUi::Button::disableIconHighlight()
+{
+    icon->setColor(Color3B::WHITE);
+}
+
 void CustomUi::Button::onFontScaleUpdate(float scale)
 {
     if (field) {

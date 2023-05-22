@@ -193,6 +193,11 @@ public:
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _undo;
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
 
+    CustomUi::Button* tileFlipH;
+    CustomUi::Button* tileFlipV;
+    CustomUi::Button* tileRot90;
+    void editorTileFlipRotateUpdateState();
+
     void editorUndoRedoMax(int m);
     void editorUndoRedoUpdateState();
     void editorUndo();

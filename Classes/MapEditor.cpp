@@ -1416,28 +1416,32 @@ void MapEditor::buildEntireUi()
     rowContainer = CustomUi::Container::create();
     rowContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 30, 0, false));
 
-    extEditB = CustomUi::Button::create();
-    extEditB->initIcon("editor_flip_v", padding);
-    rowContainer->addChild(extEditB);
+    tileFlipV = CustomUi::Button::create();
+    tileFlipV->initIcon("editor_flip_v", padding);
+    rowContainer->addChild(tileFlipV);
 
-    extEditB->_callback = [&](CustomUi::Button* target) {
+    tileFlipV->_callback = [&](CustomUi::Button* target) {
         editorTileCoords.flipV();
+        editorTileFlipRotateUpdateState();
     };
 
-    extEditB = CustomUi::Button::create();
-    extEditB->initIcon("editor_flip_h", padding);
-    rowContainer->addChild(extEditB);
 
-    extEditB->_callback = [&](CustomUi::Button* target) {
+    tileFlipH = CustomUi::Button::create();
+    tileFlipH->initIcon("editor_flip_h", padding);
+    rowContainer->addChild(tileFlipH);
+
+    tileFlipH->_callback = [&](CustomUi::Button* target) {
         editorTileCoords.flipH();
+        editorTileFlipRotateUpdateState();
     };
 
-    extEditB = CustomUi::Button::create();
-    extEditB->initIcon("editor_rotate_r", padding);
-    rowContainer->addChild(extEditB);
+    tileRot90 = CustomUi::Button::create();
+    tileRot90->initIcon("editor_rotate_r", padding);
+    rowContainer->addChild(tileRot90);
 
-    extEditB->_callback = [&](CustomUi::Button* target) {
-        editorTileCoords.cw();
+    tileRot90->_callback = [&](CustomUi::Button* target) {
+        editorTileCoords.rotate90();
+        editorTileFlipRotateUpdateState();
     };
 
     extContainer->addChild(rowContainer);
@@ -1641,6 +1645,13 @@ void MapEditor::setWorldBoundsLayerColorTransforms(VirtualCamera* cam)
     LeftMapSizeNode->setScaleX(cameraScale);
     LeftMapSizeNode->setScaleY(cameraScale);
     LeftMapSizeNode->setPositionY(cam->getPositionY());
+}
+
+void MapEditor::editorTileFlipRotateUpdateState()
+{
+    if (editorTileCoords.isH) tileFlipH->enableIconHighlight(); else tileFlipH->disableIconHighlight();
+    if (editorTileCoords.isV) tileFlipV->enableIconHighlight(); else tileFlipV->disableIconHighlight();
+    if (editorTileCoords.is90) tileRot90->enableIconHighlight(); else tileRot90->disableIconHighlight();
 }
 
 void MapEditor::editorUndoRedoMax(int m)
