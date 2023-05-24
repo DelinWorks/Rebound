@@ -9,7 +9,7 @@
 #include <ui/UISlider.h>
 #include <ui/UITextField.h>
 
-#include "shared_scenes/GameUtils.h"
+#include "Components/UiRescaleComponent.h"
 
 using namespace ax;
 

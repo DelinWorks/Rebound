@@ -329,8 +329,7 @@ void CustomUi::Container::calculateContentBoundaries()
     float highestX = -FLT_MAX;
     float highestY = -FLT_MAX;
 
-    auto n = Node::create();
-    GameUtils::setNodeIgnoreDesignScale(n);
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
 
     Vec2 highestSize = Vec2::ZERO;
     Vec2 dominantSize = Vec2::ZERO;
@@ -345,29 +344,29 @@ void CustomUi::Container::calculateContentBoundaries()
         float eq = _->getPositionX();
         if (eq > highestX) {
             highestX = eq;
-            highestSize.x = size.x * (c ? 1 : n->getScaleX());
+            highestSize.x = size.x * (c ? 1 : ns.x);
         }
 
         eq = _->getPositionY();
         if (eq > highestY) {
             highestY = eq;
-            highestSize.y = size.y * (c ? 1 : n->getScaleY());
+            highestSize.y = size.y * (c ? 1 : ns.y);
         }
 
         if (size.x > dominantSize.x) {
-            highestSize.x = size.x * (c ? 1 : n->getScaleX());
+            highestSize.x = size.x * (c ? 1 : ns.x);
             dominantSize.x = size.x;
         }
 
         if (size.y > dominantSize.y) {
-            highestSize.y = size.y * (c ? 1 : n->getScaleY());
+            highestSize.y = size.y * (c ? 1 : ns.y);
             dominantSize.y = size.y;
         }
     }
 
     auto scaledMargin = ax::Vec2(
-        _margin.x * 2 * n->getScaleX(),
-        _margin.y * 2 * n->getScaleY()
+        _margin.x * 2 * ns.x,
+        _margin.y * 2 * ns.y
     );
 
     if (isContainerDynamic())
@@ -385,12 +384,9 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     // WARNING: copying is intended because of list reversing
     auto list = container->getChildren();
 
-    auto n = Node::create();
-    GameUtils::setNodeIgnoreDesignScale(n);
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
 
     auto _spacing = Vec2(spacing, spacing);
-    //_spacing.x *= n->getScaleX();
-    //_spacing.y *= n->getScaleY();
 
     f32 sumSize = 0;
     u16 listSize = 0;
@@ -425,13 +421,13 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
-                _->setPositionX(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleX()) + marginF));
+                _->setPositionX(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : ns.x) + marginF));
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             }
             else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
-                _->setPositionY(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : n->getScaleY()) + marginF));
+                _->setPositionY(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : ns.y) + marginF));
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }

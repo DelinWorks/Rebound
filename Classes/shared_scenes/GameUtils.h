@@ -181,6 +181,7 @@ namespace GameUtils
 
     Vec2 convertFromScreenToSpace(const Vec2& locationInView, Node* cam, bool reverseY = false);
 
+    Vec2 getNodeIgnoreDesignScale(bool ignoreScaling = false, float nestedScale = 1.0F);
     void setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling = false, float nestedScale = 1.0F);
 
     Size getWinDiff();

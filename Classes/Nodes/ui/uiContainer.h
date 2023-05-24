@@ -11,8 +11,6 @@
 #include "shared_scenes/GameSingleton.h"
 #include "shared_scenes/SoundGlobals.h"
 
-#include "Components/UiRescaleComponent.h"
-
 #define ADVANCEDUI_P1_CAP_INSETS Rect(12, 12, 4, 4)
 #define ADVANCEDUI_SLIDER_CAP_INSETS Rect(2, 2, 2, 2)
 #define ADVANCEDUI_TEXTURE "9_slice_box_1"sv

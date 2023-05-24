@@ -79,7 +79,7 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
         addChild(icon, 0);
     }
     else {
-        field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
+        field = ax::Label::createWithTTF(ShapingEngine::Helper::narrow(_text), _fontname, _fontsize * _UiScale);
         field->updateContent();
         sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
         sprite->setContentSize(_contentsize);
