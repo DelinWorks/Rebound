@@ -529,6 +529,8 @@ void MapEditor::onInitDone(f32 dt)
 
         editorUndoRedoMax(0); // save 100 undo redo states maximum
 
+        setCameraScaleIndex();
+
         isInitDone = true;
     }
     else {
@@ -1554,7 +1556,7 @@ void MapEditor::buildEntireUi()
             }
             cameraScaleIndex = i;
             cameraScale = possibleCameraScales[cameraScaleIndex];
-            _camera->setZoom(cameraScale);
+            _camera->setZoom(cameraScale / map->_contentScale);
             setCameraScaleUiText(cameraScale);
         }
     };

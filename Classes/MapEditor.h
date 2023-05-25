@@ -136,7 +136,7 @@ public:
     ax::Vec2 selectionPlace;
     ax::Vec2 chunkSelectionPlace;
     f32 cameraScale;
-    i32 cameraScaleIndex = 5;
+    i32 cameraScaleIndex = 11;
     f32 possibleCameraScales[19] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 64, 70, 75, 90, 100 };
     CustomUi::Button* cameraScaleB;
     CustomUi::Label* cameraScaleL;

@@ -26,7 +26,7 @@ void main()
 {
 	float val = clamp((u_val + 0.08) * 3.0, 0.0, 1.0);
 	
-	float time = u_time * 0.1;
+	float time = u_time * 0.25;
     
 	vec2 coord = vec2(mod(v_texCoord.x - time, 1.0), mod(v_texCoord.y + time, 1.0));
 

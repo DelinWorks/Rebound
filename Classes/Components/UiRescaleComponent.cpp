@@ -18,7 +18,7 @@ UiRescaleComponent::UiRescaleComponent() {
 
 void UiRescaleComponent::onAdd() {
     if (_isUiElemDirty) {
-        windowSizeChange(_visibleSize);
+        windowSizeChange(Director::getInstance()->getOpenGLView()->getFrameSize());
         _isUiElemDirty = false;
     }
 }

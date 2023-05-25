@@ -62,7 +62,6 @@ void CustomUi::Slider::update(f32 dt)
         if (currentValue != v) {
             currentValue = v;
             _callback(currentValue, this);
-            RLOG("Slider: {}", currentValue * 255);
         }
     }
 }

@@ -56,7 +56,8 @@ namespace TileSystem {
 
 		void draw(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {}
 		void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override {
-			for (auto& [__, _] : _chunks) {
+			currentMaxDrawCallCount = 0;
+			for (auto& [unused, _] : _chunks) {
 				if (_->_isModified) {
 					auto tiles = _->_tiles->getArrayPointer();
 					int sum = 0;
@@ -70,7 +71,10 @@ namespace TileSystem {
 					_->_isModified = false;
 				}
 
-				_->visit(renderer, parentTransform, parentFlags);
+				_->visit(renderer, parentTransform, parentFlags, &currentMaxDrawCallCount);
+
+				if (currentMaxDrawCallCount > maxDrawCallCount)
+					break;
 			}
 			for (auto& _ : _chunksToRemove) {
 				_chunks.erase(_);
@@ -84,6 +88,7 @@ namespace TileSystem {
 				_.second->cacheVertices(_resize);
 		}
 
+		u32 currentMaxDrawCallCount;
 		std::string _layerName = "";
 		Color4F _layerColor = Color4F::WHITE;
 

@@ -75,6 +75,7 @@ typedef u32 TileID;
     inline EmptyVertexIndexCache emptyVIC;
     inline f32 chunkMeshCreateCount;
     inline float zPositionMultiplier = 0;
+    inline u32 maxDrawCallCount = 256;
 
     struct UV {
         f32 U;
@@ -698,7 +699,8 @@ typedef u32 TileID;
         }
 
         void draw(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
-        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount) {
             auto tiles = _tiles->getArrayPointer();
             if (!resizeChunkCount())
                 return;
@@ -731,6 +733,7 @@ typedef u32 TileID;
                 transform.translate(ax::Vec3(pos.x, pos.y, 0));
                 transform.scale({ 1, 1, zPositionMultiplier });
                 _->visit(renderer, transform, parentFlags);
+                (*renderCount)++;
                 _chunkDirty = false;
             }
             _tilesetArr->retainedChunksI--;

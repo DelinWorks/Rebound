@@ -52,7 +52,7 @@ void Darkness::init()
         gameWindow.isCursorLockedToWindow = true;
         gameWindow.isAllowedToLeave = false;
         gameWindow.lastKnownWindowRect = cocos2d::Rect(0, 0, 1280, 720);
-        gameWindow.windowPolicy = ResolutionPolicy::EXACT_FIT;
+        gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
         gameWindow.currentWindowCursor = 0;
         gameWindow.focusState = false;
         gameWindow.guiScale = 1;
@@ -177,13 +177,6 @@ void Darkness::initAntiCheat()
 {
     if (_isAntiCheatReady)
         return;
-
-    //GetWriteWatch(
-    //    WRITE_WATCH_FLAG_RESET,
-    //    ptr,
-    //    4,
-    //    pageAddresses
-    //);
 
     //  Check for sus externally loaded modules ///////////////////////////////
 #ifdef WIN32

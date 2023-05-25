@@ -90,7 +90,7 @@ bool CustomUi::Label::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 
 Size CustomUi::Label::getDynamicContentSize()
 {
-    auto dSize = field->getContentSize() - Vec2(0, (_ForceOutline ? _PmtFontOutline * 2 : 0));
+    auto dSize = field->getContentSize() - Vec2(0, (_ForceOutline ? _PmtFontOutline * 1 : 0));
     if (size.x == 0)
         return dSize / _UiScale;
     auto calc = dSize.x / _UiScale * (size.x / dSize.x);

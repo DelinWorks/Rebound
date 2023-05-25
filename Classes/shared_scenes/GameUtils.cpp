@@ -207,7 +207,7 @@ Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
     float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
     float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
 
-    Vec2 s = ax::Vec2::ZERO;
+    Vec2 s = ax::Vec2::ONE;
     // If resolution policy is other than SHOW_ALL then we set
     // the scale to x and y value. and there will be no stretching.
     if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {

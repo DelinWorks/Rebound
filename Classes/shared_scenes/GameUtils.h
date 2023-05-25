@@ -85,7 +85,7 @@ auto __loc = (ps)->getUniformLocation(name);  \
 auto * __v = value;                           \
 auto __loc = (ps)->getUniformLocation(name);  \
 (ps)->setTexture(__loc, idx, __v);  \
-} while(false) 
+} while(false)
 
 #define FMT StringUtils::format
 #define WFMT StringUtils::wformat

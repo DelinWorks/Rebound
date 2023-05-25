@@ -245,7 +245,7 @@ void CustomUi::Button::onFontScaleUpdate(float scale)
             field->setDimensions(field_size.x * scale * _PmtFontScale, field_size.y * scale * _PmtFontScale);
             field->setHorizontalAlignment(ax::TextHAlignment::LEFT);
             _prtcl->setAngleVar(0);
-            _prtcl->setSpeed(20);
+            _prtcl->setSpeed(40);
         }
         if (_ForceOutline)
             field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
