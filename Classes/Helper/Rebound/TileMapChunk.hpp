@@ -27,7 +27,8 @@ typedef u32 TileID;
 #define TILE_FLAG_ALL    (TILE_FLAG_ROTATE | TILE_FLAG_FLIP_X | TILE_FLAG_FLIP_Y)
 #define TILE_FLAG_NONE   ~(TILE_FLAG_ALL)
 
-#define COLOR_BLEED_TOLERANCE 0
+#define USE_COLOR_BLEED_TOLERANCE 1
+#define USE_VERTEX_BLEED_TOLERANCE 1
 
 #define VERTEX_SIZE_NO_ANIMATIONS 9
 
@@ -75,7 +76,7 @@ typedef u32 TileID;
     inline EmptyVertexIndexCache emptyVIC;
     inline f32 chunkMeshCreateCount;
     inline float zPositionMultiplier = 0;
-    inline u32 maxDrawCallCount = 256;
+    inline u32 maxDrawCallCount = 8192;
 
     struct UV {
         f32 U;
@@ -401,10 +402,20 @@ typedef u32 TileID;
                 f32 columnM = (column + tileset->_tileSize.x);
                 f32 rowM = (row + tileset->_tileSize.y);
 
-                column /= tileset->_textureSize.x - COLOR_BLEED_TOLERANCE;
-                row /= tileset->_textureSize.y - COLOR_BLEED_TOLERANCE;
-                columnM /= tileset->_textureSize.x + COLOR_BLEED_TOLERANCE;
-                rowM /= tileset->_textureSize.y + COLOR_BLEED_TOLERANCE;
+#if USE_COLOR_BLEED_TOLERANCE == 1
+                auto marginX = 1.0 / (tileset->_textureSize.x - 1.0);
+                auto marginY = 1.0 / (tileset->_textureSize.y - 1.0);
+
+                column /= tileset->_textureSize.x - marginX;
+                row /= tileset->_textureSize.y - marginY;
+                columnM /= tileset->_textureSize.x + marginX;
+                rowM /= tileset->_textureSize.y + marginY;
+#else
+                column /= tileset->_textureSize.x;
+                row /= tileset->_textureSize.y;
+                columnM /= tileset->_textureSize.x;
+                rowM /= tileset->_textureSize.y;
+#endif
 
                 row = 1.0 - row;
                 rowM = 1.0 - rowM;
@@ -445,10 +456,21 @@ typedef u32 TileID;
                     auto tiles = tileArr->getArrayPointer(false);
 
                     u16 startindex = vertices.size() / vertexSize;
+
+#if USE_VERTEX_BLEED_TOLERANCE == 1
+                    auto marginX = 1.0 / tileset->_tileSize.x;
+                    auto marginY = 1.0 / tileset->_tileSize.y;
+
+                    f32 x = (x1 * tileset->_tileSize.x) - marginX;
+                    f32 y = (y1 * tileset->_tileSize.y - tileset->_tileSize.y) - marginY;
+                    f32 sx = tileset->_tileSize.x + marginX * 2;
+                    f32 sy = tileset->_tileSize.y + marginY * 2;
+#else
                     f32 x = x1 * tileset->_tileSize.x;
                     f32 y = y1 * tileset->_tileSize.y - tileset->_tileSize.y;
                     f32 sx = tileset->_tileSize.x;
                     f32 sy = tileset->_tileSize.y;
+#endif
 
                     auto coord = calculateTileCoords(tiles[index], tileset);
 
@@ -732,6 +754,16 @@ typedef u32 TileID;
                 transform.multiply(parentTransform);
                 transform.translate(ax::Vec3(pos.x, pos.y, 0));
                 transform.scale({ 1, 1, zPositionMultiplier });
+
+                // We Round the x,y translation axis of the Matrix
+                // To achieve Pixel Perfect Rendering for TileMaps
+                transform.m[12] = round(transform.m[12]);
+                transform.m[13] = round(transform.m[13]);
+                // *  1  0  0  round(Tx)
+                // *  0  1  0  round(Ty)
+                // *  0  0  1  Tz
+                // *  0  0  0  1
+
                 _->visit(renderer, transform, parentFlags);
                 (*renderCount)++;
                 _chunkDirty = false;

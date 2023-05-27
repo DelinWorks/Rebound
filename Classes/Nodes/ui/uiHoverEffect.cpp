@@ -43,9 +43,9 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     _hoverSprite->addChild(_prtcl, 2);
 }
 
-void CustomUi::HoverEffectGUI::update(f32 dt) {
+void CustomUi::HoverEffectGUI::update(f32 dt, Vec2 size) {
     if (_hoverSprite->isVisible()) {
-        _hoverSprite->setContentSize(getContentSize() + _hoverOffset);
+        _hoverSprite->setContentSize(size + _hoverOffset);
         _hoverShaderTime1 += dt;
         SET_UNIFORM(_hoverShader, "u_time", _hoverShaderTime1);
         _hoverShaderTime2 += dt;
@@ -53,6 +53,12 @@ void CustomUi::HoverEffectGUI::update(f32 dt) {
         SET_UNIFORM(_hoverShader, "u_val", _hoverShaderTimeLerp2);
         _prtcl->setPosition((_hoverSprite->getContentSize() + _hoverOffset) / 2);
         _prtcl->setOpacity(_hoverSprite->getOpacity() / 0.1176470588235294);
+        _prtcl->setEmissionShape(0, ParticleSystem::createRectShape(Vec2::ZERO,
+            { _hoverSprite->getContentSize().x + _hoverOffset.x, _hoverSprite->getContentSize().y + _hoverOffset.y }));
+        if (!_isPrtclSimulated) {
+            _prtcl->simulate(10, 20);
+            _isPrtclSimulated = true;
+        }
     }
 }
 
@@ -65,13 +71,6 @@ void CustomUi::HoverEffectGUI::hover()
         _hoverSprite->stopAllActions();
         _hoverSprite->setVisible(true);
         _prtcl->setVisible(true);
-        update(0);
-        _prtcl->setEmissionShape(0, ParticleSystem::createRectShape(Vec2::ZERO,
-            { _hoverSprite->getContentSize().x + _hoverOffset.x, _hoverSprite->getContentSize().y + _hoverOffset.y }));
-        if (!_isPrtclSimulated) {
-            _prtcl->simulate(10, 20);
-            _isPrtclSimulated = true;
-        }
         _hoverSprite->runAction(FadeTo::create(0.1f, 30));
         if (_hoverShaderTime2 > 0.3)
             _hoverShaderTimeLerp2 = 0;

@@ -54,26 +54,29 @@ bool CustomUi::ImageView::init(Size _contentsize, ax::Texture2D* texture) {
 
 bool CustomUi::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
-    if (_pCurrentHeldItem == this && !IS_LOCATION_INVALID(mouseLocationInView)) {
-        auto oldMousePos = mousePos;
-        mousePos = mouseLocationInView;
-        image->setPosition(image->getPositionX() + (mousePos.x - oldMousePos.x) * (1.0 / (imageP->getScaleX() * getScaleX())),
-            image->getPositionY() + (mousePos.y - oldMousePos.y) * (1.0 / (imageP->getScaleX() * getScaleX())));
-        image->setPositionX(Math::clamp(image->getPositionX(), -textureSize.x, 0));
-        image->setPositionY(Math::clamp(image->getPositionY(), 0, textureSize.y));
-        bg->setPosition(image->getPosition());
-        if (!pressLocation.fuzzyEquals(mouseLocationInView, 4)) pressLocation = INVALID_LOCATION;
+    if (isEnabled())
+    {
+        if (_pCurrentHeldItem == this && !IS_LOCATION_INVALID(mouseLocationInView)) {
+            auto oldMousePos = mousePos;
+            mousePos = mouseLocationInView;
+            image->setPosition(image->getPositionX() + (mousePos.x - oldMousePos.x) * (1.0 / (imageP->getScaleX() * getScaleX())),
+                image->getPositionY() + (mousePos.y - oldMousePos.y) * (1.0 / (imageP->getScaleX() * getScaleX())));
+            image->setPositionX(Math::clamp(image->getPositionX(), -textureSize.x, 0));
+            image->setPositionY(Math::clamp(image->getPositionY(), 0, textureSize.y));
+            bg->setPosition(image->getPosition());
+            if (!pressLocation.fuzzyEquals(mouseLocationInView, 4)) pressLocation = INVALID_LOCATION;
+        }
+        auto b = button->hitTest(mouseLocationInView, cam, nullptr);
+        if (b) _pCurrentHoveredItem = this;
+        else if (_pCurrentHoveredItem == this)
+            _pCurrentHoveredItem = nullptr;
+        return isUiEnabled() && b;
     }
-    auto b = button->hitTest(mouseLocationInView, cam, nullptr);
-    if (b) _pCurrentHoveredItem = this;
-    else if (_pCurrentHoveredItem == this)
-        _pCurrentHoveredItem = nullptr;
-    return isUiEnabled() && b;
 }
 
 bool CustomUi::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
-    if (button->hitTest(mouseLocationInView, cam, nullptr)) {
+    if (isEnabled() && button->hitTest(mouseLocationInView, cam, nullptr)) {
         _pCurrentHeldItem = this;
         mousePos = mouseLocationInView;
         pressLocation = mousePos;
@@ -84,7 +87,7 @@ bool CustomUi::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 bool CustomUi::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (_pCurrentHeldItem == this) {
-        if (pressLocation.fuzzyEquals(mouseLocationInView, 4)) {
+        if (pressLocation.fuzzyEquals(mouseLocationInView, 3)) {
             _pCurrentHeldItem = nullptr;
             Vec3 hitP;
             auxButton->hitTest(mouseLocationInView, cam, &hitP);

@@ -7,9 +7,11 @@
 #include "uiTextField.h"
 #include "uiSlider.h"
 #include "uiLabel.h"
+#include "uiToggle.h"
 #include "uiModal.h"
 #include "uiDiscardPanel.h"
 #include "uiImageView.h"
+#include "uiHSVWheel.h"
 
 #ifndef EXCLUDE_EXTENSIONS
 
@@ -85,7 +87,6 @@ namespace CustomUi {
 
         static CustomUi::Container* containerize(CustomUi::GUI* g) {
             auto cont = CustomUi::Container::create();
-            cont->setTag(CONTAINER_FLOW_TAG);
             cont->addChild(g);
             return cont;
         }

@@ -7,10 +7,10 @@
 
 namespace CustomUi {
 	class HoverEffectGUI : public GUI {
-	protected:
+	public:
 		HoverEffectGUI();
 
-		void update(f32 dt);
+		void update(f32 dt, Vec2 size);
 		void hover();
 
 		void setHoverOffset(const ax::Vec2& hoverOffset) { _hoverOffset = hoverOffset; }

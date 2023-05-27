@@ -518,13 +518,6 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
-        auto color = Color3B(0, 255, 65);
-        auto hsv = HSV(color);
-        hsv.h += 180;
-        color = hsv.toColor3B();
-
-        RLOG("hsv: {},{},{}", color.r, color.g, color.b);
-
         buildEntireUi();
 
         editorUndoRedoMax(0); // save 100 undo redo states maximum
@@ -951,25 +944,25 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
     cameraScaleIndex = (int)clamp(cameraScaleIndex, 0, n);
     f32 preCamScl = cameraScale;
     cameraScale = possibleCameraScales[cameraScaleIndex];
-    if (cameraScale != 1.0F) {
-        cameraScale = tweenfunc::quadraticIn(tweenfunc::quadraticIn(tweenfunc::quadraticIn(cameraScale / 100)));
-        cameraScale *= 100;
-    }
-    if (cameraScale < 1)
-        cameraScale = snap_interval(cameraScale, 1, 500);
-    else if (cameraScale < 3)
-        cameraScale = snap_interval(cameraScale, 1, 100);
-    else if (cameraScale < 10)
-        cameraScale = snap_interval(cameraScale, 1, 10);
-    else if (cameraScale < 50)
-        cameraScale = snap_interval(cameraScale, 1, 5);
-    else
-        cameraScale = snap_interval(cameraScale, 1, 1);
-    f32 postCamScl = cameraScale;
+    //if (cameraScale != 1.0F) {
+    //    cameraScale = cameraScale);
+    //    //cameraScale *= 100;
+    //}
+    ////if (cameraScale < 1)
+    ////    cameraScale = snap_interval(cameraScale, 1, 500);
+    ////else if (cameraScale < 3)
+    ////    cameraScale = snap_interval(cameraScale, 1, 100);
+    ////else if (cameraScale < 10)
+    ////    cameraScale = snap_interval(cameraScale, 1, 10);
+    ////else if (cameraScale < 50)
+    ////    cameraScale = snap_interval(cameraScale, 1, 5);
+    ////else
+    ////    cameraScale = snap_interval(cameraScale, 1, 1);
+    //f32 postCamScl = cameraScale;
 
     Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
     Vec2 pos = cameraLocation->getPosition();
-    Vec2 newPos = pos.lerp(targetPos, 1.0F - (postCamScl / preCamScl));
+    Vec2 newPos = pos.lerp(targetPos, 1.0F - (cameraScale / preCamScl));
     cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
     _camera->setZoom(cameraScale / map->_contentScale);
     setWorldBoundsLayerColorTransforms(_camera);
@@ -1061,6 +1054,10 @@ void MapEditor::buildEntireUi()
     uiNode->addChild(container);
     CustomUi::callbackAccess.emplace("main", container);
 
+    auto hsv = CustomUi::HSVWheel::create();
+    hsv->updateColorValues(Color4F(1, 0, 1, 0.5));
+    container->addChildAsContainer(hsv);
+
     _tilesetPicker = CustomUi::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
     auto c = TO_CONTAINER(_tilesetPicker);
@@ -1089,12 +1086,12 @@ void MapEditor::buildEntireUi()
     auto hpadding = Size(3, 20);
 
     auto fileB = CustomUi::Button::create();
-    fileB->init(L"File", 16, ax::Vec2::ZERO, hpadding);
+    fileB->init(L"File", TTFFS, ax::Vec2::ZERO, hpadding);
     fileB->setUiPadding(padding);
     menuContainer->addChild(fileB);
 
     auto editB = CustomUi::Button::create();
-    editB->init(L"Edit", 16, ax::Vec2::ZERO, hpadding);
+    editB->init(L"Edit", TTFFS, ax::Vec2::ZERO, hpadding);
     editB->setUiPadding(padding);
     menuContainer->addChild(editB);
 
@@ -1112,14 +1109,14 @@ void MapEditor::buildEntireUi()
         fcontainer->setBackgroundBlocking();
 
         auto lb = CustomUi::Button::create();
-        lb->init(L"-- Editor General ----------------", 16);
+        lb->init(L"-- Editor General ----------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Undo (Use Quick Menu)", 16);
+        lb->init(L"Undo (Use Quick Menu)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
@@ -1129,7 +1126,7 @@ void MapEditor::buildEntireUi()
         };
 
         lb = CustomUi::Button::create();
-        lb->init(L"Redo (Use Quick Menu)", 16);
+        lb->init(L"Redo (Use Quick Menu)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
@@ -1139,70 +1136,70 @@ void MapEditor::buildEntireUi()
         };
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- TileMap Edit Tool -------------", 16);
+        lb->init(L"-- TileMap Edit Tool -------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Stamp (Place) Mode", 16);
+        lb->init(L"Stamp (Place) Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Remove Mode", 16);
+        lb->init(L"Remove Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Bucket Fill Mode", 16);
+        lb->init(L"Bucket Fill Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Selection Mode", 16);
+        lb->init(L"Selection Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- TileMap Tile Transform Tool ---", 16);
+        lb->init(L"-- TileMap Tile Transform Tool ---", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Flip Horizontally", 16);
+        lb->init(L"Flip Horizontally", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Flip Vertically", 16);
+        lb->init(L"Flip Vertically", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Rotate 90 Degrees (Diagonal Flag)", 16);
+        lb->init(L"Rotate 90 Degrees (Diagonal Flag)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- General TileMap Editor --------", 16);
+        lb->init(L"-- General TileMap Editor --------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Toggle TileMap Grid Visibility", 16);
+        lb->init(L"Toggle TileMap Grid Visibility", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
@@ -1213,7 +1210,7 @@ void MapEditor::buildEntireUi()
         };
 
         lb = CustomUi::Button::create();
-        lb->init(L"Toggle TileMap 3D Perspective View", 16);
+        lb->init(L"Toggle TileMap 3D Perspective View", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
@@ -1232,7 +1229,7 @@ void MapEditor::buildEntireUi()
     };
 
     auto settingsB = CustomUi::Button::create();
-    settingsB->init(L"Menu", 16, ax::Vec2::ZERO, hpadding);
+    settingsB->init(L"Menu", TTFFS, ax::Vec2::ZERO, hpadding);
     settingsB->setUiPadding(padding);
     menuContainer->addChild(settingsB);
 
@@ -1264,75 +1261,74 @@ void MapEditor::buildEntireUi()
         fcontainer->setBackgroundBlocking();
 
         auto lb = CustomUi::Button::create();
-        lb->init(L"-- Resources ----------", 16);
+        lb->init(L"-- Resources ----------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"New Map", 16);
+        lb->init(L"New Map", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Open Map", 16);
+        lb->init(L"Open Map", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Import Texture", 16);
+        lb->init(L"Import Texture", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Reload Textures", 16);
+        lb->init(L"Reload Textures", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- Changes ------------", 16);
+        lb->init(L"-- Changes ------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Save", 16);
+        lb->init(L"Save", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Save and Exit", 16);
+        lb->init(L"Save and Exit", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"Exit without Saving", 16);
+        lb->init(L"Exit without Saving", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         lb = CustomUi::Button::create();
-        lb->init(L"-- Other --------------", 16);
+        lb->init(L"-- Other --------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         auto slc = CustomUi::Container::create();
         slc->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
         slc->setMargin({ 0, 0 });
-        slc->setTag(CONTAINER_FLOW_TAG);
 
         auto opl = CustomUi::Label::create();
-        opl->init(L"UI Opacity  ", 16);
+        opl->init(L"UI Opacity  ", TTFFS);
         slc->addChild(opl);
 
         auto sl = CustomUi::Slider::create();
@@ -1345,10 +1341,14 @@ void MapEditor::buildEntireUi()
 
         fcontainer->addChild(slc);
 
+        auto t = CustomUi::Toggle::create();
+        t->init(L"Toggle 1.0");
+        fcontainer->addChild(t);
+
         lb = CustomUi::Button::create();
-        lb->init(L"More Options...", 16);
+        lb->init(L"More Options...", TTFFS);
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
+        fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
         /*lb->_callback = [=](CustomUi::Button* target) {
@@ -1365,62 +1365,62 @@ void MapEditor::buildEntireUi()
             fcontainer1->setDismissible();
 
             auto lb = CustomUi::Button::create();
-            lb->init(L"-- Resources --------------------------", 16);
+            lb->init(L"-- Resources --------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"Import .TTF/.OTF Font File", 16);
+            lb->init(L"Import .TTF/.OTF Font File", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"-- Passes -----------------------------", 16);
+            lb->init(L"-- Passes -----------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"Open Render Pass Editor", 16);
+            lb->init(L"Open Render Pass Editor", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"-- TileMaps ---------------------------", 16);
+            lb->init(L"-- TileMaps ---------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"Switch to Bilinear Rendering", 16);
+            lb->init(L"Switch to Bilinear Rendering", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"-- Shaders ----------------------------", 16);
+            lb->init(L"-- Shaders ----------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"Import GLSL Shader", 16);
+            lb->init(L"Import GLSL Shader", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"Compile GLSL v3.0 Compliant Shader Code", 16);
+            lb->init(L"Compile GLSL v3.0 Compliant Shader Code", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"-- Native -----------------------------", 16);
+            lb->init(L"-- Native -----------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
             lb = CustomUi::Button::create();
-            lb->init(L"SQLite Vacuum File", 16);
+            lb->init(L"SQLite Vacuum File", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
@@ -1563,13 +1563,13 @@ void MapEditor::buildEntireUi()
     cameraScaleContainer->addChild(cameraScaleB);
 
     cameraScaleL = CustomUi::Label::create();
-    cameraScaleL->init(L"", 16);
+    cameraScaleL->init(L"", TTFFS);
     cameraScaleL->enableOutline();
     cameraScaleContainer->addChild(cameraScaleL);
 
     rebuildableUiNodes->removeAllChildren();
     _debugText = CustomUi::Label::create();
-    _debugText->init(L"", 16);
+    _debugText->init(L"", TTFFS);
     _debugText->enableOutline();
     getContainer()->addChild(_debugText);
     ((UiRescaleComponent*)_debugText->getComponent("UiRescaleComponent"))->setVisibleSizeHints(-2, 5, -2);
@@ -1586,7 +1586,7 @@ void MapEditor::buildEntireUi()
             std::wstring buffAsStdStrDt = buffDt;
             i32 verts = (i32)Director::getInstance()->getRenderer()->getDrawnVertices();
             i32 batches = (i32)Director::getInstance()->getRenderer()->getDrawnBatches();
-            std::wstring text = WFMT(L"T: %d | C: %d\n", 0, 0) + L"D3D11: " + buffAsStdStr + L" / " + buffAsStdStrDt + L"ms\n" +
+            std::wstring text = WFMT(L"T: %d | C: %d\n", map->_tileCount, 0) + L"D3D11: " + buffAsStdStr + L" / " + buffAsStdStrDt + L"ms\n" +
                 WFMT(L"%s: %d / ", L"Draw Calls", batches) + WFMT(L"%s: %d", L"Vertices Drawn", verts);
             _debugText->setString(text);
         });

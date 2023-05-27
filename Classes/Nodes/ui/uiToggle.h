@@ -5,6 +5,8 @@
 #include "uiHoverEffect.h"
 #include "Helper/ShapingEngine.hpp"
 #include "Components/UiRescaleComponent.h"
+#include "uiButton.h"
+#include "uiLabel.h"
 
 USING_NS_CC;
 
@@ -16,28 +18,23 @@ USING_NS_CC;
 
 namespace CustomUi
 {
-    class Slider;
-    using SliderCallback = std::function<void(float p, Slider* target)>;
+    class Toggle;
+    using ToggleCallback = std::function<void(bool t, Toggle* target)>;
 
-    class Slider : public HoverEffectGUI {
+    class Toggle : public HoverEffectGUI {
     public:
-        static CustomUi::Slider* create();
+        static CustomUi::Toggle* create();
 
+        Container* cont;
         ui::Button* button;
-        ui::Slider* slider;
-        ui::Scale9Sprite* sprite;
-        cocos2d::Size bar_size;
-        cocos2d::Rect capinsets;
+        Button* knob;
+        Label* label;
         ChangeValue<bool> hover_cv;
 
-        float currentValue;
-        SliderCallback _callback;
+        bool isToggled = false;
+        ToggleCallback _callback;
         
-        void setValue(float v);
-
-        void init(Size _contentsize = ax::Size::ZERO);
-
-        void init(std::string_view barFrame, std::string_view progressFrame, std::string_view knob, ax::Rect _capinsets, cocos2d::Size _contentsize);
+        void init(std::wstring _text, Size _contentsize = ax::Size::ZERO);
 
         void update(f32 dt) override;
 

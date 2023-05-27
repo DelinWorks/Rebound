@@ -1,24 +1,49 @@
 {
   "frames": [
     {
-      "filename": "ptrn_bg_hover2",
+      "filename": "hsv_square",
       "frame": {
         "x": 1,
         "y": 1,
-        "w": 98,
-        "h": 15
+        "w": 256,
+        "h": 256
       },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 98,
-        "h": 15
+        "w": 256,
+        "h": 256
       },
       "sourceSize": {
-        "w": 98,
-        "h": 15
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "hsv_wheel",
+      "frame": {
+        "x": 259,
+        "y": 1,
+        "w": 256,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 256
       },
       "pivot": {
         "x": 0.5,
@@ -29,7 +54,7 @@
       "filename": "ptrn_bg_hover_shader_alpha_edge",
       "frame": {
         "x": 1,
-        "y": 18,
+        "y": 259,
         "w": 80,
         "h": 40
       },
@@ -53,8 +78,8 @@
     {
       "filename": "ptrn_bg_hover_shader",
       "frame": {
-        "x": 1,
-        "y": 60,
+        "x": 83,
+        "y": 259,
         "w": 32,
         "h": 8
       },
@@ -76,10 +101,60 @@
       }
     },
     {
+      "filename": "ptrn_bg_hover2",
+      "frame": {
+        "x": 83,
+        "y": 269,
+        "w": 30,
+        "h": 5
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 30,
+        "h": 5
+      },
+      "sourceSize": {
+        "w": 30,
+        "h": 5
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "9_slice_box_1_gray",
+      "frame": {
+        "x": 115,
+        "y": 269,
+        "w": 28,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 28,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 28,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
       "filename": "9_slice_box_1_inv",
       "frame": {
-        "x": 1,
-        "y": 70,
+        "x": 145,
+        "y": 259,
         "w": 28,
         "h": 28
       },
@@ -103,33 +178,8 @@
     {
       "filename": "ptrn_bg_hover",
       "frame": {
-        "x": 31,
-        "y": 70,
-        "w": 28,
-        "h": 28
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 28,
-        "h": 28
-      },
-      "sourceSize": {
-        "w": 28,
-        "h": 28
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "9_slice_box_1",
-      "frame": {
-        "x": 61,
-        "y": 60,
+        "x": 175,
+        "y": 259,
         "w": 28,
         "h": 28
       },
@@ -153,8 +203,8 @@
     {
       "filename": "9_slice_box_1_cramped",
       "frame": {
-        "x": 1,
-        "y": 100,
+        "x": 205,
+        "y": 259,
         "w": 28,
         "h": 28
       },
@@ -176,10 +226,10 @@
       }
     },
     {
-      "filename": "9_slice_box_1_gray",
+      "filename": "9_slice_box_1",
       "frame": {
-        "x": 31,
-        "y": 100,
+        "x": 235,
+        "y": 259,
         "w": 28,
         "h": 28
       },
@@ -203,8 +253,8 @@
     {
       "filename": "text_cursor",
       "frame": {
-        "x": 83,
-        "y": 18,
+        "x": 265,
+        "y": 259,
         "w": 10,
         "h": 24
       },
@@ -226,10 +276,85 @@
       }
     },
     {
+      "filename": "toggle_non",
+      "frame": {
+        "x": 83,
+        "y": 276,
+        "w": 17,
+        "h": 17
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 17,
+        "h": 17
+      },
+      "sourceSize": {
+        "w": 17,
+        "h": 17
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "toggle_selected",
+      "frame": {
+        "x": 277,
+        "y": 259,
+        "w": 17,
+        "h": 17
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 17,
+        "h": 17
+      },
+      "sourceSize": {
+        "w": 17,
+        "h": 17
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "hsv_handle",
+      "frame": {
+        "x": 265,
+        "y": 285,
+        "w": 14,
+        "h": 14
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 14,
+        "h": 14
+      },
+      "sourceSize": {
+        "w": 14,
+        "h": 14
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
       "filename": "slider_bar",
       "frame": {
-        "x": 91,
-        "y": 44,
+        "x": 117,
+        "y": 259,
         "w": 7,
         "h": 6
       },
@@ -253,8 +378,8 @@
     {
       "filename": "slider_progress",
       "frame": {
-        "x": 83,
-        "y": 52,
+        "x": 126,
+        "y": 259,
         "w": 7,
         "h": 6
       },
@@ -278,8 +403,8 @@
     {
       "filename": "slider_knob",
       "frame": {
-        "x": 83,
-        "y": 44,
+        "x": 135,
+        "y": 259,
         "w": 6,
         "h": 6
       },
@@ -308,8 +433,8 @@
     "alias": true,
     "format": "RGBA8888",
     "size": {
-      "w": 100,
-      "h": 129
+      "w": 516,
+      "h": 300
     },
     "scale": 1
   }

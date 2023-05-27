@@ -25,6 +25,8 @@ using namespace ax;
 #define IS_LOCATION_INVALID(L) (L.x == UINT16_MAX || L.y == UINT16_MAX)
 #define INVALID_LOCATION Vec2(UINT16_MAX, UINT16_MAX)
 
+#define TTFFS CustomUi::_TTFFontSize
+
 namespace CustomUi
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
@@ -32,8 +34,9 @@ namespace CustomUi
     inline float _UiScaleMul = 1;
     inline float _PmtFontScale = 1;
     inline float _PmtFontOutline = 2;
-    inline bool _ForceOutline = true;
+    inline bool _ForceOutline = false;
     inline float _PxArtMultiplier = 2;
+    inline float _TTFFontSize = 16;
 
     class GUI;
 
@@ -115,6 +118,8 @@ namespace CustomUi
 
         void setContentSize(const Vec2& size, bool recursive = true);
 
+        virtual Vec2 getScaledContentSize();
+
         virtual void onFontScaleUpdate(float scale);
 
         void updateEnabled(bool state);
@@ -155,9 +160,12 @@ namespace CustomUi
         void setUiEnabled(bool isEnabled) { _isEnabled = isEnabled; }
         bool isUiEnabled() { return _isEnabled; }
 
+        void DenyRescaling() { _rescalingAllowed = false; }
+
         virtual Size getFitContentSize();
 
     protected:
+        bool _rescalingAllowed = true;
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
         DrawNode* _contentSizeDebug;

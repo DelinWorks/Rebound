@@ -6,7 +6,7 @@
 
 // This class is designed to stop calling functions over and over
 // and detect if a value is changed and if so only call the function when
-// the change happened to avoid memory leaks and function multiple calls
+// the change happened to avoid possible memory leaks or performance issues
 template <typename T>
 class ChangeValue {
 private:

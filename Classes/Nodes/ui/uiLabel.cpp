@@ -28,7 +28,8 @@ void CustomUi::Label::init(std::wstring _text, i32 _fontsize, Size _size, float 
 
 void CustomUi::Label::init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size, float _wrap)
 {
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
+    if (_rescalingAllowed)
+        addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
     field = ax::Label::create();

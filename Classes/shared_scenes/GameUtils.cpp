@@ -194,16 +194,49 @@ Vec2 GameUtils::convertFromScreenToSpace(const Vec2& locationInView, Node* cam, 
     auto visibleSize = director->getVisibleSize();
     auto loc = director->convertToGL(Vec2(locationInView.x,
         (!reverseY ? visibleSize.y - locationInView.y : locationInView.y)));
-    auto screenSize = director->getOpenGLView()->getFrameSize();
+    auto screenSize = Director::getInstance()->getWinSizeInPixels();
     return Vec2((((loc.x - visibleSize.x / 2) * cam->getScale()) + cam->getPositionX()),
         (((loc.y - visibleSize.y / 2) * cam->getScale()) + cam->getPositionY()));
         //.rotateByAngle(cam->getPosition(), -AX_DEGREES_TO_RADIANS(cam->getRotation()));
 }
 
-Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
+Vec2 GameUtils::getNodeIgnoreDesignScale___FUNCTIONAL(bool ignoreScaling, float nestedScale)
 {
     Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
+    float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
+    float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
+
+    Vec2 s = ax::Vec2::ONE;
+    // If resolution policy is other than SHOW_ALL then we set
+    // the scale to x and y value. and there will be no stretching.
+    if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
+        s.x = x * nestedScale;
+        s.y = y * nestedScale;
+    }
+    // If the scale dimensions are the same, then we just
+    // set the scale to the x or y value, any will suffice.
+    else if (x == y)
+        s.x = s.y = x * nestedScale;
+    // If somehow the scale dimensions are different, then we just
+    // see which dimension is bigger and set the scale to that
+    // value so that any ui node doesn't stretch and deform.
+    else s.x = s.y = (x < y ? y : x) * nestedScale;
+    return s;
+}
+
+void GameUtils::setNodeIgnoreDesignScale___FUNCTIONAL(cocos2d::Node* node, bool ignoreScaling, float nestedScale)
+{
+    auto s = getNodeIgnoreDesignScale___FUNCTIONAL(ignoreScaling, nestedScale);
+    node->setScaleX(s.x);
+    node->setScaleY(s.y);
+}
+
+Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
+{
+    //Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
+    Size actualFrameSize = { 1920, 1080 };
+    Size actualWinSize = { 1280, 720 };
     float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
     float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
 

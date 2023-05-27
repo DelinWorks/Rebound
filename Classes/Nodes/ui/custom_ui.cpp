@@ -14,6 +14,11 @@ void CustomUi::GUI::setContentSize(const Vec2& size, bool recursive)
 	}
 }
 
+Vec2 CustomUi::GUI::getScaledContentSize()
+{
+	return getContentSize();
+}
+
 void CustomUi::GUI::onFontScaleUpdate(float scale)
 {
 	// any GUI node that doesn't override this function

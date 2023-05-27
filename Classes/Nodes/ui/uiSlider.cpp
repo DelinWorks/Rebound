@@ -14,6 +14,13 @@ CustomUi::Slider* CustomUi::Slider::create()
     return ret;
 }
 
+void CustomUi::Slider::setValue(float v)
+{
+    currentValue = v;
+    slider->setPercent(v);
+    _callback(v, this);
+}
+
 void CustomUi::Slider::init(Size _contentsize)
 {
     init(
@@ -32,7 +39,8 @@ void CustomUi::Slider::init(
     ax::Rect _capinsets,
     ax::Size _contentsize)
 {
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
+    if (_rescalingAllowed)
+        addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     slider = ui::Slider::create();
     slider->setScale9Enabled(true);
     slider->loadSlidBallTextures(knob, knob, knob, ui::Widget::TextureResType::PLIST);
@@ -56,7 +64,7 @@ void CustomUi::Slider::update(f32 dt)
     slider->setEnabled(isUiHovered());
     auto dSize = getDynamicContentSize();
     setContentSize(dSize + getUiPadding() + SLIDER_HITBOX_CORNER_TOLERANCE / 1.5);
-    HoverEffectGUI::update(dt);
+    HoverEffectGUI::update(dt, getContentSize());
     if (_pCurrentHeldItem == this) {
         auto v = slider->getPercent();
         if (currentValue != v) {

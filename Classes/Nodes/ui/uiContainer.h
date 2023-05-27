@@ -108,6 +108,8 @@ namespace CustomUi
         void calculateContentBoundaries();
         void updateLayoutManagers(bool recursive = false);
 
+        Vec2 getScaledContentSize();
+
         void onEnter() override;
 
         bool _isHitSwallowed = false;

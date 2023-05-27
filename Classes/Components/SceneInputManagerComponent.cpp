@@ -67,16 +67,16 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
                     glfwSetWindowMonitor(Darkness::getInstance()->gameWindow.window, nullptr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, mode->refreshRate);
                 }
             }
-            else if (keyCode == EventKeyboard::KeyCode::KEY_EQUAL) {
-                Darkness::getInstance()->gameWindow.guiScale += 0.25;
-                Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 2);
-                Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
-            }
-            else if (keyCode == EventKeyboard::KeyCode::KEY_MINUS) {
-                Darkness::getInstance()->gameWindow.guiScale -= 0.25;
-                Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 2);
-                Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
-            }
+            //else if (keyCode == EventKeyboard::KeyCode::KEY_EQUAL) {
+            //    Darkness::getInstance()->gameWindow.guiScale += 0.25;
+            //    Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 8);
+            //    Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+            //}
+            //else if (keyCode == EventKeyboard::KeyCode::KEY_MINUS) {
+            //    Darkness::getInstance()->gameWindow.guiScale -= 0.25;
+            //    Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 8);
+            //    Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+            //}
         }
 
         if (!Darkness::getInstance()->gameWindow.isFullscreen)

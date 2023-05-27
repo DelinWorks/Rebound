@@ -135,7 +135,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
 void CustomUi::TextField::update(f32 dt) {
     auto dSize = getDynamicContentSize();
     setContentSize(dSize + getUiPadding());
-    HoverEffectGUI::update(dt);
+    HoverEffectGUI::update(dt, getContentSize());
 }
 
 bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)

@@ -110,6 +110,12 @@ void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
     }
 }
 
+Vec2 CustomUi::Container::getScaledContentSize()
+{
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    return getContentSize() / ns;
+}
+
 void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
 {
     if (_pCurrentHeldItem) return;
@@ -317,8 +323,10 @@ void CustomUi::Container::addSpecialChild(CustomUi::GUI* gui)
 
 void CustomUi::Container::addChildAsContainer(CustomUi::GUI* gui) {
     auto cont = CustomUi::Container::create();
-    cont->setTag(CONTAINER_FLOW_TAG);
+    cont->setBackgroundSprite();
+    cont->setLayout(FlowLayout());
     cont->addChild(gui);
+    cont->updateLayoutManagers();
     Node::addChild(cont);
 }
 
@@ -334,32 +342,32 @@ void CustomUi::Container::calculateContentBoundaries()
     Vec2 highestSize = Vec2::ZERO;
     Vec2 dominantSize = Vec2::ZERO;
 
-    for (auto& _ : list) {
-        if (_->getTag() <= YOURE_NOT_WELCOME_HERE)
-            continue;
+    for (auto& n : list) {
+        auto _ = DCAST(GUI, n);
+        if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
         auto c = DCAST(Container, _);
         if (c) c->calculateContentBoundaries();
         if (!isContainerDynamic()) continue;
-        auto size = _->getContentSize();
+        auto size = _->getScaledContentSize();
         float eq = _->getPositionX();
         if (eq > highestX) {
             highestX = eq;
-            highestSize.x = size.x * (c ? 1 : ns.x);
+            highestSize.x = size.x * ns.x;
         }
 
         eq = _->getPositionY();
         if (eq > highestY) {
             highestY = eq;
-            highestSize.y = size.y * (c ? 1 : ns.y);
+            highestSize.y = size.y * ns.y;
         }
 
         if (size.x > dominantSize.x) {
-            highestSize.x = size.x * (c ? 1 : ns.x);
+            highestSize.x = size.x * ns.x;
             dominantSize.x = size.x;
         }
 
         if (size.y > dominantSize.y) {
-            highestSize.y = size.y * (c ? 1 : ns.y);
+            highestSize.y = size.y * ns.y;
             dominantSize.y = size.y;
         }
     }
@@ -381,57 +389,50 @@ void CustomUi::Container::calculateContentBoundaries()
 
 void CustomUi::FlowLayout::build(CustomUi::Container* container)
 {
-    // WARNING: copying is intended because of list reversing
     auto list = container->getChildren();
-
     auto ns = GameUtils::getNodeIgnoreDesignScale();
-
     auto _spacing = Vec2(spacing, spacing);
-
     f32 sumSize = 0;
     u16 listSize = 0;
-    for (auto& _ : list) {
+    for (auto& n : list) {
+        auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
         auto cont = DCAST(Container, _);
         if (cont) cont->calculateContentBoundaries();
-        auto cSize = _->getContentSize();
-        if (cSize.x != 0 && cSize.y != 0) {
-            cSize.x += _spacing.x * 2;
-            cSize.y += _spacing.y * 2;
-            sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
-            listSize++;
-        }
+        auto cSize = _->getScaledContentSize();
+        if (cSize.x == 0 || cSize.y == 0)
+            continue;
+        cSize.x += _spacing.x * 2;
+        cSize.y += _spacing.y * 2;
+        sumSize += sort == SORT_HORIZONTAL ? cSize.x : cSize.y;
+        listSize++;
     }
-
     float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
-
     if (reverseStack)
         std::reverse(list.begin(), list.end());
-
     f32 cumSize = 0;
-
     if (direction == STACK_CENTER)
         cumSize = (sumSize - (_spacing.x * 1.5 * listSize) - _spacing.x / 2) / -2;
-    for (auto& _ : list) {
+    for (auto& n : list) {
+        auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto cSize = _->getContentSize();
+        auto cSize = _->getScaledContentSize();
         if (cSize.x == 0 || cSize.y == 0)
             continue;
         if (_) {
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
-                _->setPositionX(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : ns.x) + marginF));
+                _->setPositionX((cumSize * ns.x + marginF));
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             }
             else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
-                _->setPositionY(Math::getEven(cumSize * (_->getTag() == CONTAINER_FLOW_TAG ? 1 : ns.y) + marginF));
+                _->setPositionY((cumSize * ns.y + marginF));
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }
-        /*else continue;*/
     }
 }
 

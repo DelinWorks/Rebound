@@ -45,7 +45,7 @@ void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)
 			SET_POSITION_HALF_SCREEN(_);
 			SET_POSITION_MINUS_HALF_SCREEN(_camera->getChildren().at(0));
 
-			GameUtils::setNodeIgnoreDesignScale(_, true, 1);
+			GameUtils::setNodeIgnoreDesignScale___FUNCTIONAL(_, true, 1);
 		}
 
 		_worlds[1]->skipSameTransform = true;
