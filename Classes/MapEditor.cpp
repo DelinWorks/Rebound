@@ -1054,9 +1054,26 @@ void MapEditor::buildEntireUi()
     uiNode->addChild(container);
     CustomUi::callbackAccess.emplace("main", container);
 
-    auto hsv = CustomUi::HSVWheel::create();
-    hsv->updateColorValues(Color4F(1, 0, 1, 0.5));
-    container->addChildAsContainer(hsv);
+    //container->addChild(CustomUi::Functions::createFledgedHSVPanel());
+
+    //auto test4edge1 = CustomUi::Container::create();
+    //auto test4edge2 = CustomUi::Container::create();
+    //test4edge1->setStatic(); test4edge1->setContentSize({ 50, 50 });
+    //test4edge2->setStatic(); test4edge2->setContentSize({ 50, 50 });
+
+    //auto container4edge = CustomUi::Container4Edge::create({0, 200});
+    //container->addChild(container4edge);
+    //container4edge->setChildRight(test4edge1);
+    //container4edge->setChildLeft(test4edge2);
+
+    auto tabs = CustomUi::Tabs::create({ 200, 20 });
+    container->addChild(tabs);
+    tabs->addElement(L"Tileset1");
+    tabs->addElement(L"Tileset2");
+
+    container->addChild(CustomUi::Functions::createFledgedHSVPanel());
+
+    //tabs->addElement(L"Tileset3");
 
     _tilesetPicker = CustomUi::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
@@ -1596,6 +1613,9 @@ void MapEditor::buildEntireUi()
         _debugText->runAction(seq_repeat_forever);
     }
 
+    _editorToolTip = CustomUi::ToolTip::create();
+    container->addChild(_editorToolTip, 2);
+
     rebuildEntireUi();
 }
 
@@ -1669,7 +1689,7 @@ ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _t
 
 Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _tileSize)
 {
-    if (removeSelectionNode == nullptr) {
+    if (!removeSelectionNode) {
         removeSelectionNode = DrawNode::create();
         gridNode->addChild(removeSelectionNode, 2);
     }
@@ -1788,4 +1808,10 @@ GameUtils::Editor::UndoRedoState& MapEditor::editorUndoTopOrDummy()
         editorPushUndoState();
     editorUndoRedoUpdateState();
     return _undo.top();
+}
+
+void MapEditor::handleSignal(std::string signal)
+{
+    if (signal == "tooltip_hsv_reset")
+        _editorToolTip->showToolTip(L"HSV color reset.", 1);
 }

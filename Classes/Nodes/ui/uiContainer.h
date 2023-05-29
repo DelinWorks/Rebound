@@ -28,6 +28,7 @@ namespace CustomUi
     enum Constraint : u8 {
         CONSTRAINT_NONE = 0,
         CONSTRAINT_DEPENDENCY = 1,
+        CONSTRAINT_CONTENTSIZE = 2,
     };
 
     enum FlowLayoutSort : u8 {
@@ -74,6 +75,17 @@ namespace CustomUi
         void build(CustomUi::GUI* element);
     };
 
+    class ContentSizeConstraint {
+    public:
+        ContentSizeConstraint(GUI* _parent = nullptr, Vec2 _offset = ax::Vec2::ZERO, bool _scale = false)
+            : parent(_parent), offset(_offset), scale(_scale) { }
+        GUI* parent;
+        Vec2 offset;
+        bool scale;
+
+        void build(CustomUi::GUI* element);
+    };
+
     enum BgSpriteType {
         BG_NORMAL = 0,
         BG_INVERTED = 1,
@@ -91,6 +103,7 @@ namespace CustomUi
 
         void setLayout(FlowLayout layout);
         void setConstraint(DependencyConstraint layout);
+        void setConstraint(ContentSizeConstraint layout);
 
         void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ONE);
         void setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset = ax::Vec2::ONE);
@@ -105,8 +118,8 @@ namespace CustomUi
 
         void notifyLayout() override;
 
-        void calculateContentBoundaries();
-        void updateLayoutManagers(bool recursive = false);
+        virtual void calculateContentBoundaries();
+        virtual void updateLayoutManagers(bool recursive = false);
 
         Vec2 getScaledContentSize();
 
@@ -141,7 +154,7 @@ namespace CustomUi
         void onDisable();
 
         void addSpecialChild(CustomUi::GUI* gui);
-        void addChildAsContainer(CustomUi::GUI* gui);
+        CustomUi::Container* addChildAsContainer(CustomUi::GUI* gui);
 
         ui::Button* _bgButton = nullptr;
         ax::ui::Scale9Sprite* _background = nullptr;
@@ -160,6 +173,7 @@ namespace CustomUi
         BorderLayout _borderLayout;
         FlowLayout _flowLayout;
         DependencyConstraint _depConst;
+        ContentSizeConstraint _csConst;
     };
 
     class Separator : public GUI {

@@ -19,7 +19,7 @@ using namespace ax;
 #define CONTAINER_CLOSE_TAG -69421
 #define GUI_ELEMENT_EXCLUDE -69422
 
-//#define DRAW_NODE_DEBUG
+#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
 
 #define IS_LOCATION_INVALID(L) (L.x == UINT16_MAX || L.y == UINT16_MAX)
@@ -162,9 +162,13 @@ namespace CustomUi
 
         void DenyRescaling() { _rescalingAllowed = false; }
 
+        void setForceRawInput(bool force) { _forceRawInput = force; }
+        bool isForceRawInput() { return _forceRawInput; }
+
         virtual Size getFitContentSize();
 
     protected:
+        bool _forceRawInput = false;
         bool _rescalingAllowed = true;
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
@@ -183,6 +187,15 @@ namespace CustomUi
         bool _isEnabled = true;
 
         friend class FlowLayout;
+    };
+
+    class SignalHandeler {
+    public:
+
+        virtual void signal(std::string signal) { handleSignal(signal); };
+        virtual void handleSignal(std::string signal) = 0;
+
+        static void signalSceneRoot(std::string signal);
     };
 }
 

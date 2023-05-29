@@ -225,3 +225,9 @@ Size CustomUi::GUI::getFitContentSize()
 {
 	return getContentSize();
 }
+
+void CustomUi::SignalHandeler::signalSceneRoot(std::string signal)
+{
+	auto handeler = DCAST(SignalHandeler, Director::getInstance()->getRunningScene());
+	if (handeler) handeler->signal(signal);
+}

@@ -17,14 +17,14 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     _hoverSprite->setOpacity(30);
     addChild(_hoverSprite, -1);
 
-    _prtcl = ax::ParticleSystemQuad::createWithTotalParticles(300);
+    _prtcl = ax::ParticleSystemQuad::createWithTotalParticles(1000);
     _prtcl->setTexture(ADD_IMAGE("shared/unready/ptrn_bg_hover2.png"));
     _prtcl->setDuration(ParticleSystem::DURATION_INFINITY);
     _prtcl->setGravity({ 0, 0 });
     _prtcl->setEmitterMode(ParticleSystem::Mode::GRAVITY);
-    _prtcl->setStartColor(Color4F(1, 1, 1, 0.3));
+    _prtcl->setStartColor(Color4F(1, 1, 1, 0.2));
     _prtcl->setEndColor(Color4F(1, 1, 1, 0));
-    _prtcl->setSpeed(15);
+    _prtcl->setSpeed(10);
     _prtcl->setSpeedVar(3);
     _prtcl->setAngleVar(180);
     _prtcl->setLife(3);
@@ -34,12 +34,12 @@ CustomUi::HoverEffectGUI::HoverEffectGUI()
     _prtcl->setStartSize(15);
     _prtcl->setStartSizeVar(10);
     _prtcl->setEndSize(0);
-    _prtcl->setEmissionRate(30);
+    _prtcl->setEmissionRate(100);
     _prtcl->setEmissionShapes(true);
     _prtcl->setBlendAdditive(true);
-    _prtcl->setFixedFPS(30);
     _prtcl->setPositionType(ax::ParticleSystem::PositionType::GROUPED);
     _prtcl->setVisible(false);
+    _prtcl->setTimeScale(5);
     _hoverSprite->addChild(_prtcl, 2);
 }
 

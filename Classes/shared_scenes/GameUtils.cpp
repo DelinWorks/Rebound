@@ -234,9 +234,10 @@ void GameUtils::setNodeIgnoreDesignScale___FUNCTIONAL(cocos2d::Node* node, bool 
 
 Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
 {
-    //Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualFrameSize = { 1920, 1080 };
     Size actualWinSize = { 1280, 720 };
+    Size wFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
+    if (wFrameSize.x + wFrameSize.y < 3000) actualWinSize *= 0.75;
     float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
     float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
 

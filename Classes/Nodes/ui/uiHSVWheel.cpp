@@ -161,11 +161,13 @@ bool CustomUi::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             auto c = Color4F(oldColor->getColor());
             c.a = oldColor->getOpacity() / 255.0;
             updateColorValues(c);
+            SignalHandeler::signalSceneRoot("tooltip_hsv_reset");
             return true;
         }
         if (opacity->press(mouseLocationInView, cam)) return true;
         if (wButton->hitTest(mouseLocationInView, cam, nullptr)
             && wButton->getWorldPosition().distance(mouseLocationInView) < 130 * getScale()) {
+            setForceRawInput(true);
             _pCurrentHeldItem = this;
         }
         return true;
@@ -177,6 +179,7 @@ bool CustomUi::HSVWheel::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (opacity->release(mouseLocationInView, cam)) return true;
     if (_pCurrentHeldItem == this) {
+        setForceRawInput(false);
         _pCurrentHeldItem = nullptr;
         return true;
     }

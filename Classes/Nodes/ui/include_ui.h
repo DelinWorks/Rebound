@@ -12,6 +12,9 @@
 #include "uiDiscardPanel.h"
 #include "uiImageView.h"
 #include "uiHSVWheel.h"
+#include "uiToolTip.h"
+#include "uiContainer4Edge.h"
+#include "uiTabs.h"
 
 #ifndef EXCLUDE_EXTENSIONS
 
@@ -89,6 +92,27 @@ namespace CustomUi {
             auto cont = CustomUi::Container::create();
             cont->addChild(g);
             return cont;
+        }
+
+        static CustomUi::Container* createFledgedHSVPanel() {
+            auto ns = GameUtils::getNodeIgnoreDesignScale();
+
+            auto container = CustomUi::Container::create();
+            container->setBorderLayout(LEFT);
+            container->setBorderLayoutAnchor(LEFT);
+            container->setLayout(FlowLayout(SORT_VERTICAL));
+            container->setBackgroundSprite();
+
+            auto hsv = CustomUi::HSVWheel::create();
+            hsv->updateColorValues(Color4F(1, 0, 1, 0.5));
+            container->addChild(hsv);
+
+            auto hsvcontrol = CustomUi::Container::create();
+            hsvcontrol->setStatic();
+            hsvcontrol->setConstraint(ContentSizeConstraint(hsv, ax::Vec2::ZERO, true));
+            container->addChild(hsvcontrol);
+
+            return container;
         }
     };
 }

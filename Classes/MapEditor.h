@@ -66,7 +66,10 @@ using namespace Math;
 
 using namespace TileSystem;
 
-class MapEditor : public ax::Scene, public SceneInputManager, public VirtualWorldManager
+class MapEditor : public ax::Scene,
+                  public SceneInputManager,
+                  public VirtualWorldManager,
+                  public CustomUi::SignalHandeler
 {
 public:
     static ax::Scene* createScene();
@@ -106,6 +109,7 @@ public:
     void onTouchMoved(ax::Touch* touch, ax::Event* event);
     void onTouchEnded(ax::Touch* touch, ax::Event* event);
     void onTouchCancelled(ax::Touch* touch, ax::Event* event);
+    void handleSignal(std::string signal);
     
     void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override;
 
@@ -182,8 +186,8 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
+    CustomUi::ToolTip* _editorToolTip;
     CustomUi::Label* _debugText;
-
     CustomUi::ImageView* _tilesetPicker;
 
     void setCameraScaleUiText(f32 scale);

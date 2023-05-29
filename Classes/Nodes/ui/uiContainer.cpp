@@ -8,8 +8,7 @@ CustomUi::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_
     setDynamic();
 }
 
-CustomUi::Container::~Container() {
-}
+CustomUi::Container::~Container() {}
 
 void CustomUi::Container::setBorderLayout(BorderLayout border, BorderContext context) {
     if (context == BorderContext::PARENT)
@@ -44,6 +43,12 @@ void CustomUi::Container::setConstraint(DependencyConstraint layout)
     _constraint = Constraint::CONSTRAINT_DEPENDENCY;
 }
 
+void CustomUi::Container::setConstraint(ContentSizeConstraint layout)
+{
+    _csConst = layout;
+    _constraint = Constraint::CONSTRAINT_CONTENTSIZE;
+}
+
 bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     _isHitSwallowed = false;
@@ -52,7 +57,7 @@ bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     {
         auto n = DCAST(GUI, list.at(i));
         if (n)
-            if (n->hover((_isHitSwallowed && _pCurrentHeldItem != n) ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
+            if (n->hover((_isHitSwallowed && _pCurrentHeldItem != n && !n->isForceRawInput()) ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
                 _isHitSwallowed = true;
     }
     if (_bgButton && !_isHitSwallowed) {
@@ -154,6 +159,10 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
     switch (_constraint) {
     case Constraint::CONSTRAINT_DEPENDENCY: {
         _depConst.build(this);
+        break;
+    }
+    case Constraint::CONSTRAINT_CONTENTSIZE: {
+        _csConst.build(this);
         break;
     }
     default:
@@ -321,13 +330,13 @@ void CustomUi::Container::addSpecialChild(CustomUi::GUI* gui)
     _allButtons.push_back(gui);
 }
 
-void CustomUi::Container::addChildAsContainer(CustomUi::GUI* gui) {
+CustomUi::Container* CustomUi::Container::addChildAsContainer(CustomUi::GUI* gui) {
     auto cont = CustomUi::Container::create();
-    cont->setBackgroundSprite();
     cont->setLayout(FlowLayout());
     cont->addChild(gui);
     cont->updateLayoutManagers();
     Node::addChild(cont);
+    return cont;
 }
 
 void CustomUi::Container::calculateContentBoundaries()
@@ -373,12 +382,12 @@ void CustomUi::Container::calculateContentBoundaries()
     }
 
     auto scaledMargin = ax::Vec2(
-        _margin.x * 2 * ns.x,
-        _margin.y * 2 * ns.y
+        _margin.x * 2,
+        _margin.y * 2
     );
 
     if (isContainerDynamic())
-        setContentSize(Math::getEven(Vec2(highestX * 2 + highestSize.x + scaledMargin.x, highestY * 2 + highestSize.y + scaledMargin.y)), false);
+        setContentSize(Math::getEven(Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x), abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
 
     if (_background)
         _background->setContentSize(getContentSize() + _backgroundPadding);
@@ -438,8 +447,8 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
 
 void CustomUi::DependencyConstraint::build(CustomUi::GUI* element)
 {
-    auto container = DCAST(Container, parent);
-    if (container) container->updateLayoutManagers();
+    //auto container = DCAST(Container, parent);
+    //if (container) container->updateLayoutManagers();
 
     Vec2 anchor = ax::Vec2::ZERO;
 
@@ -478,6 +487,12 @@ void CustomUi::DependencyConstraint::build(CustomUi::GUI* element)
         element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
     else
         element->setPosition(parent->getContentSize() * anchor);
+}
+
+void CustomUi::ContentSizeConstraint::build(CustomUi::GUI* element) {
+    if (element->isContainerDynamic()) return;
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    element->setContentSize(parent->getContentSize() * ns);
 }
 
 CustomUi::Separator* CustomUi::Separator::create(Vec2 size)
