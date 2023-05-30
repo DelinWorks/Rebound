@@ -19,7 +19,7 @@ using namespace ax;
 #define CONTAINER_CLOSE_TAG -69421
 #define GUI_ELEMENT_EXCLUDE -69422
 
-#define DRAW_NODE_DEBUG
+//#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
 
 #define IS_LOCATION_INVALID(L) (L.x == UINT16_MAX || L.y == UINT16_MAX)
@@ -165,9 +165,13 @@ namespace CustomUi
         void setForceRawInput(bool force) { _forceRawInput = force; }
         bool isForceRawInput() { return _forceRawInput; }
 
+        void disableArtMul() { _iconArtMulEnabled = false; }
+
         virtual Size getFitContentSize();
 
     protected:
+        float _pretextIconScaling = 0.75 * 0.5;
+        bool _iconArtMulEnabled = true;
         bool _forceRawInput = false;
         bool _rescalingAllowed = true;
         bool _isInternalEnabled = true;

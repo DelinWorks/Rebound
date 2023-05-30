@@ -47,7 +47,7 @@ void Darkness::init()
     server_path = "https://delingames.xyz/";
 
     {
-        gameWindow.isFullscreen = false;
+        gameWindow.isFullscreen = true;
         gameWindow.isScreenSizeDirty = false;
         gameWindow.isCursorLockedToWindow = true;
         gameWindow.isAllowedToLeave = false;

@@ -37,18 +37,18 @@ void CustomUi::ToolTip::update(f32 dt)
     Vec2 curPos = position;
     curPos.x = LERP(curPos.x, clampedMousePos.x, 15 * dt);
     curPos.y = LERP(curPos.y, clampedMousePos.y, 15 * dt);
-    //auto angle = Vec2(curPos.x, 1280).getAngle(Vec2(clampedMousePos.x, 1280));
-    //float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 2));
-    //rotation = LERP(rotation, curRotation, 5 * dt);
-    //rotation = Math::clamp(rotation, -45, 45);
-    //setRotation(rotation);
+    auto angle = Vec2(curPos.x + curPos.y * 2, 1280).getAngle(Vec2(clampedMousePos.x + clampedMousePos.y * 2, 1280));
+    float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 12));
+    rotation = LERP(rotation, curRotation, 8 * dt);
+    rotation = Math::clamp(rotation, -70, 70);
+    setRotation(rotation);
     setPosition(clampedMousePos);
     position = curPos;
 }
 
 bool CustomUi::ToolTip::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
-	mousePos = mouseLocationInView - Director::getInstance()->getVisibleSize() / 2 - Vec2(0, 30);
+	mousePos = mouseLocationInView - Director::getInstance()->getVisibleSize() / 2 - Vec2(0, 31);
 	return false;
 }
 

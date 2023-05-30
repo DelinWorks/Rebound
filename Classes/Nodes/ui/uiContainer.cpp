@@ -387,7 +387,7 @@ void CustomUi::Container::calculateContentBoundaries()
     );
 
     if (isContainerDynamic())
-        setContentSize(Math::getEven(Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x), abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
+        setContentSize((Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x), abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
 
     if (_background)
         _background->setContentSize(getContentSize() + _backgroundPadding);
@@ -432,13 +432,15 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
             if (sort == SORT_HORIZONTAL) {
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
                 cSize.x += _spacing.x;
-                _->setPositionX((cumSize * ns.x + marginF));
+                auto r = cumSize * ns.x + marginF;
+                _->setPositionX(!_->_iconArtMulEnabled ? Math::getEven(r) : r);
                 cumSize += cSize.x / (direction == STACK_LEFT ? -2 : 2);
             }
             else if (sort == SORT_VERTICAL) {
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
                 cSize.y += _spacing.y;
-                _->setPositionY((cumSize * ns.y + marginF));
+                auto r = cumSize * ns.y + marginF;
+                _->setPositionY(!_->_iconArtMulEnabled ? Math::getEven(r) : r);
                 cumSize += cSize.y / (direction == STACK_BOTTOM ? -2 : 2);
             }
         }

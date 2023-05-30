@@ -1068,8 +1068,12 @@ void MapEditor::buildEntireUi()
 
     auto tabs = CustomUi::Tabs::create({ 200, 20 });
     container->addChild(tabs);
-    tabs->addElement(L"Tileset1");
-    tabs->addElement(L"Tileset2");
+    tabs->addElement(L"Dirt Tileset");
+    tabs->addElement(L"Grass Tileset");
+    tabs->addElement(L"Colorful Tileset");
+    tabs->addElement(L"Mundane Tileset");
+    tabs->addElement(L"Tileset 11");
+    tabs->addElement(L"Test1");
 
     container->addChild(CustomUi::Functions::createFledgedHSVPanel());
 
@@ -1099,16 +1103,18 @@ void MapEditor::buildEntireUi()
     topRightContainer->addChild(menuContainer);
     menuContainer->setBackgroundBlocking();
 
-    auto padding = Size(2, 10);
+    auto padding = Size(28, 20);
     auto hpadding = Size(3, 20);
 
     auto fileB = CustomUi::Button::create();
-    fileB->init(L"File", TTFFS, ax::Vec2::ZERO, hpadding);
+    fileB->initIcon("pretext_file", hpadding);
+    fileB->disableArtMul();
     fileB->setUiPadding(padding);
     menuContainer->addChild(fileB);
 
     auto editB = CustomUi::Button::create();
-    editB->init(L"Edit", TTFFS, ax::Vec2::ZERO, hpadding);
+    editB->initIcon("pretext_edit", hpadding);
+    editB->disableArtMul();
     editB->setUiPadding(padding);
     menuContainer->addChild(editB);
 
@@ -1246,7 +1252,8 @@ void MapEditor::buildEntireUi()
     };
 
     auto settingsB = CustomUi::Button::create();
-    settingsB->init(L"Menu", TTFFS, ax::Vec2::ZERO, hpadding);
+    settingsB->initIcon("pretext_menu", hpadding);
+    settingsB->disableArtMul();
     settingsB->setUiPadding(padding);
     menuContainer->addChild(settingsB);
 
@@ -1479,7 +1486,7 @@ void MapEditor::buildEntireUi()
     auto vis = Director::getInstance()->getVisibleSize();
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
     extContainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["edit_container"],
-        BOTTOM_LEFT, { -0.02, -0.05 }));
+        BOTTOM_LEFT, { -0.02, 0 }));
     extContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0));
     extContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
@@ -1813,5 +1820,5 @@ GameUtils::Editor::UndoRedoState& MapEditor::editorUndoTopOrDummy()
 void MapEditor::handleSignal(std::string signal)
 {
     if (signal == "tooltip_hsv_reset")
-        _editorToolTip->showToolTip(L"HSV color reset.", 1);
+        _editorToolTip->showToolTip(L"HSV color reset.", FLT_MAX);
 }

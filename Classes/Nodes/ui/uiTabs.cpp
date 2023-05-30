@@ -10,7 +10,7 @@ CustomUi::Tabs::Tabs(Vec2 _prefferedSize)
     prefferedSize = _prefferedSize;
     setContentSize(_prefferedSize);
 
-    elementCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT));
+    elementCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 0, 0, false));
     elementCont->setConstraint(DependencyConstraint(this, LEFT));
     addChild(elementCont);
 
@@ -20,11 +20,25 @@ CustomUi::Tabs::Tabs(Vec2 _prefferedSize)
     setChildRight(scrollCont);
 
     auto rightB = CustomUi::Button::create();
-    rightB->initIcon("editor_arrow_right");
+    rightB->initIcon("editor_arrow_right", {2, 5});
+    rightB->_callback = [&](Button* target) {
+        Vec2 pos = ePos - Vec2(elementCont->getChildren().at(0)->getContentSize().x / 2, 0);
+        pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+        ePos = pos;
+        elementCont->stopAllActions();
+        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
+    };
     scrollCont->addChild(rightB);
 
     auto leftB = CustomUi::Button::create();
-    leftB->initIcon("editor_arrow_left");
+    leftB->initIcon("editor_arrow_left", {2, 5});
+    leftB->_callback = [&](Button* target) {
+        Vec2 pos = ePos + Vec2(elementCont->getChildren().at(0)->getContentSize().x / 2, 0);
+        pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+        ePos = pos;
+        elementCont->stopAllActions();
+        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
+    };
     scrollCont->addChild(leftB);
 }
 
@@ -55,6 +69,7 @@ void CustomUi::Tabs::updateLayoutManagers(bool recursive)
 {
     Container::updateLayoutManagers();
     elementCont->updateLayoutManagers();
+    ePos = elementCont->getPosition();
 }
 
 void CustomUi::Tabs::addElement(std::wstring e)

@@ -73,6 +73,7 @@ namespace CustomUi
         void enableIconHighlight();
         void disableIconHighlight();
 
+
         void onFontScaleUpdate(float scale) override;
     };
 }

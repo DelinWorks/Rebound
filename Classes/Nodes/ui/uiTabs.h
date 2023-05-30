@@ -17,6 +17,7 @@ namespace CustomUi
 
     private:
         Container* elementCont;
+        Vec2 ePos;
         Container* scrollCont;
         Vec2 prefferedSize;
         bool isScaled = false;

@@ -99,7 +99,7 @@ void UiRescaleComponent::windowSizeChange(Size newVisibleSize) {
     auto repositionNode = [&](Node* target) {
         auto newPos = Vec2(_resizeHintsRect.origin.x == 0 ? 0 : newVisibleSize.width / _resizeHintsRect.origin.x + _resizeHintsRect.size.width,
             _resizeHintsRect.origin.y == 0 ? 0 : newVisibleSize.height / _resizeHintsRect.origin.y + _resizeHintsRect.size.height);
-        target->setPosition(Vec2(round(newPos.x), round(newPos.y)));
+        target->setPosition(Vec2(newPos.x, newPos.y));
     };
 
     if (_setLayerColor)

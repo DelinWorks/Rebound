@@ -765,7 +765,7 @@ typedef u32 TileID;
                 // *  0  0  0  1
 
                 _->visit(renderer, transform, parentFlags);
-                (*renderCount)++;
+                //(*renderCount)++;
                 _chunkDirty = false;
             }
             _tilesetArr->retainedChunksI--;

@@ -113,7 +113,7 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
     }
     else
-        button->setContentSize((icon->getContentSize() + getUiPadding() / 2 + hitboxpadding) * _PxArtMultiplier);
+        button->setContentSize((icon->getContentSize() + getUiPadding() / 2 + hitboxpadding) * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling));
 
     if (isEnabled())
     {
@@ -218,7 +218,7 @@ bool CustomUi::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 
 Size CustomUi::Button::getDynamicContentSize()
 {
-    return sprite ? sprite->getContentSize() : (icon->getContentSize() * _PxArtMultiplier + clampoffset);
+    return sprite ? sprite->getContentSize() : (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
 }
 
 Size CustomUi::Button::getFitContentSize()
@@ -251,5 +251,5 @@ void CustomUi::Button::onFontScaleUpdate(float scale)
             field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
         field->getFontAtlas()->setAliasTexParameters();
     }
-    else icon->setScale(/*1.0 / scale * */_PxArtMultiplier);
+    else icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);
 }
