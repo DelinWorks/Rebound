@@ -33,7 +33,7 @@ public:
 
     ax::Vec2 _mouseLocationInViewNoScene;
 
-    CustomUi::Container* _uiContainer = nullptr;
+    CUI::Container* _uiContainer = nullptr;
 
     SceneInputManagerComponent();
 
@@ -72,7 +72,7 @@ class SceneInputManager {
 public:
     SceneInputManagerComponent* _input;
 
-    CustomUi::Container* getContainer();
+    CUI::Container* getContainer();
 };
 
 #endif

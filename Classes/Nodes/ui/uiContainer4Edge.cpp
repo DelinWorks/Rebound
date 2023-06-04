@@ -1,15 +1,15 @@
 #include "uiContainer4Edge.h"
 
-CustomUi::Container4Edge::Container4Edge()
+CUI::Container4Edge::Container4Edge()
 {
 }
 
-CustomUi::Container4Edge* CustomUi::Container4Edge::create(Vec2 _prefferedSize)
+CUI::Container4Edge* CUI::Container4Edge::create(Vec2 _prefferedSize)
 {
     Container4Edge* ref = new Container4Edge();
     if (ref->init())
     {
-        ref->prefferedSize = _prefferedSize;
+        ref->_prefferedSize = _prefferedSize;
         ref->setContentSize(_prefferedSize);
         ref->autorelease();
     }
@@ -20,7 +20,7 @@ CustomUi::Container4Edge* CustomUi::Container4Edge::create(Vec2 _prefferedSize)
     return ref;
 }
 
-void CustomUi::Container4Edge::setChildTop(CustomUi::GUI* gui)
+void CUI::Container4Edge::setChildTop(CUI::GUI* gui)
 {
     if (top) top->removeFromParent();
     addChild(gui);
@@ -29,7 +29,7 @@ void CustomUi::Container4Edge::setChildTop(CustomUi::GUI* gui)
     top->setConstraint(DependencyConstraint(this, TOP));
 }
 
-void CustomUi::Container4Edge::setChildBottom(CustomUi::GUI* gui)
+void CUI::Container4Edge::setChildBottom(CUI::GUI* gui)
 {
     if (bottom) bottom->removeFromParent();
     addChild(gui);
@@ -38,32 +38,32 @@ void CustomUi::Container4Edge::setChildBottom(CustomUi::GUI* gui)
     bottom->setConstraint(DependencyConstraint(this, BOTTOM));
 }
 
-void CustomUi::Container4Edge::setChildRight(CustomUi::GUI* gui)
+void CUI::Container4Edge::setChildRight(CUI::GUI* gui)
 {
     if (right) right->removeFromParent();
     addChild(gui);
     right = (Container*)gui;
-    right->setBorderLayoutAnchor(RIGHT);
+    right->setBorderLayoutAnchor(LEFT);
     right->setConstraint(DependencyConstraint(this, RIGHT));
 }
 
-void CustomUi::Container4Edge::setChildLeft(CustomUi::GUI* gui)
+void CUI::Container4Edge::setChildLeft(CUI::GUI* gui)
 {
     if (left) left->removeFromParent();
     addChild(gui);
     left = (Container*)gui;
-    left->setBorderLayoutAnchor(LEFT);
+    left->setBorderLayoutAnchor(RIGHT);
     left->setConstraint(DependencyConstraint(this, LEFT));
 }
 
-void CustomUi::Container4Edge::calculateContentBoundaries()
+void CUI::Container4Edge::calculateContentBoundaries()
 {
-    Vec2 size = prefferedSize;
+    Vec2 size = _prefferedSize;
 
-    size.x -= left ? left->getContentSize().x : 0;
-    size.x -= right ? right->getContentSize().x : 0;
-    size.y -= top ? top->getContentSize().y : 0;
-    size.y -= bottom ? bottom->getContentSize().y : 0;
+    size.x -= left ? left->getContentSize().x * 2 : 0;
+    size.x -= right ? right->getContentSize().x * 2 : 0;
+    size.y -= top ? top->getContentSize().y * 2 : 0;
+    size.y -= bottom ? bottom->getContentSize().y * 2 : 0;
 
     if (top && size.x < top->getContentSize().x) size.x = top->getContentSize().x;
     if (bottom && size.x < bottom->getContentSize().x) size.x = bottom->getContentSize().x;
@@ -72,9 +72,10 @@ void CustomUi::Container4Edge::calculateContentBoundaries()
     if (left && size.y < left->getContentSize().y) size.y = left->getContentSize().y;
 
     setContentSize(size);
+    Container::recalculateChildDimensions();
 }
 
-void CustomUi::Container4Edge::updateLayoutManagers(bool recursive)
+void CUI::Container4Edge::updateLayoutManagers(bool recursive)
 {
     calculateContentBoundaries();
     if (top) top->updateLayoutManagers();

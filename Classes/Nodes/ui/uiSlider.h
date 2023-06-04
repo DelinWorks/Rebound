@@ -14,14 +14,14 @@ USING_NS_CC;
 
 #define SLIDER_HITBOX_CORNER_TOLERANCE Size(12, 20)
 
-namespace CustomUi
+namespace CUI
 {
     class Slider;
     using SliderCallback = std::function<void(float p, Slider* target)>;
 
     class Slider : public HoverEffectGUI {
     public:
-        static CustomUi::Slider* create();
+        static CUI::Slider* create();
 
         ui::Button* button;
         ui::Slider* slider;
@@ -33,7 +33,7 @@ namespace CustomUi
         float currentValue;
         SliderCallback _callback;
         
-        void setValue(float v);
+        void setValue(float v, bool call = true);
 
         void init(Size _contentsize = ax::Size::ZERO);
 

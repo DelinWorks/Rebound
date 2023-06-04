@@ -16,14 +16,14 @@ USING_NS_CC;
 
 #define SLIDER_HITBOX_CORNER_TOLERANCE Size(12, 20)
 
-namespace CustomUi
+namespace CUI
 {
     class Toggle;
     using ToggleCallback = std::function<void(bool t, Toggle* target)>;
 
     class Toggle : public HoverEffectGUI {
     public:
-        static CustomUi::Toggle* create();
+        static CUI::Toggle* create();
 
         Container* cont;
         ui::Button* button;

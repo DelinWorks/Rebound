@@ -12,16 +12,14 @@ USING_NS_CC;
 #define BUTTON_P1_CLAMP_REGION Rect(380, 40, visibleSize.width + getWinDiff().width, 40)
 #define BUTTON_P1_CLAMP_OFFSET Size(30, 0)
 
-#define BUTTON_HITBOX_CORNER_TOLERANCE Size(3, 3)
-
-namespace CustomUi
+namespace CUI
 {
     class Button;
     using ButtonCallback = std::function<void(Button* target)>;
 
     class Button : public HoverEffectGUI {
     public:
-        static CustomUi::Button* create();
+        static CUI::Button* create();
 
         UiFontDescriptor desc;
         ax::Label* field;

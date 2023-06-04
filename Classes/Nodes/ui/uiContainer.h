@@ -17,8 +17,9 @@
 #define ADVANCEDUI_TEXTURE_INV "9_slice_box_1_inv"sv
 #define ADVANCEDUI_TEXTURE_GRAY "9_slice_box_1_gray"sv
 #define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped"sv
+#define ADVANCEDUI_TEXTURE_CRAMPED2 "9_slice_box_1_cramped2"sv
 
-namespace CustomUi
+namespace CUI
 {
     enum Layout : u8 {
         LAYOUT_NONE = 0,
@@ -58,7 +59,7 @@ namespace CustomUi
         float margin;
         bool reverseStack;
 
-        void build(CustomUi::Container* container);
+        void build(CUI::Container* container);
     };
 
     class DependencyConstraint {
@@ -72,18 +73,20 @@ namespace CustomUi
         bool worldPos;
         Vec2 worldPosOffset;
 
-        void build(CustomUi::GUI* element);
+        void build(CUI::GUI* element);
     };
 
     class ContentSizeConstraint {
     public:
-        ContentSizeConstraint(GUI* _parent = nullptr, Vec2 _offset = ax::Vec2::ZERO, bool _scale = false)
-            : parent(_parent), offset(_offset), scale(_scale) { }
+        ContentSizeConstraint(GUI* _parent = nullptr, Vec2 _offset = ax::Vec2::ZERO, bool _scale = false, bool _lockX = false, bool _lockY = false)
+            : parent(_parent), offset(_offset), scale(_scale), lockX(_lockX), lockY(_lockY) { }
         GUI* parent;
         Vec2 offset;
         bool scale;
+        bool lockX;
+        bool lockY;
 
-        void build(CustomUi::GUI* element);
+        void build(CUI::GUI* element);
     };
 
     enum BgSpriteType {
@@ -99,7 +102,7 @@ namespace CustomUi
         
         ~Container();
 
-        static CustomUi::Container* create();
+        static CUI::Container* create();
 
         void setLayout(FlowLayout layout);
         void setConstraint(DependencyConstraint layout);
@@ -110,11 +113,14 @@ namespace CustomUi
 
         void setBackgroundSprite(ax::Vec2 padding = {0, 0}, BgSpriteType type = BgSpriteType::BG_NORMAL);
         void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
+        void setBackgroundSpriteCramped2(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
         void setBackgroundDim();
 
         void setBlocking();
         void setDismissible();
         void setBackgroundBlocking();
+        void setElementBlocking();
+        void setSelfHover();
 
         void notifyLayout() override;
 
@@ -153,17 +159,21 @@ namespace CustomUi
         void onEnable();
         void onDisable();
 
-        void addSpecialChild(CustomUi::GUI* gui);
-        CustomUi::Container* addChildAsContainer(CustomUi::GUI* gui);
+        void addSpecialChild(CUI::GUI* gui);
+        CUI::Container* addChildAsContainer(CUI::GUI* gui);
+
+        void recalculateChildDimensions();
 
         ui::Button* _bgButton = nullptr;
         ax::ui::Scale9Sprite* _background = nullptr;
         ax::LayerColor* _bgDim= nullptr;
         ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
         bool _closestStaticBorder = false;
-        std::vector<CustomUi::GUI*> _allButtons;
+        std::vector<CUI::GUI*> _allButtons;
 
     protected:
+        bool _isSelfHover = false;
+        bool _isElementBlocking = false;
         bool _isBlocking = false;
         bool _isDismissible = false;
         bool _isMinimized = true;
@@ -179,5 +189,20 @@ namespace CustomUi
     class Separator : public GUI {
     public:
         static Separator* create(ax::Vec2 size);
+    };
+
+    class EventPassClippingNode : public GUI {
+    public:
+        static EventPassClippingNode* create(Container* _child);
+        Container* child;
+        ax::ClippingRectangleNode* clip = nullptr;
+        void setClipRegion(ax::Rect r);
+
+        virtual bool hover(Vec2 mouseLocationInView, Camera* cam);
+        virtual bool press(Vec2 mouseLocationInView, Camera* cam);
+        virtual bool release(Vec2 mouseLocationInView, Camera* cam);
+        virtual void keyPress(EventKeyboard::KeyCode keyCode);
+        virtual void keyRelease(EventKeyboard::KeyCode keyCode);
+        virtual void mouseScroll(EventMouse* event);
     };
 }

@@ -13,11 +13,14 @@ USING_NS_CC;
 #define TEXTFIELD_P1_CLAMP_REGION Rect(380, 40, visibleSize.width + getWinDiff().width, 40)
 #define TEXTFIELD_P1_CLAMP_OFFSET Size(30, 0)
 
-namespace CustomUi
+namespace CUI
 {
+    class TextField;
+    using TextFieldCallback = std::function<void(TextField* target)>;
+
     class TextField : public HoverEffectGUI {
     public:
-        static CustomUi::TextField* create();
+        static CUI::TextField* create();
 
         UiFontDescriptor desc;
         ui::TextField* field;
@@ -41,6 +44,9 @@ namespace CustomUi
         std::string allowedChars = "";
         bool password = false;
         bool show_password = false;
+        bool remove_zeros = true;
+
+        TextFieldCallback _callback;
 
         void init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv);
 
@@ -72,6 +78,11 @@ namespace CustomUi
         Size getDynamicContentSize();
 
         void onFontScaleUpdate(float scale) override;
+
+        void setStyleDotted();
+
+        void setString(std::string _text);
+        void setString(std::wstring _text);
     };
 }
 

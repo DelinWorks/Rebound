@@ -175,8 +175,9 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         _newMouseLocation = _mouseLocation;
         _mouseLocationDelta = _oldMouseLocation - _newMouseLocation;
         _mouseLocationInView = e->getLocationInView();
+        CUI::_savedLocationInView = _mouseLocationInView;
 
-        //if (CustomUi::_pCurrentHoveredItem)
+        //if (CUI::_pCurrentHoveredItem)
         //    Darkness::getInstance()->setCursorHand();
         //else
         //    Darkness::getInstance()->setCursorNormal();
@@ -188,8 +189,10 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     };
 
     auto _onMouseScrollCheck = [&](EventMouse* event) {
-        _uiContainer->mouseScroll(event);
-        if (_uiContainer) if (_uiContainer->blockMouse() || _uiContainer->blockKeyboard()) return;
+        if (_uiContainer) {
+            _uiContainer->mouseScroll(event);
+            if (_uiContainer->blockMouse() || _uiContainer->blockKeyboard()) return;
+        }
 
         onMouseScroll(event);
     };
@@ -227,7 +230,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::attachSceneGraph(Node* o
     return this;
 }
 
-CustomUi::Container* SceneInputManager::getContainer()
+CUI::Container* SceneInputManager::getContainer()
 {
     return _input->_uiContainer;
 }

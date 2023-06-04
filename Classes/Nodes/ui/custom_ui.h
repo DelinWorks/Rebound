@@ -22,12 +22,14 @@ using namespace ax;
 //#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
 
-#define IS_LOCATION_INVALID(L) (L.x == UINT16_MAX || L.y == UINT16_MAX)
-#define INVALID_LOCATION Vec2(UINT16_MAX, UINT16_MAX)
+#define IS_LOCATION_INVALID(L) (L.x == INT16_MAX || L.y == INT16_MAX)
+#define INVALID_LOCATION Vec2(INT16_MAX, INT16_MAX)
 
-#define TTFFS CustomUi::_TTFFontSize
+#define TTFFS CUI::_TTFFontSize
 
-namespace CustomUi
+#define BUTTON_HITBOX_CORNER_TOLERANCE Size(3, 3)
+
+namespace CUI
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
 
@@ -43,12 +45,15 @@ namespace CustomUi
     inline std::stack<GUI*> _modalStack;
     inline GUI* _pCurrentHeldItem = nullptr;
     inline GUI* _pCurrentHoveredItem = nullptr;
+    inline ax::backend::ProgramState* _pHoverShader = nullptr;
 
     inline bool _doNotShowWin32 = false;
 
     inline std::map<std::string, GUI*> callbackAccess;
 
     inline ax::backend::ProgramState* _backgroundShader;
+
+    inline ax::Vec2 _savedLocationInView;
 
     struct UiFontDescriptor {
         std::string fontName;
@@ -126,8 +131,8 @@ namespace CustomUi
         bool isEnabled();
         bool isInternalEnabled();
 
-        void enable();
-        void disable();
+        void enable(bool show = false);
+        void disable(bool hide = false);
 
         virtual void onEnable();
         virtual void onDisable();
@@ -169,6 +174,8 @@ namespace CustomUi
 
         virtual Size getFitContentSize();
 
+        virtual const Size& getPrefferedContentSize() const;
+
     protected:
         float _pretextIconScaling = 0.75 * 0.5;
         bool _iconArtMulEnabled = true;
@@ -178,6 +185,7 @@ namespace CustomUi
         bool _isEnabledState = true;
         DrawNode* _contentSizeDebug;
 
+        ax::Vec2 _prefferedSize = ax::Vec2::ZERO;
         ax::Vec2 _anchorOffset = ax::Vec2::ONE;
         ax::Vec2 _anchorPoint;
         ax::Vec2 _padding = Vec2::ZERO;

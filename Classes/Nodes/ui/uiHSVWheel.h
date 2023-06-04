@@ -9,14 +9,14 @@
 
 USING_NS_CC;
 
-namespace CustomUi
+namespace CUI
 {
     class HSVWheel;
-    using HSVWheelCallback = std::function<void(ax::HSV hsv, HSVWheel* target)>;
+    using HSVWheelCallback = std::function<void(const ax::HSV& hsv, HSVWheel* target)>;
 
     class HSVWheel : public GUI {
     public:
-        static CustomUi::HSVWheel* create(float scale = 1.0);
+        static CUI::HSVWheel* create(float scale = 1.0);
 
         ui::Button* button;
         ui::Button* resetButton;
@@ -36,6 +36,8 @@ namespace CustomUi
         ax::HSV sqHsv;
 
         Slider* opacity;
+
+        HSVWheelCallback _callback;
 
         bool isPickingWheel = false;
         bool isPickingSquare = false;

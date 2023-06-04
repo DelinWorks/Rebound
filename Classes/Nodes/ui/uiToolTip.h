@@ -5,13 +5,13 @@
 #include "uiContainer.h"
 #include "uiLabel.h"
 
-namespace CustomUi
+namespace CUI
 {
     class ToolTip : public Container {
     public:
         ToolTip();
 
-        static CustomUi::ToolTip* create();
+        static CUI::ToolTip* create();
 
         void update(f32 dt);
 
@@ -19,7 +19,7 @@ namespace CustomUi
 
         void showToolTip(std::wstring tooltip, float time_override = -1);
 
-        CustomUi::Label* label;
+        CUI::Label* label;
 
         Vec2 position;
         float rotation = 0.0;

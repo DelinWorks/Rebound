@@ -69,7 +69,7 @@ using namespace TileSystem;
 class MapEditor : public ax::Scene,
                   public SceneInputManager,
                   public VirtualWorldManager,
-                  public CustomUi::SignalHandeler
+                  public CUI::SignalHandeler
 {
 public:
     static ax::Scene* createScene();
@@ -142,8 +142,8 @@ public:
     f32 cameraScale;
     i32 cameraScaleIndex = 10;
     f32 possibleCameraScales[19] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
-    CustomUi::Button* cameraScaleB;
-    CustomUi::Label* cameraScaleL;
+    CUI::Button* cameraScaleB;
+    CUI::Label* cameraScaleL;
 
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;
@@ -186,9 +186,9 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
-    CustomUi::ToolTip* _editorToolTip;
-    CustomUi::Label* _debugText;
-    CustomUi::ImageView* _tilesetPicker;
+    CUI::ToolTip* _editorToolTip;
+    CUI::Label* _debugText;
+    CUI::ImageView* _tilesetPicker;
 
     void setCameraScaleUiText(f32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
@@ -196,12 +196,13 @@ public:
     Rect editorWASDCamMoveRect;
 
     bool isCtrlPressed = false;
+    bool isShiftPressed = false;
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _undo;
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
 
-    CustomUi::Button* tileFlipH;
-    CustomUi::Button* tileFlipV;
-    CustomUi::Button* tileRot90;
+    CUI::Button* tileFlipH;
+    CUI::Button* tileFlipV;
+    CUI::Button* tileRot90;
     void editorTileFlipRotateUpdateState();
 
     void editorUndoRedoMax(int m);
@@ -209,9 +210,9 @@ public:
     void editorUndo();
     void editorRedo();
     void editorPushUndoState();
-    GameUtils::Editor::UndoRedoState& editorUndoTopOrDummy();
-    CustomUi::Button* undoB;
-    CustomUi::Button* redoB;
+    GameUtils::Editor::UndoRedoState& editorTopUndoStateOrDefault();
+    CUI::Button* undoB;
+    CUI::Button* redoB;
 };
 
 #endif

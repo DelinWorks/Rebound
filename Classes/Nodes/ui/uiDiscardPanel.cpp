@@ -2,9 +2,9 @@
 #include "2d/CCTweenFunction.h"
 #include <regex>
 
-CustomUi::DiscardPanel* CustomUi::DiscardPanel::create(BorderLayout border, BorderContext context)
+CUI::DiscardPanel* CUI::DiscardPanel::create(BorderLayout border, BorderContext context)
 {
-    CustomUi::DiscardPanel* ret = new CustomUi::DiscardPanel();
+    CUI::DiscardPanel* ret = new CUI::DiscardPanel();
     if (((Node*)ret)->init())
     {
         ret->setBorderLayout(border, context);
@@ -18,15 +18,15 @@ CustomUi::DiscardPanel* CustomUi::DiscardPanel::create(BorderLayout border, Bord
     return ret;
 }
 
-void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring& placeholder_or_text, DiscardButtons buttons, DiscardType type)
+void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& placeholder_or_text, DiscardButtons buttons, DiscardType type)
 {
     setBackgroundDim();
 
-    stack = CustomUi::Container::create();
+    stack = CUI::Container::create();
     stack->setBorderLayout(BorderLayout::CENTER, BorderContext::SCREEN_SPACE);
-    stack->setLayout(CustomUi::FlowLayout(
-        CustomUi::FlowLayoutSort::SORT_VERTICAL,
-        CustomUi::FlowLayoutDirection::STACK_CENTER,
+    stack->setLayout(CUI::FlowLayout(
+        CUI::FlowLayoutSort::SORT_VERTICAL,
+        CUI::FlowLayoutDirection::STACK_CENTER,
         10
     ));
     stack->setBorderLayoutAnchor();
@@ -40,37 +40,37 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
     stack->setScale(0);
     stack->runAction(EaseSineOut::create(ScaleTo::create(0.08, 1)));
 
-    auto label = CustomUi::Label::create();
+    auto label = CUI::Label::create();
     label->init(header, 16 * (type == DiscardType::INPUT ? 2 : 1));
     //label->_padding = { 100, 0 };
     stack->addChild(TO_CONTAINER(label));
 
-    //auto separator = CustomUi::Separator::create({0, 0});
+    //auto separator = CUI::Separator::create({0, 0});
     //stack->addChild(TO_CONTAINER(separator));
 
     if (type == DiscardType::INPUT) {
-        auto textField = CustomUi::TextField::create();
+        auto textField = CUI::TextField::create();
         textField->init(placeholder_or_text, 16, { 200, 40 });
         stack->addChild(TO_CONTAINER(textField));
     }
     else {
-        auto text = CustomUi::Label::create();
+        auto text = CUI::Label::create();
         text->init(placeholder_or_text, 16 * 1, { 0, 0 }, 0);
         text->hAlignment = ax::TextHAlignment::CENTER;
         stack->addChild(TO_CONTAINER(text));
     }
 
-    auto buttonStack = CustomUi::Container::create();
-    buttonStack->setLayout(CustomUi::FlowLayout(
-        CustomUi::FlowLayoutSort::SORT_HORIZONTAL,
-        CustomUi::FlowLayoutDirection::STACK_CENTER,
+    auto buttonStack = CUI::Container::create();
+    buttonStack->setLayout(CUI::FlowLayout(
+        CUI::FlowLayoutSort::SORT_HORIZONTAL,
+        CUI::FlowLayoutDirection::STACK_CENTER,
         100
     ));
 
-    //separator = CustomUi::Separator::create({ 0, 10 });
+    //separator = CUI::Separator::create({ 0, 10 });
     //stack->addChild(TO_CONTAINER(separator));
 
-    discardCallback = [&](CustomUi::Button* target)
+    discardCallback = [&](CUI::Button* target)
     {
         Modal::popSelf();
 
@@ -92,7 +92,7 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
         (buttons == DiscardButtons::YES_NO) ? L"NO" :
         (buttons == DiscardButtons::SUBMIT_CANCEL ? L"CANCEL" : L"OKAY"));
 
-    auto cancel = CustomUi::Button::create();
+    auto cancel = CUI::Button::create();
     cancel->init(cancelText, 16);
     buttonStack->addChild(cancel);
 
@@ -103,7 +103,7 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
             (buttons == DiscardButtons::YES_NO) ? L"YES" :
             (buttons == DiscardButtons::SUBMIT_CANCEL ? L"SUBMIT" : L""));
 
-        auto okay = eventButton = CustomUi::Button::create();
+        auto okay = eventButton = CUI::Button::create();
         okay->init(okayText, 16);
         buttonStack->addChild(okay);
     }
@@ -111,7 +111,7 @@ void CustomUi::DiscardPanel::init(const std::wstring& header, const std::wstring
     stack->addChild(TO_CONTAINER(buttonStack));
 }
 
-bool CustomUi::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     if (_modalStack.size() == 0) // Object was popped before
         return false;
@@ -124,13 +124,13 @@ bool CustomUi::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::C
     else return false;
 }
 
-bool CustomUi::DiscardPanel::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::DiscardPanel::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     Container::press(mouseLocationInView, cam);
     return true;
 }
 
-void CustomUi::DiscardPanel::keyPress(EventKeyboard::KeyCode keyCode)
+void CUI::DiscardPanel::keyPress(EventKeyboard::KeyCode keyCode)
 {
     if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
         discardCallback(nullptr);
@@ -141,15 +141,15 @@ void CustomUi::DiscardPanel::keyPress(EventKeyboard::KeyCode keyCode)
     }
 }
 
-void CustomUi::DiscardPanel::keyRelease(EventKeyboard::KeyCode keyCode)
+void CUI::DiscardPanel::keyRelease(EventKeyboard::KeyCode keyCode)
 {
 }
 
-void CustomUi::DiscardPanel::update(f32 dt)
+void CUI::DiscardPanel::update(f32 dt)
 {
 }
 
-Size CustomUi::DiscardPanel::getDynamicContentSize()
+Size CUI::DiscardPanel::getDynamicContentSize()
 {
     return Size(0, 0);
 }

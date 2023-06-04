@@ -126,7 +126,7 @@
       }
     },
     {
-      "filename": "9_slice_box_1_gray",
+      "filename": "9_slice_box_1",
       "frame": {
         "x": 115,
         "y": 269,
@@ -151,7 +151,32 @@
       }
     },
     {
-      "filename": "9_slice_box_1_inv",
+      "filename": "9_slice_box_1_cramped2",
+      "frame": {
+        "x": 83,
+        "y": 276,
+        "w": 28,
+        "h": 14
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 28,
+        "h": 14
+      },
+      "sourceSize": {
+        "w": 28,
+        "h": 14
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "9_slice_box_1_gray",
       "frame": {
         "x": 145,
         "y": 259,
@@ -226,7 +251,7 @@
       }
     },
     {
-      "filename": "9_slice_box_1",
+      "filename": "9_slice_box_1_inv",
       "frame": {
         "x": 235,
         "y": 259,
@@ -278,8 +303,8 @@
     {
       "filename": "toggle_non",
       "frame": {
-        "x": 83,
-        "y": 276,
+        "x": 277,
+        "y": 259,
         "w": 17,
         "h": 17
       },
@@ -304,7 +329,7 @@
       "filename": "toggle_selected",
       "frame": {
         "x": 277,
-        "y": 259,
+        "y": 278,
         "w": 17,
         "h": 17
       },
@@ -328,8 +353,8 @@
     {
       "filename": "hsv_handle",
       "frame": {
-        "x": 265,
-        "y": 285,
+        "x": 296,
+        "y": 259,
         "w": 14,
         "h": 14
       },
@@ -353,8 +378,8 @@
     {
       "filename": "slider_bar",
       "frame": {
-        "x": 117,
-        "y": 259,
+        "x": 83,
+        "y": 292,
         "w": 7,
         "h": 6
       },
@@ -378,8 +403,8 @@
     {
       "filename": "slider_progress",
       "frame": {
-        "x": 126,
-        "y": 259,
+        "x": 92,
+        "y": 292,
         "w": 7,
         "h": 6
       },
@@ -403,8 +428,8 @@
     {
       "filename": "slider_knob",
       "frame": {
-        "x": 135,
-        "y": 259,
+        "x": 101,
+        "y": 292,
         "w": 6,
         "h": 6
       },

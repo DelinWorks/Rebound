@@ -1,6 +1,6 @@
 #include "uiContainer.h"
 
-CustomUi::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE),
+CUI::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE),
                                    _borderLayout(BorderLayout::CENTER), _flowLayout(), _depConst()
 {
     setCascadeOpacityEnabled(true);
@@ -8,16 +8,16 @@ CustomUi::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_
     setDynamic();
 }
 
-CustomUi::Container::~Container() {}
+CUI::Container::~Container() {}
 
-void CustomUi::Container::setBorderLayout(BorderLayout border, BorderContext context) {
+void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context) {
     if (context == BorderContext::PARENT)
         _closestStaticBorder = true;
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
         ->setBorderLayout(_borderLayout = border));
 }
 
-CustomUi::Container* CustomUi::Container::create()
+CUI::Container* CUI::Container::create()
 {
     Container* ref = new Container();
     if (ref->init())
@@ -31,47 +31,58 @@ CustomUi::Container* CustomUi::Container::create()
     return ref;
 }
 
-void CustomUi::Container::setLayout(FlowLayout layout)
+void CUI::Container::setLayout(FlowLayout layout)
 {
     _flowLayout = layout;
     _layout = Layout::LAYOUT_FLOW;
 }
 
-void CustomUi::Container::setConstraint(DependencyConstraint layout)
+void CUI::Container::setConstraint(DependencyConstraint layout)
 {
     _depConst = layout;
     _constraint = Constraint::CONSTRAINT_DEPENDENCY;
 }
 
-void CustomUi::Container::setConstraint(ContentSizeConstraint layout)
+void CUI::Container::setConstraint(ContentSizeConstraint layout)
 {
     _csConst = layout;
     _constraint = Constraint::CONSTRAINT_CONTENTSIZE;
 }
 
-bool CustomUi::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     _isHitSwallowed = false;
+    bool _isElementBlocked = true;
+    if (_isElementBlocking && _bgButton && !_bgButton->hitTest(mouseLocationInView, cam, nullptr))
+        _isElementBlocked = false;
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
         auto n = DCAST(GUI, list.at(i));
-        if (n)
-            if (n->hover((_isHitSwallowed && _pCurrentHeldItem != n && !n->isForceRawInput()) ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
+        if (n) {
+            bool cond = !_isElementBlocked || (_isHitSwallowed && _pCurrentHeldItem != n && !n->isForceRawInput());
+            if (n->hover(cond ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
                 _isHitSwallowed = true;
+        }
     }
     if (_bgButton && !_isHitSwallowed) {
         if (_bgButton->hitTest(mouseLocationInView, cam, nullptr))
             _isHitSwallowed = true;
     }
+    if (_isSelfHover) {
+        if (_isHitSwallowed) _pCurrentHoveredItem = this;
+        else if (_pCurrentHoveredItem == this) _pCurrentHoveredItem = nullptr;
+    }
     return _isHitSwallowed || _isBlocking;
 }
 
-bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
     bool isClickSwallowed = false;
+    if (_isElementBlocking && _bgButton)
+        isClickSwallowed = !_bgButton->hitTest(mouseLocationInView, cam, nullptr);
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
@@ -86,10 +97,11 @@ bool CustomUi::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Came
     }
     if (_isDismissible && !isClickSwallowed)
         removeFromParent();
+    if (_isElementBlocking && isClickSwallowed) isClickSwallowed = false;
     return isClickSwallowed || _isBlocking;
 }
 
-bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
     if (_pCurrentHeldItem) {
         auto b = _pCurrentHeldItem->release(mouseLocationInView, cam);
@@ -99,7 +111,7 @@ bool CustomUi::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Ca
     return false;
 }
 
-void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
+void CUI::Container::keyPress(EventKeyboard::KeyCode keyCode)
 {
     if (_pCurrentHeldItem) return;
 
@@ -115,13 +127,13 @@ void CustomUi::Container::keyPress(EventKeyboard::KeyCode keyCode)
     }
 }
 
-Vec2 CustomUi::Container::getScaledContentSize()
+Vec2 CUI::Container::getScaledContentSize()
 {
     auto ns = GameUtils::getNodeIgnoreDesignScale();
     return getContentSize() / ns;
 }
 
-void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
+void CUI::Container::keyRelease(EventKeyboard::KeyCode keyCode)
 {
     if (_pCurrentHeldItem) return;
 
@@ -131,12 +143,22 @@ void CustomUi::Container::keyRelease(EventKeyboard::KeyCode keyCode)
     }
 }
 
-void CustomUi::Container::mouseScroll(EventMouse* event) {
+void CUI::Container::setElementBlocking()
+{
+    _isElementBlocking = true;
+}
+
+void CUI::Container::setSelfHover()
+{
+    _isSelfHover = true;
+}
+
+void CUI::Container::mouseScroll(EventMouse* event) {
     if (_pCurrentHoveredItem)
         _pCurrentHoveredItem->mouseScroll(event);
 }
 
-void CustomUi::Container::updateLayoutManagers(bool recursive)
+void CUI::Container::updateLayoutManagers(bool recursive)
 {
     if (recursive) {
         auto& list = getChildren();
@@ -181,21 +203,21 @@ void CustomUi::Container::updateLayoutManagers(bool recursive)
     }
 }
 
-void CustomUi::Container::onEnter() {
+void CUI::Container::onEnter() {
     GUI::onEnter();
     onFontScaleUpdate(_UiScale / _UiScaleMul);
     updateLayoutManagers(true);
 }
 
-void CustomUi::Container::onEnable()
+void CUI::Container::onEnable()
 {
 }
 
-void CustomUi::Container::onDisable()
+void CUI::Container::onDisable()
 {
 }
 
-void CustomUi::Container::setBorderLayoutAnchor(ax::Vec2 offset)
+void CUI::Container::setBorderLayoutAnchor(ax::Vec2 offset)
 {
     switch (_borderLayout) {
     case BorderLayout::TOP:
@@ -227,7 +249,7 @@ void CustomUi::Container::setBorderLayoutAnchor(ax::Vec2 offset)
     }
 }
 
-void CustomUi::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset)
+void CUI::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset)
 {
     switch (border) {
     case BorderLayout::TOP:
@@ -259,7 +281,7 @@ void CustomUi::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 of
     }
 }
 
-void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType type)
+void CUI::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType type)
 {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::create();
@@ -278,20 +300,34 @@ void CustomUi::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType typ
     _background->setTag(YOURE_NOT_WELCOME_HERE);
     //if (type != BgSpriteType::BG_GRAY)
     _background->setProgramState(_backgroundShader);
+    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+        ->enableDesignScaleIgnoring(Vec2(2, 2)));
     Node::addChild(_background, -1);
 }
 
-void CustomUi::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale)
+void CUI::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale)
 {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED, ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
-    _background->setScale(scale.x, scale.y);
     _background->setProgramState(_backgroundShader);
+    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+        ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
     Node::addChild(_background, -1);
 }
 
-void CustomUi::Container::setBackgroundDim()
+void CUI::Container::setBackgroundSpriteCramped2(ax::Vec2 padding, ax::Vec2 scale)
+{
+    _backgroundPadding = padding;
+    _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED2, ADVANCEDUI_P1_CAP_INSETS);
+    _background->setTag(YOURE_NOT_WELCOME_HERE);
+    _background->setProgramState(_backgroundShader);
+    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+        ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
+    Node::addChild(_background, -1);
+}
+
+void CUI::Container::setBackgroundDim()
 {
     _bgDim = ax::LayerColor::create(Color4B(0, 0, 0, 100));
     auto visibleSize = Director::getInstance()->getVisibleSize();
@@ -301,37 +337,37 @@ void CustomUi::Container::setBackgroundDim()
     Node::addChild(_bgDim, -2);
 }
 
-void CustomUi::Container::setBlocking()
+void CUI::Container::setBlocking()
 {
     _isBlocking = true;
 }
 
-void CustomUi::Container::setDismissible()
+void CUI::Container::setDismissible()
 {
     _isDismissible = true;
 }
 
-void CustomUi::Container::setBackgroundBlocking()
+void CUI::Container::setBackgroundBlocking()
 {
     _bgButton = createPlaceholderButton();
-    _bgButton->setContentSize(getContentSize());
+    _bgButton->setContentSize(getContentSize() + BUTTON_HITBOX_CORNER_TOLERANCE);
     _bgButton->setTag(GUI_ELEMENT_EXCLUDE);
     addChild(_bgButton);
 }
 
-void CustomUi::Container::notifyLayout()
+void CUI::Container::notifyLayout()
 {
     updateLayoutManagers();
     GUI::notifyLayout();
 }
 
-void CustomUi::Container::addSpecialChild(CustomUi::GUI* gui)
+void CUI::Container::addSpecialChild(CUI::GUI* gui)
 {
     _allButtons.push_back(gui);
 }
 
-CustomUi::Container* CustomUi::Container::addChildAsContainer(CustomUi::GUI* gui) {
-    auto cont = CustomUi::Container::create();
+CUI::Container* CUI::Container::addChildAsContainer(CUI::GUI* gui) {
+    auto cont = CUI::Container::create();
     cont->setLayout(FlowLayout());
     cont->addChild(gui);
     cont->updateLayoutManagers();
@@ -339,7 +375,18 @@ CustomUi::Container* CustomUi::Container::addChildAsContainer(CustomUi::GUI* gui
     return cont;
 }
 
-void CustomUi::Container::calculateContentBoundaries()
+void CUI::Container::recalculateChildDimensions()
+{
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
+
+    if (_background)
+        _background->setContentSize(getContentSize() / (ns * _PxArtMultiplier) + _backgroundPadding);
+
+    if (_bgButton)
+        _bgButton->setContentSize(getContentSize() + _backgroundPadding + BUTTON_HITBOX_CORNER_TOLERANCE);
+}
+
+void CUI::Container::calculateContentBoundaries()
 {
     auto& list = getChildren();
 
@@ -389,14 +436,10 @@ void CustomUi::Container::calculateContentBoundaries()
     if (isContainerDynamic())
         setContentSize((Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x), abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
 
-    if (_background)
-        _background->setContentSize(getContentSize() + _backgroundPadding);
-
-    if (_bgButton)
-        _bgButton->setContentSize(getContentSize());
+    Container::recalculateChildDimensions();
 }
 
-void CustomUi::FlowLayout::build(CustomUi::Container* container)
+void CUI::FlowLayout::build(CUI::Container* container)
 {
     auto list = container->getChildren();
     auto ns = GameUtils::getNodeIgnoreDesignScale();
@@ -447,7 +490,7 @@ void CustomUi::FlowLayout::build(CustomUi::Container* container)
     }
 }
 
-void CustomUi::DependencyConstraint::build(CustomUi::GUI* element)
+void CUI::DependencyConstraint::build(CUI::GUI* element)
 {
     //auto container = DCAST(Container, parent);
     //if (container) container->updateLayoutManagers();
@@ -488,18 +531,23 @@ void CustomUi::DependencyConstraint::build(CustomUi::GUI* element)
     if (worldPos)
         element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
     else
-        element->setPosition(parent->getContentSize() * anchor);
+        element->setPosition((parent->getContentSize() * anchor));
 }
 
-void CustomUi::ContentSizeConstraint::build(CustomUi::GUI* element) {
+void CUI::ContentSizeConstraint::build(CUI::GUI* element) {
     if (element->isContainerDynamic()) return;
-    auto ns = GameUtils::getNodeIgnoreDesignScale();
-    element->setContentSize(parent->getContentSize() * ns);
+    Vec2 s = parent->getContentSize() + offset;
+    auto ns = ax::Vec2::ONE;
+    if (scale)
+        ns = GameUtils::getNodeIgnoreDesignScale();
+    s.x = lockX ? element->getPrefferedContentSize().x : s.x * ns.x;
+    s.y = lockY ? element->getPrefferedContentSize().y : s.y * ns.y;
+    element->setContentSize(s);
 }
 
-CustomUi::Separator* CustomUi::Separator::create(Vec2 size)
+CUI::Separator* CUI::Separator::create(Vec2 size)
 {
-    CustomUi::Separator* ref = new CustomUi::Separator();
+    CUI::Separator* ref = new CUI::Separator();
     if (ref->init())
     {
         ref->setContentSize(size);
@@ -510,4 +558,60 @@ CustomUi::Separator* CustomUi::Separator::create(Vec2 size)
         AX_SAFE_DELETE(ref);
     }
     return ref;
+}
+
+CUI::EventPassClippingNode* CUI::EventPassClippingNode::create(Container* _child)
+{
+    CUI::EventPassClippingNode* ref = new CUI::EventPassClippingNode();
+    if (ref->init())
+    {
+        ref->autorelease();
+        ref->setClipRegion(ax::Rect::ZERO);
+        ref->child = _child;
+        ref->clip->addChild(_child);
+    }
+    else
+    {
+        AX_SAFE_DELETE(ref);
+    }
+    return ref;
+}
+
+void CUI::EventPassClippingNode::setClipRegion(ax::Rect r)
+{
+    if (!clip) {
+        clip = ClippingRectangleNode::create(r);
+        addChild(clip);
+    }
+    else clip->setClippingRegion(r);
+}
+
+bool CUI::EventPassClippingNode::hover(Vec2 mouseLocationInView, Camera* cam)
+{
+    return child->hover(mouseLocationInView, cam);
+}
+
+bool CUI::EventPassClippingNode::press(Vec2 mouseLocationInView, Camera* cam)
+{
+    return child->press(mouseLocationInView, cam);
+}
+
+bool CUI::EventPassClippingNode::release(Vec2 mouseLocationInView, Camera* cam)
+{
+    return child->release(mouseLocationInView, cam);
+}
+
+void CUI::EventPassClippingNode::keyPress(EventKeyboard::KeyCode keyCode)
+{
+    return child->keyPress(keyCode);
+}
+
+void CUI::EventPassClippingNode::keyRelease(EventKeyboard::KeyCode keyCode)
+{
+    return child->keyRelease(keyCode);
+}
+
+void CUI::EventPassClippingNode::mouseScroll(EventMouse* event)
+{
+    return child->mouseScroll(event);
 }

@@ -1,8 +1,8 @@
 #include "uiButton.h"
 
-CustomUi::Button* CustomUi::Button::create()
+CUI::Button* CUI::Button::create()
 {
-    CustomUi::Button* ret = new CustomUi::Button();
+    CUI::Button* ret = new CUI::Button();
     if (((Node*)ret)->init())
     {
         ret->autorelease();
@@ -14,12 +14,12 @@ CustomUi::Button* CustomUi::Button::create()
     return ret;
 }
 
-CustomUi::Button::~Button() {
-    if (CustomUi::_pCurrentHeldItem == this)
-        CustomUi::_pCurrentHeldItem = nullptr;
+CUI::Button::~Button() {
+    if (CUI::_pCurrentHeldItem == this)
+        CUI::_pCurrentHeldItem = nullptr;
 }
 
-void CustomUi::Button::init(std::wstring _text, int _fontSize, Size _size, Size _hitboxPadding)
+void CUI::Button::init(std::wstring _text, int _fontSize, Size _size, Size _hitboxPadding)
 {
     init(
         _text,
@@ -38,7 +38,7 @@ void CustomUi::Button::init(std::wstring _text, int _fontSize, Size _size, Size 
     );
 }
 
-void CustomUi::Button::initIcon(std::string _frameName, Size _hitboxPadding)
+void CUI::Button::initIcon(std::string _frameName, Size _hitboxPadding)
 {
     init(
         L"",
@@ -57,7 +57,7 @@ void CustomUi::Button::initIcon(std::string _frameName, Size _hitboxPadding)
     );
 }
 
-void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
+void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
     cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
     Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
     Color3B _selected_color, bool _allowExtend, bool _isIcon , ax::Size _hitboxpadding)
@@ -80,8 +80,7 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
         addChild(icon, 0);
     }
     else {
-        field = ax::Label::createWithTTF(ShapingEngine::Helper::narrow(_text), _fontname, _fontsize * _UiScale);
-        field->updateContent();
+        field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
         sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
         sprite->setContentSize(_contentsize);
         sprite->setColor(selected_color);
@@ -94,14 +93,16 @@ void CustomUi::Button::init(std::wstring _text, std::string_view _fontname, i32 
     _callback = [] (Button*) {};
 }
 
-void CustomUi::Button::update(f32 dt) {
+void CUI::Button::update(f32 dt) {
     auto dSize = getDynamicContentSize();
     setContentSize(dSize + getUiPadding());
     HoverEffectGUI::update(dt, getContentSize() + Vec2(50 * (field_size.x != 0 || field_size.y != 0), 0));
 }
 
-bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
+    if (!isVisible()) return false;
+
     if (field /* !isIcon */) {
         if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
             field->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
@@ -135,15 +136,15 @@ bool CustomUi::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     return hover_cv.getValue();
 }
 
-void CustomUi::Button::focus()
+void CUI::Button::focus()
 {
 }
 
-void CustomUi::Button::defocus()
+void CUI::Button::defocus()
 {
 }
 
-void CustomUi::Button::onEnable()
+void CUI::Button::onEnable()
 {
     auto fade = FadeTo::create(0.1f, 255);
     auto tint = TintTo::create(0.1f, Color3B::WHITE);
@@ -157,7 +158,7 @@ void CustomUi::Button::onEnable()
     }
 }
 
-void CustomUi::Button::onDisable()
+void CUI::Button::onDisable()
 {
     auto fade = FadeTo::create(0, 100);
     auto tint = TintTo::create(0, Color3B::GRAY);
@@ -176,18 +177,16 @@ void CustomUi::Button::onDisable()
     defocus();
 }
 
-bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
 {
-    if (!isEnabled()) return false;
+    if (!isEnabled() || !isVisible()) return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         if (_pCurrentHeldItem) _pCurrentHeldItem->release({ INFINITY, INFINITY }, cam);
         _pCurrentHeldItem = this;
         auto fade = FadeTo::create(0, 100);
-        auto tint = TintTo::create(0, Color3B::GRAY);
         if (field) {
             field->stopAllActions();
             field->runAction(fade);
-            field->runAction(tint);
         }
         else {
             icon->stopAllActions();
@@ -199,13 +198,12 @@ bool CustomUi::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CustomUi::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     auto fade = FadeTo::create(0.1f, 255);
     auto tint = TintTo::create(0.1f, Color3B::WHITE);
     if (field) {
         field->runAction(fade);
-        field->runAction(tint);
     }
     else icon->runAction(fade);
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
@@ -216,28 +214,31 @@ bool CustomUi::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-Size CustomUi::Button::getDynamicContentSize()
+Size CUI::Button::getDynamicContentSize()
 {
     return sprite ? sprite->getContentSize() : (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
 }
 
-Size CustomUi::Button::getFitContentSize()
+Size CUI::Button::getFitContentSize()
 {
     if (!field) return Size();
     return field->getContentSize() + Vec2((_ForceOutline ? _PmtFontOutline : 1), 0);
 }
 
-void CustomUi::Button::enableIconHighlight()
+void CUI::Button::enableIconHighlight()
 {
-    icon->setColor(Color3B(0, 237, 255));
+    selected_color = Color3B(0, 237, 255);
+    if (field) field->setColor(selected_color);
+    if (icon) icon->setColor(selected_color);
 }
 
-void CustomUi::Button::disableIconHighlight()
+void CUI::Button::disableIconHighlight()
 {
-    icon->setColor(Color3B::WHITE);
+    if (field) field->setColor(Color3B::WHITE);
+    if (icon) icon->setColor(Color3B::WHITE);
 }
 
-void CustomUi::Button::onFontScaleUpdate(float scale)
+void CUI::Button::onFontScaleUpdate(float scale)
 {
     if (field) {
         field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);

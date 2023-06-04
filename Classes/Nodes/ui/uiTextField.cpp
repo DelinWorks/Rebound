@@ -2,9 +2,9 @@
 #include "2d/CCTweenFunction.h"
 #include <regex>
 
-CustomUi::TextField* CustomUi::TextField::create()
+CUI::TextField* CUI::TextField::create()
 {
-    CustomUi::TextField* ret = new CustomUi::TextField();
+    CUI::TextField* ret = new CUI::TextField();
     if (((Node*)ret)->init())
     {
         ret->autorelease();
@@ -16,7 +16,7 @@ CustomUi::TextField* CustomUi::TextField::create()
     return ret;
 }
 
-void CustomUi::TextField::init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars)
+void CUI::TextField::init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars)
 {
     init(
         _placeholder,
@@ -37,7 +37,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, int _fontSize, 
     );
 }
 
-void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
+void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
     ax::Rect _capinsets, ax::Size _contentsize, ax::Rect _clampregion,
     Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
@@ -70,7 +70,7 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
     sprite->setContentSize(_contentsize);
     sprite->setColor(selected_color);
-    sprite->setProgramState(CustomUi::_backgroundShader);
+    sprite->setProgramState(CUI::_backgroundShader);
     setContentSize(_contentsize);
     button = createPlaceholderButton();
     cursor_control = Sprite::createWithSpriteFrameName("text_cursor");
@@ -128,17 +128,19 @@ void CustomUi::TextField::init(const std::wstring& _placeholder, std::string_vie
     cursor_control->setVisible(false);
     cursor_control_parent->addChild(cursor_control);
     addChild(button);
+    _callback = [](TextField* target) {};
     //hover_cv = ChangeValue<bool>();
     //password_hover = ChangeValue<bool>();
 }
 
-void CustomUi::TextField::update(f32 dt) {
+void CUI::TextField::update(f32 dt) {
     auto dSize = getDynamicContentSize();
     setContentSize(dSize + getUiPadding());
-    HoverEffectGUI::update(dt, getContentSize());
+    if (sprite->isVisible())
+        HoverEffectGUI::update(dt, getContentSize());
 }
 
-bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
         field->_textFieldRenderer->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
@@ -159,7 +161,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
         hover_cv.setValue(isUiHovered());
 
-        if (hover_cv.isChanged())
+        if (hover_cv.isChanged() && sprite->isVisible())
             HoverEffectGUI::hover();
 #else
         hover->setValue(false);
@@ -181,6 +183,11 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             std::string sString = TEXT(field->getString());
             sString = std::regex_replace(sString, std::regex("[ ]{2,}"), " ");
             sString = std::regex_replace(sString, std::regex("[\n]"), "");
+            /* REMOVE LEADING ZEROS */ if (remove_zeros) {
+                int i = 0;
+                while (sString[i] == '0') i++;
+                sString.erase(0, i);
+            }
 
             if (allowedChars.length() > 0) {
                 std::string temp;
@@ -197,7 +204,11 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
                 std::transform(sString.begin(), sString.end(), sString.begin(), ::toupper);
 
             try {
-                cachedString = ShapingEngine::Helper::widen(sString);
+                auto asString = ShapingEngine::Helper::widen(sString);
+                if (!asString._Equal(cachedString)) {
+                    cachedString = asString;
+                    _callback(this);
+                }
                 field->setString(sString);
             }
             catch (std::exception& e) { field->setString(e.what()); };
@@ -212,7 +223,7 @@ bool CustomUi::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     return hover_cv.getValue();
 }
 
-void CustomUi::TextField::focus()
+void CUI::TextField::focus()
 {
     field->attachWithIME();
     if (isUiFocused()) return;
@@ -224,7 +235,7 @@ void CustomUi::TextField::focus()
     notifyFocused(this, true);
 }
 
-void CustomUi::TextField::defocus()
+void CUI::TextField::defocus()
 {
     if (!isUiFocused()) return;
     field->setString(ShapingEngine::render(cachedString));
@@ -234,7 +245,7 @@ void CustomUi::TextField::defocus()
     HoverEffectGUI::hover();
 }
 
-void CustomUi::TextField::onEnable()
+void CUI::TextField::onEnable()
 {
     auto fade = FadeTo::create(0.1f, 255);
     auto tint = TintTo::create(0.1f, Color3B::WHITE);
@@ -242,7 +253,7 @@ void CustomUi::TextField::onEnable()
     field->runAction(tint);
 }
 
-void CustomUi::TextField::onDisable()
+void CUI::TextField::onDisable()
 {
     defocus();
     auto fade = FadeTo::create(0.1f, 100);
@@ -251,7 +262,7 @@ void CustomUi::TextField::onDisable()
     field->runAction(tint);
 }
 
-bool CustomUi::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!isEnabled())
         return false;
@@ -267,12 +278,12 @@ bool CustomUi::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CustomUi::TextField::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::TextField::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     return false;
 }
 
-void CustomUi::TextField::keyPress(EventKeyboard::KeyCode keyCode)
+void CUI::TextField::keyPress(EventKeyboard::KeyCode keyCode)
 {
 #ifdef WIN32 // clipboard implementation works with windows only.
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL)
@@ -286,26 +297,44 @@ void CustomUi::TextField::keyPress(EventKeyboard::KeyCode keyCode)
         field->setString(std::string(field->getString()) + fromClipboard());
     }
 #endif
-    if (keyCode == EventKeyboard::KeyCode::KEY_ENTER)
+    if (keyCode == EventKeyboard::KeyCode::KEY_ENTER || keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
         defocus();
 }
 
-void CustomUi::TextField::keyRelease(EventKeyboard::KeyCode keyCode)
+void CUI::TextField::keyRelease(EventKeyboard::KeyCode keyCode)
 {
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL)
         _isLeftCtrlPressed = false;
 }
 
-Size CustomUi::TextField::getDynamicContentSize()
+Size CUI::TextField::getDynamicContentSize()
 {
     return sprite->getContentSize();
 }
 
-void CustomUi::TextField::onFontScaleUpdate(float scale)
+void CUI::TextField::onFontScaleUpdate(float scale)
 {
     field->_textFieldRenderer->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
     field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
     if (_ForceOutline)
         field->_textFieldRenderer->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
     field->updateSizeAndPosition();
+}
+
+void CUI::TextField::setStyleDotted()
+{
+    sprite->setVisible(false);
+    field->_textFieldRenderer->enableUnderline();
+}
+
+void CUI::TextField::setString(std::string _text)
+{
+    cachedString = Strings::widen(_text);
+    field->setString(_text);
+}
+
+void CUI::TextField::setString(std::wstring _text)
+{
+    cachedString = _text;
+    field->_textFieldRenderer->setString(Strings::narrow(_text));
 }

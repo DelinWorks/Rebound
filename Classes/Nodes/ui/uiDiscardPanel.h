@@ -11,7 +11,7 @@
 
 USING_NS_CC;
 
-namespace CustomUi
+namespace CUI
 {
     enum DiscardButtons : u8 {
         OKAY_ABORT = 0,
@@ -27,7 +27,7 @@ namespace CustomUi
 
     class DiscardPanel : public Modal {
     public:
-        static CustomUi::DiscardPanel* create(BorderLayout border = BorderLayout::CENTER, BorderContext context = BorderContext::SCREEN_SPACE);
+        static CUI::DiscardPanel* create(BorderLayout border = BorderLayout::CENTER, BorderContext context = BorderContext::SCREEN_SPACE);
 
         void init(const std::wstring& header, const std::wstring& placeholder_or_text, DiscardButtons buttons = DiscardButtons::OKAY_ABORT, DiscardType type = DiscardType::INPUT);
 
@@ -44,6 +44,6 @@ namespace CustomUi
         ButtonCallback discardCallback;
         Button* eventButton;
 
-        CustomUi::Container* stack;
+        CUI::Container* stack;
     };
 }

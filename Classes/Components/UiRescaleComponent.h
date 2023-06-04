@@ -33,6 +33,7 @@ public:
     Size _visibleSize;
     bool _recreateLayer = false;
     bool _isUiElemDirty = false;
+    Vec2 _identityScale = ax::Vec2::ONE;
 
     UiRescaleComponent(Size _visibleSize);
 
@@ -46,7 +47,7 @@ public:
     // owner will be casted to LayerColor* object, so be careful using this function
     UiRescaleComponent* enableLayerResizing();
 
-    UiRescaleComponent* enableDesignScaleIgnoring();
+    UiRescaleComponent* enableDesignScaleIgnoring(ax::Vec2 identity = ax::Vec2::ONE);
 
     UiRescaleComponent* setVisibleSizeHints(f32 widthDiv = 2, f32 widthOffset = 0, f32 heightDiv = 2, f32 heightOffset = 0);
 

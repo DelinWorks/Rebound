@@ -1,8 +1,8 @@
 #include "uiImageView.h"
 
-CustomUi::ImageView* CustomUi::ImageView::create(Size _contentsize, ax::Texture2D* texture)
+CUI::ImageView* CUI::ImageView::create(Size _contentsize, ax::Texture2D* texture)
 {
-    CustomUi::ImageView* ret = new CustomUi::ImageView();
+    CUI::ImageView* ret = new CUI::ImageView();
     if (ret->init(_contentsize, texture))
     {
         ret->autorelease();
@@ -14,7 +14,7 @@ CustomUi::ImageView* CustomUi::ImageView::create(Size _contentsize, ax::Texture2
     return ret;
 }
 
-bool CustomUi::ImageView::init(Size _contentsize, ax::Texture2D* texture) {
+bool CUI::ImageView::init(Size _contentsize, ax::Texture2D* texture) {
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     button = createPlaceholderButton();
     auxButton = createPlaceholderButton();
@@ -52,13 +52,13 @@ bool CustomUi::ImageView::init(Size _contentsize, ax::Texture2D* texture) {
     return Node::init();
 }
 
-bool CustomUi::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (isEnabled())
     {
         if (_pCurrentHeldItem == this && !IS_LOCATION_INVALID(mouseLocationInView)) {
             auto oldMousePos = mousePos;
-            mousePos = mouseLocationInView;
+            mousePos = _savedLocationInView;
             image->setPosition(image->getPositionX() + (mousePos.x - oldMousePos.x) * (1.0 / (imageP->getScaleX() * getScaleX())),
                 image->getPositionY() + (mousePos.y - oldMousePos.y) * (1.0 / (imageP->getScaleX() * getScaleX())));
             image->setPositionX(Math::clamp(image->getPositionX(), -textureSize.x, 0));
@@ -74,7 +74,7 @@ bool CustomUi::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     }
 }
 
-bool CustomUi::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (isEnabled() && button->hitTest(mouseLocationInView, cam, nullptr)) {
         _pCurrentHeldItem = this;
@@ -84,7 +84,7 @@ bool CustomUi::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CustomUi::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (_pCurrentHeldItem == this) {
         if (pressLocation.fuzzyEquals(mouseLocationInView, 3)) {
@@ -104,13 +104,13 @@ bool CustomUi::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam
     return false;
 }
 
-void CustomUi::ImageView::mouseScroll(ax::EventMouse* event)
+void CUI::ImageView::mouseScroll(ax::EventMouse* event)
 {
     imageP->setScale(imageP->getScaleX() + (event->getScrollY() * -0.25));
     imageP->setScale(Math::clamp(imageP->getScaleX(), 0.25, 5));
 }
 
-void CustomUi::ImageView::enableGridSelection(ax::Size _gridsize)
+void CUI::ImageView::enableGridSelection(ax::Size _gridsize)
 {
     gridSize = _gridsize;
     textureSize = Size(CMF(textureSize.x, gridSize.x), CMF(textureSize.y, gridSize.y));
@@ -125,10 +125,10 @@ void CustomUi::ImageView::enableGridSelection(ax::Size _gridsize)
         grid->drawLine(Vec2(0, y * gridSize.y), Vec2(textureSize.x, y * gridSize.y), Color4B::BLACK);
 }
 
-void CustomUi::ImageView::onEnable()
+void CUI::ImageView::onEnable()
 {
 }
 
-void CustomUi::ImageView::onDisable()
+void CUI::ImageView::onDisable()
 {
 }

@@ -33,9 +33,10 @@ UiRescaleComponent* UiRescaleComponent::enableLayerResizing() {
     return this;
 }
 
-UiRescaleComponent* UiRescaleComponent::enableDesignScaleIgnoring() {
+UiRescaleComponent* UiRescaleComponent::enableDesignScaleIgnoring(ax::Vec2 identity) {
     _ignore = true;
     _isUiElemDirty = true;
+    _identityScale = identity;
     return this;
 }
 
@@ -118,6 +119,8 @@ void UiRescaleComponent::windowSizeChange(Size newVisibleSize) {
     {
         setNodeIgnoreDesignScale(_owner);
         setNodeScaleFHD(_owner);
+        _owner->setScaleX(_owner->getScaleX() * _identityScale.x);
+        _owner->setScaleY(_owner->getScaleY() * _identityScale.y);
         //_owner->setScale(_owner->getScale() * 1);
     }
     //if (fitting && !ignore)

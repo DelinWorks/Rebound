@@ -1,8 +1,8 @@
 #include "uiLabel.h"
 
-CustomUi::Label* CustomUi::Label::create()
+CUI::Label* CUI::Label::create()
 {
-    CustomUi::Label* ret = new CustomUi::Label();
+    CUI::Label* ret = new CUI::Label();
     if (((Node*)ret)->init())
     {
         ret->setCascadeOpacityEnabled(true);
@@ -15,7 +15,7 @@ CustomUi::Label* CustomUi::Label::create()
     return ret;
 }
 
-void CustomUi::Label::init(std::wstring _text, i32 _fontsize, Size _size, float _wrap)
+void CUI::Label::init(std::wstring _text, i32 _fontsize, Size _size, float _wrap)
 {
     init(
         _text,
@@ -26,7 +26,7 @@ void CustomUi::Label::init(std::wstring _text, i32 _fontsize, Size _size, float 
     );
 }
 
-void CustomUi::Label::init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size, float _wrap)
+void CUI::Label::init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size, float _wrap)
 {
     if (_rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
@@ -41,37 +41,37 @@ void CustomUi::Label::init(std::wstring& _text, std::string_view _fontname, i32 
     update(0);
 }
 
-void CustomUi::Label::enableOutline()
+void CUI::Label::enableOutline()
 {
     hasOutline = true;
 }
 
-void CustomUi::Label::update(f32 dt) {
+void CUI::Label::update(f32 dt) {
     auto dSize = getDynamicContentSize();
     setContentSize(dSize * (_UiScale * field->getScale()) + getUiPadding());
 }
 
-bool CustomUi::Label::hover(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Label::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     return false;
 }
 
-void CustomUi::Label::focus()
+void CUI::Label::focus()
 {
 }
 
-void CustomUi::Label::defocus()
+void CUI::Label::defocus()
 {
 }
 
-void CustomUi::Label::onEnable()
+void CUI::Label::onEnable()
 {
     auto fade = FadeTo::create(0.1f, 255);
     auto tint = TintTo::create(0.1f, Color3B::WHITE);
     field->runAction(tint);
 }
 
-void CustomUi::Label::onDisable()
+void CUI::Label::onDisable()
 {
     defocus();
     auto fade = FadeTo::create(0.1f, 100);
@@ -79,17 +79,17 @@ void CustomUi::Label::onDisable()
     field->runAction(tint);
 }
 
-bool CustomUi::Label::press(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Label::press(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     return false;
 }
 
-bool CustomUi::Label::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Label::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     return false;
 }
 
-Size CustomUi::Label::getDynamicContentSize()
+Size CUI::Label::getDynamicContentSize()
 {
     auto dSize = field->getContentSize() - Vec2(0, (_ForceOutline ? _PmtFontOutline * 1 : 0));
     if (size.x == 0)
@@ -98,9 +98,9 @@ Size CustomUi::Label::getDynamicContentSize()
     return Size(size.x > dSize.x ? dSize.x / _UiScale : calc, dSize.y / _UiScale);
 }
 
-void CustomUi::Label::onFontScaleUpdate(float scale)
+void CUI::Label::onFontScaleUpdate(float scale)
 {
-    field->initWithTTF(ShapingEngine::Helper::narrow(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
+    field->initWithTTF(ShapingEngine::render(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
     if (wrap != 0) {
         field->setDimensions(wrap, field->getContentSize().y);
         field->setOverflow(ax::Label::Overflow::RESIZE_HEIGHT);
@@ -112,7 +112,7 @@ void CustomUi::Label::onFontScaleUpdate(float scale)
     field->getFontAtlas()->setAliasTexParameters();
 }
 
-void CustomUi::Label::updatePositionAndSize()
+void CUI::Label::updatePositionAndSize()
 {
     auto dSize = field->getContentSize() * Vec2(1.0, 1.0 / (_ForceOutline ? _PmtFontOutline * 2 : 1));
     if (dSize.x > size.x && size.x != 0)
@@ -121,19 +121,19 @@ void CustomUi::Label::updatePositionAndSize()
         field->setScale(1.0 / _UiScale);
 }
 
-void CustomUi::Label::notifyLayout()
+void CUI::Label::notifyLayout()
 {
     GUI::notifyLayout();
     updatePositionAndSize();
 }
 
-void CustomUi::Label::setString(std::wstring _text)
+void CUI::Label::setString(std::wstring _text)
 {
     field->setString(ShapingEngine::Helper::narrow(text = _text));
     updatePositionAndSize();
 }
 
-void CustomUi::Label::setString(std::string _text)
+void CUI::Label::setString(std::string _text)
 {
     text = Strings::widen(_text);
     setString(text);

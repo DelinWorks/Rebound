@@ -1,48 +1,81 @@
 #include "uiTabs.h"
 
-CustomUi::Tabs::Tabs(Vec2 _prefferedSize)
+CUI::Tabs::Tabs(Vec2 _prefferedSize)
 {
-    elementCont = CustomUi::Container::create();
-    scrollCont = CustomUi::Container::create();
+    scheduleUpdate();
 
-    setBackgroundSprite({10, 5});
+    elementCont = CUI::Container::create();
+    scrollCont = CUI::Container::create();
+    clipping = EventPassClippingNode::create(elementCont);
 
-    prefferedSize = _prefferedSize;
+    setBackgroundBlocking();
+    setElementBlocking();
+    setSelfHover();
+
+    setStatic();
+    this->_prefferedSize = _prefferedSize;
     setContentSize(_prefferedSize);
+    addChild(clipping);
 
     elementCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 0, 0, false));
     elementCont->setConstraint(DependencyConstraint(this, LEFT));
-    addChild(elementCont);
 
     scrollCont->setStatic();
-    scrollCont->setContentSize(Vec2(20, _prefferedSize.y));
-    scrollCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 8));
-    setChildRight(scrollCont);
+    scrollCont->setContentSize(Vec2(18, _prefferedSize.y));
+    scrollCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 6));
+    scrollCont->setConstraint(DependencyConstraint(this, RIGHT));
+    scrollCont->setBorderLayoutAnchor(RIGHT);
+    scrollCont->setBackgroundBlocking();
+    addChild(scrollCont);
 
-    auto rightB = CustomUi::Button::create();
+    rightB = CUI::Button::create();
+    leftB = CUI::Button::create();
+
     rightB->initIcon("editor_arrow_right", {2, 5});
-    rightB->_callback = [&](Button* target) {
-        Vec2 pos = ePos - Vec2(elementCont->getChildren().at(0)->getContentSize().x / 2, 0);
-        pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
-        ePos = pos;
-        elementCont->stopAllActions();
-        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
-    };
+    //rightB->_callback = [=](Button* target) {
+    //    float avg = 0.0f;
+    //    int count = 0;
+    //    for (auto& _ : elementCont->getChildren()) {
+    //        avg += _->getContentSize().x;
+    //        count++;
+    //    }
+    //    avg /= count;
+    //    Vec2 pos = ePos - Vec2(avg / 2, 0);
+    //    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+    //    if (ePos != pos) {
+    //        leftB->enable();
+    //        ePos = pos;
+    //        elementCont->stopAllActions();
+    //        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
+    //    }
+    //    else target->disable();
+    //};
     scrollCont->addChild(rightB);
 
-    auto leftB = CustomUi::Button::create();
     leftB->initIcon("editor_arrow_left", {2, 5});
-    leftB->_callback = [&](Button* target) {
-        Vec2 pos = ePos + Vec2(elementCont->getChildren().at(0)->getContentSize().x / 2, 0);
-        pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
-        ePos = pos;
-        elementCont->stopAllActions();
-        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
-    };
+    //leftB->_callback = [=](Button* target) {
+    //    float avg = 0.0f;
+    //    int count = 0;
+    //    for (auto& _ : elementCont->getChildren()) {
+    //        avg += _->getContentSize().x;
+    //        count++;
+    //    }
+    //    avg /= count;
+    //    Vec2 pos = ePos + Vec2(avg / 2, 0);
+    //    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+    //    if (ePos != pos) {
+    //        rightB->enable();
+    //        ePos = pos;
+    //        elementCont->stopAllActions();
+    //        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
+    //    } else target->disable();
+    //};
     scrollCont->addChild(leftB);
+
+    ePos = INVALID_LOCATION;
 }
 
-CustomUi::Tabs* CustomUi::Tabs::create(Vec2 _prefferedSize)
+CUI::Tabs* CUI::Tabs::create(Vec2 _prefferedSize)
 {
     Tabs* ref = new Tabs(_prefferedSize);
     if (ref->init())
@@ -56,25 +89,98 @@ CustomUi::Tabs* CustomUi::Tabs::create(Vec2 _prefferedSize)
     return ref;
 }
 
-void CustomUi::Tabs::calculateContentBoundaries()
+void CUI::Tabs::calculateContentBoundaries()
 {
-    if (_background)
-        _background->setContentSize(getContentSize() + _backgroundPadding);
-
-    if (_bgButton)
-        _bgButton->setContentSize(getContentSize());
+    Container::recalculateChildDimensions();
+    auto& c = getContentSize();
+    clipping->setClipRegion({ c.x / -2 - 3, c.y / -2, c.x - 18, c.y});
 }
 
-void CustomUi::Tabs::updateLayoutManagers(bool recursive)
+void CUI::Tabs::updateLayoutManagers(bool recursive)
 {
-    Container::updateLayoutManagers();
     elementCont->updateLayoutManagers();
     ePos = elementCont->getPosition();
+    Container::updateLayoutManagers();
 }
 
-void CustomUi::Tabs::addElement(std::wstring e)
+void CUI::Tabs::addElement(std::wstring e, GUI* container)
 {
-    auto b = CustomUi::Button::create();
+    auto b = CUI::Button::create();
     b->init(e, TTFFS);
     elementCont->addChild(b);
+    tabIndices.push_back({ b, container });
+
+    b->_callback = [=](Button* target) {
+        for (int i = 0; i < tabIndices.size(); i++) {
+            if (tabIndices[i].button == target) {
+                int idx = i;
+                target->enableIconHighlight();
+                if (tabIndices[i].cont)
+                    tabIndices[i].cont->enable(true);
+                tabIndex = idx;
+            }
+            else {
+                tabIndices[i].button->disableIconHighlight();
+                if (tabIndices[i].cont)
+                    tabIndices[i].cont->disable(true);
+            }
+        }
+    };
+}
+
+void CUI::Tabs::update(f32 dt)
+{
+    if (_pCurrentHeldItem == rightB || _pCurrentHeldItem == leftB) {
+        ePos = ePos - Vec2(vel * (_pCurrentHeldItem == rightB ? dt : -dt), 0);
+        ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+        elementCont->setPosition(ePos);
+        vel += 600 * dt;
+    }
+    else vel = 200;
+
+    // Ui Culling
+    if (!elementCont->getPosition().equals(elemContPos)) {
+        auto& p = elementCont->getPosition();
+        for (auto& _ : elementCont->getChildren()) {
+            auto c1 = _->getNodeToParentTransform() * Vec3(_->getContentSize().x, _->getContentSize().y, 0);
+            if (c1 == ax::Vec3::ZERO) break;
+            auto pos = _->getPosition() + p;
+            auto b1 = Rect(pos.x, 0, c1.x, 0);
+            auto c2 = getNodeToParentTransform() * Vec3(getContentSize().x, getContentSize().y, 0);
+            auto b2 = Rect(c2.x / -2 + c1.x / 2, 0, c2.x, 0);
+            _->setVisible(b1.intersectsRect(b2));
+            elemContPos = elementCont->getPosition();
+        }
+        if (elementCont->getContentSize().x / 2 < _prefferedSize.x)
+            scrollCont->disable(true); else scrollCont->enable(true);
+    }
+}
+
+void CUI::Tabs::mouseScroll(EventMouse* event)
+{
+    if (elementCont->getContentSize().x / 2 < _prefferedSize.x) {
+        Vec2 cp = elementCont->getPosition();
+        elementCont->setPositionX(cp.x + 5);
+        elementCont->runAction(EaseElasticOut::create(MoveTo::create(2, cp), 0.1));
+        return;
+    }
+    float avg = 0.0f;
+    int count = 0;
+    for (auto& _ : elementCont->getChildren()) {
+        avg += _->getContentSize().x;
+        count++;
+    }
+    avg /= count;
+    ePos = ePos + Vec2(avg / 3 * (event->getScrollY() < 0 ? 1 : -1), 0);
+    ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+    elementCont->stopAllActions();
+    elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));
+    elemContPos = INVALID_LOCATION;
+    update(0);
+}
+
+void CUI::Tabs::setSelection(int idx)
+{
+    if (tabIndices.size() > 0)
+        tabIndices[0].button->_callback(tabIndices[0].button);
 }

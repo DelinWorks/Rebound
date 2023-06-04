@@ -2,7 +2,7 @@
 
 #include "uiContainer.h"
 
-namespace CustomUi {
+namespace CUI {
 	class Modal : public Container {
 	public:
 		Modal();

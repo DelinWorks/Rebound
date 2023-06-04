@@ -8,11 +8,11 @@
 
 USING_NS_CC;
 
-namespace CustomUi
+namespace CUI
 {
     class Label : public GUI {
     public:
-        static CustomUi::Label* create();
+        static CUI::Label* create();
         UiFontDescriptor desc;
         ax::Label* field;
         ax::Size size;

@@ -1,8 +1,8 @@
 #include "uiHSVWheel.h"
 
-CustomUi::HSVWheel* CustomUi::HSVWheel::create(float scale)
+CUI::HSVWheel* CUI::HSVWheel::create(float scale)
 {
-    CustomUi::HSVWheel* ret = new CustomUi::HSVWheel();
+    CUI::HSVWheel* ret = new CUI::HSVWheel();
     if (ret->init(scale))
     {
         ret->autorelease();
@@ -14,7 +14,7 @@ CustomUi::HSVWheel* CustomUi::HSVWheel::create(float scale)
     return ret;
 }
 
-bool CustomUi::HSVWheel::init(float scale)
+bool CUI::HSVWheel::init(float scale)
 {
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     lp = Node::create();
@@ -57,18 +57,19 @@ bool CustomUi::HSVWheel::init(float scale)
     squareHandle->setPosition(Vec2(142 / 2.0, 142 / 2.0));
     wheelHandle->setScale(_PxArtMultiplier);
     squareHandle->setScale(_PxArtMultiplier);
-    setContentSize(wheel->getContentSize() + Vec2(100, 0));
+    setContentSize(wheel->getContentSize() + Vec2(120, 16));
     button->setContentSize(getContentSize());
     opacity = Slider::create();
     opacity->DenyRescaling();
     opacity->init({ 50, 10 });
     opacity->setRotation(-90);
     opacity->setPositionX(128);
-    opacity->setPositionY(-62);
+    opacity->setPositionY(-64);
     opacity->setValue(1);
     opacity->_callback = [=](float alpha, Slider* target) {
         hsv.a = alpha;
         updateColorValues();
+        _callback(hsv, this);
     };
     hsv.fromRgba(Color4F::RED);
     sqHsv.fromRgba(Color4F::RED);
@@ -76,26 +77,29 @@ bool CustomUi::HSVWheel::init(float scale)
     oldColor->setColor(sqHsv.toColor3B());
     newColor->setColor(sqHsv.toColor3B());
     addChild(opacity);
+    _callback = [](HSV hsv, HSVWheel* target) {};
     return true;
 }
 
-void CustomUi::HSVWheel::update(f32 dt)
+void CUI::HSVWheel::update(f32 dt)
 {
     opacity->update(dt);
 }
 
-void CustomUi::HSVWheel::updateColorValues()
+void CUI::HSVWheel::updateColorValues()
 {
     wheelHandle->setPosition(Vec2(114, 0).rotateByAngle(ax::Vec2::ZERO, AX_DEGREES_TO_RADIANS(180 - (hsv.h + 90))));
     auto saturation = Math::map(hsv.s, 0, 1, -71, 71);
     auto value = Math::map(hsv.v, 0, 1, -71, 71);
+    sqHsv.h = hsv.h;
     squareHandle->setPosition(Vec2(saturation, value));
     square->setColor(sqHsv.toColor3B());
     newColor->setColor(hsv.toColor3B());
+    opacity->setValue(hsv.a, false);
     newColor->setOpacity(hsv.a * 255);
 }
 
-void CustomUi::HSVWheel::updateColorValues(Color4F color)
+void CUI::HSVWheel::updateColorValues(Color4F color)
 {
     hsv.fromRgba(color);
     opacity->setValue(hsv.a);
@@ -103,15 +107,16 @@ void CustomUi::HSVWheel::updateColorValues(Color4F color)
     oldColor->setColor(sqHsv.toColor3B());
     oldColor->setOpacity(color.a * 255);
     updateColorValues();
+    _callback(hsv, this);
 }
 
-bool CustomUi::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (opacity->hover(mouseLocationInView, cam)) return true;
     if (_pCurrentHeldItem == this) {
         if (isPickingWheel) {
             Vec3 p;
-            wButton->hitTest(mouseLocationInView, cam, &p);
+            wButton->hitTest(_savedLocationInView, cam, &p);
             auto normal = Vec2(p.x, p.y);
             normal -= wButton->getContentSize() / 2;
             auto theta = atan2(normal.y, normal.x);
@@ -123,7 +128,7 @@ bool CustomUi::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         }
         if (isPickingSquare) {
             Vec3 p;
-            sqButton->hitTest(mouseLocationInView, cam, &p);
+            sqButton->hitTest(_savedLocationInView, cam, &p);
             Vec2 pos(p.x, p.y);
             pos.x = Math::clamp(Math::map(pos.x, 0, sqButton->getContentSize().x, -71, 71), -71, 71);
             pos.y = Math::clamp(Math::map(pos.y, 0, sqButton->getContentSize().y, -71, 71), -71, 71);
@@ -133,6 +138,7 @@ bool CustomUi::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             hsv.v = value;
         }
         updateColorValues();
+        _callback(hsv, this);
         return true;
     }
     else {
@@ -154,13 +160,14 @@ bool CustomUi::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CustomUi::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (isEnabled() && button->hitTest(mouseLocationInView, cam, nullptr)) {
         if (resetButton->hitTest(mouseLocationInView, cam, nullptr)) {
             auto c = Color4F(oldColor->getColor());
             c.a = oldColor->getOpacity() / 255.0;
             updateColorValues(c);
+            _callback(hsv, this);
             SignalHandeler::signalSceneRoot("tooltip_hsv_reset");
             return true;
         }
@@ -175,7 +182,7 @@ bool CustomUi::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CustomUi::HSVWheel::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::HSVWheel::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (opacity->release(mouseLocationInView, cam)) return true;
     if (_pCurrentHeldItem == this) {

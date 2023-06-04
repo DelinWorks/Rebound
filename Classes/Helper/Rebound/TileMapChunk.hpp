@@ -78,6 +78,10 @@ typedef u32 TileID;
     inline float zPositionMultiplier = 0;
     inline u32 maxDrawCallCount = 8192;
 
+    inline bool RectIntersectsRectOffOrigin(ax::Rect r1, ax::Rect r2) {
+        return !(r1.size.x < r2.origin.x || r2.size.x < r1.origin.x || r1.size.y < r2.origin.y || r2.size.y < r1.origin.y);
+    }
+
     struct UV {
         f32 U;
         f32 V;
@@ -640,6 +644,7 @@ typedef u32 TileID;
                 }
                 _chunkDirty = false;
             }
+            setBlendFunc({ backend::BlendFactor::ZERO, backend::BlendFactor::SRC_ALPHA });
             if (_mesh && getDisplayedOpacity())
                 MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }
@@ -736,7 +741,7 @@ typedef u32 TileID;
             auto pos = Vec2(_pos.x * _tilesetArr->_tileSets[0]->_sizeInPixels.x, _pos.y * _tilesetArr->_tileSets[0]->_sizeInPixels.y);
             auto aabb = Rect(pos.x, pos.y, pos.x + _tilesetArr->_tileSets[0]->_sizeInPixels.x, pos.y + _tilesetArr->_tileSets[0]->_sizeInPixels.y);
 
-            if (!cam_aabb.intersectsRect(aabb)) {
+            if (!RectIntersectsRectOffOrigin(cam_aabb, aabb)) {
                 _tilesetArr->retainedChunksI--;
                 _tiles->retainedChunksI--;
                 //for (auto& _ : _chunks)

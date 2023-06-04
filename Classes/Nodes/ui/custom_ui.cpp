@@ -1,8 +1,9 @@
 #include "custom_ui.h"
 
-void CustomUi::GUI::setContentSize(const Vec2& size, bool recursive)
+void CUI::GUI::setContentSize(const Vec2& size, bool recursive)
 {
 	if (!size.equals(getContentSize())) {
+		_prefferedSize = size;
 		Node::setContentSize(size);
 		if (recursive)
 			notifyLayout();
@@ -14,12 +15,12 @@ void CustomUi::GUI::setContentSize(const Vec2& size, bool recursive)
 	}
 }
 
-Vec2 CustomUi::GUI::getScaledContentSize()
+Vec2 CUI::GUI::getScaledContentSize()
 {
 	return getContentSize();
 }
 
-void CustomUi::GUI::onFontScaleUpdate(float scale)
+void CUI::GUI::onFontScaleUpdate(float scale)
 {
 	// any GUI node that doesn't override this function
 	// is going to recursive update it's children.
@@ -31,7 +32,7 @@ void CustomUi::GUI::onFontScaleUpdate(float scale)
 	}
 }
 
-void CustomUi::GUI::updateEnabled(bool state)
+void CUI::GUI::updateEnabled(bool state)
 {
 	auto newState = _isEnabled;
 
@@ -67,7 +68,7 @@ void CustomUi::GUI::updateEnabled(bool state)
 		}
 }
 
-CustomUi::GUI::GUI()
+CUI::GUI::GUI()
 {
 	_contentSizeDebug = DrawNode::create(1);
 #ifdef DRAW_NODE_DEBUG
@@ -81,12 +82,12 @@ CustomUi::GUI::GUI()
 	}
 }
 
-CustomUi::GUI::~GUI()
+CUI::GUI::~GUI()
 {
 	LOG_RELEASE;
 }
 
-void CustomUi::GUI::setUiOpacity(float opacity)
+void CUI::GUI::setUiOpacity(float opacity)
 {
 	SET_UNIFORM(_backgroundShader, "ui_alpha", opacity);
 	if (opacity < 0.5 && !_ForceOutline)
@@ -101,63 +102,63 @@ void CustomUi::GUI::setUiOpacity(float opacity)
 	}
 }
 
-bool CustomUi::GUI::hover(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::GUI::hover(Vec2 mouseLocationInView, Camera* cam)
 {
 	return false;
 }
 
-bool CustomUi::GUI::press(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::GUI::press(Vec2 mouseLocationInView, Camera* cam)
 {
 	return false;
 }
 
-bool CustomUi::GUI::release(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::GUI::release(Vec2 mouseLocationInView, Camera* cam)
 {
 	return false;
 }
 
-void CustomUi::GUI::keyPress(EventKeyboard::KeyCode keyCode)
+void CUI::GUI::keyPress(EventKeyboard::KeyCode keyCode)
 {
 }
 
-void CustomUi::GUI::keyRelease(EventKeyboard::KeyCode keyCode)
+void CUI::GUI::keyRelease(EventKeyboard::KeyCode keyCode)
 {
 }
 
-void CustomUi::GUI::mouseScroll(EventMouse* event)
+void CUI::GUI::mouseScroll(EventMouse* event)
 {
 }
 
-void CustomUi::GUI::pushModal(GUI* child)
+void CUI::GUI::pushModal(GUI* child)
 {
 	addChild(child);
 }
 
-void CustomUi::GUI::onEnter()
+void CUI::GUI::onEnter()
 {
 	Node::onEnter();
 	notifyFocused(this, false);
 }
 
-void CustomUi::GUI::onExit()
+void CUI::GUI::onExit()
 {
 	Node::onExit();
 	notifyFocused(this, false);
 }
 
-void CustomUi::GUI::setAnchorPoint(const ax::Vec2& anchor)
+void CUI::GUI::setAnchorPoint(const ax::Vec2& anchor)
 {
 	_anchorPoint = anchor;
 	Node::setAnchorPoint(anchor);
 }
 
-void CustomUi::GUI::setAnchorOffset(const ax::Vec2& anchorOffset)
+void CUI::GUI::setAnchorOffset(const ax::Vec2& anchorOffset)
 {
 	_anchorOffset = anchorOffset;
 	Node::setAnchorPoint(_anchorPoint * anchorOffset);
 }
 
-void CustomUi::GUI::notifyFocused(GUI* sender, bool focused, bool ignoreSelf)
+void CUI::GUI::notifyFocused(GUI* sender, bool focused, bool ignoreSelf)
 {
 	auto cast = DCAST(GUI, getParent());
 	if (cast) {
@@ -176,7 +177,7 @@ void CustomUi::GUI::notifyFocused(GUI* sender, bool focused, bool ignoreSelf)
 	}
 }
 
-void CustomUi::GUI::notifyEnabled()
+void CUI::GUI::notifyEnabled()
 {
 	auto cast = DCAST(GUI, getParent());
 	if (cast)
@@ -185,48 +186,55 @@ void CustomUi::GUI::notifyEnabled()
 		updateEnabled(_isEnabled);
 }
 
-void CustomUi::GUI::notifyLayout()
+void CUI::GUI::notifyLayout()
 {
 	auto gui = DCAST(GUI, getParent());
 	if (gui) gui->notifyLayout();
 }
 
-bool CustomUi::GUI::isEnabled()
+bool CUI::GUI::isEnabled()
 {
 	return _isEnabled && _isInternalEnabled;
 }
 
-bool CustomUi::GUI::isInternalEnabled()
+bool CUI::GUI::isInternalEnabled()
 {
 	return _isEnabled;
 }
 
-void CustomUi::GUI::enable()
+void CUI::GUI::enable(bool show)
 {
 	_isEnabled = true;
+	if (show) setVisible(true);
 	notifyEnabled();
 }
 
-void CustomUi::GUI::disable()
+void CUI::GUI::disable(bool hide)
 {
 	_isEnabled = false;
+	if (hide) setVisible(false);
 	notifyEnabled();
 }
 
-void CustomUi::GUI::onEnable()
+void CUI::GUI::onEnable()
 {
 }
 
-void CustomUi::GUI::onDisable()
+void CUI::GUI::onDisable()
 {
 }
 
-Size CustomUi::GUI::getFitContentSize()
+Size CUI::GUI::getFitContentSize()
 {
 	return getContentSize();
 }
 
-void CustomUi::SignalHandeler::signalSceneRoot(std::string signal)
+const Size& CUI::GUI::getPrefferedContentSize() const
+{
+	return _prefferedSize;
+}
+
+void CUI::SignalHandeler::signalSceneRoot(std::string signal)
 {
 	auto handeler = DCAST(SignalHandeler, Director::getInstance()->getRunningScene());
 	if (handeler) handeler->signal(signal);

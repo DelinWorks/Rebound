@@ -1,8 +1,8 @@
 #include "uiSlider.h"
 
-CustomUi::Slider* CustomUi::Slider::create()
+CUI::Slider* CUI::Slider::create()
 {
-    CustomUi::Slider* ret = new CustomUi::Slider();
+    CUI::Slider* ret = new CUI::Slider();
     if (((Node*)ret)->init())
     {
         ret->autorelease();
@@ -14,14 +14,14 @@ CustomUi::Slider* CustomUi::Slider::create()
     return ret;
 }
 
-void CustomUi::Slider::setValue(float v)
+void CUI::Slider::setValue(float v, bool call)
 {
     currentValue = v;
     slider->setPercent(v);
-    _callback(v, this);
+    if (call) _callback(v, this);
 }
 
-void CustomUi::Slider::init(Size _contentsize)
+void CUI::Slider::init(Size _contentsize)
 {
     init(
         "slider_bar",
@@ -32,7 +32,7 @@ void CustomUi::Slider::init(Size _contentsize)
     );
 }
 
-void CustomUi::Slider::init(
+void CUI::Slider::init(
     std::string_view barFrame,
     std::string_view progressFrame,
     std::string_view knob,
@@ -59,7 +59,7 @@ void CustomUi::Slider::init(
     update(0);
 }
 
-void CustomUi::Slider::update(f32 dt)
+void CUI::Slider::update(f32 dt)
 {
     slider->setEnabled(isUiHovered());
     auto dSize = getDynamicContentSize();
@@ -74,7 +74,7 @@ void CustomUi::Slider::update(f32 dt)
     }
 }
 
-bool CustomUi::Slider::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Slider::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (isEnabled())
     {
@@ -90,42 +90,42 @@ bool CustomUi::Slider::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return hover_cv.getValue();
 }
 
-void CustomUi::Slider::focus()
+void CUI::Slider::focus()
 {
 }
 
-void CustomUi::Slider::defocus()
+void CUI::Slider::defocus()
 {
 }
 
-void CustomUi::Slider::onEnable()
+void CUI::Slider::onEnable()
 {
 }
 
-void CustomUi::Slider::onDisable()
+void CUI::Slider::onDisable()
 {
 }
 
-bool CustomUi::Slider::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Slider::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     isHeld = button->hitTest(mouseLocationInView, cam, _NOTHING);
     if (isHeld) _pCurrentHeldItem = this;
     return isHeld;
 }
 
-bool CustomUi::Slider::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Slider::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     isHeld = false;
     hover(mouseLocationInView, cam);
     return false;
 }
 
-Size CustomUi::Slider::getDynamicContentSize()
+Size CUI::Slider::getDynamicContentSize()
 {
     return slider->getContentSize() * _PxArtMultiplier;
 }
 
-Size CustomUi::Slider::getFitContentSize()
+Size CUI::Slider::getFitContentSize()
 {
     return slider->getContentSize() * 2 + SLIDER_HITBOX_CORNER_TOLERANCE;
 }

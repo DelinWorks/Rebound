@@ -62,7 +62,7 @@ bool MapEditor::init()
     uiNode->addChild(rebuildableUiNodes);
     SET_POSITION_HALF_SCREEN(uiNode);
     _worlds[0]->addChild(uiNodeNonFollow, 17);
-    _worlds[0]->addChild(gridNode, 11);
+    _worlds[1]->addChild(gridNode, 11);
 
     //uiNode->addComponent(new FollowNodeTransformComponent(getDefaultCamera()));
 
@@ -93,7 +93,7 @@ bool MapEditor::init()
 
     TileSystem::tileMapVirtualCamera = _camera;
     map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(1000, 1000));
-    _worlds[1]->addChild(map, 10);
+    _worlds[0]->addChild(map, 10);
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
@@ -731,7 +731,7 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
     if (selectionPlace == selectionPosition) return;
     std::vector v = { _tilesetPicker->selectedIndex + 1 };
     BENCHMARK_SECTION_BEGIN("Tile placement test");
-    auto& undoCmd = editorUndoTopOrDummy();
+    auto& undoCmd = editorTopUndoStateOrDefault();
     undoCmd.action = Editor::UNDOREDO_TILEMAP;
     undoCmd.affected.map = map;
     undoCmd.affected.layer_idx = map->_layerIdx;
@@ -832,7 +832,8 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     if (keyCode == EventKeyboard::KeyCode::KEY_S) editorWASDCamMoveRect.size.y = -1;
     if (keyCode == EventKeyboard::KeyCode::KEY_D) editorWASDCamMoveRect.size.x = 1;
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) { isCtrlPressed = true; }
+    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) { isCtrlPressed = true; }
+    if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT) { isShiftPressed = true; }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_Z) editorUndo();
 
@@ -863,7 +864,8 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
-    if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL) isCtrlPressed = false;
+    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) isCtrlPressed = false;
+    if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT) isShiftPressed = false;
 
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT) isEditorDragging = false;
 
@@ -973,7 +975,15 @@ void MapEditor::onMouseScroll(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
 
-    setCameraScaleIndex(e->getScrollY());
+    if (isCtrlPressed)
+        setCameraScaleIndex(e->getScrollY());
+    else if (isShiftPressed) {
+        cameraLocation->setPositionX(cameraLocation->getPositionX() + e->getScrollY() * 50 * _camera->getScale());
+    }
+    else {
+        cameraLocation->setPositionY(cameraLocation->getPositionY() + e->getScrollY() * -50 * _camera->getScale());
+        cameraLocation->setPositionX(cameraLocation->getPositionX() + e->getScrollX() * 50 * _camera->getScale());
+    }
 
     if (pdb != nullptr)
     {
@@ -1045,41 +1055,46 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 
 void MapEditor::buildEntireUi()
 {
-    CustomUi::callbackAccess.clear();
+    CUI::callbackAccess.clear();
 
-    auto container = _input->_uiContainer = CustomUi::Container::create();
+    auto container = _input->_uiContainer = CUI::Container::create();
     container->setStatic();
     container->setContentSize(visibleSize);
     container->setBorderLayoutAnchor();
     uiNode->addChild(container);
-    CustomUi::callbackAccess.emplace("main", container);
+    CUI::callbackAccess.emplace("main", container);
 
-    //container->addChild(CustomUi::Functions::createFledgedHSVPanel());
+    auto lbtest = CUI::Label::create();
+    lbtest->init(L"This Is Some Text eeeeeeeee", TTFFS);
+    lbtest->setPositionY(-101);
+    container->addChild(lbtest);
+    lbtest->runAction(MoveBy::create(10, Vec3(0, -10, 0)));
 
-    //auto test4edge1 = CustomUi::Container::create();
-    //auto test4edge2 = CustomUi::Container::create();
+    //container->addChild(CUI::Functions::createFledgedHSVPanel());
+
+    //auto test4edge1 = CUI::Container::create();
+    //auto test4edge2 = CUI::Container::create();
     //test4edge1->setStatic(); test4edge1->setContentSize({ 50, 50 });
     //test4edge2->setStatic(); test4edge2->setContentSize({ 50, 50 });
 
-    //auto container4edge = CustomUi::Container4Edge::create({0, 200});
+    //auto container4edge = CUI::Container4Edge::create({0, 200});
     //container->addChild(container4edge);
     //container4edge->setChildRight(test4edge1);
     //container4edge->setChildLeft(test4edge2);
 
-    auto tabs = CustomUi::Tabs::create({ 200, 20 });
+    auto tabs = CUI::Tabs::create({ 300, 20 });
+    tabs->setBackgroundSpriteCramped2({ 10, 2 });
     container->addChild(tabs);
-    tabs->addElement(L"Dirt Tileset");
-    tabs->addElement(L"Grass Tileset");
-    tabs->addElement(L"Colorful Tileset");
-    tabs->addElement(L"Mundane Tileset");
-    tabs->addElement(L"Tileset 11");
-    tabs->addElement(L"Test1");
+    BENCHMARK_SECTION_BEGIN("create ui");
+    for (int i = 0; i < 30; i++)
+        tabs->addElement(Strings::widen(Strings::gen_random(RandomHelper::random_int<int>(4, 8))));
+    BENCHMARK_SECTION_END();
 
-    container->addChild(CustomUi::Functions::createFledgedHSVPanel());
+    container->addChild(CUI::Functions::createFledgedHSVPanel());
 
     //tabs->addElement(L"Tileset3");
 
-    _tilesetPicker = CustomUi::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
+    _tilesetPicker = CUI::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
     auto c = TO_CONTAINER(_tilesetPicker);
     c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
@@ -1089,15 +1104,15 @@ void MapEditor::buildEntireUi()
     c->setMargin({ 3, 3 });
     container->addChild(c);
 
-    auto topRightContainer = CustomUi::Container::create();
+    auto topRightContainer = CUI::Container::create();
     topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
-    topRightContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0, 0, true));
+    topRightContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0, 0, true));
     topRightContainer->setBorderLayoutAnchor();
     topRightContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     container->addChild(topRightContainer);
 
-    auto menuContainer = CustomUi::Container::create();
-    menuContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+    auto menuContainer = CUI::Container::create();
+    menuContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 0, 0, false));
     //menuContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
     menuContainer->setTag(CONTAINER_FLOW_TAG);
     topRightContainer->addChild(menuContainer);
@@ -1106,377 +1121,377 @@ void MapEditor::buildEntireUi()
     auto padding = Size(28, 20);
     auto hpadding = Size(3, 20);
 
-    auto fileB = CustomUi::Button::create();
+    auto fileB = CUI::Button::create();
     fileB->initIcon("pretext_file", hpadding);
     fileB->disableArtMul();
     fileB->setUiPadding(padding);
     menuContainer->addChild(fileB);
 
-    auto editB = CustomUi::Button::create();
+    auto editB = CUI::Button::create();
     editB->initIcon("pretext_edit", hpadding);
     editB->disableArtMul();
     editB->setUiPadding(padding);
     menuContainer->addChild(editB);
 
-    editB->_callback = [=](CustomUi::Button* target) {
-        auto fcontainer = CustomUi::Container::create();
+    editB->_callback = [=](CUI::Button* target) {
+        auto fcontainer = CUI::Container::create();
         auto vis = Director::getInstance()->getVisibleSize();
         fcontainer->setBorderLayoutAnchor(TOP_LEFT);
-        fcontainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["ext_edit_container"],
+        fcontainer->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["ext_edit_container"],
             BOTTOM_LEFT, { -0.55, 0.65 }, true, vis / -2));
-        fcontainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER));
+        fcontainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER));
         fcontainer->setMargin({ 0, 10 });
         fcontainer->setBackgroundSprite();
         fcontainer->setBlocking();
         fcontainer->setDismissible();
         fcontainer->setBackgroundBlocking();
 
-        auto lb = CustomUi::Button::create();
+        auto lb = CUI::Button::create();
         lb->init(L"-- Editor General ----------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Undo (Use Quick Menu)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb->_callback = [=](CustomUi::Button* target) {
+        lb->_callback = [=](CUI::Button* target) {
             editorUndo();
         };
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Redo (Use Quick Menu)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb->_callback = [=](CustomUi::Button* target) {
+        lb->_callback = [=](CUI::Button* target) {
             editorRedo();
         };
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"-- TileMap Edit Tool -------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Stamp (Place) Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Remove Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Bucket Fill Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Selection Mode", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"-- TileMap Tile Transform Tool ---", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Flip Horizontally", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Flip Vertically", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Rotate 90 Degrees (Diagonal Flag)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"-- General TileMap Editor --------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Toggle TileMap Grid Visibility", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb->_callback = [=](CustomUi::Button* target) {
+        lb->_callback = [=](CUI::Button* target) {
             grid->setVisible(!grid->isVisible());
-            CustomUi::callbackAccess["fcontainer"]->removeFromParent();
+            CUI::callbackAccess["fcontainer"]->removeFromParent();
         };
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Toggle TileMap 3D Perspective View", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb->_callback = [=](CustomUi::Button* target) {
+        lb->_callback = [=](CUI::Button* target) {
             auto action = ActionFloat::create(1, zPositionMultiplier, zPositionMultiplier < 0.5 ? 1 : 0,
                 [=](float value) { zPositionMultiplier = tweenfunc::quintEaseInOut(value); });
             runAction(action);
-            CustomUi::callbackAccess["fcontainer"]->removeFromParent();
+            CUI::callbackAccess["fcontainer"]->removeFromParent();
         };
 
-        CustomUi::Functions::menuContentFitButtons(fcontainer);
+        CUI::Functions::menuContentFitButtons(fcontainer);
 
-        CustomUi::callbackAccess["fcontainer"] = fcontainer;
-        CustomUi::callbackAccess["main"]->addChild(fcontainer);
+        CUI::callbackAccess["fcontainer"] = fcontainer;
+        CUI::callbackAccess["main"]->addChild(fcontainer);
     };
 
-    auto settingsB = CustomUi::Button::create();
+    auto settingsB = CUI::Button::create();
     settingsB->initIcon("pretext_menu", hpadding);
     settingsB->disableArtMul();
     settingsB->setUiPadding(padding);
     menuContainer->addChild(settingsB);
 
-    auto editContainer = CustomUi::Container::create();
+    auto editContainer = CUI::Container::create();
     //editContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
-    editContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+    editContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 0, 0, false));
     editContainer->setTag(CONTAINER_FLOW_TAG);
     editContainer->setMargin({ 0, 1 });
     editContainer->setBackgroundBlocking();
-    CustomUi::callbackAccess.emplace("edit_container", editContainer);
+    CUI::callbackAccess.emplace("edit_container", editContainer);
 
     padding = { 52, 5 };
 
-    auto extContainer = CustomUi::Container::create();
+    auto extContainer = CUI::Container::create();
 
-    CustomUi::callbackAccess.emplace("ext_edit_container", extContainer);
+    CUI::callbackAccess.emplace("ext_edit_container", extContainer);
 
-    fileB->_callback = [=](CustomUi::Button* target) {
-        auto fcontainer = CustomUi::Container::create();
+    fileB->_callback = [=](CUI::Button* target) {
+        auto fcontainer = CUI::Container::create();
         auto vis = Director::getInstance()->getVisibleSize();
         fcontainer->setBorderLayoutAnchor(TOP_LEFT);
-        fcontainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["ext_edit_container"],
+        fcontainer->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["ext_edit_container"],
             BOTTOM_LEFT, { -0.55, 0.65 }, true, vis / -2));
-        fcontainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER));
+        fcontainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER));
         fcontainer->setMargin({ 0, 10 });
         fcontainer->setBackgroundSprite();
         fcontainer->setBlocking();
         fcontainer->setDismissible();
         fcontainer->setBackgroundBlocking();
 
-        auto lb = CustomUi::Button::create();
+        auto lb = CUI::Button::create();
         lb->init(L"-- Resources ----------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"New Map", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Open Map", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Import Texture", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Reload Textures", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"-- Changes ------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Save", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Save and Exit", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"Exit without Saving", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"-- Other --------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        auto slc = CustomUi::Container::create();
-        slc->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 0, 0, false));
+        auto slc = CUI::Container::create();
+        slc->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 0, 0, false));
         slc->setMargin({ 0, 0 });
 
-        auto opl = CustomUi::Label::create();
+        auto opl = CUI::Label::create();
         opl->init(L"UI Opacity  ", TTFFS);
         slc->addChild(opl);
 
-        auto sl = CustomUi::Slider::create();
+        auto sl = CUI::Slider::create();
         sl->init({ 64, 6 });
         slc->addChild(sl);
 
-        sl->_callback = [&](float v, CustomUi::Slider*) {
+        sl->_callback = [&](float v, CUI::Slider*) {
             getContainer()->setUiOpacity(v);
         };
 
         fcontainer->addChild(slc);
 
-        auto t = CustomUi::Toggle::create();
+        auto t = CUI::Toggle::create();
         t->init(L"Toggle 1.0");
         fcontainer->addChild(t);
 
-        lb = CustomUi::Button::create();
+        lb = CUI::Button::create();
         lb->init(L"More Options...", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChild(lb);
         fcontainer->addSpecialChild(lb);
 
-        /*lb->_callback = [=](CustomUi::Button* target) {
+        /*lb->_callback = [=](CUI::Button* target) {
             fcontainer->removeFromParent();
-            auto fcontainer1 = CustomUi::Container::create();
+            auto fcontainer1 = CUI::Container::create();
             auto vis = Director::getInstance()->getVisibleSize();
             fcontainer1->setBorderLayoutAnchor(TOP_LEFT);
-            fcontainer1->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["ext_edit_container"],
+            fcontainer1->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["ext_edit_container"],
                 BOTTOM_LEFT, { -0.55, 0.55 }, true, vis / -2));
-            fcontainer1->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER));
+            fcontainer1->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER));
             fcontainer1->setMargin({ 0, 10 });
             fcontainer1->setBackgroundSprite();
             fcontainer1->setBlocking();
             fcontainer1->setDismissible();
 
-            auto lb = CustomUi::Button::create();
+            auto lb = CUI::Button::create();
             lb->init(L"-- Resources --------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"Import .TTF/.OTF Font File", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"-- Passes -----------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"Open Render Pass Editor", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"-- TileMaps ---------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"Switch to Bilinear Rendering", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"-- Shaders ----------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"Import GLSL Shader", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"Compile GLSL v3.0 Compliant Shader Code", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"-- Native -----------------------------", TTFFS);
             lb->disable();
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            lb = CustomUi::Button::create();
+            lb = CUI::Button::create();
             lb->init(L"SQLite Vacuum File", TTFFS);
             lb->setUiPadding({ 10, 5 });
             fcontainer1->addChild(lb);
 
-            CustomUi::Functions::menuContentFitButtons(fcontainer1);
+            CUI::Functions::menuContentFitButtons(fcontainer1);
 
-            CustomUi::callbackAccess["main"]->addChild(fcontainer1);
+            CUI::callbackAccess["main"]->addChild(fcontainer1);
         };*/
 
-        CustomUi::Functions::menuContentFitButtons(fcontainer);
+        CUI::Functions::menuContentFitButtons(fcontainer);
 
-        CustomUi::callbackAccess["main"]->addChild(fcontainer);
+        CUI::callbackAccess["main"]->addChild(fcontainer);
     };
 
-    undoB = CustomUi::Button::create();
+    undoB = CUI::Button::create();
     undoB->initIcon("editor_undo");
     undoB->setUiPadding(padding);
     editContainer->addChild(undoB);
 
-    undoB->_callback = [&](CustomUi::Button* target) {
+    undoB->_callback = [&](CUI::Button* target) {
         editorUndo();
     };
 
-    redoB = CustomUi::Button::create();
+    redoB = CUI::Button::create();
     redoB->initIcon("editor_redo");
     redoB->setUiPadding(padding);
     editContainer->addChild(redoB);
 
-    redoB->_callback = [&](CustomUi::Button* target) {
+    redoB->_callback = [&](CUI::Button* target) {
         editorRedo();
     };
 
-    auto moveB = CustomUi::Button::create();
+    auto moveB = CUI::Button::create();
     moveB->initIcon("editor_move");
     moveB->setUiPadding(padding);
     editContainer->addChild(moveB);
@@ -1485,68 +1500,68 @@ void MapEditor::buildEntireUi()
 
     auto vis = Director::getInstance()->getVisibleSize();
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
-    extContainer->setConstraint(CustomUi::DependencyConstraint(CustomUi::callbackAccess["edit_container"],
-        BOTTOM_LEFT, { -0.02, 0 }));
-    extContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_VERTICAL, CustomUi::STACK_CENTER, 0));
+    extContainer->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
+        BOTTOM_LEFT, { -0.02, 0.01 }));
+    extContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0));
     extContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
     extContainer->setBackgroundBlocking();
     extContainer->setMargin({ 15, -5 });
 
-    auto rowContainer = CustomUi::Container::create();
-    rowContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 30, 0, false));
+    auto rowContainer = CUI::Container::create();
+    rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 30, 0, false));
     rowContainer->setTag(CONTAINER_FLOW_TAG);
     rowContainer->setMargin({ 0, 8 });
 
     padding = Vec2(8, 2);
 
-    auto extEditB = CustomUi::Button::create();
+    auto extEditB = CUI::Button::create();
     extEditB->initIcon("editor_place", padding);
     rowContainer->addChild(extEditB);
 
-    extEditB = CustomUi::Button::create();
+    extEditB = CUI::Button::create();
     extEditB->initIcon("editor_bucket_fill", padding);
     rowContainer->addChild(extEditB);
 
-    extEditB = CustomUi::Button::create();
+    extEditB = CUI::Button::create();
     extEditB->initIcon("editor_remove", padding);
     rowContainer->addChild(extEditB);
 
-    extEditB = CustomUi::Button::create();
+    extEditB = CUI::Button::create();
     extEditB->initIcon("editor_select", padding);
     rowContainer->addChild(extEditB);
 
     extContainer->addChild(rowContainer);
 
-    rowContainer = CustomUi::Container::create();
-    rowContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 30, 0, false));
+    rowContainer = CUI::Container::create();
+    rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 30, 0, false));
     rowContainer->setTag(CONTAINER_FLOW_TAG);
     rowContainer->setMargin({ 0, 8 });
 
-    tileFlipV = CustomUi::Button::create();
+    tileFlipV = CUI::Button::create();
     tileFlipV->initIcon("editor_flip_v", padding);
     rowContainer->addChild(tileFlipV);
 
-    tileFlipV->_callback = [&](CustomUi::Button* target) {
+    tileFlipV->_callback = [&](CUI::Button* target) {
         editorTileCoords.flipV();
         editorTileFlipRotateUpdateState();
     };
 
 
-    tileFlipH = CustomUi::Button::create();
+    tileFlipH = CUI::Button::create();
     tileFlipH->initIcon("editor_flip_h", padding);
     rowContainer->addChild(tileFlipH);
 
-    tileFlipH->_callback = [&](CustomUi::Button* target) {
+    tileFlipH->_callback = [&](CUI::Button* target) {
         editorTileCoords.flipH();
         editorTileFlipRotateUpdateState();
     };
 
-    tileRot90 = CustomUi::Button::create();
+    tileRot90 = CUI::Button::create();
     tileRot90->initIcon("editor_rotate_r", padding);
     rowContainer->addChild(tileRot90);
 
-    tileRot90->_callback = [&](CustomUi::Button* target) {
+    tileRot90->_callback = [&](CUI::Button* target) {
         editorTileCoords.cw();
         editorTileFlipRotateUpdateState();
     };
@@ -1557,17 +1572,17 @@ void MapEditor::buildEntireUi()
 
     topRightContainer->addChild(editContainer);
 
-    auto cameraScaleContainer = CustomUi::Container::create();
+    auto cameraScaleContainer = CUI::Container::create();
     cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
-    cameraScaleContainer->setLayout(CustomUi::FlowLayout(CustomUi::SORT_HORIZONTAL, CustomUi::STACK_CENTER, 20, 0, false));
+    cameraScaleContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 20, 0, false));
     cameraScaleContainer->setBorderLayoutAnchor();
     cameraScaleContainer->setMargin({ 0, 2 });
     cameraScaleContainer->setBackgroundBlocking();
     container->addChild(cameraScaleContainer);
 
-    cameraScaleB = CustomUi::Button::create();
+    cameraScaleB = CUI::Button::create();
     cameraScaleB->initIcon("editor_zoom_aligned");
-    cameraScaleB->_callback = [&](CustomUi::Button* target) {
+    cameraScaleB->_callback = [&](CUI::Button* target) {
         if (cameraScale != 1)
         {
             i32 i = 0;
@@ -1586,13 +1601,13 @@ void MapEditor::buildEntireUi()
     };
     cameraScaleContainer->addChild(cameraScaleB);
 
-    cameraScaleL = CustomUi::Label::create();
+    cameraScaleL = CUI::Label::create();
     cameraScaleL->init(L"", TTFFS);
     cameraScaleL->enableOutline();
     cameraScaleContainer->addChild(cameraScaleL);
 
     rebuildableUiNodes->removeAllChildren();
-    _debugText = CustomUi::Label::create();
+    _debugText = CUI::Label::create();
     _debugText->init(L"", TTFFS);
     _debugText->enableOutline();
     getContainer()->addChild(_debugText);
@@ -1620,7 +1635,7 @@ void MapEditor::buildEntireUi()
         _debugText->runAction(seq_repeat_forever);
     }
 
-    _editorToolTip = CustomUi::ToolTip::create();
+    _editorToolTip = CUI::ToolTip::create();
     container->addChild(_editorToolTip, 2);
 
     rebuildEntireUi();
@@ -1809,7 +1824,7 @@ void MapEditor::editorPushUndoState() {
     editorUndoRedoUpdateState();
 }
 
-GameUtils::Editor::UndoRedoState& MapEditor::editorUndoTopOrDummy()
+GameUtils::Editor::UndoRedoState& MapEditor::editorTopUndoStateOrDefault()
 {
     if (_undo.size() == 0)
         editorPushUndoState();
@@ -1820,5 +1835,5 @@ GameUtils::Editor::UndoRedoState& MapEditor::editorUndoTopOrDummy()
 void MapEditor::handleSignal(std::string signal)
 {
     if (signal == "tooltip_hsv_reset")
-        _editorToolTip->showToolTip(L"HSV color reset.", FLT_MAX);
+        _editorToolTip->showToolTip(L"HSV color reset.", 2);
 }

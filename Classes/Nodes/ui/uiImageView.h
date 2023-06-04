@@ -8,11 +8,11 @@
 
 USING_NS_CC;
 
-namespace CustomUi
+namespace CUI
 {
     class ImageView : public GUI {
     public:
-        static CustomUi::ImageView* create(ax::Size _contentsize, ax::Texture2D* texture);
+        static CUI::ImageView* create(ax::Size _contentsize, ax::Texture2D* texture);
 
         ui::Button* button;
         ui::Button* auxButton;

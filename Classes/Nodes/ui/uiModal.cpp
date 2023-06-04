@@ -1,16 +1,16 @@
 #include "uiModal.h"
 
-CustomUi::Modal::Modal()
+CUI::Modal::Modal()
 {
 	pushSelf();
 }
 
-void CustomUi::Modal::pushSelf()
+void CUI::Modal::pushSelf()
 {
 	_modalStack.push(this);
 }
 
-void CustomUi::Modal::popSelf()
+void CUI::Modal::popSelf()
 {
 	if (_modalStack.size() > 0)
 		if (_modalStack.top() == this)

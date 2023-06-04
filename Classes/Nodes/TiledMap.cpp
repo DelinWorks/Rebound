@@ -318,7 +318,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
             parallax->addChild(layer, 0, parallaxRatio, Vec2::ZERO);
         }
 
-        layer->setEditorColor(ColorConversion::hex2argb(layer->getEditorRawTint()));
+        layer->setEditorColor(ColorConversion::hex2rgba(layer->getEditorRawTint()));
 
         auto opacityProp = layer->getProperty("fragment_opacity");
         if (!opacityProp.isNull())
@@ -327,7 +327,7 @@ bool TiledMap::initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, s
         auto tintProp = layer->getProperty("fragment_tint");
         if (!tintProp.isNull()) {
             auto colorVect = tintProp.asString();
-            layer->setColor(ColorConversion::hex2argb(colorVect));
+            layer->setColor(ColorConversion::hex2rgba(colorVect));
         }
         else layer->setColor(Color4B::WHITE);
 

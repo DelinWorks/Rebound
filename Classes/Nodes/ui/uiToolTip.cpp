@@ -1,17 +1,17 @@
 #include "uiToolTip.h"
 
-CustomUi::ToolTip::ToolTip() {
+CUI::ToolTip::ToolTip() {
     scheduleUpdate();
     setBorderLayoutAnchor(BorderLayout::TOP_LEFT);
     setForceRawInput(true);
 }
 
-CustomUi::ToolTip* CustomUi::ToolTip::create()
+CUI::ToolTip* CUI::ToolTip::create()
 {
     ToolTip* ref = new ToolTip();
     if (ref->init())
     {
-        ref->label = CustomUi::Label::create();
+        ref->label = CUI::Label::create();
         ref->label->hAlignment = ax::TextHAlignment::CENTER;
         ref->label->init(L"", TTFFS);
         ref->addChildAsContainer(ref->label);
@@ -27,7 +27,7 @@ CustomUi::ToolTip* CustomUi::ToolTip::create()
     return ref;
 }
 
-void CustomUi::ToolTip::update(f32 dt)
+void CUI::ToolTip::update(f32 dt)
 {
     Vec2 visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 clampedMousePos = ax::Vec2::ZERO;
@@ -38,21 +38,21 @@ void CustomUi::ToolTip::update(f32 dt)
     curPos.x = LERP(curPos.x, clampedMousePos.x, 15 * dt);
     curPos.y = LERP(curPos.y, clampedMousePos.y, 15 * dt);
     auto angle = Vec2(curPos.x + curPos.y * 2, 1280).getAngle(Vec2(clampedMousePos.x + clampedMousePos.y * 2, 1280));
-    float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 12));
+    float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 8));
     rotation = LERP(rotation, curRotation, 8 * dt);
-    rotation = Math::clamp(rotation, -70, 70);
+    rotation = Math::clamp(rotation, -50, 50);
     setRotation(rotation);
     setPosition(clampedMousePos);
     position = curPos;
 }
 
-bool CustomUi::ToolTip::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::ToolTip::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
-	mousePos = mouseLocationInView - Director::getInstance()->getVisibleSize() / 2 - Vec2(0, 31);
+	mousePos = mouseLocationInView - Director::getInstance()->getVisibleSize() / 2 - Vec2(0, 30);
 	return false;
 }
 
-void CustomUi::ToolTip::showToolTip(std::wstring tooltip, float time_override)
+void CUI::ToolTip::showToolTip(std::wstring tooltip, float time_override)
 {
     float time = time_override == -1 ? 3 : time_override;
     stopAllActions();

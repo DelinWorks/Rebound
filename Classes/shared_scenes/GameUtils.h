@@ -50,12 +50,12 @@ Darkness::getInstance()->gameWindow.isScreenSizeDirty = false; \
 for (auto& _ : list) { \
     auto i = DCAST(UiRescaleComponent, _); \
     if (i) { \
-        auto c = DCAST(CustomUi::Container, i->getOwner()); \
+        auto c = DCAST(CUI::Container, i->getOwner()); \
         if (c && c->_closestStaticBorder) \
         { \
             auto parent = c; \
             while (parent) { \
-                parent = DCAST(CustomUi::Container, parent->getParent()); \
+                parent = DCAST(CUI::Container, parent->getParent()); \
                 if (!parent) break; \
                 if (!parent->isContainerDynamic()) { \
                     i->windowSizeChange(parent->getContentSize()); \
@@ -67,7 +67,7 @@ for (auto& _ : list) { \
     } \
 } \
 auto scale = Darkness::getInstance()->gameWindow.guiScale; \
-CustomUi::_UiScale = scale * CustomUi::_UiScaleMul; \
+CUI::_UiScale = scale * CUI::_UiScaleMul; \
 if (getContainer()) { getContainer()->updateLayoutManagers(true); \
     getContainer()->onFontScaleUpdate(scale); } \
 
