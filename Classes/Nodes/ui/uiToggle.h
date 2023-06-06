@@ -21,9 +21,21 @@ namespace CUI
     class Toggle;
     using ToggleCallback = std::function<void(bool t, Toggle* target)>;
 
+    class RadioGroup : public ax::Ref {
+    public:
+        RadioGroup();
+        ~RadioGroup();
+        void addChild(Toggle* t);
+        void select(Toggle* t);
+    private:
+        std::vector<Toggle*> radios;
+    };
+
     class Toggle : public HoverEffectGUI {
     public:
         static CUI::Toggle* create();
+
+        ~Toggle();
 
         Container* cont;
         ui::Button* button;
@@ -33,6 +45,7 @@ namespace CUI
 
         bool isToggled = false;
         ToggleCallback _callback;
+        RadioGroup* group = nullptr;
         
         void init(std::wstring _text, Size _contentsize = ax::Size::ZERO);
 

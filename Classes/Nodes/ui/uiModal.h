@@ -7,6 +7,8 @@ namespace CUI {
 	public:
 		Modal();
 
+		~Modal();
+
 		void pushSelf();
 		void popSelf();
 	};

@@ -60,10 +60,12 @@ void CUI::Container4Edge::calculateContentBoundaries()
 {
     Vec2 size = _prefferedSize;
 
-    size.x -= left ? left->getContentSize().x * 2 : 0;
-    size.x -= right ? right->getContentSize().x * 2 : 0;
-    size.y -= top ? top->getContentSize().y * 2 : 0;
-    size.y -= bottom ? bottom->getContentSize().y * 2 : 0;
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
+
+    size.x -= left ? left->getContentSize().x * ns.x : 0;
+    size.x -= right ? right->getContentSize().x * ns.x : 0;
+    size.y -= top ? top->getContentSize().y * ns.y : 0;
+    size.y -= bottom ? bottom->getContentSize().y * ns.y : 0;
 
     if (top && size.x < top->getContentSize().x) size.x = top->getContentSize().x;
     if (bottom && size.x < bottom->getContentSize().x) size.x = bottom->getContentSize().x;
@@ -71,15 +73,20 @@ void CUI::Container4Edge::calculateContentBoundaries()
     if (right && size.y < right->getContentSize().y) size.y = right->getContentSize().y;
     if (left && size.y < left->getContentSize().y) size.y = left->getContentSize().y;
 
-    setContentSize(size);
+    setContentSize(size, false);
     Container::recalculateChildDimensions();
 }
 
 void CUI::Container4Edge::updateLayoutManagers(bool recursive)
 {
-    calculateContentBoundaries();
+    Container::updateLayoutManagers();
     if (top) top->updateLayoutManagers();
     if (bottom) bottom->updateLayoutManagers();
     if (right) right->updateLayoutManagers();
     if (left) left->updateLayoutManagers();
+}
+
+CUI::Container4Edge::~Container4Edge()
+{
+    LOG_RELEASE;
 }

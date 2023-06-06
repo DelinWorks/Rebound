@@ -129,3 +129,8 @@ Size CUI::Slider::getFitContentSize()
 {
     return slider->getContentSize() * 2 + SLIDER_HITBOX_CORNER_TOLERANCE;
 }
+
+CUI::Slider::~Slider()
+{
+    LOG_RELEASE;
+}

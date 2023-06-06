@@ -338,3 +338,8 @@ void CUI::TextField::setString(std::wstring _text)
     cachedString = _text;
     field->_textFieldRenderer->setString(Strings::narrow(_text));
 }
+
+CUI::TextField::~TextField()
+{
+    LOG_RELEASE;
+}

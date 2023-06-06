@@ -15,6 +15,7 @@
 #include "uiToolTip.h"
 #include "uiContainer4Edge.h"
 #include "uiTabs.h"
+#include "uiList.h"
 
 #ifndef EXCLUDE_EXTENSIONS
 
@@ -192,15 +193,22 @@ namespace CUI {
             hsvcontrol->addChild(savedCont);
 
             auto optionsCont = Container::create();
-            optionsCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 16, 0));
+            optionsCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 2, 0));
+            auto rg = new RadioGroup();
             auto toggle = Toggle::create();
             toggle->init(L"Add             ");
+            toggle->DenyRescaling();
+            rg->addChild(toggle);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
             toggle->init(L"Subtract        ");
+            toggle->DenyRescaling();
+            rg->addChild(toggle);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
             toggle->init(L"Reserve Subtract");
+            toggle->DenyRescaling();
+            rg->addChild(toggle);
             optionsCont->addChild(toggle);
             hsvcontrol->addChild(optionsCont);
 

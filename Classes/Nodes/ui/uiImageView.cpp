@@ -132,3 +132,8 @@ void CUI::ImageView::onEnable()
 void CUI::ImageView::onDisable()
 {
 }
+
+CUI::ImageView::~ImageView()
+{
+    LOG_RELEASE;
+}

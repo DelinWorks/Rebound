@@ -23,6 +23,8 @@ namespace CUI
     public:
         static CUI::Slider* create();
 
+        ~Slider();
+
         ui::Button* button;
         ui::Slider* slider;
         ui::Scale9Sprite* sprite;

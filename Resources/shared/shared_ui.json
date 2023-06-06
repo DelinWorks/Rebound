@@ -126,10 +126,35 @@
       }
     },
     {
-      "filename": "9_slice_box_1",
+      "filename": "ptrn_bg_hover",
       "frame": {
         "x": 115,
         "y": 269,
+        "w": 28,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 28,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 28,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "9_slice_box_1",
+      "frame": {
+        "x": 145,
+        "y": 259,
         "w": 28,
         "h": 28
       },
@@ -176,37 +201,12 @@
       }
     },
     {
-      "filename": "9_slice_box_1_gray",
-      "frame": {
-        "x": 145,
-        "y": 259,
-        "w": 28,
-        "h": 28
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 28,
-        "h": 28
-      },
-      "sourceSize": {
-        "w": 28,
-        "h": 28
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "ptrn_bg_hover",
+      "filename": "9_slice_box_1_cramped3",
       "frame": {
         "x": 175,
         "y": 259,
         "w": 28,
-        "h": 28
+        "h": 14
       },
       "rotated": false,
       "trimmed": false,
@@ -214,11 +214,11 @@
         "x": 0,
         "y": 0,
         "w": 28,
-        "h": 28
+        "h": 14
       },
       "sourceSize": {
         "w": 28,
-        "h": 28
+        "h": 14
       },
       "pivot": {
         "x": 0.5,
@@ -251,7 +251,7 @@
       }
     },
     {
-      "filename": "9_slice_box_1_inv",
+      "filename": "9_slice_box_1_gray",
       "frame": {
         "x": 235,
         "y": 259,
@@ -276,10 +276,35 @@
       }
     },
     {
-      "filename": "text_cursor",
+      "filename": "9_slice_box_1_inv",
       "frame": {
         "x": 265,
         "y": 259,
+        "w": 28,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 28,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 28,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "filename": "text_cursor",
+      "frame": {
+        "x": 175,
+        "y": 275,
         "w": 10,
         "h": 24
       },
@@ -303,7 +328,7 @@
     {
       "filename": "toggle_non",
       "frame": {
-        "x": 277,
+        "x": 295,
         "y": 259,
         "w": 17,
         "h": 17
@@ -328,7 +353,7 @@
     {
       "filename": "toggle_selected",
       "frame": {
-        "x": 277,
+        "x": 295,
         "y": 278,
         "w": 17,
         "h": 17
@@ -353,8 +378,8 @@
     {
       "filename": "hsv_handle",
       "frame": {
-        "x": 296,
-        "y": 259,
+        "x": 187,
+        "y": 275,
         "w": 14,
         "h": 14
       },

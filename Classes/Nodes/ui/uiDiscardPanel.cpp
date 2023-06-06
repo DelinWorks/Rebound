@@ -153,3 +153,8 @@ Size CUI::DiscardPanel::getDynamicContentSize()
 {
     return Size(0, 0);
 }
+
+CUI::DiscardPanel::~DiscardPanel()
+{
+    LOG_RELEASE;
+}

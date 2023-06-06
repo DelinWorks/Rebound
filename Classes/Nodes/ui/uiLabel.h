@@ -13,6 +13,9 @@ namespace CUI
     class Label : public GUI {
     public:
         static CUI::Label* create();
+
+        ~Label();
+
         UiFontDescriptor desc;
         ax::Label* field;
         ax::Size size;

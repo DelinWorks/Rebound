@@ -61,6 +61,8 @@ typedef double f64;
 #define CCCP const char*
 #define C_UCHAR_P const unsigned char*
 
+#define SELF this->
+
 #define _NOTHING nullptr
 
 #define LERP MathUtil::lerp

@@ -10,6 +10,16 @@
       "folder": ""
     },
     {
+      "name": "9_slice_box_1_inv.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_inv.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_cramped2.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped2.png",
+      "folder": ""
+    },
+    {
       "name": "9_slice_box_1_gray.png",
       "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_gray.png",
       "folder": ""
@@ -20,8 +30,18 @@
       "folder": ""
     },
     {
-      "name": "9_slice_box_1_inv.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_inv.png",
+      "name": "hsv_handle.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_handle.png",
+      "folder": ""
+    },
+    {
+      "name": "hsv_square.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_square.png",
+      "folder": ""
+    },
+    {
+      "name": "hsv_wheel.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_wheel.png",
       "folder": ""
     },
     {
@@ -62,6 +82,16 @@
     {
       "name": "text_cursor.png",
       "path": "E:/dev/Rebound/Resources/shared/unready/text_cursor.png",
+      "folder": ""
+    },
+    {
+      "name": "toggle_non.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/toggle_non.png",
+      "folder": ""
+    },
+    {
+      "name": "toggle_selected.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/toggle_selected.png",
       "folder": ""
     }
   ],

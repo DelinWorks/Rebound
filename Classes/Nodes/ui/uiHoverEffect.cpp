@@ -93,3 +93,8 @@ void CUI::HoverEffectGUI::hover()
         _hoverSprite->runAction(seq);
     }
 }
+
+CUI::HoverEffectGUI::~HoverEffectGUI()
+{
+    LOG_RELEASE;
+}

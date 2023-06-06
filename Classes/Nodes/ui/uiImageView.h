@@ -14,6 +14,8 @@ namespace CUI
     public:
         static CUI::ImageView* create(ax::Size _contentsize, ax::Texture2D* texture);
 
+        ~ImageView();
+
         ui::Button* button;
         ui::Button* auxButton;
         ax::ClippingRectangleNode* scissor;

@@ -14,11 +14,6 @@ CUI::Button* CUI::Button::create()
     return ret;
 }
 
-CUI::Button::~Button() {
-    if (CUI::_pCurrentHeldItem == this)
-        CUI::_pCurrentHeldItem = nullptr;
-}
-
 void CUI::Button::init(std::wstring _text, int _fontSize, Size _size, Size _hitboxPadding)
 {
     init(
@@ -44,7 +39,26 @@ void CUI::Button::initIcon(std::string _frameName, Size _hitboxPadding)
         L"",
         "",
         0,
-        ADVANCEDUI_P1_CAP_INSETS,
+        Rect::ZERO,
+        Size(0, 0),
+        Rect(0, 0, 0, 0),
+        Size(0, 0),
+        _frameName,
+        true,
+        Color3B(117, 179, 255),
+        true,
+        true,
+        _hitboxPadding
+    );
+}
+
+void CUI::Button::initIcon(std::string _frameName, Rect _capInsets, Size _hitboxPadding)
+{
+    init(
+        L"",
+        "",
+        0,
+        _capInsets,
         Size(0, 0),
         Rect(0, 0, 0, 0),
         Size(0, 0),
@@ -76,8 +90,17 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
     selected_color = _selected_color;
     field_size = _contentsize;
     if (_isIcon) {
-        icon = ax::Sprite::createWithSpriteFrameName(_normal_sp);
-        addChild(icon, 0);
+        if (_capinsets.equals(Rect::ZERO)) {
+            icon = ax::ui::Scale9Sprite::createWithSpriteFrameName(_normal_sp);
+            icon->setScale9Enabled(false);
+            icon->_roundRenderMatrix = true;
+            addChild(icon, 0);
+        } else {
+            icon = ax::ui::Scale9Sprite::createWithSpriteFrameName(_normal_sp);
+            icon->setCapInsets(_capinsets);
+            icon->_roundRenderMatrix = true;
+            addChild(icon, 0);
+        }
     }
     else {
         field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
@@ -91,6 +114,7 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
     button = createPlaceholderButton();
     addChild(button);
     _callback = [] (Button*) {};
+    onFontScaleUpdate(_UiScale);
 }
 
 void CUI::Button::update(f32 dt) {
@@ -238,6 +262,11 @@ void CUI::Button::disableIconHighlight()
     if (icon) icon->setColor(Color3B::WHITE);
 }
 
+float CUI::Button::preCalculatedHeight()
+{
+    return field->getContentSize().y * getScaleY();
+}
+
 void CUI::Button::onFontScaleUpdate(float scale)
 {
     if (field) {
@@ -253,4 +282,10 @@ void CUI::Button::onFontScaleUpdate(float scale)
         field->getFontAtlas()->setAliasTexParameters();
     }
     else icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);
+}
+
+CUI::Button::~Button() {
+    if (CUI::_pCurrentHeldItem == this)
+        CUI::_pCurrentHeldItem = nullptr;
+    LOG_RELEASE;
 }

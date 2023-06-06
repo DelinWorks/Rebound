@@ -8,8 +8,6 @@ CUI::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE)
     setDynamic();
 }
 
-CUI::Container::~Container() {}
-
 void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context) {
     if (context == BorderContext::PARENT)
         _closestStaticBorder = true;
@@ -22,6 +20,7 @@ CUI::Container* CUI::Container::create()
     Container* ref = new Container();
     if (ref->init())
     {
+        ref->_isContainer = true;
         ref->autorelease();
     }
     else
@@ -327,6 +326,29 @@ void CUI::Container::setBackgroundSpriteCramped2(ax::Vec2 padding, ax::Vec2 scal
     Node::addChild(_background, -1);
 }
 
+void CUI::Container::setBackgroundSpriteCramped3(ax::Vec2 padding, ax::Vec2 scale)
+{
+    _backgroundPadding = padding;
+    _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED3, ADVANCEDUI_P1_CAP_INSETS);
+    _background->setTag(YOURE_NOT_WELCOME_HERE);
+    _background->setProgramState(_backgroundShader);
+    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+        ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
+    Node::addChild(_background, -1);
+}
+
+void CUI::Container::setBackgroundSpriteDarken(ax::Vec2 padding) {
+    _backgroundPadding = padding;
+    _background = ax::ui::Scale9Sprite::create("pixel.png");
+    _background->setTag(YOURE_NOT_WELCOME_HERE);
+    //_background->setProgramState(_backgroundShader);
+    _background->setColor({ 128, 128, 128 });
+    _background->setOpacity(20);
+    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+        ->enableDesignScaleIgnoring(Vec2(2, 2)));
+    Node::addChild(_background, -1);
+}
+
 void CUI::Container::setBackgroundDim()
 {
     _bgDim = ax::LayerColor::create(Color4B(0, 0, 0, 100));
@@ -405,13 +427,13 @@ void CUI::Container::calculateContentBoundaries()
         if (c) c->calculateContentBoundaries();
         if (!isContainerDynamic()) continue;
         auto size = _->getScaledContentSize();
-        float eq = _->getPositionX();
+        float eq = abs(_->getPositionX());
         if (eq > highestX) {
             highestX = eq;
             highestSize.x = size.x * ns.x;
         }
 
-        eq = _->getPositionY();
+        eq = abs(_->getPositionY());
         if (eq > highestY) {
             highestY = eq;
             highestSize.y = size.y * ns.y;
@@ -434,7 +456,8 @@ void CUI::Container::calculateContentBoundaries()
     );
 
     if (isContainerDynamic())
-        setContentSize((Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x), abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
+        setContentSize((Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x),
+                             abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
 
     Container::recalculateChildDimensions();
 }
@@ -492,6 +515,7 @@ void CUI::FlowLayout::build(CUI::Container* container)
 
 void CUI::DependencyConstraint::build(CUI::GUI* element)
 {
+    // TODO: FIX STACK OVERFLOW
     //auto container = DCAST(Container, parent);
     //if (container) container->updateLayoutManagers();
 
@@ -614,4 +638,9 @@ void CUI::EventPassClippingNode::keyRelease(EventKeyboard::KeyCode keyCode)
 void CUI::EventPassClippingNode::mouseScroll(EventMouse* event)
 {
     return child->mouseScroll(event);
+}
+
+CUI::Container::~Container()
+{
+    LOG_RELEASE;
 }

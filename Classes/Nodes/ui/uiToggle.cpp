@@ -32,15 +32,18 @@ void CUI::Toggle::init(std::wstring _text, Size _contentsize)
     addChild(button);
     addChild(cont);
     _callback = [](bool, Toggle*) {};
+    cont->updateLayoutManagers();
+    update(0);
 }
 
 void CUI::Toggle::update(f32 dt)
 {
     auto dSize = getDynamicContentSize();
-    button->setContentSize(dSize);
     auto ns = GameUtils::getNodeIgnoreDesignScale();
+    //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
     setContentSize(dSize / ns);
-    HoverEffectGUI::update(dt, dSize);
+    button->setContentSize(dSize * ns);
+    HoverEffectGUI::update(dt, dSize * ns);
 }
 
 bool CUI::Toggle::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
@@ -99,8 +102,13 @@ bool CUI::Toggle::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     onEnable(); // Used for effects only
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
-        _callback(isToggled = !isToggled, this);
-        knob->icon->setSpriteFrame(isToggled ? "toggle_selected" : "toggle_non");
+        if (group) {
+            group->select(this);
+            knob->icon->setSpriteFrame((isToggled = true) ? "toggle_selected" : "toggle_non");
+        } else {
+            _callback(isToggled = !isToggled, this);
+            knob->icon->setSpriteFrame(isToggled ? "toggle_selected" : "toggle_non");
+        }
         SoundGlobals::playUiHoverSound();
         return true;
     }
@@ -115,4 +123,41 @@ Size CUI::Toggle::getDynamicContentSize()
 Size CUI::Toggle::getFitContentSize()
 {
 	return getDynamicContentSize();
+}
+
+CUI::RadioGroup::RadioGroup()
+{
+    SELF autorelease();
+}
+
+CUI::RadioGroup::~RadioGroup()
+{
+    LOG_RELEASE;
+}
+
+void CUI::RadioGroup::addChild(Toggle* t)
+{
+    t->group = this;
+    SELF retain();
+    radios.push_back(t);
+}
+
+void CUI::RadioGroup::select(Toggle* t)
+{
+    i8 count = 0;
+    i8 selectedIndex = -1;
+    for (auto& _ : radios) {
+        if (_ != t)
+            _->knob->icon->setSpriteFrame(
+                (_->isToggled = false) ? "toggle_selected" : "toggle_non");
+        else selectedIndex = count;
+        count++;
+    }
+}
+
+CUI::Toggle::~Toggle()
+{
+    if (group)
+        group->release();
+    LOG_RELEASE;
 }

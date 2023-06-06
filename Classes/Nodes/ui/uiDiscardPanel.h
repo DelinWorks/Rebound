@@ -29,6 +29,8 @@ namespace CUI
     public:
         static CUI::DiscardPanel* create(BorderLayout border = BorderLayout::CENTER, BorderContext context = BorderContext::SCREEN_SPACE);
 
+        ~DiscardPanel();
+
         void init(const std::wstring& header, const std::wstring& placeholder_or_text, DiscardButtons buttons = DiscardButtons::OKAY_ABORT, DiscardType type = DiscardType::INPUT);
 
         bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);

@@ -19,6 +19,8 @@ namespace CUI
     public:
         Tabs(Vec2 _prefferedSize);
 
+        ~Tabs();
+
         static CUI::Tabs* create(Vec2 _prefferedSize);
 
         void addElement(std::wstring e, GUI* container = nullptr);

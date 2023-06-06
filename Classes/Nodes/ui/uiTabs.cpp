@@ -184,3 +184,8 @@ void CUI::Tabs::setSelection(int idx)
     if (tabIndices.size() > 0)
         tabIndices[0].button->_callback(tabIndices[0].button);
 }
+
+CUI::Tabs::~Tabs()
+{
+    LOG_RELEASE;
+}

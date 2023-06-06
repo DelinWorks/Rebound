@@ -22,8 +22,8 @@ namespace CUI
         static CUI::Button* create();
 
         UiFontDescriptor desc;
-        ax::Label* field;
-        ax::Sprite* icon;
+        Label* field;
+        ax::ui::Scale9Sprite* icon;
         ui::Scale9Sprite* sprite;
         ui::Button* button;
         std::string normal_sp;
@@ -43,6 +43,7 @@ namespace CUI
         
         void init(std::wstring _text, int _fontSize, Size _size = ax::Size::ZERO, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
         void initIcon(std::string _frameName, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
+        void initIcon(std::string _frameName, Rect _capInsets, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
 
         void init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
             cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
@@ -71,6 +72,7 @@ namespace CUI
         void enableIconHighlight();
         void disableIconHighlight();
 
+        float preCalculatedHeight();
 
         void onFontScaleUpdate(float scale) override;
     };

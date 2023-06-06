@@ -18,6 +18,8 @@ namespace CUI
     public:
         static CUI::HSVWheel* create(float scale = 1.0);
 
+        ~HSVWheel();
+
         ui::Button* button;
         ui::Button* resetButton;
 

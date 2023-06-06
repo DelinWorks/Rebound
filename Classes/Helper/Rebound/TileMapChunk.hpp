@@ -644,7 +644,7 @@ typedef u32 TileID;
                 }
                 _chunkDirty = false;
             }
-            setBlendFunc({ backend::BlendFactor::ZERO, backend::BlendFactor::SRC_ALPHA });
+            setBlendFunc(BlendFunc::ALPHA_NON_PREMULTIPLIED);
             if (_mesh && getDisplayedOpacity())
                 MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }

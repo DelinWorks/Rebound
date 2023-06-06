@@ -10,7 +10,13 @@ void CUI::GUI::setContentSize(const Vec2& size, bool recursive)
 
 #ifdef DRAW_NODE_DEBUG
 		_contentSizeDebug->clear();
-		_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 50));
+		if (_isContainer) {
+			_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::MAGENTA, 100));
+			_contentSizeDebug->setGlobalZOrder(UINT16_MAX - 1);
+		} else {
+			_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 100));
+			_contentSizeDebug->setGlobalZOrder(UINT16_MAX);
+		}
 #endif
 	}
 }
@@ -84,7 +90,6 @@ CUI::GUI::GUI()
 
 CUI::GUI::~GUI()
 {
-	LOG_RELEASE;
 }
 
 void CUI::GUI::setUiOpacity(float opacity)

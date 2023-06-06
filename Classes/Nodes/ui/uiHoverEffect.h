@@ -9,6 +9,7 @@ namespace CUI {
 	class HoverEffectGUI : public GUI {
 	public:
 		HoverEffectGUI();
+		~HoverEffectGUI();
 
 		void update(f32 dt, Vec2 size);
 		void hover();

@@ -165,8 +165,18 @@
       "folder": ""
     },
     {
-      "name": "icons.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/icons.png",
+      "name": "pretext_edit.png",
+      "path": "E:/dev/Rebound/Resources/editor/unready/pretext_edit.png",
+      "folder": ""
+    },
+    {
+      "name": "pretext_file.png",
+      "path": "E:/dev/Rebound/Resources/editor/unready/pretext_file.png",
+      "folder": ""
+    },
+    {
+      "name": "pretext_menu.png",
+      "path": "E:/dev/Rebound/Resources/editor/unready/pretext_menu.png",
       "folder": ""
     }
   ],
@@ -189,7 +199,7 @@
     "fixedSize": false,
     "powerOfTwo": false,
     "padding": 0,
-    "extrude": 0,
+    "extrude": 1,
     "allowRotation": false,
     "allowTrim": false,
     "trimMode": "trim",

@@ -20,7 +20,7 @@ inline int _loggerCurrLine;
 #define RLOGW _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log
 #define RLOGE _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::loge
 
-#define LOG_RELEASE RLOGW("destructor called for {} _ID: {}", typeid(this).name(), _ID)
+#define LOG_RELEASE RLOGW("Object {} _ID: {} was Released from Memory", typeid(this).name(), _ID)
 
 #ifdef NDEBUG
 #define RLOG 

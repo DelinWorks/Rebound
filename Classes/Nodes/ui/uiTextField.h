@@ -22,6 +22,8 @@ namespace CUI
     public:
         static CUI::TextField* create();
 
+        ~TextField();
+
         UiFontDescriptor desc;
         ui::TextField* field;
         std::wstring cachedString;

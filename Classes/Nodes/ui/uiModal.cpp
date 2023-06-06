@@ -16,3 +16,8 @@ void CUI::Modal::popSelf()
 		if (_modalStack.top() == this)
 			_modalStack.pop();
 }
+
+CUI::Modal::~Modal()
+{
+	LOG_RELEASE;
+}

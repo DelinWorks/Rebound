@@ -192,3 +192,8 @@ bool CUI::HSVWheel::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     }
     return false;
 }
+
+CUI::HSVWheel::~HSVWheel()
+{
+    LOG_RELEASE;
+}

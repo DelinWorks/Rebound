@@ -1064,12 +1064,6 @@ void MapEditor::buildEntireUi()
     uiNode->addChild(container);
     CUI::callbackAccess.emplace("main", container);
 
-    auto lbtest = CUI::Label::create();
-    lbtest->init(L"This Is Some Text eeeeeeeee", TTFFS);
-    lbtest->setPositionY(-101);
-    container->addChild(lbtest);
-    lbtest->runAction(MoveBy::create(10, Vec3(0, -10, 0)));
-
     //container->addChild(CUI::Functions::createFledgedHSVPanel());
 
     //auto test4edge1 = CUI::Container::create();
@@ -1082,13 +1076,51 @@ void MapEditor::buildEntireUi()
     //container4edge->setChildRight(test4edge1);
     //container4edge->setChildLeft(test4edge2);
 
-    auto tabs = CUI::Tabs::create({ 300, 20 });
-    tabs->setBackgroundSpriteCramped2({ 10, 2 });
-    container->addChild(tabs);
-    BENCHMARK_SECTION_BEGIN("create ui");
-    for (int i = 0; i < 30; i++)
-        tabs->addElement(Strings::widen(Strings::gen_random(RandomHelper::random_int<int>(4, 8))));
-    BENCHMARK_SECTION_END();
+    //auto tabs = CUI::Tabs::create({ 300, 20 });
+    //tabs->setBackgroundSpriteCramped2({ 10, 2 });
+    //container->addChild(tabs);
+    //BENCHMARK_SECTION_BEGIN("create ui");
+    //for (int i = 0; i < 30; i++)
+    //    tabs->addElement(Strings::widen(Strings::gen_random(RandomHelper::random_int<int>(4, 8))));
+    //BENCHMARK_SECTION_END();
+
+    auto list = CUI::List::create({ 200, 200 });
+    list->setBorderLayout(TOP_RIGHT, PARENT);
+    list->setBorderLayoutAnchor(TOP_RIGHT);
+    list->setBackgroundSpriteCramped3({ 0, 10 });
+    container->addChild(list);
+    for (int i = 0; i < 99; i++)
+    {
+        auto main = CUI::Container::create();
+        auto elem = CUI::Button::create();
+        main->setStatic();
+        if (i == 0)
+            elem->init(WFMT(L"Grass Layer that The Stupid Player Interacts with please leave I don't want you in my life", i), TTFFS, { 190, 0 });
+        else
+            elem->init(WFMT(L"LAYER_NAME_%d", i), TTFFS, { 190, 0 });
+        main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
+        Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2);
+        //elem->hAlignment = ax::TextHAlignment::LEFT;
+        auto left = TO_CONTAINER(elem);
+        left->setConstraint(CUI::DependencyConstraint(main, LEFT));
+        left->setBorderLayoutAnchor(LEFT);
+        auto visi = CUI::Button::create();
+        visi->initIcon("editor_visible", hpadding);
+        auto lock = CUI::Button::create();
+        lock->initIcon("editor_lock", hpadding);
+        auto opt = CUI::Button::create();
+        opt->initIcon("editor_settings", hpadding);
+        auto right = CUI::Container::create();
+        right->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_LEFT, 0, 0, false));
+        right->setConstraint(CUI::DependencyConstraint(main, RIGHT));
+        right->addChild(visi);
+        right->addChild(lock);
+        right->addChild(opt);
+        main->setMargin({ 10, 10 });
+        main->addChild(left);
+        main->addChild(right);
+        list->addElement(main);
+    }
 
     container->addChild(CUI::Functions::createFledgedHSVPanel());
 
@@ -1099,7 +1131,7 @@ void MapEditor::buildEntireUi()
     auto c = TO_CONTAINER(_tilesetPicker);
     c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
     c->setBorderLayoutAnchor(BorderLayout::BOTTOM_RIGHT);
-    c->setBackgroundSpriteCramped(ax::Vec2::ZERO);
+    c->setBackgroundSpriteCramped3(ax::Vec2::ZERO);
     c->setBackgroundBlocking();
     c->setMargin({ 3, 3 });
     container->addChild(c);
@@ -1118,7 +1150,7 @@ void MapEditor::buildEntireUi()
     topRightContainer->addChild(menuContainer);
     menuContainer->setBackgroundBlocking();
 
-    auto padding = Size(28, 20);
+    auto padding = Size(38, 20);
     auto hpadding = Size(3, 20);
 
     auto fileB = CUI::Button::create();
@@ -1506,12 +1538,12 @@ void MapEditor::buildEntireUi()
     extContainer->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
     extContainer->setBackgroundBlocking();
-    extContainer->setMargin({ 15, -5 });
+    extContainer->setMargin({ 5, 0 });
 
     auto rowContainer = CUI::Container::create();
-    rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 30, 0, false));
+    rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 32, 0, false));
     rowContainer->setTag(CONTAINER_FLOW_TAG);
-    rowContainer->setMargin({ 0, 8 });
+    rowContainer->setMargin({ 0, 4 });
 
     padding = Vec2(8, 2);
 
@@ -1536,7 +1568,7 @@ void MapEditor::buildEntireUi()
     rowContainer = CUI::Container::create();
     rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 30, 0, false));
     rowContainer->setTag(CONTAINER_FLOW_TAG);
-    rowContainer->setMargin({ 0, 8 });
+    rowContainer->setMargin({ 0, 4 });
 
     tileFlipV = CUI::Button::create();
     tileFlipV->initIcon("editor_flip_v", padding);

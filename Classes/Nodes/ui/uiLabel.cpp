@@ -33,7 +33,7 @@ void CUI::Label::init(std::wstring& _text, std::string_view _fontname, i32 _font
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
     field = ax::Label::create();
-    addChild(field);
+    SELF addChild(field);
     text = _text;
     size = _size;
     wrap = _wrap;
@@ -110,6 +110,7 @@ void CUI::Label::onFontScaleUpdate(float scale)
     if (hasOutline || _ForceOutline)
         field->enableOutline(Color4B::BLACK, _PmtFontOutline * _UiScale);
     field->getFontAtlas()->setAliasTexParameters();
+    field->updateContent();
 }
 
 void CUI::Label::updatePositionAndSize()
@@ -137,4 +138,9 @@ void CUI::Label::setString(std::string _text)
 {
     text = Strings::widen(_text);
     setString(text);
+}
+
+CUI::Label::~Label()
+{
+    LOG_RELEASE;
 }

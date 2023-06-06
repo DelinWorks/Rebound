@@ -10,6 +10,7 @@ namespace CUI
     class ToolTip : public Container {
     public:
         ToolTip();
+        ~ToolTip();
 
         static CUI::ToolTip* create();
 

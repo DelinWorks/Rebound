@@ -68,3 +68,8 @@ void CUI::ToolTip::showToolTip(std::wstring tooltip, float time_override)
     );
     runAction(seq);
 }
+
+CUI::ToolTip::~ToolTip()
+{
+    LOG_RELEASE;
+}

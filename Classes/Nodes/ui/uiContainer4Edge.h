@@ -9,6 +9,7 @@ namespace CUI
     class Container4Edge : public Container {
     public:
         Container4Edge();
+        ~Container4Edge();
 
         static CUI::Container4Edge* create(Vec2 _prefferedSize);
 

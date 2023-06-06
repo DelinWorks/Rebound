@@ -18,6 +18,7 @@
 #define ADVANCEDUI_TEXTURE_GRAY "9_slice_box_1_gray"sv
 #define ADVANCEDUI_TEXTURE_CRAMPED "9_slice_box_1_cramped"sv
 #define ADVANCEDUI_TEXTURE_CRAMPED2 "9_slice_box_1_cramped2"sv
+#define ADVANCEDUI_TEXTURE_CRAMPED3 "9_slice_box_1_cramped3"sv
 
 namespace CUI
 {
@@ -114,6 +115,8 @@ namespace CUI
         void setBackgroundSprite(ax::Vec2 padding = {0, 0}, BgSpriteType type = BgSpriteType::BG_NORMAL);
         void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
         void setBackgroundSpriteCramped2(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
+        void setBackgroundSpriteCramped3(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
+        void setBackgroundSpriteDarken(ax::Vec2 padding = { 0, 0 });
         void setBackgroundDim();
 
         void setBlocking();
@@ -152,9 +155,8 @@ namespace CUI
             return _isHitSwallowed || isUiFocused();
         }
 
-        void setMargin(ax::Vec2 margin) {
-            _margin = margin;
-        }
+        void setMargin(const ax::Vec2& margin) { _margin = margin; }
+        const Vec2& getMargin() { return _margin; }
 
         void onEnable();
         void onDisable();

@@ -177,7 +177,7 @@ namespace CUI
         virtual const Size& getPrefferedContentSize() const;
 
     protected:
-        float _pretextIconScaling = 0.75 * 0.5;
+        float _pretextIconScaling = 2;
         bool _iconArtMulEnabled = true;
         bool _forceRawInput = false;
         bool _rescalingAllowed = true;
