@@ -1085,19 +1085,19 @@ void MapEditor::buildEntireUi()
     //BENCHMARK_SECTION_END();
 
     auto list = CUI::List::create({ 200, 200 });
-    list->setBorderLayout(TOP_RIGHT, PARENT);
-    list->setBorderLayoutAnchor(TOP_RIGHT);
+    //list->setBorderLayout(TOP_RIGHT, PARENT);
+    //list->setBorderLayoutAnchor(TOP_RIGHT);
     list->setBackgroundSpriteCramped3({ 0, 10 });
     container->addChild(list);
-    for (int i = 0; i < 99; i++)
+    for (int i = 0; i < 1000; i++)
     {
         auto main = CUI::Container::create();
-        auto elem = CUI::Button::create();
         main->setStatic();
+        auto elem = CUI::Button::create();
         if (i == 0)
-            elem->init(WFMT(L"Grass Layer that The Stupid Player Interacts with please leave I don't want you in my life", i), TTFFS, { 190, 0 });
+            elem->init(WFMT(L"Grass Layer that The Stupid Player Interacts with please leave I don't want you in my life", i), TTFFS, { 174, 0 });
         else
-            elem->init(WFMT(L"LAYER_NAME_%d", i), TTFFS, { 190, 0 });
+            elem->init(WFMT(L"LAYER_NAME_%d", i), TTFFS, { 174, 0 });
         main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
         Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2);
         //elem->hAlignment = ax::TextHAlignment::LEFT;
@@ -1179,13 +1179,6 @@ void MapEditor::buildEntireUi()
         fcontainer->setBackgroundBlocking();
 
         auto lb = CUI::Button::create();
-        lb->init(L"-- Editor General ----------------", TTFFS);
-        lb->disable();
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
         lb->init(L"Undo (Use Quick Menu)", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
@@ -1206,7 +1199,7 @@ void MapEditor::buildEntireUi()
         };
 
         lb = CUI::Button::create();
-        lb->init(L"-- TileMap Edit Tool -------------", TTFFS);
+        lb->init(L"----------------------------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
@@ -1237,7 +1230,7 @@ void MapEditor::buildEntireUi()
         fcontainer->addSpecialChild(lb);
 
         lb = CUI::Button::create();
-        lb->init(L"-- TileMap Tile Transform Tool ---", TTFFS);
+        lb->init(L"----------------------------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
@@ -1262,9 +1255,9 @@ void MapEditor::buildEntireUi()
         fcontainer->addSpecialChild(lb);
 
         lb = CUI::Button::create();
-        lb->init(L"-- General TileMap Editor --------", TTFFS);
-        lb->disable();
+        lb->init(L"----------------------------------", TTFFS);
         lb->setUiPadding({ 10, 5 });
+        lb->disable();
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 

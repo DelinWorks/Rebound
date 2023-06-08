@@ -19,7 +19,7 @@ namespace CUI {
 
 	protected:
 		ax::Vec2 _hoverOffset = ax::Vec2::ZERO;
-		ax::ParticleSystemQuad* _prtcl;
+		ax::ParticleSystemQuad* _prtcl = nullptr;
 		bool _isPrtclSimulated = false;
 		ax::Sprite* _hoverSprite = nullptr;
 		f32 _hoverShaderTime1 = 0;

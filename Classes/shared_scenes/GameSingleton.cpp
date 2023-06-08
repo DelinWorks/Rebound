@@ -318,23 +318,23 @@ void Darkness::updateAntiCheat(float delta)
 
     f32 timeDiff = abs(_elapsedGameTime - float(_currentTime - _timeSinceStart));
 
-#ifndef WWDWD
-    if (timeDiff > 1)
-    {
-        _accumulatedKickTries++;
-        printf("_accumilatedKickTries: %d", _accumulatedKickTries);
-        if (_accumulatedKickTries > 2) {
-#ifdef WIN32
-            MessageBoxA(glfwGetWin32Window(gameWindow.window),
-                "game clock is not steady, a third-party program might be modifying the delta time of the game.",
-                "anti-cheat engine",
-                0x00000010L | 0x00004000L | 0x00000000L);
-            exit(0);
-#endif
-        }
-    } else
-        _accumulatedKickTries = 0;
-#endif
+//#ifndef WWDWD
+//    if (timeDiff > 1)
+//    {
+//        _accumulatedKickTries++;
+//        printf("_accumilatedKickTries: %d", _accumulatedKickTries);
+//        if (_accumulatedKickTries > 2) {
+//#ifdef WIN32
+//            MessageBoxA(glfwGetWin32Window(gameWindow.window),
+//                "game clock is not steady, a third-party program might be modifying the delta time of the game.",
+//                "anti-cheat engine",
+//                0x00000010L | 0x00004000L | 0x00000000L);
+//            exit(0);
+//#endif
+//        }
+//    } else
+//        _accumulatedKickTries = 0;
+//#endif
 
     _currentTime = time(0);
 

@@ -94,6 +94,8 @@ namespace CUI
         GUI();
         ~GUI();
 
+        static void DisableDynamicsRecursive(Node* n);
+
         void setUiOpacity(float opacity);
 
         // DO NOT ACCESS, USE AdvancedUiContainer
@@ -118,21 +120,24 @@ namespace CUI
         void setAnchorOffset(const ax::Vec2& anchorOffset);
 
         void notifyFocused(GUI* sender, bool focused, bool ignoreSelf = false);
-        void notifyEnabled();
+        void notifyEnabled(bool _processToggleTree = true);
         virtual void notifyLayout();
 
-        void setContentSize(const Vec2& size, bool recursive = true);
+        bool setContentSize(const Vec2& size, bool recursive = true);
 
         virtual Vec2 getScaledContentSize();
 
         virtual void onFontScaleUpdate(float scale);
 
-        void updateEnabled(bool state);
+        void updateEnabled(bool state, bool _processToggleTree = true);
         bool isEnabled();
         bool isInternalEnabled();
 
         void enable(bool show = false);
         void disable(bool hide = false);
+
+        void enableSelf(bool show = false);
+        void disableSelf(bool hide = false);
 
         virtual void onEnable();
         virtual void onDisable();
@@ -176,7 +181,18 @@ namespace CUI
 
         virtual const Size& getPrefferedContentSize() const;
 
+        virtual void updateInternalObjects();
+
+        void disableProcessToggleTree() { _processEnableTree = false; }
+        void enableProcessToggleTree() { _processEnableTree = true; }
+
+        void disableRebuildOnEnter() { _rebuildOnEnter = false; }
+
     protected:
+        bool _rebuildOnEnter = true;
+        bool _processEnableTree = true;
+        bool _isContentSizeDynamic = true;
+        bool _actionOnDisable = true;
         float _pretextIconScaling = 2;
         bool _iconArtMulEnabled = true;
         bool _forceRawInput = false;

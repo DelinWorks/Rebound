@@ -18,7 +18,7 @@ public:
 
 typedef u32 TileID;
 
-#define CHUNK_SIZE 32.0
+#define CHUNK_SIZE 64.0
 #define CHUNK_BUFFER_SIZE (CHUNK_SIZE*CHUNK_SIZE)
 
 #define TILE_FLAG_ROTATE (TileID(1) << 31)
@@ -611,7 +611,7 @@ typedef u32 TileID;
 
         void updateVertexData() {
             AX_ASSERT(_tiles->vertexCache[_tileset->_firstGid].size() == CHUNK_BUFFER_SIZE * 36, "Vertex cache was not built.");
-            auto vertices = _tiles->vertexCache[_tileset->_firstGid];
+            auto& vertices = _tiles->vertexCache[_tileset->_firstGid];
             _mesh->getVertexBuffer()->updateSubData((void*)&vertices[0], 0, vertices.size() * sizeof(vertices[0]));
         }
 

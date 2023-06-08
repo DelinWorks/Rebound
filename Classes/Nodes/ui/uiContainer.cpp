@@ -3,7 +3,6 @@
 CUI::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE),
                                    _borderLayout(BorderLayout::CENTER), _flowLayout(), _depConst()
 {
-    setCascadeOpacityEnabled(true);
     setAsContainer();
     setDynamic();
 }
@@ -50,6 +49,7 @@ void CUI::Container::setConstraint(ContentSizeConstraint layout)
 
 bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
+    if (!isEnabled()) return false;
     _isHitSwallowed = false;
     bool _isElementBlocked = true;
     if (_isElementBlocking && _bgButton && !_bgButton->hitTest(mouseLocationInView, cam, nullptr))
@@ -77,6 +77,7 @@ bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
 
 bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
+    if (!isEnabled()) return false;
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
     bool isClickSwallowed = false;
@@ -162,9 +163,12 @@ void CUI::Container::updateLayoutManagers(bool recursive)
     if (recursive) {
         auto& list = getChildren();
         for (auto& _ : list) {
-            auto cast = DCAST(Container, _);
-            if (cast)
-                cast->updateLayoutManagers(true);
+            auto ccast = DCAST(Container, _);
+            auto gcast = DCAST(GUI, _);
+            if (ccast)
+                ccast->updateLayoutManagers(true);
+            if (gcast)
+                gcast->updateInternalObjects();
         }
     }
 
@@ -196,16 +200,22 @@ void CUI::Container::updateLayoutManagers(bool recursive)
         auto& list = getChildren();
         for (auto& _ : list) {
             auto cast = DCAST(Container, _);
-            if (cast)
-                cast->updateLayoutManagers(true);
+            auto ccast = DCAST(Container, _);
+            auto gcast = DCAST(GUI, _);
+            if (ccast)
+                ccast->updateLayoutManagers(true);
+            if (gcast)
+                gcast->updateInternalObjects();
         }
     }
 }
 
 void CUI::Container::onEnter() {
-    GUI::onEnter();
-    onFontScaleUpdate(_UiScale / _UiScaleMul);
-    updateLayoutManagers(true);
+    if (_rebuildOnEnter) {
+        GUI::onEnter();
+        onFontScaleUpdate(_UiScale / _UiScaleMul);
+        updateLayoutManagers(true);
+    } else Node::onEnter();
 }
 
 void CUI::Container::onEnable()
@@ -423,8 +433,6 @@ void CUI::Container::calculateContentBoundaries()
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto c = DCAST(Container, _);
-        if (c) c->calculateContentBoundaries();
         if (!isContainerDynamic()) continue;
         auto size = _->getScaledContentSize();
         float eq = abs(_->getPositionX());

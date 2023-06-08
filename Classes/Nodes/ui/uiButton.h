@@ -17,7 +17,7 @@ namespace CUI
     class Button;
     using ButtonCallback = std::function<void(Button* target)>;
 
-    class Button : public HoverEffectGUI {
+    class Button : public GUI {
     public:
         static CUI::Button* create();
 
@@ -36,6 +36,8 @@ namespace CUI
         ChangeValue<bool> hover_cv;
         bool adaptToWindowSize = false;
         bool extend = false;
+        Vec2 preCompContentSize;
+        Vec2 curdSizeContentSize;
 
         ButtonCallback _callback;
 
@@ -75,5 +77,7 @@ namespace CUI
         float preCalculatedHeight();
 
         void onFontScaleUpdate(float scale) override;
+
+        void updateInternalObjects() override;
     };
 }

@@ -101,6 +101,7 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
             icon->_roundRenderMatrix = true;
             addChild(icon, 0);
         }
+        preCompContentSize = (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
     }
     else {
         field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
@@ -110,6 +111,7 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
         sprite->setVisible(false);
         addChild(sprite, 0);
         addChild(field, 1);
+        preCompContentSize = _contentsize;
     }
     button = createPlaceholderButton();
     addChild(button);
@@ -119,27 +121,14 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
 
 void CUI::Button::update(f32 dt) {
     auto dSize = getDynamicContentSize();
-    setContentSize(dSize + getUiPadding());
-    HoverEffectGUI::update(dt, getContentSize() + Vec2(50 * (field_size.x != 0 || field_size.y != 0), 0));
+    if (setContentSize(dSize + getUiPadding(), _isContentSizeDynamic))
+        updateInternalObjects();
+    //HoverEffectGUI::update(dt, getContentSize() + Vec2(50 * (field_size.x != 0 || field_size.y != 0), 0));
 }
 
 bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!isVisible()) return false;
-
-    if (field /* !isIcon */) {
-        if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
-            field->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
-        else if (adaptToWindowSize)
-            field->setScale(1 / _UiScale);
-
-        sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
-            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * _UiScale : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
-        button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
-    }
-    else
-        button->setContentSize((icon->getContentSize() + getUiPadding() / 2 + hitboxpadding) * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling));
-
     if (isEnabled())
     {
 #if 1
@@ -149,8 +138,8 @@ bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             if (field) { if (isUiHovered()) field->enableUnderline(); else field->disableEffect(ax::LabelEffect::UNDERLINE); }
         }
 
-        if (hover_cv.isChanged())
-            HoverEffectGUI::hover();
+        //if (hover_cv.isChanged())
+        //    HoverEffectGUI::hover();
 #else
         hover->setValue(false);
         password_hover->setValue(false);
@@ -170,13 +159,17 @@ void CUI::Button::defocus()
 
 void CUI::Button::onEnable()
 {
-    auto fade = FadeTo::create(0.1f, 255);
-    auto tint = TintTo::create(0.1f, Color3B::WHITE);
+    if (!_actionOnDisable) return;
+
+    auto fade = FadeTo::create(1, 255);
+    auto tint = TintTo::create(1, Color3B::WHITE);
     if (field) {
+        field->setOpacity(0);
         field->runAction(fade);
         field->runAction(tint);
     }
     else {
+        icon->setOpacity(0);
         icon->stopAllActions();
         icon->runAction(fade);
     }
@@ -184,21 +177,23 @@ void CUI::Button::onEnable()
 
 void CUI::Button::onDisable()
 {
-    auto fade = FadeTo::create(0, 100);
-    auto tint = TintTo::create(0, Color3B::GRAY);
-    if (field) {
-        field->runAction(fade);
-        field->runAction(tint);
-    }
-    else {
-        icon->stopAllActions();
-        icon->runAction(fade);
-    }
+    if (_actionOnDisable) {
+        auto fade = FadeTo::create(0, 100);
+        auto tint = TintTo::create(0, Color3B::GRAY);
+        if (field) {
+            field->runAction(fade);
+            field->runAction(tint);
+        }
+        else {
+            icon->stopAllActions();
+            icon->runAction(fade);
+        }
 
-    setUiHovered(false);
-    hover_cv.setValue(false);
-    HoverEffectGUI::hover();
-    defocus();
+        setUiHovered(false);
+        hover_cv.setValue(false);
+        //HoverEffectGUI::hover();
+        defocus();
+    }
 }
 
 bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
@@ -240,7 +235,7 @@ bool CUI::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 
 Size CUI::Button::getDynamicContentSize()
 {
-    return sprite ? sprite->getContentSize() : (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
+    return preCompContentSize;
 }
 
 Size CUI::Button::getFitContentSize()
@@ -274,14 +269,31 @@ void CUI::Button::onFontScaleUpdate(float scale)
         if (field_size.x != 0 || field_size.y != 0) {
             field->setDimensions(field_size.x * scale * _PmtFontScale, field_size.y * scale * _PmtFontScale);
             field->setHorizontalAlignment(ax::TextHAlignment::LEFT);
-            _prtcl->setAngleVar(0);
-            _prtcl->setSpeed(40);
+            //_prtcl->setAngleVar(0);
+            //_prtcl->setSpeed(40);
         }
         if (_ForceOutline)
             field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
         field->getFontAtlas()->setAliasTexParameters();
     }
     else icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);
+}
+
+void CUI::Button::updateInternalObjects()
+{
+    if (field /* !isIcon */) {
+        if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
+            field->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
+        else if (adaptToWindowSize)
+            field->setScale(1 / _UiScale);
+
+        sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
+            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * _UiScale : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+        button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
+        preCompContentSize = sprite->getContentSize();
+    }
+    else
+        button->setContentSize((icon->getContentSize() + getUiPadding() / 2 + hitboxpadding) * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling));
 }
 
 CUI::Button::~Button() {

@@ -11,6 +11,7 @@ CUI::List::List(Vec2 _prefferedSize)
     setBackgroundBlocking();
     setElementBlocking();
     setSelfHover();
+    disableProcessToggleTree();
 
     setStatic();
     SELF _prefferedSize = _prefferedSize;
@@ -19,6 +20,7 @@ CUI::List::List(Vec2 _prefferedSize)
     
     elementCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_BOTTOM, 0, 0, false));
     elementCont->setConstraint(DependencyConstraint(this, TOP));
+    elementCont->disableProcessToggleTree();
 
     scrollCont->setStatic();
     scrollCont->setContentSize(Vec2(12, _prefferedSize.y));
@@ -109,23 +111,26 @@ void CUI::List::calculateContentBoundaries()
 void CUI::List::updateLayoutManagers(bool recursive)
 {
     scrollCont->setContentSize(Vec2(12, _prefferedSize.y), false);
-    elementCont->updateLayoutManagers();
+    elementCont->updateLayoutManagers(true);
     ePos = elementCont->getPosition();
     Container::updateLayoutManagers();
+    //Container::updateEnabled(true);
 }
 
 void CUI::List::addElement(Container* container)
 {
-    container->calculateContentBoundaries();
+    container->_disregardGraph = true;
     auto y = container->getContentSize().y;
     container->setStatic();
-    container->setContentSize(Vec2(0, y) + container->getMargin());
+    container->setContentSize(Vec2(0, y) + container->getMargin(), false);
     container->setConstraint(ContentSizeConstraint(this, {-12, 0}, false, false, true));
     container->setPositionX(-6);
     if (elements.size() % 2 == 0)
         container->setBackgroundSpriteDarken();
     elements.push_back(container);
+    container->disableRebuildOnEnter();
     elementCont->addChild(container);
+    GUI::DisableDynamicsRecursive(container);
 }
 
 void CUI::List::update(f32 dt)
@@ -156,16 +161,16 @@ void CUI::List::update(f32 dt)
 
     // Ui Culling
     if (!elementCont->getPosition().equals(elemContPos)) {
+            elemContPos = elementCont->getPosition();
         auto& p = elementCont->getPosition();
-        for (auto& _ : elementCont->getChildren()) {
+        for (auto& _ : elements) {
             auto c1 = _->getNodeToParentTransform() * Vec3(_->getContentSize().x, _->getContentSize().y, 0);
             if (c1 == ax::Vec3::ZERO) break;
             auto pos = _->getPosition() + p;
             auto b1 = Rect(0, pos.y, 0, c1.y);
             auto c2 = getNodeToParentTransform() * Vec3(getContentSize().x, getContentSize().y, 0);
             auto b2 = Rect(0, c2.y / -2 + c1.y / 2, 0, c2.y);
-            _->setVisible(b1.intersectsRect(b2));
-            elemContPos = elementCont->getPosition();
+            if (b1.intersectsRect(b2)) _->enableSelf(true); else _->disableSelf(true);
         }
         if (elementCont->getContentSize().y / 2 < _prefferedSize.y)
             scrollCont->disable(true); else scrollCont->enable(true);
