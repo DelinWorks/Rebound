@@ -186,6 +186,8 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
+    f32 _hoverToolTipTime = 0.0f;
+    CUI::GUI* _hoverToolTipPointer;
     CUI::ToolTip* _editorToolTip;
     CUI::Label* _debugText;
     CUI::ImageView* _tilesetPicker;

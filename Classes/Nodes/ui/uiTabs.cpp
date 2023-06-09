@@ -11,6 +11,7 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
 
     setBackgroundBlocking();
     setElementBlocking();
+    setSelfHover();
 
     setStatic();
     this->_prefferedSize = _prefferedSize;

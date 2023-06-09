@@ -47,6 +47,7 @@ namespace CUI
     inline std::stack<GUI*> _modalStack;
     inline GUI* _pCurrentHeldItem = nullptr;
     inline GUI* _pCurrentHoveredItem = nullptr;
+    inline GUI* _pCurrentHoveredTooltipItem = nullptr;
     inline ax::backend::ProgramState* _pHoverShader = nullptr;
 
     inline bool _doNotShowWin32 = false;
@@ -190,6 +191,8 @@ namespace CUI
 
         void disableRebuildOnEnter() { _rebuildOnEnter = false; }
         void disableUiScaleMul() { _UiScaleMul = false; }
+
+        std::wstring hoverTooltip;
 
     protected:
         bool _UiScaleMul = true;

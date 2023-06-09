@@ -93,6 +93,7 @@ bool MapEditor::init()
 
     TileSystem::tileMapVirtualCamera = _camera;
     map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(1000, 1000));
+    map->cacheVertices(false);
     _worlds[0]->addChild(map, 10);
 
     grid = Node::create();
@@ -620,6 +621,24 @@ void MapEditor::tick(f32 dt)
         map->reload();
         *focusState = false;
     }
+
+    if (CUI::_pCurrentHoveredTooltipItem &&
+        _hoverToolTipPointer != CUI::_pCurrentHoveredTooltipItem &&
+        CUI::_pCurrentHoveredTooltipItem->hoverTooltip.length() > 0 &&
+        _hoverToolTipTime > 1.0f) {
+        auto& s = CUI::_pCurrentHoveredTooltipItem->hoverTooltip;
+        _editorToolTip->showToolTip(s, UINT32_MAX);
+        _hoverToolTipPointer = CUI::_pCurrentHoveredTooltipItem;
+    }
+    else if (!CUI::_pCurrentHoveredTooltipItem) {
+        if (_hoverToolTipTime > 0.0f)
+            _hoverToolTipTime -= dt;
+        if (_hoverToolTipPointer != CUI::_pCurrentHoveredTooltipItem) {
+            _editorToolTip->hideToolTip();
+            _hoverToolTipPointer = CUI::_pCurrentHoveredTooltipItem;
+        }
+    }
+    else if (CUI::_pCurrentHoveredTooltipItem) _hoverToolTipTime += dt;
 
     //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
 
@@ -1510,6 +1529,7 @@ void MapEditor::buildEntireUi()
     };
 
     undoB = CUI::Button::create();
+    undoB->hoverTooltip = L"undo last action (Ctrl+Z)";
     undoB->initIcon("editor_undo");
     undoB->setUiPadding(padding);
     editContainer->addChild(undoB);
@@ -1519,6 +1539,7 @@ void MapEditor::buildEntireUi()
     };
 
     redoB = CUI::Button::create();
+    redoB->hoverTooltip = L"redo last action (Ctrl+Y)";
     redoB->initIcon("editor_redo");
     redoB->setUiPadding(padding);
     editContainer->addChild(redoB);
@@ -1528,6 +1549,7 @@ void MapEditor::buildEntireUi()
     };
 
     auto moveB = CUI::Button::create();
+    moveB->hoverTooltip = L"move camera (M)... isn't it obvious?";
     moveB->initIcon("editor_move");
     moveB->setUiPadding(padding);
     editContainer->addChild(moveB);
@@ -1552,18 +1574,22 @@ void MapEditor::buildEntireUi()
     padding = Vec2(8, 2);
 
     auto extEditB = CUI::Button::create();
+    extEditB->hoverTooltip = L"Place (B) Tiles into the selected layer,\nright click for rectangle placement.";
     extEditB->initIcon("editor_place", padding);
     rowContainer->addChild(extEditB);
 
     extEditB = CUI::Button::create();
+    extEditB->hoverTooltip = L"Bucket Fill (F) Tiles into the selected layer.";
     extEditB->initIcon("editor_bucket_fill", padding);
     rowContainer->addChild(extEditB);
 
     extEditB = CUI::Button::create();
+    extEditB->hoverTooltip = L"Remove (R) Tiles from the selected layer,\nright click for rectangle removal.";
     extEditB->initIcon("editor_remove", padding);
     rowContainer->addChild(extEditB);
 
     extEditB = CUI::Button::create();
+    extEditB->hoverTooltip = L"Select (P) Tiles in the selected layer,\nright click for rectangle selection.";
     extEditB->initIcon("editor_select", padding);
     rowContainer->addChild(extEditB);
 
@@ -1575,6 +1601,7 @@ void MapEditor::buildEntireUi()
     rowContainer->setMargin({ 0, 4 });
 
     tileFlipV = CUI::Button::create();
+    tileFlipV->hoverTooltip = L"Flip Tile Vertically (V)";
     tileFlipV->initIcon("editor_flip_v", padding);
     rowContainer->addChild(tileFlipV);
 
@@ -1585,6 +1612,7 @@ void MapEditor::buildEntireUi()
 
 
     tileFlipH = CUI::Button::create();
+    tileFlipH->hoverTooltip = L"Flip Tile Horizontally (H)";
     tileFlipH->initIcon("editor_flip_h", padding);
     rowContainer->addChild(tileFlipH);
 
@@ -1594,6 +1622,7 @@ void MapEditor::buildEntireUi()
     };
 
     tileRot90 = CUI::Button::create();
+    tileRot90->hoverTooltip = L"Rotate Tile (E)\nThis will modify H & V";
     tileRot90->initIcon("editor_rotate_r", padding);
     rowContainer->addChild(tileRot90);
 
@@ -1682,7 +1711,11 @@ void MapEditor::buildEntireUi()
 void MapEditor::rebuildEntireUi()
 {
     SCENE_BUILD_UI;
-    _editorToolTip->showToolTip(L"It is recommended that you restart the Map Editor,\nwhenever you change GUI Scaling or Window Size\nDoing so will prevent bugs or glitches in the GUI", 8);
+    _editorToolTip->showToolTip(WFMT(L"%sx%.2f\n\n%s\n%s\n%s",
+        L"Current GUI Scaling: ", Darkness::getInstance()->gameWindow.guiScale,
+        L"It is recommended that you restart the Map Editor,",
+        L"whenever you change the GUI Scaling or Window Size.",
+        L"Doing so will prevent bugs or glitches in the GUI."), 10);
 }
 
 ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)

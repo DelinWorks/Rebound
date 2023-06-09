@@ -160,7 +160,7 @@ bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 #if 1
         setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
         hover_cv.setValue(isUiHovered());
-
+        _pCurrentHoveredTooltipItem = isUiHovered() ? this : (_pCurrentHoveredTooltipItem == this ? nullptr : _pCurrentHoveredTooltipItem);
         if (hover_cv.isChanged() && sprite->isVisible())
             HoverEffectGUI::hover();
 #else

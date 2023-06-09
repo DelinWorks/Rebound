@@ -30,7 +30,7 @@ CUI::List::List(Vec2 _prefferedSize)
 
     scrollKnob = Button::create();
     scrollKnob->DenyRescaling();
-    scrollKnob->initIcon("slider_knob", ADVANCEDUI_SLIDER_CAP_INSETS, {3, UINT16_MAX});
+    scrollKnob->initIcon("slider_knob", ADVANCEDUI_SLIDER_CAP_INSETS, {-1, UINT16_MAX});
     scrollKnob->icon->setContentSize({ scrollKnob->icon->getContentSize().x, 16 });
     scrollCont->addChild(scrollKnob);
 

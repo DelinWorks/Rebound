@@ -19,6 +19,7 @@ namespace CUI
         bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
 
         void showToolTip(std::wstring tooltip, float time_override = -1);
+        void hideToolTip();
 
         CUI::Label* label;
 

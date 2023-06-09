@@ -4,6 +4,7 @@ CUI::ToolTip::ToolTip() {
     scheduleUpdate();
     setBorderLayoutAnchor(BorderLayout::TOP_LEFT);
     setForceRawInput(true);
+    setCascadeOpacityEnabled(true);
 }
 
 CUI::ToolTip* CUI::ToolTip::create()
@@ -14,7 +15,7 @@ CUI::ToolTip* CUI::ToolTip::create()
         ref->label = CUI::Label::create();
         ref->label->hAlignment = ax::TextHAlignment::CENTER;
         ref->label->init(L"", TTFFS);
-        ref->addChildAsContainer(ref->label);
+        ref->addChildAsContainer(ref->label)->setCascadeOpacityEnabled(true);
         ref->setBackgroundSprite();
         ref->setMargin(Vec2(10, 10));
         ref->setVisible(false);
@@ -38,7 +39,7 @@ void CUI::ToolTip::update(f32 dt)
     curPos.x = LERP(curPos.x, clampedMousePos.x, 15 * dt);
     curPos.y = LERP(curPos.y, clampedMousePos.y, 15 * dt);
     auto angle = Vec2(curPos.x + curPos.y * 2, 1280).getAngle(Vec2(clampedMousePos.x + clampedMousePos.y * 2, 1280));
-    float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 8));
+    float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 4));
     rotation = LERP(rotation, curRotation, 8 * dt);
     rotation = Math::clamp(rotation, -50, 50);
     setRotation(rotation);
@@ -62,6 +63,17 @@ void CUI::ToolTip::showToolTip(std::wstring tooltip, float time_override)
     auto seq = ax::Sequence::create(
         FadeTo::create(0.25, 255),
         DelayTime::create(time),
+        FadeTo::create(0.25, 0),
+        CallFunc::create([&]() { this->setVisible(false); }),
+        nullptr
+    );
+    runAction(seq);
+}
+
+void CUI::ToolTip::hideToolTip()
+{
+    stopAllActions();
+    auto seq = ax::Sequence::create(
         FadeTo::create(0.25, 0),
         CallFunc::create([&]() { this->setVisible(false); }),
         nullptr

@@ -135,6 +135,7 @@ bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         if (!_pCurrentHeldItem) {
             setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
             hover_cv.setValue(isUiHovered());
+            _pCurrentHoveredTooltipItem = isUiHovered() ? this : (_pCurrentHoveredTooltipItem == this ? nullptr : _pCurrentHoveredTooltipItem);
             if (field) { if (isUiHovered()) field->enableUnderline(); else field->disableEffect(ax::LabelEffect::UNDERLINE); }
         }
 

@@ -123,6 +123,7 @@ namespace CUI {
             hextf->init(L"HEX COLOR", TTFFS, { 145, 30 }, 9, "#0123456789abcdefABCDEF");
             hextf->setStyleDotted();
             hextf->remove_zeros = false;
+            hextf->hoverTooltip = L"You can use hexadecimal format to get a color value including alpha (i.e #ffffffff)\nif there are no alpha bits (i.e #ffffff) then alpha channel will be set to 255\nThe '#' at the beginning is not mandatory";
             colorContHex->addChild(lb);
             colorContHex->addChild(hextf);
             colorCont->addChild(colorContHex);
@@ -194,14 +195,17 @@ namespace CUI {
             optionsCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 2, 0));
             auto rg = new RadioGroup();
             auto toggle = Toggle::create();
-            toggle->init(L"Add             ");
+            toggle->hoverTooltip = L"GL_FUNC_ADD: This is the default blending operation,\nit adds the source color to the destination color.";
+            toggle->init(L"Add (DEFAULT)   ");
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
+            toggle->hoverTooltip = L"GL_FUNC_SUBTRACT: This subtracts the source color from the destination color.";
             toggle->init(L"Subtract        ");
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
+            toggle->hoverTooltip = L"GL_FUNC_REVERSE_SUBTRACT: This subtracts the destination color from the source color.";
             toggle->init(L"Reserve Subtract");
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
