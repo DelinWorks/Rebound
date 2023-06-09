@@ -401,6 +401,31 @@
       }
     },
     {
+      "filename": "slider_knob",
+      "frame": {
+        "x": 117,
+        "y": 259,
+        "w": 8,
+        "h": 8
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
       "filename": "slider_bar",
       "frame": {
         "x": 83,
@@ -443,31 +468,6 @@
       },
       "sourceSize": {
         "w": 7,
-        "h": 6
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
-    {
-      "filename": "slider_knob",
-      "frame": {
-        "x": 101,
-        "y": 292,
-        "w": 6,
-        "h": 6
-      },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 6,
-        "h": 6
-      },
-      "sourceSize": {
-        "w": 6,
         "h": 6
       },
       "pivot": {

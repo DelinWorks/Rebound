@@ -10,6 +10,11 @@ CUI::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE)
 void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context) {
     if (context == BorderContext::PARENT)
         _closestStaticBorder = true;
+    auto rcomp = (UiRescaleComponent*)SELF getComponent("UiRescaleComponent");
+    if (rcomp) {
+        rcomp->setBorderLayout(_borderLayout = border);
+        return;
+    }
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
         ->setBorderLayout(_borderLayout = border));
 }
@@ -45,6 +50,22 @@ void CUI::Container::setConstraint(ContentSizeConstraint layout)
 {
     _csConst = layout;
     _constraint = Constraint::CONSTRAINT_CONTENTSIZE;
+}
+
+CUI::Container* CUI::Container::createDenyScaling()
+{
+    Container* ref = new Container();
+    if (ref->init())
+    {
+        ref->_isContainer = true;
+        ref->DenyRescaling();
+        ref->autorelease();
+    }
+    else
+    {
+        AX_SAFE_DELETE(ref);
+    }
+    return ref;
 }
 
 bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
@@ -199,7 +220,6 @@ void CUI::Container::updateLayoutManagers(bool recursive)
     if (recursive) {
         auto& list = getChildren();
         for (auto& _ : list) {
-            auto cast = DCAST(Container, _);
             auto ccast = DCAST(Container, _);
             auto gcast = DCAST(GUI, _);
             if (ccast)
@@ -309,8 +329,8 @@ void CUI::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType type)
     _background->setTag(YOURE_NOT_WELCOME_HERE);
     //if (type != BgSpriteType::BG_GRAY)
     _background->setProgramState(_backgroundShader);
-    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-        ->enableDesignScaleIgnoring(Vec2(2, 2)));
+    //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+    //    ->enableDesignScaleIgnoring(Vec2(2, 2)));
     Node::addChild(_background, -1);
 }
 
@@ -320,8 +340,9 @@ void CUI::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED, ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
     _background->setProgramState(_backgroundShader);
-    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-        ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
+    _background->setScale(scale.x, scale.y);
+    //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+    //    ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
     Node::addChild(_background, -1);
 }
 
@@ -331,8 +352,9 @@ void CUI::Container::setBackgroundSpriteCramped2(ax::Vec2 padding, ax::Vec2 scal
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED2, ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
     _background->setProgramState(_backgroundShader);
-    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-        ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
+    _background->setScale(scale.x, scale.y);
+    //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+    //    ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
     Node::addChild(_background, -1);
 }
 
@@ -342,8 +364,9 @@ void CUI::Container::setBackgroundSpriteCramped3(ax::Vec2 padding, ax::Vec2 scal
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED3, ADVANCEDUI_P1_CAP_INSETS);
     _background->setTag(YOURE_NOT_WELCOME_HERE);
     _background->setProgramState(_backgroundShader);
-    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-        ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
+    _background->setScale(scale.x, scale.y);
+    //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+    //    ->enableDesignScaleIgnoring(scale * _PxArtMultiplier));
     Node::addChild(_background, -1);
 }
 
@@ -354,8 +377,8 @@ void CUI::Container::setBackgroundSpriteDarken(ax::Vec2 padding) {
     //_background->setProgramState(_backgroundShader);
     _background->setColor({ 128, 128, 128 });
     _background->setOpacity(20);
-    _background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-        ->enableDesignScaleIgnoring(Vec2(2, 2)));
+    //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
+    //    ->enableDesignScaleIgnoring(Vec2(2, 2)));
     Node::addChild(_background, -1);
 }
 
@@ -409,10 +432,8 @@ CUI::Container* CUI::Container::addChildAsContainer(CUI::GUI* gui) {
 
 void CUI::Container::recalculateChildDimensions()
 {
-    auto ns = GameUtils::getNodeIgnoreDesignScale();
-
     if (_background)
-        _background->setContentSize(getContentSize() / (ns * _PxArtMultiplier) + _backgroundPadding);
+        _background->setContentSize(getContentSize() + _backgroundPadding);
 
     if (_bgButton)
         _bgButton->setContentSize(getContentSize() + _backgroundPadding + BUTTON_HITBOX_CORNER_TOLERANCE);
@@ -425,7 +446,7 @@ void CUI::Container::calculateContentBoundaries()
     float highestX = -FLT_MAX;
     float highestY = -FLT_MAX;
 
-    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    auto ns = _rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : Vec2::ONE;
 
     Vec2 highestSize = Vec2::ZERO;
     Vec2 dominantSize = Vec2::ZERO;
@@ -473,15 +494,13 @@ void CUI::Container::calculateContentBoundaries()
 void CUI::FlowLayout::build(CUI::Container* container)
 {
     auto list = container->getChildren();
-    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    auto ns = container->_rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : Vec2::ONE;
     auto _spacing = Vec2(spacing, spacing);
     f32 sumSize = 0;
     u16 listSize = 0;
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto cont = DCAST(Container, _);
-        if (cont) cont->calculateContentBoundaries();
         auto cSize = _->getScaledContentSize();
         if (cSize.x == 0 || cSize.y == 0)
             continue;
@@ -558,7 +577,7 @@ void CUI::DependencyConstraint::build(CUI::GUI* element)
         anchor = (Vec2(0, 0) + offset);
     }
 
-    if (parent) anchor *= parent->getScale();
+    //if (parent) anchor *= parent->getScale();
 
     if (worldPos)
         element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
@@ -570,7 +589,7 @@ void CUI::ContentSizeConstraint::build(CUI::GUI* element) {
     if (element->isContainerDynamic()) return;
     Vec2 s = parent->getContentSize() + offset;
     auto ns = ax::Vec2::ONE;
-    if (scale)
+    if (scale && element->_rescalingAllowed)
         ns = GameUtils::getNodeIgnoreDesignScale();
     s.x = lockX ? element->getPrefferedContentSize().x : s.x * ns.x;
     s.y = lockY ? element->getPrefferedContentSize().y : s.y * ns.y;

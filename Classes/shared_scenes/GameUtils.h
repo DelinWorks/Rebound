@@ -46,7 +46,11 @@ rebuildEntireUi(); \
 Darkness::getInstance()->gameWindow.isScreenSizeDirty = false; \
 }
 
-#define SCENE_BUILD_UI auto list = GameUtils::findComponentsByName(this, "UiRescaleComponent"); \
+#define SCENE_BUILD_UI auto scale = Darkness::getInstance()->gameWindow.guiScale; \
+GameUtils::updateIgnoreDesignScale(); \
+if (getContainer()) { getContainer()->updateLayoutManagers(true); \
+    getContainer()->onFontScaleUpdate(1); } \
+auto list = GameUtils::findComponentsByName(this, "UiRescaleComponent"); \
 for (auto& _ : list) { \
     auto i = DCAST(UiRescaleComponent, _); \
     if (i) { \
@@ -66,10 +70,6 @@ for (auto& _ : list) { \
         else i->windowSizeChange(visibleSize); \
     } \
 } \
-auto scale = Darkness::getInstance()->gameWindow.guiScale; \
-CUI::_UiScale = scale * CUI::_UiScaleMul; \
-if (getContainer()) { getContainer()->updateLayoutManagers(true); \
-    getContainer()->onFontScaleUpdate(scale); } \
 
 #define SET_POSITION_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / 2), (visibleSize.height / 2)));
 #define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / -2), (visibleSize.height / -2)));
@@ -184,6 +184,7 @@ namespace GameUtils
     Vec2 getNodeIgnoreDesignScale___FUNCTIONAL(bool ignoreScaling = false, float nestedScale = 1.0F);
     void setNodeIgnoreDesignScale___FUNCTIONAL(cocos2d::Node* node, bool ignoreScaling = false, float nestedScale = 1.0F);
 
+    void updateIgnoreDesignScale();
     Vec2 getNodeIgnoreDesignScale(bool ignoreScaling = false, float nestedScale = 1.0F);
     void setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling = false, float nestedScale = 1.0F);
 

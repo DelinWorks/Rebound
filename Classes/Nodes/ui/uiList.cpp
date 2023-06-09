@@ -3,6 +3,7 @@
 CUI::List::List(Vec2 _prefferedSize)
 {
     scheduleUpdate();
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
 
     elementCont = CUI::Container::create();
     scrollCont = CUI::Container4Edge::create(ax::Vec2::ZERO);
@@ -14,7 +15,7 @@ CUI::List::List(Vec2 _prefferedSize)
     disableProcessToggleTree();
 
     setStatic();
-    SELF _prefferedSize = _prefferedSize;
+    SELF prefferredListSize = _prefferedSize;
     setContentSize(_prefferedSize);
     SELF addChild(clipping);
     
@@ -23,68 +24,69 @@ CUI::List::List(Vec2 _prefferedSize)
     elementCont->disableProcessToggleTree();
 
     scrollCont->setStatic();
-    scrollCont->setContentSize(Vec2(12, _prefferedSize.y));
+    scrollCont->setContentSize(Vec2(12, getContentSize().y));
     scrollCont->setConstraint(DependencyConstraint(this, RIGHT));
     scrollCont->setBorderLayoutAnchor(RIGHT);
 
     scrollKnob = Button::create();
+    scrollKnob->DenyRescaling();
     scrollKnob->initIcon("slider_knob", ADVANCEDUI_SLIDER_CAP_INSETS, {3, UINT16_MAX});
     scrollKnob->icon->setContentSize({ scrollKnob->icon->getContentSize().x, 16 });
     scrollCont->addChild(scrollKnob);
 
     SELF addChild(scrollCont);
 
-    upB = CUI::Button::create();
-    downB = CUI::Button::create();
+    //upB = CUI::Button::create();
+    //downB = CUI::Button::create();
 
-    upB->initIcon("editor_arrow_up", {2, 5});
-    upB->setUiPadding({ 2, 3 });
-    //rightB->_callback = [=](Button* target) {
-    //    float avg = 0.0f;
-    //    int count = 0;
-    //    for (auto& _ : elementCont->getChildren()) {
-    //        avg += _->getContentSize().x;
-    //        count++;
-    //    }
-    //    avg /= count;
-    //    Vec2 pos = ePos - Vec2(avg / 2, 0);
-    //    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
-    //    if (ePos != pos) {
-    //        leftB->enable();
-    //        ePos = pos;
-    //        elementCont->stopAllActions();
-    //        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
-    //    }
-    //    else target->disable();
-    //};
-    auto cont = Container::create();
-    cont->addChild(upB);
-    scrollCont->setChildTop(cont);
+    //upB->initIcon("editor_arrow_up", {2, 5});
+    //upB->setUiPadding({ 2, 3 });
+    ////rightB->_callback = [=](Button* target) {
+    ////    float avg = 0.0f;
+    ////    int count = 0;
+    ////    for (auto& _ : elementCont->getChildren()) {
+    ////        avg += _->getContentSize().x;
+    ////        count++;
+    ////    }
+    ////    avg /= count;
+    ////    Vec2 pos = ePos - Vec2(avg / 2, 0);
+    ////    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+    ////    if (ePos != pos) {
+    ////        leftB->enable();
+    ////        ePos = pos;
+    ////        elementCont->stopAllActions();
+    ////        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
+    ////    }
+    ////    else target->disable();
+    ////};
+    //auto cont = Container::create();
+    //cont->addChild(upB);
+    //scrollCont->setChildTop(cont);
 
-    downB->initIcon("editor_arrow_down", {2, 5});
-    downB->setUiPadding({ 2, 3 });
-    //leftB->_callback = [=](Button* target) {
-    //    float avg = 0.0f;
-    //    int count = 0;
-    //    for (auto& _ : elementCont->getChildren()) {
-    //        avg += _->getContentSize().x;
-    //        count++;
-    //    }
-    //    avg /= count;
-    //    Vec2 pos = ePos + Vec2(avg / 2, 0);
-    //    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
-    //    if (ePos != pos) {
-    //        rightB->enable();
-    //        ePos = pos;
-    //        elementCont->stopAllActions();
-    //        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
-    //    } else target->disable();
-    //};
-    cont = Container::create();
-    cont->addChild(downB);
-    scrollCont->setChildBottom(cont);
+    //downB->initIcon("editor_arrow_down", {2, 5});
+    //downB->setUiPadding({ 2, 3 });
+    ////leftB->_callback = [=](Button* target) {
+    ////    float avg = 0.0f;
+    ////    int count = 0;
+    ////    for (auto& _ : elementCont->getChildren()) {
+    ////        avg += _->getContentSize().x;
+    ////        count++;
+    ////    }
+    ////    avg /= count;
+    ////    Vec2 pos = ePos + Vec2(avg / 2, 0);
+    ////    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+    ////    if (ePos != pos) {
+    ////        rightB->enable();
+    ////        ePos = pos;
+    ////        elementCont->stopAllActions();
+    ////        elementCont->runAction(EaseExponentialOut::create(MoveTo::create(0.5, pos)));
+    ////    } else target->disable();
+    ////};
+    //cont = Container::create();
+    //cont->addChild(downB);
+    //scrollCont->setChildBottom(cont);
 
-    ePos = INVALID_LOCATION;
+    ePos = { 0, getContentSize().y / 2 };
 }
 
 CUI::List* CUI::List::create(Vec2 _prefferedSize)
@@ -110,11 +112,12 @@ void CUI::List::calculateContentBoundaries()
 
 void CUI::List::updateLayoutManagers(bool recursive)
 {
-    scrollCont->setContentSize(Vec2(12, _prefferedSize.y), false);
+    Container::updateLayoutManagers(true);
+    elementCont->onFontScaleUpdate(1);
     elementCont->updateLayoutManagers(true);
+    elementCont->setPosition(ePos);
+    scrollCont->updateLayoutManagers(true);
     ePos = elementCont->getPosition();
-    Container::updateLayoutManagers();
-    //Container::updateEnabled(true);
 }
 
 void CUI::List::addElement(Container* container)
@@ -135,13 +138,13 @@ void CUI::List::addElement(Container* container)
 
 void CUI::List::update(f32 dt)
 {
-    if (_pCurrentHeldItem == upB || _pCurrentHeldItem == downB) {
-        ePos = ePos - Vec2(0, vel * (_pCurrentHeldItem == upB ? dt : -dt));
-        ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
-        elementCont->setPosition(ePos);
-        vel += 600 * dt;
-    }
-    else vel = 200;
+    //if (_pCurrentHeldItem == upB || _pCurrentHeldItem == downB) {
+    //    ePos = ePos - Vec2(0, vel * (_pCurrentHeldItem == upB ? dt : -dt));
+    //    ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
+    //    elementCont->setPosition(ePos);
+    //    vel += 600 * dt;
+    //}
+    //else vel = 200;
 
     if (_pCurrentHeldItem != scrollKnob) {
         float map = Math::map(elementCont->getPositionY(), getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2, getContentSize().y / 2 - 16, getContentSize().y / -2 + 16);
@@ -153,6 +156,7 @@ void CUI::List::update(f32 dt)
             dtScroll = _savedLocationInView.y;
         float v = _savedLocationInView.y - dtScroll;
         dtScroll = _savedLocationInView.y;
+        v /= getScale();
         scrollKnob->setPositionY(Math::clamp(scrollKnob->getPositionY() + v, getContentSize().y / -2 + 16, getContentSize().y / 2 - 16));
         float map = Math::map(scrollKnob->getPositionY(), getContentSize().y / 2 - 16, getContentSize().y / -2 + 16, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
         ePos.y = Math::clamp(map, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
@@ -161,25 +165,25 @@ void CUI::List::update(f32 dt)
 
     // Ui Culling
     if (!elementCont->getPosition().equals(elemContPos)) {
-            elemContPos = elementCont->getPosition();
+        elemContPos = elementCont->getPosition();
         auto& p = elementCont->getPosition();
         for (auto& _ : elements) {
             auto c1 = _->getNodeToParentTransform() * Vec3(_->getContentSize().x, _->getContentSize().y, 0);
             if (c1 == ax::Vec3::ZERO) break;
             auto pos = _->getPosition() + p;
             auto b1 = Rect(0, pos.y, 0, c1.y);
-            auto c2 = getNodeToParentTransform() * Vec3(getContentSize().x, getContentSize().y, 0);
+            auto c2 = getNodeToParentTransform() * Vec3(getContentSize().x, getContentSize().y, 0) / getScale();
             auto b2 = Rect(0, c2.y / -2 + c1.y / 2, 0, c2.y);
             if (b1.intersectsRect(b2)) _->enableSelf(true); else _->disableSelf(true);
         }
-        if (elementCont->getContentSize().y / 2 < _prefferedSize.y)
+        if (elementCont->getContentSize().y / 2 < getContentSize().y)
             scrollCont->disable(true); else scrollCont->enable(true);
     }
 }
 
 void CUI::List::mouseScroll(EventMouse* event)
 {
-    if (elementCont->getContentSize().y / 2 < _prefferedSize.y) {
+    if (elementCont->getContentSize().y / 2 < getContentSize().y) {
         Vec2 cp = elementCont->getPosition();
         elementCont->setPositionY(cp.y + 5);
         elementCont->runAction(EaseBackOut::create(MoveTo::create(1, cp)));

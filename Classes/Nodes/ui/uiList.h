@@ -21,10 +21,14 @@ namespace CUI
 
         virtual void mouseScroll(EventMouse* event) override;
 
+        void calculateContentBoundaries() override;
+        void updateLayoutManagers(bool recursive = false) override;
+
     private:
+        Vec2 prefferredListSize = ax::Vec2::ZERO;
         EventPassClippingNode* clipping;
         Container* elementCont;
-        Container4Edge* scrollCont;
+        Container* scrollCont;
         CUI::Button* scrollKnob;
         float dtScroll = 0.0f;
         CUI::Button* upB;
@@ -33,8 +37,5 @@ namespace CUI
         Vec2 elemContPos;
         Vec2 ePos;
         std::vector<Container*> elements;
-
-        void calculateContentBoundaries() override;
-        void updateLayoutManagers(bool recursive = false) override;
     };
 }

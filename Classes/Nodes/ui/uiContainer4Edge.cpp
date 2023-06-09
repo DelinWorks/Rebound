@@ -79,11 +79,11 @@ void CUI::Container4Edge::calculateContentBoundaries()
 
 void CUI::Container4Edge::updateLayoutManagers(bool recursive)
 {
-    Container::updateLayoutManagers();
-    if (top) top->updateLayoutManagers();
-    if (bottom) bottom->updateLayoutManagers();
-    if (right) right->updateLayoutManagers();
-    if (left) left->updateLayoutManagers();
+    Container::updateLayoutManagers(recursive);
+    if (top) top->updateLayoutManagers(recursive);
+    if (bottom) bottom->updateLayoutManagers(recursive);
+    if (right) right->updateLayoutManagers(recursive);
+    if (left) left->updateLayoutManagers(recursive);
 }
 
 CUI::Container4Edge::~Container4Edge()

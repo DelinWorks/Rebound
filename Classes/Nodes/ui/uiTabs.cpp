@@ -3,6 +3,7 @@
 CUI::Tabs::Tabs(Vec2 _prefferedSize)
 {
     scheduleUpdate();
+    //addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
 
     elementCont = CUI::Container::create();
     scrollCont = CUI::Container::create();
@@ -10,7 +11,6 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
 
     setBackgroundBlocking();
     setElementBlocking();
-    setSelfHover();
 
     setStatic();
     this->_prefferedSize = _prefferedSize;
@@ -93,11 +93,12 @@ void CUI::Tabs::calculateContentBoundaries()
 {
     Container::recalculateChildDimensions();
     auto& c = getContentSize();
-    clipping->setClipRegion({ c.x / -2 - 3, c.y / -2, c.x - 18, c.y});
+    clipping->setClipRegion(Rect(c.x / -2 - 3, c.y * 8 / -2, c.x - 18, c.y * 8));
 }
 
 void CUI::Tabs::updateLayoutManagers(bool recursive)
 {
+    scrollCont->updateLayoutManagers(true);
     elementCont->updateLayoutManagers();
     ePos = elementCont->getPosition();
     Container::updateLayoutManagers();

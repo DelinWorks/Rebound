@@ -259,7 +259,7 @@ void CUI::Button::disableIconHighlight()
 
 float CUI::Button::preCalculatedHeight()
 {
-    return field->getContentSize().y * getScaleY();
+    return field->getContentSize().y * getScaleY() / _UiScale;
 }
 
 void CUI::Button::onFontScaleUpdate(float scale)
@@ -273,7 +273,7 @@ void CUI::Button::onFontScaleUpdate(float scale)
             //_prtcl->setSpeed(40);
         }
         if (_ForceOutline)
-            field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
+            field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * scale);
         field->getFontAtlas()->setAliasTexParameters();
     }
     else icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);
@@ -282,13 +282,13 @@ void CUI::Button::onFontScaleUpdate(float scale)
 void CUI::Button::updateInternalObjects()
 {
     if (field /* !isIcon */) {
-        if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
-            field->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
+        if (!adaptToWindowSize && field->getContentSize().width / GET_UI_SCALE_MUL > sprite->getContentSize().width)
+            field->setScale(sprite->getContentSize().width / (field->getContentSize().width / GET_UI_SCALE_MUL + capinsets.origin.x * 2) / GET_UI_SCALE_MUL);
         else if (adaptToWindowSize)
-            field->setScale(1 / _UiScale);
+            field->setScale(1 / GET_UI_SCALE_MUL);
 
-        sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
-            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * _UiScale : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+        sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / GET_UI_SCALE_MUL + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
+            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * GET_UI_SCALE_MUL : 0)) / GET_UI_SCALE_MUL + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
         button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
         preCompContentSize = sprite->getContentSize();
     }

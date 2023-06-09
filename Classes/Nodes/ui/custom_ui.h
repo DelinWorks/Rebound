@@ -29,6 +29,8 @@ using namespace ax;
 
 #define BUTTON_HITBOX_CORNER_TOLERANCE Size(3, 3)
 
+#define GET_UI_SCALE_MUL (_UiScaleMul ? _UiScale : 1.0)
+
 namespace CUI
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
@@ -187,8 +189,10 @@ namespace CUI
         void enableProcessToggleTree() { _processEnableTree = true; }
 
         void disableRebuildOnEnter() { _rebuildOnEnter = false; }
+        void disableUiScaleMul() { _UiScaleMul = false; }
 
     protected:
+        bool _UiScaleMul = true;
         bool _rebuildOnEnter = true;
         bool _processEnableTree = true;
         bool _isContentSizeDynamic = true;
@@ -215,6 +219,7 @@ namespace CUI
         bool _isEnabled = true;
 
         friend class FlowLayout;
+        friend class ContentSizeConstraint;
     };
 
     class SignalHandeler {

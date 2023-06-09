@@ -1055,6 +1055,8 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 
 void MapEditor::buildEntireUi()
 {
+    GameUtils::updateIgnoreDesignScale();
+
     CUI::callbackAccess.clear();
 
     auto container = _input->_uiContainer = CUI::Container::create();
@@ -1084,33 +1086,44 @@ void MapEditor::buildEntireUi()
     //    tabs->addElement(Strings::widen(Strings::gen_random(RandomHelper::random_int<int>(4, 8))));
     //BENCHMARK_SECTION_END();
 
-    auto list = CUI::List::create({ 200, 200 });
-    //list->setBorderLayout(TOP_RIGHT, PARENT);
-    //list->setBorderLayoutAnchor(TOP_RIGHT);
+    auto list = CUI::List::create({ 300, 300 });
+    list->setBorderLayout(TOP_RIGHT, PARENT);
+    list->setBorderLayoutAnchor(TOP_RIGHT);
     list->setBackgroundSpriteCramped3({ 0, 10 });
     container->addChild(list);
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 99; i++)
     {
         auto main = CUI::Container::create();
+        main->DenyRescaling();
         main->setStatic();
         auto elem = CUI::Button::create();
-        if (i == 0)
+        elem->DenyRescaling();
+        if (i == 0) {
             elem->init(WFMT(L"Grass Layer that The Stupid Player Interacts with please leave I don't want you in my life", i), TTFFS, { 174, 0 });
+        }
         else
             elem->init(WFMT(L"LAYER_NAME_%d", i), TTFFS, { 174, 0 });
+        elem->_callback = [=](CUI::Button* target) {
+            list->updateLayoutManagers();
+        };
         main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
-        Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2);
+        Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2 / CUI::_UiScale);
         //elem->hAlignment = ax::TextHAlignment::LEFT;
         auto left = TO_CONTAINER(elem);
+        left->DenyRescaling();
         left->setConstraint(CUI::DependencyConstraint(main, LEFT));
         left->setBorderLayoutAnchor(LEFT);
         auto visi = CUI::Button::create();
+        visi->DenyRescaling();
         visi->initIcon("editor_visible", hpadding);
         auto lock = CUI::Button::create();
+        lock->DenyRescaling();
         lock->initIcon("editor_lock", hpadding);
         auto opt = CUI::Button::create();
+        opt->DenyRescaling();
         opt->initIcon("editor_settings", hpadding);
         auto right = CUI::Container::create();
+        right->DenyRescaling();
         right->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_LEFT, 0, 0, false));
         right->setConstraint(CUI::DependencyConstraint(main, RIGHT));
         right->addChild(visi);
@@ -1121,8 +1134,6 @@ void MapEditor::buildEntireUi()
         main->addChild(right);
         list->addElement(main);
     }
-
-    container->addChild(CUI::Functions::createFledgedHSVPanel());
 
     //tabs->addElement(L"Tileset3");
 
@@ -1663,12 +1674,15 @@ void MapEditor::buildEntireUi()
     _editorToolTip = CUI::ToolTip::create();
     container->addChild(_editorToolTip, 2);
 
+    container->addChild(CUI::Functions::createFledgedHSVPanel());
+
     rebuildEntireUi();
 }
 
 void MapEditor::rebuildEntireUi()
 {
     SCENE_BUILD_UI;
+    _editorToolTip->showToolTip(L"It is recommended that you restart the Map Editor,\nwhenever you change GUI Scaling or Window Size\nDoing so will prevent bugs or glitches in the GUI", 8);
 }
 
 ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)

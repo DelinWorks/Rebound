@@ -41,9 +41,11 @@ void CUI::Toggle::update(f32 dt)
     auto dSize = getDynamicContentSize();
     auto ns = GameUtils::getNodeIgnoreDesignScale();
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
-    setContentSize(dSize / ns);
-    button->setContentSize(dSize * ns);
-    HoverEffectGUI::update(dt, dSize * ns);
+    if (setContentSize(dSize / ns)) {
+        cont->updateLayoutManagers();
+        button->setContentSize(dSize * ns);
+        HoverEffectGUI::update(dt, dSize * ns);
+    }
 }
 
 bool CUI::Toggle::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
@@ -53,6 +55,7 @@ bool CUI::Toggle::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         if (!_pCurrentHeldItem) {
             setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
             hover_cv.setValue(isUiHovered());
+            if (label) { if (isUiHovered()) label->field->enableUnderline(); else label->field->disableEffect(ax::LabelEffect::UNDERLINE); }
         }
 
         if (hover_cv.isChanged())

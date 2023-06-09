@@ -121,7 +121,7 @@ void UiRescaleComponent::windowSizeChange(Size newVisibleSize) {
         setNodeScaleFHD(_owner);
         _owner->setScaleX(_owner->getScaleX() * _identityScale.x);
         _owner->setScaleY(_owner->getScaleY() * _identityScale.y);
-        //_owner->setScale(_owner->getScale() * 1);
+        _owner->setScale(_owner->getScale() * 1);
     }
     //if (fitting && !ignore)
     //{

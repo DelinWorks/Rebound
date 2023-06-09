@@ -232,31 +232,43 @@ void GameUtils::setNodeIgnoreDesignScale___FUNCTIONAL(cocos2d::Node* node, bool 
     node->setScaleY(s.y);
 }
 
-Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
+static Vec2 ignoreDesignScale;
+static Vec2 ignoreDesignScaleNoScaling;
+
+void GameUtils::updateIgnoreDesignScale()
 {
-    Size actualFrameSize = { 1920, 1080 };
-    Size actualWinSize = { 1280, 720 };
-    Size wFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
-    if (wFrameSize.x + wFrameSize.y < 3000) actualWinSize *= 0.75;
-    float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
-    float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
+    //Size actualFrameSize = { 1920, 1080 };
+    //Size actualWinSize = { 1280, 720 };
+    //Size wFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
+    //if (wFrameSize.x + wFrameSize.y < 3000) actualWinSize *= 0.75;
+    Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
+    Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
+    auto scale = Darkness::getInstance()->gameWindow.guiScale;
+    float x = actualWinSize.width / actualFrameSize.width * (scale);
+    float y = actualWinSize.height / actualFrameSize.height * (scale);
 
     Vec2 s = ax::Vec2::ONE;
     // If resolution policy is other than SHOW_ALL then we set
     // the scale to x and y value. and there will be no stretching.
     if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
-        s.x = x * nestedScale;
-        s.y = y * nestedScale;
+        s.x = x;
+        s.y = y;
     }
     // If the scale dimensions are the same, then we just
     // set the scale to the x or y value, any will suffice.
     else if (x == y)
-        s.x = s.y = x * nestedScale;
+        s.x = s.y = x;
     // If somehow the scale dimensions are different, then we just
     // see which dimension is bigger and set the scale to that
     // value so that any ui node doesn't stretch and deform.
-    else s.x = s.y = (x < y ? y : x) * nestedScale;
-    return s;
+    else s.x = s.y = (x < y ? y : x);
+    ignoreDesignScale = s;
+    ignoreDesignScaleNoScaling = s / scale;
+}
+
+Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
+{
+    return ignoreScaling ? ignoreDesignScaleNoScaling * nestedScale : ignoreDesignScale * nestedScale;
 }
 
 void GameUtils::setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling, float nestedScale)

@@ -104,6 +104,7 @@ namespace CUI
         ~Container();
 
         static CUI::Container* create();
+        static CUI::Container* createDenyScaling();
 
         void setLayout(FlowLayout layout);
         void setConstraint(DependencyConstraint layout);

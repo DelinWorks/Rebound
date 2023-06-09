@@ -103,6 +103,7 @@ void CUI::GUI::DisableDynamicsRecursive(Node* n)
 	if (g) {
 		g->_actionOnDisable = false;
 		g->_isContentSizeDynamic = false;
+		g->_UiScaleMul = false;
 		g->update(0);
 	}
 	for (auto& _ : n->getChildren())

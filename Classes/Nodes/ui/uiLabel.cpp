@@ -108,7 +108,7 @@ void CUI::Label::onFontScaleUpdate(float scale)
     field->setHorizontalAlignment(hAlignment);
     field->setVerticalAlignment(vAlignment);
     if (hasOutline || _ForceOutline)
-        field->enableOutline(Color4B::BLACK, _PmtFontOutline * _UiScale);
+        field->enableOutline(Color4B::BLACK, _PmtFontOutline * scale);
     field->getFontAtlas()->setAliasTexParameters();
     field->updateContent();
 }

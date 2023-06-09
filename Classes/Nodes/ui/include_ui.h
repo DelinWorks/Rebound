@@ -96,8 +96,6 @@ namespace CUI {
         }
 
         static Container* createFledgedHSVPanel() {
-            auto ns = GameUtils::getNodeIgnoreDesignScale();
-
             auto container = Container::create();
             container->setBorderLayout(LEFT);
             container->setBorderLayoutAnchor(LEFT);
@@ -197,17 +195,14 @@ namespace CUI {
             auto rg = new RadioGroup();
             auto toggle = Toggle::create();
             toggle->init(L"Add             ");
-            toggle->DenyRescaling();
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
             toggle->init(L"Subtract        ");
-            toggle->DenyRescaling();
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
             toggle->init(L"Reserve Subtract");
-            toggle->DenyRescaling();
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
             hsvcontrol->addChild(optionsCont);
