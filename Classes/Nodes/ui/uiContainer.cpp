@@ -221,11 +221,8 @@ void CUI::Container::updateLayoutManagers(bool recursive)
         auto& list = getChildren();
         for (auto& _ : list) {
             auto ccast = DCAST(Container, _);
-            auto gcast = DCAST(GUI, _);
             if (ccast)
                 ccast->updateLayoutManagers(true);
-            if (gcast)
-                gcast->updateInternalObjects();
         }
     }
 }

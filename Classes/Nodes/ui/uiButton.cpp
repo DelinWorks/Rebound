@@ -300,5 +300,7 @@ void CUI::Button::updateInternalObjects()
 CUI::Button::~Button() {
     if (CUI::_pCurrentHeldItem == this)
         CUI::_pCurrentHeldItem = nullptr;
+    if (CUI::_pCurrentHoveredTooltipItem == this)
+        CUI::_pCurrentHoveredTooltipItem = nullptr;
     LOG_RELEASE;
 }

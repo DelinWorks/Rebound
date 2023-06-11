@@ -583,6 +583,12 @@ typedef u32 TileID;
                 auto coord = calculateTileCoords(newGid, _);
                 i32 startIndex = index * VERTEX_SIZE_NO_ANIMATIONS * 4;
                 if (coord._outOfRange) coord = { 0,0,0,0 };
+                float zPos = Random::rangeFloat(-1000, 1000);
+                vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 0] = zPos;
+                vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 1] = zPos;
+                vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 2] = zPos;
+                vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 3] = zPos;
+
                 vertices[(7 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 0] = coord.tl.U;
                 vertices[(8 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 0] = coord.tl.V;
                 vertices[(7 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 1] = coord.tr.U;

@@ -7,7 +7,6 @@ UiRescaleComponent::UiRescaleComponent(Size _visibleSize) {
     setName(__func__);
     setEnabled(true);
     _resizeHintsRect = Rect(2, 0, 2, 0);
-    _visibleSize = _visibleSize;
 }
 
 UiRescaleComponent::UiRescaleComponent() {
@@ -121,7 +120,7 @@ void UiRescaleComponent::windowSizeChange(Size newVisibleSize) {
         setNodeScaleFHD(_owner);
         _owner->setScaleX(_owner->getScaleX() * _identityScale.x);
         _owner->setScaleY(_owner->getScaleY() * _identityScale.y);
-        _owner->setScale(_owner->getScale() * 1);
+        //_owner->setScale(_owner->getScaleX() * 1);
     }
     //if (fitting && !ignore)
     //{

@@ -13,7 +13,7 @@ namespace Strings {
         return base64_chars;
     }
 
-    inline std::string to_base64_arr(std::string const& data) {
+    inline std::string to_base64(std::string const& data) {
         int counter = 0;
         uint32_t bit_stream = 0;
         const std::string base64_chars = get_base64_chars();
@@ -80,7 +80,7 @@ namespace Strings {
         return result;
     }
 
-    inline std::string to_base64(const uint8_t* data, int len) {
+    inline std::string to_base64_arr(const uint8_t* data, int len) {
         int counter = 0;
         uint32_t bit_stream = 0;
         const std::string base64_chars = get_base64_chars();

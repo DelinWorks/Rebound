@@ -15,6 +15,7 @@ CUI::ToolTip* CUI::ToolTip::create()
         ref->label = CUI::Label::create();
         ref->label->hAlignment = ax::TextHAlignment::CENTER;
         ref->label->init(L"", TTFFS);
+        ref->label->hAlignment = TextHAlignment::LEFT;
         ref->addChildAsContainer(ref->label)->setCascadeOpacityEnabled(true);
         ref->setBackgroundSprite();
         ref->setMargin(Vec2(10, 10));

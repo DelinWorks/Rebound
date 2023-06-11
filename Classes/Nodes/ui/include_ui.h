@@ -326,5 +326,42 @@ namespace CUI {
 
             return container;
         }
+
+        static CUI::Container* createLayerWidget(std::wstring layer_name, CUI::ButtonCallback callback) {
+            auto main = CUI::Container::create();
+            main->DenyRescaling();
+            main->setStatic();
+            auto elem = CUI::Button::create();
+            elem->DenyRescaling();
+            elem->init(layer_name, TTFFS, { 180, 0 });
+            elem->_callback = callback;
+            main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
+            Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2 / CUI::_UiScale);
+            //elem->hAlignment = ax::TextHAlignment::LEFT;
+            auto left = TO_CONTAINER(elem);
+            left->DenyRescaling();
+            left->setConstraint(CUI::DependencyConstraint(main, LEFT));
+            left->setBorderLayoutAnchor(LEFT);
+            auto visi = CUI::Button::create();
+            visi->DenyRescaling();
+            visi->initIcon("editor_visible", hpadding);
+            auto lock = CUI::Button::create();
+            lock->DenyRescaling();
+            lock->initIcon("editor_lock", hpadding);
+            auto opt = CUI::Button::create();
+            opt->DenyRescaling();
+            opt->initIcon("editor_settings", hpadding);
+            auto right = CUI::Container::create();
+            right->DenyRescaling();
+            right->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_LEFT, 0, 0, false));
+            right->setConstraint(CUI::DependencyConstraint(main, RIGHT));
+            right->addChild(visi);
+            right->addChild(lock);
+            right->addChild(opt);
+            main->setMargin({ 10, 10 });
+            main->addChild(left);
+            main->addChild(right);
+            return main;
+        }
     };
 }

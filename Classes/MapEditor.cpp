@@ -453,6 +453,11 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("decoration");
         map->bindLayer(0);
 
+        BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
+        std::string data = FileUtils::getInstance()->getStringFromFile("C:/Users/turky/Desktop/new 1.txt"sv);
+        auto base64 = Strings::to_base64(zlibString::compress_string(data));
+        BENCHMARK_SECTION_END();
+
         //auto img = new Image();
         //img->initWithImageFile("C:/Users/turky/Pictures/Untitled1(Photo)(noise_scale)(Level1)(x6.000000).png");
         //int len = compressBound(img->getDataLen());
@@ -638,7 +643,7 @@ void MapEditor::tick(f32 dt)
             _hoverToolTipPointer = CUI::_pCurrentHoveredTooltipItem;
         }
     }
-    else if (CUI::_pCurrentHoveredTooltipItem) _hoverToolTipTime += dt;
+    else if (CUI::_pCurrentHoveredTooltipItem && _hoverToolTipTime < 1.0f) _hoverToolTipTime += dt;
 
     //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
 
@@ -1112,46 +1117,10 @@ void MapEditor::buildEntireUi()
     container->addChild(list);
     for (int i = 0; i < 99; i++)
     {
-        auto main = CUI::Container::create();
-        main->DenyRescaling();
-        main->setStatic();
-        auto elem = CUI::Button::create();
-        elem->DenyRescaling();
-        if (i == 0) {
-            elem->init(WFMT(L"Grass Layer that The Stupid Player Interacts with please leave I don't want you in my life", i), TTFFS, { 174, 0 });
-        }
-        else
-            elem->init(WFMT(L"LAYER_NAME_%d", i), TTFFS, { 174, 0 });
-        elem->_callback = [=](CUI::Button* target) {
-            list->updateLayoutManagers();
-        };
-        main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
-        Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2 / CUI::_UiScale);
-        //elem->hAlignment = ax::TextHAlignment::LEFT;
-        auto left = TO_CONTAINER(elem);
-        left->DenyRescaling();
-        left->setConstraint(CUI::DependencyConstraint(main, LEFT));
-        left->setBorderLayoutAnchor(LEFT);
-        auto visi = CUI::Button::create();
-        visi->DenyRescaling();
-        visi->initIcon("editor_visible", hpadding);
-        auto lock = CUI::Button::create();
-        lock->DenyRescaling();
-        lock->initIcon("editor_lock", hpadding);
-        auto opt = CUI::Button::create();
-        opt->DenyRescaling();
-        opt->initIcon("editor_settings", hpadding);
-        auto right = CUI::Container::create();
-        right->DenyRescaling();
-        right->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_LEFT, 0, 0, false));
-        right->setConstraint(CUI::DependencyConstraint(main, RIGHT));
-        right->addChild(visi);
-        right->addChild(lock);
-        right->addChild(opt);
-        main->setMargin({ 10, 10 });
-        main->addChild(left);
-        main->addChild(right);
-        list->addElement(main);
+        list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 100))), [=](CUI::Button* target) {
+            list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 100))), [](CUI::Button* target) {}));
+        list->updateLayoutManagers(true);
+            }));
     }
 
     //tabs->addElement(L"Tileset3");
