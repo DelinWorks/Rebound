@@ -113,16 +113,6 @@ void CUI::GUI::DisableDynamicsRecursive(Node* n)
 void CUI::GUI::setUiOpacity(float opacity)
 {
 	SET_UNIFORM(_backgroundShader, "ui_alpha", opacity);
-	if (opacity < 0.5 && !_ForceOutline)
-	{
-		_ForceOutline = true;
-		onFontScaleUpdate(_UiScale / _UiScaleMul);
-	}
-	if (opacity > 0.5 && _ForceOutline)
-	{
-		_ForceOutline = false;
-		onFontScaleUpdate(_UiScale / _UiScaleMul);
-	}
 }
 
 bool CUI::GUI::hover(Vec2 mouseLocationInView, Camera* cam)
@@ -289,10 +279,4 @@ const Size& CUI::GUI::getPrefferedContentSize() const
 
 void CUI::GUI::updateInternalObjects()
 {
-}
-
-void CUI::SignalHandeler::signalSceneRoot(std::string signal)
-{
-	auto handeler = DCAST(SignalHandeler, Director::getInstance()->getRunningScene());
-	if (handeler) handeler->signal(signal);
 }

@@ -18,7 +18,7 @@ void CUI::Button::init(std::wstring _text, int _fontSize, Size _size, Size _hitb
 {
     init(
         _text,
-        "fonts/bitsy-font-with-arabic.ttf"sv,
+        _fontName,
         _fontSize,
         ADVANCEDUI_P1_CAP_INSETS,
         _size,
@@ -104,7 +104,7 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
         preCompContentSize = (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
     }
     else {
-        field = ax::Label::createWithTTF(ShapingEngine::render(_text), _fontname, _fontsize * _UiScale);
+        field = ax::Label::createWithBMFont(_fontname, ShapingEngine::render(_text));
         sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
         sprite->setContentSize(_contentsize);
         sprite->setColor(selected_color);
@@ -266,15 +266,16 @@ float CUI::Button::preCalculatedHeight()
 void CUI::Button::onFontScaleUpdate(float scale)
 {
     if (field) {
-        field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
+        //field->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
         if (field_size.x != 0 || field_size.y != 0) {
             field->setDimensions(field_size.x * scale * _PmtFontScale, field_size.y * scale * _PmtFontScale);
             field->setHorizontalAlignment(ax::TextHAlignment::LEFT);
             //_prtcl->setAngleVar(0);
             //_prtcl->setSpeed(40);
         }
-        if (_ForceOutline)
-            field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * scale);
+        //if (_ForceOutline)
+        //    field->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * scale);
+        field->setBMFontSize(UINT16_MAX * _BMFontScale);
         field->getFontAtlas()->setAliasTexParameters();
     }
     else icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);

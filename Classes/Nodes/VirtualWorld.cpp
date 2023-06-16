@@ -59,6 +59,9 @@ void VirtualWorldManager::renderAllPasses(ax::Scene* scene, ax::Color4F bg)
 	// Transform the nodes by the inverse of the camera world matrix.
 	auto invW = _camera->getWorldSpaceMatrix().getInversed();
 
+	// Render the Tilemap/Objects Pass, used for any decorations.
+	_worlds[1]->renderPass(invW);
+
 	// First pass should be cleared with a color that is picked by the user, 
 	// rest of the passes need to have an alpha channel for the previous
 	// passes to be seen.
@@ -66,9 +69,6 @@ void VirtualWorldManager::renderAllPasses(ax::Scene* scene, ax::Color4F bg)
 
 	// Render the Editor Pass, used for tools and draw nodes in the editor.
 	_worlds[0]->renderPass(invW);
-
-	// Render the Tilemap/Objects Pass, used for any decorations.
-	_worlds[1]->renderPass(invW);
 
 	// The order that these worlds are rendered in matters.
 	// These render passes can have a unique shader attached 

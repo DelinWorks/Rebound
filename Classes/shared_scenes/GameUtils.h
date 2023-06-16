@@ -196,6 +196,15 @@ namespace GameUtils
 
     std::vector<Node*> findNodesByTag(Node* parent, int tag, bool containParent = true, std::vector<Node*> list = std::vector<Node*>(), bool recursive = false);
 
+    class SignalHandeler {
+    public:
+
+        virtual void signal(std::string signal) { handleSignal(signal); };
+        virtual void handleSignal(std::string signal) = 0;
+
+        static void signalSceneRoot(std::string signal);
+    };
+
     namespace Editor {
 
         enum UndoRedoCategory {

@@ -41,6 +41,7 @@ namespace CUI
     inline bool _ForceOutline = false;
     inline float _PxArtMultiplier = 2;
     inline float _TTFFontSize = 16;
+    inline float _BMFontScale = 2;
 
     class GUI;
 
@@ -57,6 +58,8 @@ namespace CUI
     inline ax::backend::ProgramState* _backgroundShader;
 
     inline ax::Vec2 _savedLocationInView;
+
+    inline std::string_view _fontName = "C:/Users/turky/Desktop/fonts/bitsy.fnt"sv;
 
     struct UiFontDescriptor {
         std::string fontName;
@@ -223,15 +226,6 @@ namespace CUI
 
         friend class FlowLayout;
         friend class ContentSizeConstraint;
-    };
-
-    class SignalHandeler {
-    public:
-
-        virtual void signal(std::string signal) { handleSignal(signal); };
-        virtual void handleSignal(std::string signal) = 0;
-
-        static void signalSceneRoot(std::string signal);
     };
 }
 

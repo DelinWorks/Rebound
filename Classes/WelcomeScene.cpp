@@ -82,7 +82,7 @@ void WelcomeScene::update(f32 dt)
     if (animTime > _maxTime && cnOpacity <= 0)
     {
         GameUtils::addSpriteFramesFromJson("player/player_atlas.png", "player/player_atlas.json");
-        GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
+        //GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
         auto scene = MapEditor::createScene();

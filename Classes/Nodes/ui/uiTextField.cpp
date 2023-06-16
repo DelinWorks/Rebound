@@ -16,11 +16,11 @@ CUI::TextField* CUI::TextField::create()
     return ret;
 }
 
-void CUI::TextField::init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars)
+void CUI::TextField::init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength, std::string_view allowedChars, std::string_view _fontname)
 {
     init(
         _placeholder,
-        "fonts/bitsy-font-with-arabic.ttf"sv,
+        _fontname,
         _fontSize,
         false,
         ADVANCEDUI_P1_CAP_INSETS,
@@ -43,7 +43,8 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
     Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
+    if (_rescalingAllowed)
+        addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     setHoverOffset({ 10, 10 });
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
@@ -59,8 +60,7 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
     selected_color = _selected_color;
     password = _password;
     cursor_control_parent = ax::Node::create();
-    field = ax::ui::TextField::create(Strings::narrow(_placeholder), _fontname, _fontsize * _UiScale);
-    field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
+    field = ax::ui::TextField::create(Strings::narrow(_placeholder), _fontname, 0);
     field->setMaxLengthEnabled(true);
     field->setMaxLength(length == -1 ? 256 : length);
     field->setPasswordEnabled(_password);
@@ -314,10 +314,11 @@ Size CUI::TextField::getDynamicContentSize()
 
 void CUI::TextField::onFontScaleUpdate(float scale)
 {
-    field->_textFieldRenderer->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
-    field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
-    if (_ForceOutline)
-        field->_textFieldRenderer->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
+    //field->_textFieldRenderer->initWithTTF(field->getString(), desc.fontName, desc.fontSize * _PmtFontScale * scale);
+    //field->_textFieldRenderer->getFontAtlas()->setAliasTexParameters();
+    //if (_ForceOutline)
+    //    field->_textFieldRenderer->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
+    field->_textFieldRenderer->setBMFontSize(UINT16_MAX * _BMFontScale);
     field->updateSizeAndPosition();
 }
 

@@ -33,6 +33,7 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     leftB = CUI::Button::create();
 
     rightB->initIcon("editor_arrow_right", {2, 5});
+    rightB->icon->_roundRenderMatrix = true;
     //rightB->_callback = [=](Button* target) {
     //    float avg = 0.0f;
     //    int count = 0;
@@ -54,6 +55,7 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     scrollCont->addChild(rightB);
 
     leftB->initIcon("editor_arrow_left", {2, 5});
+    leftB->icon->_roundRenderMatrix = true;
     //leftB->_callback = [=](Button* target) {
     //    float avg = 0.0f;
     //    int count = 0;
@@ -92,9 +94,12 @@ CUI::Tabs* CUI::Tabs::create(Vec2 _prefferedSize)
 
 void CUI::Tabs::calculateContentBoundaries()
 {
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    scrollCont->setContentSize(Vec2(28 * ns.x, _prefferedSize.y));
+    setContentSize(Vec2(getContentSize().x, 20 * ns.y));
     Container::recalculateChildDimensions();
     auto& c = getContentSize();
-    clipping->setClipRegion(Rect(c.x / -2 - 3, c.y * 8 / -2, c.x - 18, c.y * 8));
+    clipping->setClipRegion(Rect(c.x / -2 - 3 * ns.x, c.y * 8 / -2, c.x - 18 * ns.x, c.y * 8));
 }
 
 void CUI::Tabs::updateLayoutManagers(bool recursive)
@@ -118,13 +123,13 @@ void CUI::Tabs::addElement(std::wstring e, GUI* container)
                 int idx = i;
                 target->enableIconHighlight();
                 if (tabIndices[i].cont)
-                    tabIndices[i].cont->enable(true);
+                    tabIndices[i].cont->enableSelf(true);
                 tabIndex = idx;
             }
             else {
                 tabIndices[i].button->disableIconHighlight();
                 if (tabIndices[i].cont)
-                    tabIndices[i].cont->disable(true);
+                    tabIndices[i].cont->disableSelf(true);
             }
         }
     };
@@ -143,13 +148,14 @@ void CUI::Tabs::update(f32 dt)
     // Ui Culling
     if (!elementCont->getPosition().equals(elemContPos)) {
         auto& p = elementCont->getPosition();
+        auto ns = GameUtils::getNodeIgnoreDesignScale();
         for (auto& _ : elementCont->getChildren()) {
             auto c1 = _->getNodeToParentTransform() * Vec3(_->getContentSize().x, _->getContentSize().y, 0);
             if (c1 == ax::Vec3::ZERO) break;
             auto pos = _->getPosition() + p;
             auto b1 = Rect(pos.x, 0, c1.x, 0);
             auto c2 = getNodeToParentTransform() * Vec3(getContentSize().x, getContentSize().y, 0);
-            auto b2 = Rect(c2.x / -2 + c1.x / 2, 0, c2.x, 0);
+            auto b2 = Rect(c2.x / -2 + c1.x / 2, 0, c2.x - 30 * ns.x, 0);
             _->setVisible(b1.intersectsRect(b2));
             elemContPos = elementCont->getPosition();
         }
@@ -184,7 +190,7 @@ void CUI::Tabs::mouseScroll(EventMouse* event)
 void CUI::Tabs::setSelection(int idx)
 {
     if (tabIndices.size() > 0)
-        tabIndices[0].button->_callback(tabIndices[0].button);
+        tabIndices[idx].button->_callback(tabIndices[idx].button);
 }
 
 CUI::Tabs::~Tabs()

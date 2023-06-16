@@ -41,7 +41,7 @@ void CUI::ToolTip::update(f32 dt)
     curPos.y = LERP(curPos.y, clampedMousePos.y, 15 * dt);
     auto angle = Vec2(curPos.x + curPos.y * 2, 1280).getAngle(Vec2(clampedMousePos.x + clampedMousePos.y * 2, 1280));
     float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 4));
-    rotation = LERP(rotation, curRotation, 8 * dt);
+    rotation = LERP(rotation, curRotation, 16 * dt);
     rotation = Math::clamp(rotation, -50, 50);
     setRotation(rotation);
     setPosition(clampedMousePos);

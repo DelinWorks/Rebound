@@ -18,7 +18,7 @@ public:
 
 typedef u32 TileID;
 
-#define CHUNK_SIZE 128.0
+#define CHUNK_SIZE 64.0
 #define CHUNK_BUFFER_SIZE (CHUNK_SIZE*CHUNK_SIZE)
 
 #define TILE_FLAG_ROTATE (TileID(1) << 31)
@@ -78,7 +78,7 @@ typedef u32 TileID;
     inline float zPositionMultiplier = 0;
     inline u32 maxDrawCallCount = 8192;
 
-    inline bool RectIntersectsRectOffOrigin(ax::Rect r1, ax::Rect r2) {
+    inline bool RectIntersectsRectOffOrigin(const ax::Rect& r1, const ax::Rect& r2) {
         return !(r1.size.x < r2.origin.x || r2.size.x < r1.origin.x || r1.size.y < r2.origin.y || r2.size.y < r1.origin.y);
     }
 
@@ -480,7 +480,7 @@ typedef u32 TileID;
 
                     if (!coord._outOfRange) {
                         Color4F tc = Color4F::WHITE;
-                        float zPos = Random::rangeFloat(-1000, 1000);
+                        float zPos = Random::rangeFloat(-10, 10);
                         vertices.insert(vertices.end(), {
                             x, y,           zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tl.U, coord.tl.V,
                             x + sx, y,      zPos,  tc.r, tc.g, tc.b, tc.a,  coord.tr.U, coord.tr.V,
@@ -583,7 +583,7 @@ typedef u32 TileID;
                 auto coord = calculateTileCoords(newGid, _);
                 i32 startIndex = index * VERTEX_SIZE_NO_ANIMATIONS * 4;
                 if (coord._outOfRange) coord = { 0,0,0,0 };
-                float zPos = Random::rangeFloat(-1000, 1000);
+                float zPos = Random::rangeFloat(-10, 10);
                 vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 0] = zPos;
                 vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 1] = zPos;
                 vertices[(2 + startIndex) + VERTEX_SIZE_NO_ANIMATIONS * 2] = zPos;
@@ -650,7 +650,6 @@ typedef u32 TileID;
                 }
                 _chunkDirty = false;
             }
-            setBlendFunc(BlendFunc::ALPHA_NON_PREMULTIPLIED);
             if (_mesh && getDisplayedOpacity())
                 MeshRenderer::visit(renderer, parentTransform, parentFlags);
         }
@@ -733,7 +732,7 @@ typedef u32 TileID;
 
         void draw(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
-        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount) {
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount, const ax::BlendFunc& blendFunc) {
             auto tiles = _tiles->getArrayPointer();
             if (!resizeChunkCount())
                 return;
@@ -741,8 +740,9 @@ typedef u32 TileID;
             auto cam = tileMapVirtualCamera;
             if (!cam) return;
 
-            auto cam_aabb = Rect(cam->getPosition().x - 640 * cam->getScale(), cam->getPosition().y - 360 * cam->getScale(),
-                cam->getPosition().x + 640 * cam->getScale(), cam->getPosition().y + 360 * cam->getScale());
+            auto camScaling = cam->getScale();
+            auto cam_aabb = Rect(cam->getPosition().x - 640 * camScaling, cam->getPosition().y - 360 * camScaling,
+                cam->getPosition().x + 640 * camScaling, cam->getPosition().y + 360 * camScaling);
 
             auto pos = Vec2(_pos.x * _tilesetArr->_tileSets[0]->_sizeInPixels.x, _pos.y * _tilesetArr->_tileSets[0]->_sizeInPixels.y);
             auto aabb = Rect(pos.x, pos.y, pos.x + _tilesetArr->_tileSets[0]->_sizeInPixels.x, pos.y + _tilesetArr->_tileSets[0]->_sizeInPixels.y);
@@ -775,6 +775,7 @@ typedef u32 TileID;
                 // *  0  0  1  Tz
                 // *  0  0  0  1
 
+                _->setBlendFunc(blendFunc);
                 _->visit(renderer, transform, parentFlags);
                 //(*renderCount)++;
                 _chunkDirty = false;

@@ -43,7 +43,7 @@ void CUI::Toggle::update(f32 dt)
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
     if (setContentSize(dSize / ns)) {
         cont->updateLayoutManagers();
-        button->setContentSize(dSize * ns);
+        button->setContentSize((dSize + Vec2(0, 10)) * ns);
         HoverEffectGUI::update(dt, dSize * ns);
     }
 }

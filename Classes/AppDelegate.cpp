@@ -379,6 +379,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(0);
 #endif
 
+    //director->setAnimationInterval(1.0f / glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate);
 #if (AX_TARGET_PLATFORM == AX_PLATFORM_WIN32) || (AX_TARGET_PLATFORM == AX_PLATFORM_MAC) || (AX_TARGET_PLATFORM == AX_PLATFORM_LINUX)
     if (!Darkness::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate);

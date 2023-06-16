@@ -50,7 +50,7 @@ namespace CUI
 
         TextFieldCallback _callback;
 
-        void init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv);
+        void init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv, std::string_view _fontname = _fontName);
 
         void init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
             cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,

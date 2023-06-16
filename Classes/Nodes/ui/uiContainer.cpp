@@ -477,8 +477,8 @@ void CUI::Container::calculateContentBoundaries()
     }
 
     auto scaledMargin = ax::Vec2(
-        _margin.x * 2,
-        _margin.y * 2
+        _margin.x * 2 * ns.x,
+        _margin.y * 2 * ns.y
     );
 
     if (isContainerDynamic())
@@ -636,6 +636,7 @@ void CUI::EventPassClippingNode::setClipRegion(ax::Rect r)
 
 bool CUI::EventPassClippingNode::hover(Vec2 mouseLocationInView, Camera* cam)
 {
+    if (mouseLocationInView == INVALID_LOCATION) return false;
     return child->hover(mouseLocationInView, cam);
 }
 

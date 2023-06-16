@@ -97,7 +97,7 @@ namespace CUI {
 
         static Container* createFledgedHSVPanel() {
             auto container = Container::create();
-            container->setBorderLayout(LEFT);
+            container->setBorderLayout(LEFT, BorderContext::PARENT);
             container->setBorderLayoutAnchor(LEFT);
             container->setLayout(FlowLayout(SORT_VERTICAL));
             container->setBackgroundSprite();
@@ -118,7 +118,7 @@ namespace CUI {
             auto colorContHex = Container::create();
             colorContHex->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 8, 0, false));
             auto lb = Label::create();
-            lb->init(L"  hex:          ", TTFFS);
+            lb->init(L"  hexadecimal:  ", TTFFS);
             auto hextf = TextField::create();
             hextf->init(L"HEX COLOR", TTFFS, { 145, 30 }, 9, "#0123456789abcdefABCDEF");
             hextf->setStyleDotted();
@@ -184,6 +184,7 @@ namespace CUI {
             colorContAlpha->addChild(tfa);
             colorCont->addChild(colorContAlpha);
             colorCont->addChild(Separator::create(Vec2(1, 10)));
+            lb->setGlobalZOrder(UINT32_MAX);
 
             auto savedCont = Container::create();
             lb = Label::create();
@@ -211,28 +212,29 @@ namespace CUI {
             optionsCont->addChild(toggle);
             hsvcontrol->addChild(optionsCont);
 
-            auto tabs = Tabs::create({ 0, 20 });
-            tabs->setConstraint(ContentSizeConstraint(hsv, { -10, 0 }, true, false, true));
-            tabs->setBorderLayout(TOP_LEFT, BorderContext::PARENT);
-            tabs->setBorderLayoutAnchor(TOP_LEFT);
-            hsvcontrol->addChild(tabs);
-            tabs->addElement(L"Values", colorCont);
-            tabs->addElement(L"Custom", savedCont);
-            tabs->addElement(L"Contrast");
-            tabs->addElement(L"Blend Oper", optionsCont);
-            tabs->addElement(L"Blend Func");
-
             auto dismissCont = Container::create();
             dismissCont->setBorderLayout(BOTTOM, BorderContext::PARENT);
             dismissCont->setBorderLayoutAnchor(BOTTOM);
             dismissCont->setMargin({ 0, 8 });
             hsvcontrol->addChild(dismissCont);
             auto closeB = Button::create();
-            closeB->init(L"Dismiss Panel", TTFFS);
+            closeB->init(L"Hide Panel", TTFFS);
+            ((ax::Label*)closeB->field)->setAdditionalKerning(3);
             closeB->_callback = [=](Button* target) {
                 container->removeFromParent();
             };
             dismissCont->addChild(closeB);
+
+            auto tabs = Tabs::create(ax::Vec2::ZERO);
+            tabs->setConstraint(ContentSizeConstraint(hsv, { -20, 0 }, true, false, true));
+            tabs->setBorderLayout(TOP, BorderContext::PARENT);
+            tabs->setBorderLayoutAnchor(TOP);
+            hsvcontrol->addChild(tabs);
+            tabs->addElement(L"Values", colorCont);
+            tabs->addElement(L"Custom", savedCont);
+            tabs->addElement(L"Contrast");
+            tabs->addElement(L"Blend Oper", optionsCont);
+            tabs->addElement(L"Blend Func");
 
             hsv->_callback = [=](const HSV& hsv, HSVWheel* target) {
                 auto col = hsv.toColor4F();
@@ -358,7 +360,7 @@ namespace CUI {
             right->addChild(visi);
             right->addChild(lock);
             right->addChild(opt);
-            main->setMargin({ 10, 10 });
+            main->setMargin({ 0, 10 });
             main->addChild(left);
             main->addChild(right);
             return main;

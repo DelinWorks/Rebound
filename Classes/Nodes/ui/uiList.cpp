@@ -122,18 +122,19 @@ void CUI::List::updateLayoutManagers(bool recursive)
 
 void CUI::List::addElement(Container* container)
 {
-    container->_disregardGraph = true;
+    container->_disregardGraph = false;
     auto y = container->getContentSize().y;
     container->setStatic();
     container->setContentSize(Vec2(0, y) + container->getMargin(), false);
-    container->setConstraint(ContentSizeConstraint(this, {-12, 0}, false, false, true));
-    container->setPositionX(-6);
+    container->setConstraint(ContentSizeConstraint(this, {-14, 0}, false, false, true));
+    container->setPositionX(-7);
     if (elements.size() % 2 == 0)
         container->setBackgroundSpriteDarken();
     elements.push_back(container);
     container->disableRebuildOnEnter();
     elementCont->addChild(container);
     GUI::DisableDynamicsRecursive(container);
+    elemContPos = INVALID_LOCATION;
 }
 
 void CUI::List::update(f32 dt)

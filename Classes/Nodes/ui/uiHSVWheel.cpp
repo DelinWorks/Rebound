@@ -40,11 +40,13 @@ bool CUI::HSVWheel::init(float scale)
     lp->addChild(squareHandle);
     auto colorP = GameUtils::createGPUProgram("hsv_distinct_alpha.frag", "default.vert");
     oldColor = ax::Sprite::create("pixel.png");
+    oldColor->_forceBatching = true;
     oldColor->setProgramState(colorP);
     oldColor->setContentSize(Vec2(85, 50));
     oldColor->addChild(resetButton);
     hookPlaceholderButtonToNode(oldColor, resetButton);
     newColor = ax::Sprite::create("pixel.png");
+    newColor->_forceBatching = true;
     newColor->setProgramState(colorP);
     newColor->setContentSize(Vec2(85, 50));
     oldColor->setPositionY(75);
@@ -168,7 +170,7 @@ bool CUI::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             c.a = oldColor->getOpacity() / 255.0;
             updateColorValues(c);
             _callback(hsv, this);
-            SignalHandeler::signalSceneRoot("tooltip_hsv_reset");
+            GameUtils::SignalHandeler::signalSceneRoot("tooltip_hsv_reset");
             return true;
         }
         if (opacity->press(mouseLocationInView, cam)) return true;

@@ -6,13 +6,14 @@
 
 namespace TileSystem {
 
-	class Layer : public ChunkRenderMethod, public ax::Node {
+	class Layer : public ChunkRenderMethod, public ax::BlendProtocol, public ax::Node {
 	public:
 		static Layer* create(std::string_view name) {
 			auto ref = new Layer();
 			if (ref) {
 				ref->_layerName = name;
 				ref->_layerColor = Color4F::WHITE;
+				ref->setBlendFunc(BlendFunc::ALPHA_NON_PREMULTIPLIED);
 
 				ref->autorelease();
 
@@ -71,7 +72,7 @@ namespace TileSystem {
 					_->_isModified = false;
 				}
 
-				_->visit(renderer, parentTransform, parentFlags, &currentMaxDrawCallCount);
+				_->visit(renderer, parentTransform, parentFlags, &currentMaxDrawCallCount, blend);
 
 				if (currentMaxDrawCallCount > maxDrawCallCount)
 					break;
@@ -88,6 +89,15 @@ namespace TileSystem {
 				_.second->cacheVertices(_resize);
 		}
 
+		void setBlendFunc(const BlendFunc& blendFunc) {
+			blend = blendFunc;
+		}
+
+		const BlendFunc& getBlendFunc() const {
+			return blend;
+		}
+
+		ax::BlendFunc blend;
 		u32 currentMaxDrawCallCount;
 		std::string _layerName = "";
 		Color4F _layerColor = Color4F::WHITE;

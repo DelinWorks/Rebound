@@ -20,17 +20,18 @@ CUI::DiscardPanel* CUI::DiscardPanel::create(BorderLayout border, BorderContext 
 
 void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& placeholder_or_text, DiscardButtons buttons, DiscardType type)
 {
+    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     setBackgroundDim();
 
     stack = CUI::Container::create();
-    stack->setBorderLayout(BorderLayout::CENTER, BorderContext::SCREEN_SPACE);
+    stack->setBorderLayout(BorderLayout::CENTER, BorderContext::PARENT);
     stack->setLayout(CUI::FlowLayout(
         CUI::FlowLayoutSort::SORT_VERTICAL,
         CUI::FlowLayoutDirection::STACK_CENTER,
-        10
+        0
     ));
     stack->setBorderLayoutAnchor();
-    stack->setMargin({ 30, 15 });
+    stack->setMargin({ 10, 5 });
     stack->setBackgroundSprite();
     addChild(stack);
 
@@ -42,8 +43,10 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
 
     auto label = CUI::Label::create();
     label->init(header, 16 * (type == DiscardType::INPUT ? 2 : 1));
-    //label->_padding = { 100, 0 };
-    stack->addChild(TO_CONTAINER(label));
+    label->setUiPadding(Vec2(100, 0));
+    auto cc = TO_CONTAINER(label);
+    cc->setMargin({ 0, 8 });
+    stack->addChild(cc);
 
     //auto separator = CUI::Separator::create({0, 0});
     //stack->addChild(TO_CONTAINER(separator));
@@ -51,13 +54,18 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
     if (type == DiscardType::INPUT) {
         auto textField = CUI::TextField::create();
         textField->init(placeholder_or_text, 16, { 200, 40 });
-        stack->addChild(TO_CONTAINER(textField));
+        textField->setStyleDotted();
+        cc = TO_CONTAINER(textField);
+        cc->setMargin({ 0, 8 });
+        stack->addChild(cc);
     }
     else {
         auto text = CUI::Label::create();
         text->init(placeholder_or_text, 16 * 1, { 0, 0 }, 0);
         text->hAlignment = ax::TextHAlignment::CENTER;
-        stack->addChild(TO_CONTAINER(text));
+        cc = TO_CONTAINER(text);
+        cc->setMargin({ 0, 8 });
+        stack->addChild(cc);
     }
 
     auto buttonStack = CUI::Container::create();
@@ -66,6 +74,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
         CUI::FlowLayoutDirection::STACK_CENTER,
         100
     ));
+    buttonStack->setMargin({ 0, 8 });
 
     //separator = CUI::Separator::create({ 0, 10 });
     //stack->addChild(TO_CONTAINER(separator));

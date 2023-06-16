@@ -384,6 +384,12 @@ std::vector<Node*> GameUtils::findNodesByTag(Node* parent, int tag, bool contain
     return nodes;
 }
 
+void GameUtils::SignalHandeler::signalSceneRoot(std::string signal)
+{
+    auto handeler = DCAST(SignalHandeler, Director::getInstance()->getRunningScene());
+    if (handeler) handeler->signal(signal);
+}
+
 void GameUtils::Editor::UndoRedoState::applyUndoState()
 {
     switch (action) {

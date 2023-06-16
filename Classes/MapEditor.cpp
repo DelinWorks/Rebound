@@ -92,7 +92,7 @@ bool MapEditor::init()
     VirtualWorldManager::resizeRenderTextures(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
-    map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(1000, 1000));
+    map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(2000000, 1000000));
     map->cacheVertices(false);
     _worlds[0]->addChild(map, 10);
 
@@ -148,6 +148,9 @@ bool MapEditor::init()
     deltaEditing = DrawNode::create(100);
     _worlds[0]->addChild(deltaEditing);
 
+    selectionNode = Node::create();
+    gridNode->addChild(selectionNode, 3);
+
     selectionPlaceSquare = DrawNode::create(1);
     selectionPlaceSquare->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_ALLOWED);
     selectionPlaceSquare->drawTriangle(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(map->_tileSize.x, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_TRI_ALLOWED);
@@ -156,7 +159,7 @@ bool MapEditor::init()
     selectionPlaceSquare->drawLine(Vec2(map->_tileSize.x, 0), Vec2(map->_tileSize.x, map->_tileSize.y), SELECTION_SQUARE_ALLOWED);
     selectionPlaceSquare->drawLine(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_ALLOWED);
     selectionPlaceSquare->setAnchorPoint(Point(0.5, 0.5));
-    gridNode->addChild(selectionPlaceSquare, 3);
+    selectionNode->addChild(selectionPlaceSquare);
 
     selectionPlaceSquareForbidden = DrawNode::create(1);
     selectionPlaceSquareForbidden->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_DENIED);
@@ -166,7 +169,7 @@ bool MapEditor::init()
     selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize.x, 0), Vec2(map->_tileSize.x, map->_tileSize.y), SELECTION_SQUARE_DENIED);
     selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_DENIED);
     selectionPlaceSquareForbidden->setAnchorPoint(Point(0.5, 0.5));
-    gridNode->addChild(selectionPlaceSquareForbidden, 3);
+    selectionNode->addChild(selectionPlaceSquareForbidden);
 
     worldCoordsLines = DrawNode::create(1);
     worldCoordsLines->drawLine(Vec2(0, -map->_mapSize.x * map->_tileSize.x), Vec2(0, 0), Color4F(0, 0.5, 0, 1));
@@ -451,6 +454,7 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("background");
         map->addLayer("collision");
         map->addLayer("decoration");
+        map->_layers[2]->setBlendFunc(BlendFunc::ADDITIVE);
         map->bindLayer(0);
 
         BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
@@ -595,7 +599,11 @@ void MapEditor::perSecondUpdate(f32 dt)
 void MapEditor::update(f32 dt)
 {
     updateDirectorToStatsCount(map->_tileCount, 0);
-    if (getContainer()) getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
+    if (getContainer()) {
+        bool cond = getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
+        selectionNode->setVisible(!cond && !isEditorDragging && !isSelectableHovered);
+    }
+    isSelectableHoveredLastFrame = false;
 }
 
 void MapEditor::tick(f32 dt)
@@ -859,13 +867,22 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) { isCtrlPressed = true; }
     if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT) { isShiftPressed = true; }
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_Z) editorUndo();
+    if (keyCode == EventKeyboard::KeyCode::KEY_Z && isCtrlPressed) editorUndo();
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_Y) editorRedo();
+    if (keyCode == EventKeyboard::KeyCode::KEY_Y && isCtrlPressed) editorRedo();
 
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT)
     {
         isEditorDragging = true;
+    }
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_T)
+    {
+        if (getContainer()) {
+            auto dis = CUI::DiscardPanel::create(CENTER, PARENT);
+            dis->init(L"> Set Layer Name <", L"Layer Name", CUI::OKAY);
+            getContainer()->pushModal(dis);
+        }
     }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_E)
@@ -910,9 +927,11 @@ void MapEditor::onMouseDown(ax::Event* event)
 
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
-        editorPushUndoState();
-        selectionPosition = Vec2(INFINITY, INFINITY);
-        isPlacing = true;
+        if (selectionNode->isVisible()) {
+            editorPushUndoState();
+            selectionPosition = Vec2(INFINITY, INFINITY);
+            isPlacing = true;
+        }
         //auto mouseClick = DrawNode::create(1);
         //mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
         //mouseClick->addComponent(new DrawNodeCircleExpandComponent(.5, 80, 16));
@@ -921,9 +940,11 @@ void MapEditor::onMouseDown(ax::Event* event)
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
-        editorPushUndoState();
-        isRemoving = true;
-        removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
+        if (selectionNode->isVisible()) {
+            editorPushUndoState();
+            isRemoving = true;
+            removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
+        }
     }
 }
 
@@ -955,6 +976,17 @@ void MapEditor::onMouseUp(ax::Event* event)
 
 void MapEditor::onMouseMove(ax::Event* event)
 {
+    Vec2 worldPos = GameUtils::convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
+    if (!isSelectableHoveredLastFrame) {
+        BENCHMARK_SECTION_BEGIN("Select Editor Test");
+        isSelectableHovered = false;
+        for (auto& _ : _selectables)
+            if (isSelectableHovered = _->editorDraw(worldPos))
+                break;
+        isSelectableHoveredLastFrame = true;
+        BENCHMARK_SECTION_END();
+    }
+
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
     if (isEditorDragging)
     {
@@ -964,7 +996,7 @@ void MapEditor::onMouseMove(ax::Event* event)
     //CCLOG("%f,%f", cameraLocation->getPositionX(), cameraLocation->getPositionY());
 }
 
-void MapEditor::setCameraScaleIndex(i32 dir) {
+void MapEditor::setCameraScaleIndex(i32 dir, bool shiftTransform) {
     cameraScaleIndex += dir;
     i32 n = (sizeof(possibleCameraScales) / sizeof(possibleCameraScales[0])) - 1;
     cameraScaleIndex = (int)clamp(cameraScaleIndex, 0, n);
@@ -989,7 +1021,8 @@ void MapEditor::setCameraScaleIndex(i32 dir) {
     Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
     Vec2 pos = cameraLocation->getPosition();
     Vec2 newPos = pos.lerp(targetPos, 1.0F - (cameraScale / preCamScl));
-    cameraLocation->runAction(Sequence::create(MoveTo::create(0, Vec2(newPos.x, newPos.y)), NULL));
+    if (shiftTransform)
+        cameraLocation->setPosition(newPos.x, newPos.y);
     _camera->setZoom(cameraScale / map->_contentScale);
     setWorldBoundsLayerColorTransforms(_camera);
     setCameraScaleUiText(cameraScale);
@@ -999,15 +1032,13 @@ void MapEditor::onMouseScroll(ax::Event* event)
 {
     EventMouse* e = (EventMouse*)event;
 
-    if (isCtrlPressed)
-        setCameraScaleIndex(e->getScrollY());
-    else if (isShiftPressed) {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + e->getScrollY() * 50 * _camera->getScale());
+    if (isCtrlPressed) {
+        if (isShiftPressed)
+            cameraLocation->setPositionX(cameraLocation->getPositionX() + e->getScrollY() * 50 * _camera->getScale());
+        else
+            cameraLocation->setPositionY(cameraLocation->getPositionY() + e->getScrollY() * -50 * _camera->getScale());
     }
-    else {
-        cameraLocation->setPositionY(cameraLocation->getPositionY() + e->getScrollY() * -50 * _camera->getScale());
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + e->getScrollX() * 50 * _camera->getScale());
-    }
+    else setCameraScaleIndex(e->getScrollY(), !isShiftPressed);
 
     if (pdb != nullptr)
     {
@@ -1059,6 +1090,7 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     // we are updating in the visit function because axmol
     // calls visit before update which makes the game have
     // a one frame delay which can be frustration.
+    Node::update(0);
     tick(_director->getDeltaTime());
     VirtualWorldManager::renderAllPasses(this, Color4F(LAYER_BACKGROUND_COLOR));
     Scene::visit(renderer, parentTransform, parentFlags);
@@ -1085,7 +1117,6 @@ void MapEditor::buildEntireUi()
 
     auto container = _input->_uiContainer = CUI::Container::create();
     container->setStatic();
-    container->setContentSize(visibleSize);
     container->setBorderLayoutAnchor();
     uiNode->addChild(container);
     CUI::callbackAccess.emplace("main", container);
@@ -1149,17 +1180,17 @@ void MapEditor::buildEntireUi()
     topRightContainer->addChild(menuContainer);
     menuContainer->setBackgroundBlocking();
 
-    auto padding = Size(38, 20);
+    auto padding = Size(2, 10);
     auto hpadding = Size(3, 20);
 
     auto fileB = CUI::Button::create();
-    fileB->initIcon("pretext_file", hpadding);
+    fileB->init(L"File", 16, ax::Vec2::ZERO, hpadding);
     fileB->disableArtMul();
     fileB->setUiPadding(padding);
     menuContainer->addChild(fileB);
 
     auto editB = CUI::Button::create();
-    editB->initIcon("pretext_edit", hpadding);
+    editB->init(L"Edit", 16, ax::Vec2::ZERO, hpadding);
     editB->disableArtMul();
     editB->setUiPadding(padding);
     menuContainer->addChild(editB);
@@ -1178,85 +1209,26 @@ void MapEditor::buildEntireUi()
         fcontainer->setBackgroundBlocking();
 
         auto lb = CUI::Button::create();
-        lb->init(L"Undo (Use Quick Menu)", TTFFS);
+        lb->init(L"Add Text Object", TTFFS);
         lb->setUiPadding({ 10, 5 });
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
         lb->_callback = [=](CUI::Button* target) {
-            editorUndo();
+            for (int i = 0; i < 100; i++) {
+                std::string s = Strings::gen_random(Random::rangeInt(5, 30));
+                auto textObj = ax::Label::createWithBMFont(CUI::_fontName, s);
+                auto selectable = Selectable::create(textObj);
+                _worlds[1]->addChild(selectable);
+                _selectables.push_back(selectable);
+                selectable->setPositionY(20 * i);
+            }
         };
 
         lb = CUI::Button::create();
-        lb->init(L"Redo (Use Quick Menu)", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb->_callback = [=](CUI::Button* target) {
-            editorRedo();
-        };
-
-        lb = CUI::Button::create();
         lb->init(L"----------------------------------", TTFFS);
         lb->disable();
         lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Stamp (Place) Mode", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Remove Mode", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Bucket Fill Mode", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Selection Mode", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"----------------------------------", TTFFS);
-        lb->disable();
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Flip Horizontally", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Flip Vertically", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"Rotate 90 Degrees (Diagonal Flag)", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        fcontainer->addChildAsContainer(lb);
-        fcontainer->addSpecialChild(lb);
-
-        lb = CUI::Button::create();
-        lb->init(L"----------------------------------", TTFFS);
-        lb->setUiPadding({ 10, 5 });
-        lb->disable();
         fcontainer->addChildAsContainer(lb);
         fcontainer->addSpecialChild(lb);
 
@@ -1291,7 +1263,7 @@ void MapEditor::buildEntireUi()
     };
 
     auto settingsB = CUI::Button::create();
-    settingsB->initIcon("pretext_menu", hpadding);
+    settingsB->init(L"Menu", 16, ax::Vec2::ZERO, hpadding);
     settingsB->disableArtMul();
     settingsB->setUiPadding(padding);
     menuContainer->addChild(settingsB);
@@ -1644,9 +1616,11 @@ void MapEditor::buildEntireUi()
     _debugText = CUI::Label::create();
     _debugText->init(L"", TTFFS);
     _debugText->enableOutline();
-    getContainer()->addChild(_debugText);
-    ((UiRescaleComponent*)_debugText->getComponent("UiRescaleComponent"))->setVisibleSizeHints(-2, 5, -2);
-    _debugText->setAnchorPoint(Vec2(-0.5, -0.5));
+    auto _debugTextCont = TO_CONTAINER(_debugText);
+    _debugTextCont->setBorderLayout(BOTTOM_LEFT, PARENT);
+    _debugTextCont->setBorderLayoutAnchor(BOTTOM_LEFT);
+    _debugTextCont->setMargin({ 4, 2 });
+    getContainer()->addChild(_debugTextCont, 99);
     /* FPS COUNTER CODE BODY */ {
         _debugText->stopAllActions();
         auto update_fps_action = CallFunc::create([&]() {
@@ -1679,12 +1653,9 @@ void MapEditor::buildEntireUi()
 
 void MapEditor::rebuildEntireUi()
 {
+    visibleSize = Director::getInstance()->getVisibleSize();
+    getContainer()->setContentSize(visibleSize / 1, false);
     SCENE_BUILD_UI;
-    _editorToolTip->showToolTip(WFMT(L"%sx%.2f\n\n%s\n%s\n%s",
-        L"Current GUI Scaling: ", Darkness::getInstance()->gameWindow.guiScale,
-        L"It is recommended that you restart the Map Editor,",
-        L"whenever you change the GUI Scaling or Window Size.",
-        L"Doing so will prevent bugs or glitches in the GUI."), 10);
 }
 
 ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)
@@ -1753,10 +1724,10 @@ ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _t
 Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _tileSize)
 {
     if (!removeSelectionNode) {
-        removeSelectionNode = DrawNode::create();
+        removeSelectionNode = DrawNode::create(1.0);
         gridNode->addChild(removeSelectionNode, 2);
     }
-    SelectionBox::Box box = SelectionBox::Box();
+    SelectionBox::Box box;
     Rect rect = createSelection(start_pos, end_pos, _tileSize, box);
 
     rect.origin.x = rect.origin.x / map->_tileSize.x;
@@ -1765,7 +1736,6 @@ Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _ti
     rect.size.y = rect.size.y / map->_tileSize.y;
 
     removeSelectionNode->clear();
-    removeSelectionNode->setLineWidth(1);
     removeSelectionNode->drawLine(box.left.begin, box.left.end, SELECTION_SQUARE_DENIED);
     removeSelectionNode->drawLine(box.bottom.begin, box.bottom.end, SELECTION_SQUARE_DENIED);
     removeSelectionNode->drawLine(box.right.begin, box.right.end, SELECTION_SQUARE_DENIED);
@@ -1876,5 +1846,11 @@ GameUtils::Editor::UndoRedoState& MapEditor::editorTopUndoStateOrDefault()
 void MapEditor::handleSignal(std::string signal)
 {
     if (signal == "tooltip_hsv_reset")
-        _editorToolTip->showToolTip(L"HSV color reset.", 2);
+        _editorToolTip->showToolTip(L"HSV color reset.", 0.5);
+    else if (signal == "tooltip_gui_scale_advice")
+        _editorToolTip->showToolTip(WFMT(L"%sx%.2f\n\n%s\n%s\n%s",
+            L"Current GUI Scaling: ", Darkness::getInstance()->gameWindow.guiScale,
+            L"It is recommended that you restart the Map Editor,",
+            L"whenever you change the GUI Scaling or Window Size.",
+            L"Doing so will prevent bugs or glitches in the GUI."), 10);
 }

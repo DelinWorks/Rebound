@@ -19,7 +19,7 @@ void CUI::Label::init(std::wstring _text, i32 _fontsize, Size _size, float _wrap
 {
     init(
         _text,
-        "fonts/bitsy-font-with-arabic.ttf"sv,
+        _fontName,
         _fontsize,
         _size,
         _wrap
@@ -32,13 +32,13 @@ void CUI::Label::init(std::wstring& _text, std::string_view _fontname, i32 _font
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     desc.fontName = _fontname;
     desc.fontSize = _fontsize;
-    field = ax::Label::create();
+    field = ax::Label::createWithBMFont(_fontname, Strings::narrow(_text));
     SELF addChild(field);
     text = _text;
     size = _size;
     wrap = _wrap;
-    onFontScaleUpdate(_UiScale);
-    update(0);
+    //onFontScaleUpdate(_UiScale);
+    //update(0);
 }
 
 void CUI::Label::enableOutline()
@@ -100,16 +100,17 @@ Size CUI::Label::getDynamicContentSize()
 
 void CUI::Label::onFontScaleUpdate(float scale)
 {
-    field->initWithTTF(ShapingEngine::render(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
+    //field->initWithTTF(ShapingEngine::render(text), desc.fontName, desc.fontSize * _PmtFontScale * scale, {0, 0}, hAlignment, vAlignment);
     if (wrap != 0) {
         field->setDimensions(wrap, field->getContentSize().y);
         field->setOverflow(ax::Label::Overflow::RESIZE_HEIGHT);
     }
     field->setHorizontalAlignment(hAlignment);
     field->setVerticalAlignment(vAlignment);
-    if (hasOutline || _ForceOutline)
-        field->enableOutline(Color4B::BLACK, _PmtFontOutline * scale);
-    field->getFontAtlas()->setAliasTexParameters();
+    //if (hasOutline || _ForceOutline)
+    //    field->enableOutline(Color4B::BLACK, _PmtFontOutline * scale);
+    //field->getFontAtlas()->setAliasTexParameters();
+    field->setBMFontSize(UINT16_MAX * _BMFontScale);
     field->updateContent();
 }
 

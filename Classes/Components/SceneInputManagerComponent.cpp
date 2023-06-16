@@ -71,11 +71,13 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
                 Darkness::getInstance()->gameWindow.guiScale += 0.25;
                 Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 8);
                 Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+                GameUtils::SignalHandeler::signalSceneRoot("tooltip_gui_scale_advice");
             }
             else if (keyCode == EventKeyboard::KeyCode::KEY_MINUS) {
                 Darkness::getInstance()->gameWindow.guiScale -= 0.25;
                 Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 8);
                 Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+                GameUtils::SignalHandeler::signalSceneRoot("tooltip_gui_scale_advice");
             }
         }
 
@@ -182,8 +184,8 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         //else
         //    Darkness::getInstance()->setCursorNormal();
 
-        if (_uiContainer)
-            if (_uiContainer->blockMouse()) return;
+        //if (_uiContainer)
+        //    if (_uiContainer->blockMouse()) return;
 
         onMouseMove(event);
     };

@@ -31,12 +31,6 @@
 #include "sqlite3enc/sqleet.h"
 #include "math/FastRNG.h"
 
-#include <string> 
-#include <sstream> 
-#include <iomanip> 
-#include <fstream>
-#include <limits>
-
 #ifdef WIN32
 #include "windows.h"
 #include "psapi.h"
@@ -59,17 +53,16 @@ using namespace Math;
 #include "Helper/Rebound/TileMapSystem.hpp"
 #include "Nodes/ui/include_ui.h"
 #include "Components/Components.h"
-
 #include "Nodes/VirtualWorld.h"
-
 #include "Helper/DataStructures/HAFStack.hpp"
+#include "Editor/SelectableObject.h"
 
 using namespace TileSystem;
 
 class MapEditor : public ax::Scene,
                   public SceneInputManager,
                   public VirtualWorldManager,
-                  public CUI::SignalHandeler
+                  public GameUtils::SignalHandeler
 {
 public:
     static ax::Scene* createScene();
@@ -103,7 +96,7 @@ public:
     void onMouseUp(ax::Event* event);
     bool hasMouseMoved = false;
     void onMouseMove(ax::Event* event);
-    void setCameraScaleIndex(i32 index = 0);
+    void setCameraScaleIndex(i32 index = 0, bool shiftTransform = true);
     void onMouseScroll(ax::Event* event);
     bool onTouchBegan(ax::Touch* touch, ax::Event* event);
     void onTouchMoved(ax::Touch* touch, ax::Event* event);
@@ -145,6 +138,7 @@ public:
     CUI::Button* cameraScaleB;
     CUI::Label* cameraScaleL;
 
+    ax::Node* selectionNode;
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;
     ax::DrawNode* worldCoordsLines;
@@ -215,6 +209,10 @@ public:
     GameUtils::Editor::UndoRedoState& editorTopUndoStateOrDefault();
     CUI::Button* undoB;
     CUI::Button* redoB;
+
+    bool isSelectableHoveredLastFrame = false;
+    bool isSelectableHovered = false;
+    std::vector<Selectable*> _selectables;
 };
 
 #endif
