@@ -243,6 +243,7 @@ void CUI::GUI::enableSelf(bool show)
 			auto cast = DCAST(GUI, i);
 			if (cast) cast->updateEnabled(_isEnabled, false);
 		}
+	onEnable();
 }
 
 void CUI::GUI::disableSelf(bool hide)
@@ -257,6 +258,7 @@ void CUI::GUI::disableSelf(bool hide)
 			auto cast = DCAST(GUI, i);
 			if (cast) cast->updateEnabled(_isEnabled, false);
 		}
+	onDisable();
 }
 
 void CUI::GUI::onEnable()

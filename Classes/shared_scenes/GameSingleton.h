@@ -14,8 +14,6 @@
 
 #include "shared_scenes/ProtectedTypes.hpp"
 
-#include "script/LuaBindings.h"
-
 struct GameConsole
 {
     wchar_t* args;
@@ -70,7 +68,7 @@ public:
     static void destroyInstance();
     static void restartInstance();
     
-    lua_State* state = nullptr;
+    //lua_State* state = nullptr;
 
     /// <summary>
     /// anti-cheat variables

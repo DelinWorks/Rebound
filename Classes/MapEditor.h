@@ -50,12 +50,12 @@ using namespace Math;
 
 #include "Helper/SelectionBox.h"
 #include "Helper/ChangeValue.h"
-#include "Helper/Rebound/TileMapSystem.hpp"
 #include "Nodes/ui/include_ui.h"
 #include "Components/Components.h"
 #include "Nodes/VirtualWorld.h"
-#include "Helper/DataStructures/HAFStack.hpp"
+#include "Helper/HAFStack.hpp"
 #include "Editor/SelectableObject.h"
+#include "Nodes/TileMapSystem.h"
 
 using namespace TileSystem;
 

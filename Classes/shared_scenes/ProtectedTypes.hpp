@@ -1,5 +1,4 @@
-#ifndef __PROTECTED_TYPES_H__
-#define __PROTECTED_TYPES_H__
+#pragma once
 
 #ifdef WIN32
 #include <memoryapi.h>
@@ -340,7 +339,5 @@ public:
 		if (isAutoProtect) protect();
 	}
 };
-
-#endif
 
 #endif

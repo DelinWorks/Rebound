@@ -136,7 +136,19 @@ bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
             setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
             hover_cv.setValue(isUiHovered());
             _pCurrentHoveredTooltipItem = isUiHovered() ? this : (_pCurrentHoveredTooltipItem == this ? nullptr : _pCurrentHoveredTooltipItem);
-            if (field) { if (isUiHovered()) field->enableUnderline(); else field->disableEffect(ax::LabelEffect::UNDERLINE); }
+            if (field) {
+                if (isUiHovered())
+                    field->enableUnderline();
+                else
+                    field->disableEffect(ax::LabelEffect::UNDERLINE);
+            }
+        }
+
+        if (icon) {
+            if (isUiHovered())
+                icon->setPositionY(1);
+            else
+                icon->setPositionY(0);
         }
 
         //if (hover_cv.isChanged())
@@ -165,12 +177,10 @@ void CUI::Button::onEnable()
     auto fade = FadeTo::create(1, 255);
     auto tint = TintTo::create(1, Color3B::WHITE);
     if (field) {
-        field->setOpacity(0);
         field->runAction(fade);
         field->runAction(tint);
     }
     else {
-        icon->setOpacity(0);
         icon->stopAllActions();
         icon->runAction(fade);
     }
@@ -195,6 +205,7 @@ void CUI::Button::onDisable()
         //HoverEffectGUI::hover();
         defocus();
     }
+    if (icon) icon->setPositionY(0);
 }
 
 bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)

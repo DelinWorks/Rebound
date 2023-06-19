@@ -107,6 +107,10 @@ namespace Math
         return closestMultiple;
     }
 
+    inline bool rectIntersectsRectOffOrigin(const ax::Rect& r1, const ax::Rect& r2) {
+        return !(r1.size.x < r2.origin.x || r2.size.x < r1.origin.x || r1.size.y < r2.origin.y || r2.size.y < r1.origin.y);
+    }
+
 #define CPT Math::closestPowerOfTwo
 #define CMR Math::closestMultipleRound
 #define CMC Math::closestMultipleCeil

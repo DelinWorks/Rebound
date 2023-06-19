@@ -526,11 +526,11 @@ int FMODAudioEngine::genSoundID()
 
 void FMODAudioEngine::addEventListener(int listener)
 {
-    if (_eventListener != 0)
-    {
-        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_eventListener);
-    }
-    _eventListener = listener;
+    //if (_eventListener != 0)
+    //{
+    //    ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_eventListener);
+    //}
+    //_eventListener = listener;
 }
 
 void FMODAudioEngine::onEvent(FMODAudioEventType eventType, std::string soundName)

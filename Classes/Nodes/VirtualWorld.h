@@ -1,8 +1,7 @@
-#ifndef __H_SCENEVIRTUALCAMERA__
-#define __H_SCENEVIRTUALCAMERA__
+#pragma once
 
-#include <axmol.h>
 #include "VirtualCamera.h"
+#include "shared_scenes/GameUtils.h"
 
 class VirtualWorldSpace : public ax::Node {
 	~VirtualWorldSpace();
@@ -32,5 +31,3 @@ public:
 	VirtualCamera* _camera;
 	std::vector<VirtualWorldSpace*> _worlds;
 };
-
-#endif 

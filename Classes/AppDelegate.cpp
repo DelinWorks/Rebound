@@ -32,10 +32,6 @@
 #include "string_manipulation_lib/base64.hpp"
 #include <chrono>
 
-#define MINI_CASE_SENSITIVE
-#include "Helper/INI/ini.h"
-#include <iostream>
-
 #include "Helper/Logging.hpp"
 #include "Helper/PlatDefines.h"
 #include "shared_scenes/ProtectedTypes.hpp"

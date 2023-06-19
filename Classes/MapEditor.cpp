@@ -1752,7 +1752,7 @@ void MapEditor::setCameraScaleUiText(f32 scale)
     std::string buffAsStdStr = buff;
     cameraScaleL->setString(buffAsStdStr);
 
-    cameraScaleB->enable();
+    cameraScaleB->enableSelf();
     if (scale < 1.0)
         cameraScaleB->icon->setSpriteFrame("editor_zoomed_in");
     else if (scale > 1.0)
@@ -1760,7 +1760,7 @@ void MapEditor::setCameraScaleUiText(f32 scale)
     else
     {
         cameraScaleB->icon->setSpriteFrame("editor_zoom_aligned");
-        cameraScaleB->disable();
+        cameraScaleB->disableSelf();
     }
 }
 

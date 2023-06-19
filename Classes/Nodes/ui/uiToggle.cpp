@@ -82,7 +82,8 @@ void CUI::Toggle::onEnable()
 
 void CUI::Toggle::onDisable()
 {
-    auto fade = FadeTo::create(0.1f, 100);
+    auto fade = FadeTo::create(0, 100);
+    knob->icon->stopAllActions();
     knob->icon->runAction(fade);
 }
 
@@ -93,8 +94,6 @@ bool CUI::Toggle::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     {
         if (_pCurrentHeldItem) _pCurrentHeldItem->release({ INFINITY, INFINITY }, cam);
         _pCurrentHeldItem = this;
-        auto fade = FadeTo::create(0, 100);
-        auto tint = TintTo::create(0, Color3B::GRAY);
         onDisable(); // Used for effects only
         return true;
     }
