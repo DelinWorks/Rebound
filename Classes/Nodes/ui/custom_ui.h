@@ -59,7 +59,7 @@ namespace CUI
 
     inline ax::Vec2 _savedLocationInView;
 
-    inline std::string_view _fontName = "C:/Users/turky/Desktop/fonts/bitsy.fnt"sv;
+    inline std::string_view _fontName = "fonts/bitsy.fnt"sv;
 
     struct UiFontDescriptor {
         std::string fontName;
