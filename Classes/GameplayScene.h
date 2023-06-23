@@ -1,7 +1,7 @@
 #ifndef _GAMEPLAY_SCENE_H_
 #define _GAMEPLAY_SCENE_H_
 
-#include "cocos2d.h"
+#include "axmol.h"
 #include "shared_scenes/GameUtils.h"
 #include "fmod/include_fmod.h"
 #include "AppDelegate.h"
@@ -10,11 +10,12 @@
 #include "Entities/CatPlayer.h"
 #include "Nodes/TiledMap.h"
 #include "Nodes/PhysicsWorld.h"
+#include "Components/Components.h"
 
-class GameplayScene : public cocos2d::Scene
+class GameplayScene : public ax::Scene, public SceneInputManager
 {
 public:
-    static cocos2d::Scene* createScene();
+    static ax::Scene* createScene();
 
     virtual bool init();
 

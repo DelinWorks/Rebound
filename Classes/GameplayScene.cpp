@@ -1,9 +1,5 @@
 #include "GameplayScene.h"
 
-#define LERP MathUtil::lerp
-
-using namespace GameUtils::CocosExt::CustomComponents;
-
 USING_NS_CC;
 
 #define SET_UNIFORM(ps, name, value)  do { \
@@ -58,7 +54,7 @@ bool GameplayScene::init()
         lb = ax::Label::createWithSystemFont("Press F5 to reload the map or ESC to quit.", "arial", 24);
         addChild(lb, 10);
 
-        auto comp = new GameUtils::CocosExt::CustomComponents::UiRescaleComponent(visibleSize);
+        auto comp = new UiRescaleComponent(visibleSize);
         comp->enableDesignScaleIgnoring();
         lb->addComponent(comp);
     }

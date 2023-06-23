@@ -4,8 +4,6 @@
 
 USING_NS_CC;
 
-using namespace GameUtils::CocosExt::CustomComponents;
-
 Scene* WelcomeScene::createScene()
 {
     return WelcomeScene::create();
@@ -44,7 +42,7 @@ bool WelcomeScene::init()
     if (textureCompanyLogo) textureCompanyLogo->setAliasTexParameters();
 
     auto cnnode = Node::create();
-    cnnode->addComponent((new GameUtils::CocosExt::CustomComponents::UiRescaleComponent(visibleSize))
+    cnnode->addComponent((new UiRescaleComponent(visibleSize))
         ->setVisibleSizeHints());
 
     cn = Sprite::createWithTexture(textureCompanyLogo);
@@ -83,7 +81,10 @@ void WelcomeScene::update(f32 dt)
 
     if (animTime > _maxTime && cnOpacity <= 0)
     {
-        GameUtils::CocosExt::addSpriteFramesFromJson("player/player_atlas.png", "player/player_atlas.json");
+        GameUtils::addSpriteFramesFromJson("player/player_atlas.png", "player/player_atlas.json");
+        //GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
+        GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
+        GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
         auto scene = MapEditor::createScene();
         Director::getInstance()->pushScene(scene);
     }
@@ -121,7 +122,7 @@ void WelcomeScene::runNext()
 
 void WelcomeScene::rebuildEntireUi()
 {
-    RESIZE_UI_ELEMENTS;
+    SCENE_BUILD_UI;
 }
 
 void WelcomeScene::onKeyHold(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)

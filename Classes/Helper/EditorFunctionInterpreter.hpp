@@ -140,7 +140,7 @@ public:
 						t.bind = bind;
 						t.format = format;
 						t.idx = i;
-						if (!t.set(GameUtils::Parser::parseVector2D(values[i])))
+						if (!t.set(GameUtils::parseVector2D(values[i])))
 							TTI_RETURN_ERR;
 						_its[bind].push_back(t);
 					}

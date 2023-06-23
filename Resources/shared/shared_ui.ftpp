@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "version": "0.6.7"
+  },
+  "savePath": "",
+  "images": [
+    {
+      "name": "9_slice_box_1.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_inv.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_inv.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_cramped2.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped2.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_gray.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_gray.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_cramped.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped.png",
+      "folder": ""
+    },
+    {
+      "name": "hsv_handle.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_handle.png",
+      "folder": ""
+    },
+    {
+      "name": "hsv_square.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_square.png",
+      "folder": ""
+    },
+    {
+      "name": "hsv_wheel.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_wheel.png",
+      "folder": ""
+    },
+    {
+      "name": "ptrn_bg_hover.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover.png",
+      "folder": ""
+    },
+    {
+      "name": "ptrn_bg_hover2.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover2.png",
+      "folder": ""
+    },
+    {
+      "name": "ptrn_bg_hover_shader.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover_shader.png",
+      "folder": ""
+    },
+    {
+      "name": "ptrn_bg_hover_shader_alpha_edge.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover_shader_alpha_edge.png",
+      "folder": ""
+    },
+    {
+      "name": "slider_bar.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/slider_bar.png",
+      "folder": ""
+    },
+    {
+      "name": "slider_knob.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/slider_knob.png",
+      "folder": ""
+    },
+    {
+      "name": "slider_progress.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/slider_progress.png",
+      "folder": ""
+    },
+    {
+      "name": "text_cursor.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/text_cursor.png",
+      "folder": ""
+    },
+    {
+      "name": "toggle_non.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/toggle_non.png",
+      "folder": ""
+    },
+    {
+      "name": "toggle_selected.png",
+      "path": "E:/dev/Rebound/Resources/shared/unready/toggle_selected.png",
+      "folder": ""
+    }
+  ],
+  "folders": [],
+  "packOptions": {
+    "textureName": "shared_ui",
+    "textureFormat": "png",
+    "removeFileExtension": true,
+    "prependFolderName": true,
+    "base64Export": false,
+    "tinify": false,
+    "tinifyKey": "",
+    "scale": 1,
+    "filter": "none",
+    "exporter": "JSON (array)",
+    "fileName": "pack-result",
+    "savePath": "",
+    "width": 2048,
+    "height": 2048,
+    "fixedSize": false,
+    "powerOfTwo": false,
+    "padding": 0,
+    "extrude": 1,
+    "allowRotation": false,
+    "allowTrim": false,
+    "trimMode": "trim",
+    "alphaThreshold": "0",
+    "detectIdentical": true,
+    "packer": "MaxRectsPacker",
+    "packerMethod": "Smart"
+  }
+}

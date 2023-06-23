@@ -1,7 +1,5 @@
 #include "EmptyScene.h"
 
-using namespace GameUtils::Parser;
-
 USING_NS_CC;
 
 Scene* EmptyScene::createScene()

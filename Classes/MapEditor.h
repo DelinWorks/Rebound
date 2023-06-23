@@ -29,16 +29,7 @@
 #include "shared_scenes/GameUtils.h"
 #include "fmod/include_fmod.h"
 #include "sqlite3enc/sqleet.h"
-#include "ui/CocosGUI.h"
 #include "math/FastRNG.h"
-
-#include "shared_scenes/custom_nodes/ui/include_ui.h"
-
-#include <string> 
-#include <sstream> 
-#include <iomanip> 
-#include <fstream>
-#include <limits>
 
 #ifdef WIN32
 #include "windows.h"
@@ -59,12 +50,19 @@ using namespace Math;
 
 #include "Helper/SelectionBox.h"
 #include "Helper/ChangeValue.h"
-
-#include "Helper/Rebound/TileMapSystem.hpp"
+#include "Nodes/ui/include_ui.h"
+#include "Components/Components.h"
+#include "Nodes/VirtualWorld.h"
+#include "Helper/HAFStack.hpp"
+#include "Editor/SelectableObject.h"
+#include "Nodes/TileMapSystem.h"
 
 using namespace TileSystem;
 
-class MapEditor : public ax::Scene
+class MapEditor : public ax::Scene,
+                  public SceneInputManager,
+                  public VirtualWorldManager,
+                  public GameUtils::SignalHandeler
 {
 public:
     static ax::Scene* createScene();
@@ -78,11 +76,13 @@ public:
 
     f32 global_dt;
     f32 fps_dt;
-    void update(f32 dt);
+    void update(f32 dt) override;
+    void tick(f32 dt);
     f32 updateSchedTime;
+    f32 elapsedDt = 0;
     void perSecondUpdate(f32 dt);
     void lateUpdate(f32 dt);
-    void editUpdate(ax::Vec2 old, ax::Vec2 place, ax::Size placeStampSize, ax::Size removeStampSize);
+    void editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize);
     void editUpdate_place(f32 x, f32 y, f32 _width, f32 _height);
     void editUpdate_remove(f32 x, f32 y, f32 _width, f32 _height);
 
@@ -96,42 +96,25 @@ public:
     void onMouseUp(ax::Event* event);
     bool hasMouseMoved = false;
     void onMouseMove(ax::Event* event);
-    void setCameraScaleIndex(i32 index = 0);
+    void setCameraScaleIndex(i32 index = 0, bool shiftTransform = true);
     void onMouseScroll(ax::Event* event);
     bool onTouchBegan(ax::Touch* touch, ax::Event* event);
     void onTouchMoved(ax::Touch* touch, ax::Event* event);
     void onTouchEnded(ax::Touch* touch, ax::Event* event);
     void onTouchCancelled(ax::Touch* touch, ax::Event* event);
+    void handleSignal(std::string signal);
     
+    void visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) override;
+
     TilesetArray* tilesetArr;
 
-    //ax::Vec2 parseVector2D(std::string position);
-    //ax::backend::ProgramState* createGPUProgram(std::string resources_frag_shader_path, std::string resources_vertex_shader_path);
-    //ax::Vec2 convertFromScreenToSpace(ax::Vec2 LocationInView, ax::Size& visibleSize, bool reverseY);
-    //ax::Vec2 convertFromSpaceToTileSpace(ax::Vec2 LocationInSpace);
-    //ax::Vec2 convertFromTileSpaceToSpace(ax::Vec2 LocationInTileSpace);
-    //ax::Vec2 convertFromSpaceToChunkSpace(ax::Vec2 LocationInSpace);
-    //ax::Vec2 convertFromChunkSpaceToSpace(ax::Vec2 LocationInChunkSpace);
-    //void resetEditorChunkCache();
-    //bool addChunkIfNotExists(ax::Vec2 LocationInChunkSpace, i32 tileGID);
-    //bool addTileIfNotExists(ax::Vec2 LocationInTileSpace, i32 tileGID = 0, i32 rot = 0, std::string hex = "FFFFFFFF");
-    //bool removeTileIfNotExists(ax::Vec2 LocationInTileSpace);
-    //std::string createCSVFromChunk(Chunk* chunk);
     void updateDirectorToStatsCount(i32 tileCount, i32 chunkCount);
-    //bool unloadChunk(Chunk* ref);
-    //void reorderChunks();
     void menuCloseCallback(ax::Ref* pSender);
     void buildEntireUi();
-
-    void setUiTextDefaultShade(ax::ui::Text* text_node, bool use_shadow = true);
 
     FastRNG rng;
 
     sqlite3* pdb;
-
-    std::vector<float> vertices;
-    ax::MeshRenderer* renderer;
-    TileTexCoords coord{ { 0,0 }, { 1,0 }, { 0,1 }, { 1,1 } };
 
     TileSystem::Map* map;
 
@@ -143,50 +126,44 @@ public:
     ax::BlendFunc*             map_default_tile_shader_blend;
 
     ax::Size visibleSize;
-    //ZOrder* orderSystem;
-    ax::LayerColor* bg;
     ax::Node* grid;
-    //ax::DrawNode* chunkGrid;
     ax::DrawNode* deltaEditing;
-    ax::Vec2 mouseLocation;
-    ax::Vec2 oldMouseLocation;
-    ax::Vec2 newMouseLocation;
-    ax::Vec2 oldMouseLocationOnUpdate;
-    ax::Vec2 newMouseLocationOnUpdate;
-    ax::Vec2 mouseLocationDelta;
-    ax::Vec2 mouseLocationInView;
     ax::Node* cameraLocation;
     ax::Vec2 oldSelectionPlace;
     ax::Vec2 selectionPlace;
     ax::Vec2 chunkSelectionPlace;
     f32 cameraScale;
-    i32 cameraScaleIndex = 5;
-    //f32 possibleCameraScales[29] = { 0.05F, 0.1F, 0.2F, 0.3F, 0.4F, 0.6F, 0.8F, 1, 1.5F, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18, 22, 26, 32, 48, 64, 80, 96, 100};
-    f32 possibleCameraScales[15] = { 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 1, 58, 60, 70 };
+    i32 cameraScaleIndex = 10;
+    f32 possibleCameraScales[19] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
+    CUI::Button* cameraScaleB;
+    CUI::Label* cameraScaleL;
 
+    ax::Node* selectionNode;
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;
     ax::DrawNode* worldCoordsLines;
     ax::DrawNode* cameraCenterIndicator;
 
-    ChangeValueBool* gridHideValue;
-    ChangeValueFloat* gridOpacityValue;
+    ChangeValue<bool> gridHideValue;
+    ChangeValue<float> gridOpacityValue;
 
     bool isInitDone = false;
     bool isTouchNew = false;
 
     ax::Node* rebuildableUiNodes;
     void rebuildEntireUi();
-    bool isUiObstructing = false;
     bool isEditorDragging = false;
     bool isEditorHideGrid = false;
     bool isLocationEditable = false;
     bool isPlacing = false;
     ax::Rect createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box);
-    ax::Rect createRemoveToolTileSelectionBox(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize);
+    ax::Rect createEditToolSelectionBox(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize);
     ax::Vec2 removeSelectionStartPos;
     ax::DrawNode* removeSelectionNode;
+    ax::Vec2 selectionPosition;
     bool isRemoving = false;
+
+    TileSystem::TileTexCoords editorTileCoords;
 
     std::string dbPath;
     std::string dbName = "map.daumap";
@@ -195,6 +172,7 @@ public:
 
     ax::Node* uiNode;
     ax::Node* uiNodeNonFollow;
+
     ax::Node* gridNode;
     ax::Node* TopMapSizeNode;
     ax::Node* BottomMapSizeNode;
@@ -202,29 +180,39 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
-    ax::Node* chunkNode;
-    ax::Node* worldNode;
+    f32 _hoverToolTipTime = 0.0f;
+    CUI::GUI* _hoverToolTipPointer;
+    CUI::ToolTip* _editorToolTip;
+    CUI::Label* _debugText;
+    CUI::ImageView* _tilesetPicker;
 
-    ax::MotionStreak* streak;
+    void setCameraScaleUiText(f32 scale);
+    void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
 
-    ax::Node* statsParentNode;
-    ax::ui::Text* FPSUiText;
-    ax::ui::Text* VertsUiText;
-    ax::ui::Text* BatchesUiText;
-    ax::ui::Text* ChunkUiText;
+    Rect editorWASDCamMoveRect;
 
-    void set_cameraScaleUiText(f32 scale);
-    void setWorldBoundsLayerColorTransforms(Camera* cam);
-    ax::Node* cameraScaleUi;
-    ax::Node* cameraScaleUiAlphaSpriteCascade;
-    ax::ui::Text* cameraScaleUiText;
-    ax::Sprite* cameraScaleUiSpNormal;
-    ax::Sprite* cameraScaleUiSpSmall;
-    ax::Sprite* cameraScaleUiSpBig;
-    ax::ui::Button* cameraScaleResetButton;
+    bool isCtrlPressed = false;
+    bool isShiftPressed = false;
+    HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _undo;
+    HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
 
-    // Custom Tile Spawn Code
-    i32 cur = 0;
+    CUI::Button* tileFlipH;
+    CUI::Button* tileFlipV;
+    CUI::Button* tileRot90;
+    void editorTileFlipRotateUpdateState();
+
+    void editorUndoRedoMax(int m);
+    void editorUndoRedoUpdateState();
+    void editorUndo();
+    void editorRedo();
+    void editorPushUndoState();
+    GameUtils::Editor::UndoRedoState& editorTopUndoStateOrDefault();
+    CUI::Button* undoB;
+    CUI::Button* redoB;
+
+    bool isSelectableHoveredLastFrame = false;
+    bool isSelectableHovered = false;
+    std::vector<Selectable*> _selectables;
 };
 
 #endif

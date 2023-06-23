@@ -14,8 +14,6 @@
 
 #include "shared_scenes/ProtectedTypes.hpp"
 
-#include "script/LuaBindings.h"
-
 struct GameConsole
 {
     wchar_t* args;
@@ -35,6 +33,7 @@ struct GameWindowDescriptor
     i32 currentWindowCursor;
     ResolutionPolicy windowPolicy;
     bool focusState;
+    float guiScale;
 };
 
 /** Game class responsible for global variables, client connections and save files */
@@ -50,7 +49,14 @@ public:
 
     GameConsole console;
 
+    GLFWcursor* cursor = nullptr;
+    GLFWcursor* hand = nullptr;
+    GLFWcursor* hold = nullptr;
     GameWindowDescriptor gameWindow;
+
+    void setCursorNormal();
+    void setCursorHand();
+    void setCursorHold();
 
     void setupController();
     ax::Controller::KeyStatus getKeyState(ax::Controller::Key key);
@@ -62,7 +68,7 @@ public:
     static void destroyInstance();
     static void restartInstance();
     
-    lua_State* state = nullptr;
+    //lua_State* state = nullptr;
 
     /// <summary>
     /// anti-cheat variables
@@ -70,21 +76,20 @@ public:
 
     std::thread modCheck;
 
-    //
+    // Kicking if game speed changes
 
-    uint64_t timeSinceStart = 0ULL;
-    uint64_t currentTime = 0ULL;
-    f32 elapsedGameTime = 0.0F;
+    uint64_t _timeSinceStart = 0ULL;
+    uint64_t _currentTime = 0ULL;
+    f32 _elapsedGameTime = 0.0F;
+    i8 _accumulatedKickTries = 0;
 
     ////////////////////////////////////////////
-
-    ProtectedType<i64> t;
 
     virtual void update(float delta);
 
     void setupLuaEngine();
 
-    bool isAntiCheatReady = false;
+    bool _isAntiCheatReady = false;
     void initAntiCheat();
     void updateAntiCheat(float delta);
     void MessageBoxWin32(std::string caption, std::string text);

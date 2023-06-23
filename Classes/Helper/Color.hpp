@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include "cocos2d.h"
+#include "short_types.h"
 
 USING_NS_CC;
 
@@ -11,55 +12,44 @@ USING_NS_CC;
 class ColorConversion
 {
 public:
-    static cocos2d::Color4B hex2rgba(std::string hex)
-    {
-        if (hex.at(0) == '#') {
-            hex.erase(0, 1);
+    static Color4F hex2rgba(std::string hexString) {
+        if (hexString.at(0) == '#')
+            hexString.erase(0, 1);
+        bool overrideAlpha = false;
+        if (hexString.length() < 7)
+            overrideAlpha = true;
+        if (hexString.length() < 8) {
+            std::string zeros(8 - hexString.length(), '0');
+            hexString += zeros;
         }
-        uint32_t raw_hex;
+        u32 raw = 0;
         std::stringstream ss;
-        ss << std::hex << hex;
-        ss >> raw_hex;
-        Color4B col = Color4B(0, 0, 0, 0);
-        col.r = ((raw_hex >> 24) & 0xFF);
-        col.g = ((raw_hex >> 16) & 0xFF);
-        col.b = ((raw_hex >> 8) & 0xFF);
-        col.a = ((raw_hex) & 0xFF);
-        return col;
+        ss << std::hex << hexString;
+        ss >> raw;
+        u8 r = ((raw >> 24) & 0xFF);
+        u8 g = ((raw >> 16) & 0xFF);
+        u8 b = ((raw >> 8) & 0xFF);
+        u8 a = ((raw) & 0xFF);
+        float red = static_cast<float>(r) / 255.0f;
+        float green = static_cast<float>(g) / 255.0f;
+        float blue = static_cast<float>(b) / 255.0f;
+        float alpha = static_cast<float>(a) / 255.0f;
+        return { red, green, blue, float(overrideAlpha ? 1.0 : alpha) };
     }
 
-    static cocos2d::Color4B hex2argb(std::string hex)
-    {
-        if (hex.at(0) == '#') {
-            hex.erase(0, 1);
-        }
-        uint32_t raw_hex;
-        std::stringstream ss;
-        ss << std::hex << hex;
-        ss >> raw_hex;
-        Color4B col = Color4B(0, 0, 0, 0);
-        col.a = ((raw_hex >> 24) & 0xFF);
-        col.r = ((raw_hex >> 16) & 0xFF);
-        col.g = ((raw_hex >> 8) & 0xFF);
-        col.b = ((raw_hex) & 0xFF);
-        return col;
-    }
+    static std::string rgba2hex(Color4F rgba) {
+        unsigned int r = static_cast<unsigned int>(rgba.r * 255.0f);
+        unsigned int g = static_cast<unsigned int>(rgba.g * 255.0f);
+        unsigned int b = static_cast<unsigned int>(rgba.b * 255.0f);
+        unsigned int a = static_cast<unsigned int>(rgba.a * 255.0f);
 
-    static std::string rgba2hex(cocos2d::Color4B color, bool with_head = false)
-    {
         std::stringstream ss;
-        if (with_head)
-            ss << "#";
-        ss << std::hex << (color.r << 24 | color.g << 16 | color.b << 8 | color.a);
-        return ss.str();
-    }
+        ss << std::hex << "#"
+            << std::setw(2) << std::setfill('0') << r
+            << std::setw(2) << std::setfill('0') << g
+            << std::setw(2) << std::setfill('0') << b
+            << std::setw(2) << std::setfill('0') << a;
 
-    static std::string rgba2hex(int r, int g, int b, int a, bool with_head = false)
-    {
-        std::stringstream ss;
-        if (with_head)
-            ss << "#";
-        ss << std::hex << (r << 24 | g << 16 | b << 8 | a);
         return ss.str();
     }
 };

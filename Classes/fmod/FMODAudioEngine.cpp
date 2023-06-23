@@ -13,7 +13,7 @@ void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line) {
     if (result != FMOD_OK)
     {
 #ifdef WIN32
-        printf("%s(%d): FMOD error: %s\n", file, line, FMOD_ErrorString(result));
+        RLOGE(false, "{}({}): FMOD error: {}\n", file, line, FMOD_ErrorString(result));
 #endif
     }
 }
@@ -105,7 +105,7 @@ std::wstring FMODAudioEngine::platformResourcePath(std::wstring filename)
 {
     std::wstring fullPath = L"";
 #if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32
-    fullPath = Darkness::getInstance()->res_path + filename;
+    fullPath = Strings::widen(FileUtils::getInstance()->getDefaultResourceRootPath()) + filename;
 #endif
 #if AX_TARGET_PLATFORM == AX_PLATFORM_ANDROID
     fullPath = L"file:///android_asset/" + filename;
@@ -159,13 +159,13 @@ bool FMODAudioEngine::lazyInit()
     
     if (version < FMOD_VERSION)
     {
-        printf("FMOD: lib version %08x doesn't match header version %08x\n", version, FMOD_VERSION);
+        RLOGE(false, "FMOD: lib version {} doesn't match header version {}", version, FMOD_VERSION);
     }
     
     result = _system->createChannelGroup("TOP_NODE", &_channelGroup);
     ERRCHECK(result);
 
-    printf("FMOD: lib version %08x\n      Engine has been Initialized with Update\n      MAX_CHANNELS: 256\n      CHANNEL_GROUP: TOP_NODE\n", version);
+    RLOGE(true, "FMOD: lib version {}\n      Engine has been Initialized with Update\n      MAX_CHANNELS: 256\n      CHANNEL_GROUP: TOP_NODE", version);
     Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
     return true;
 }
@@ -249,7 +249,7 @@ void FMODAudioEngine::releaseSound(const std::wstring &filename)
     }
     else
     {
-        wprintf(L"FMOD: The specified resource %s is not loaded, so it can't be unloaded\n", filename.c_str());
+        RLOGE(false, "FMOD: The specified resource %s is not loaded, so it can't be unloaded\n", NRW(filename).c_str());
     }
 }
 
@@ -272,12 +272,12 @@ FMOD::Sound* FMODAudioEngine::load(const std::wstring &filename)
     FMOD::Sound *sound;
     if (!is_file_existw(filename.c_str()))
     {
-        wprintf(L"FMOD: preload file not found %s\n", filename.c_str());
+        RLOGE(false, "FMOD: preload file not found {}\n", NRW(filename).c_str());
         return NULL;
     }
-    result = _system->createSound(Strings::narrow(filename).c_str(), FMOD_DEFAULT, 0, &sound);
+    result = _system->createSound(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    wprintf(L"FMOD: preload file %s was loaded to memory.\n", Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str());
+    RLOG("FMOD: preload file {} was loaded to memory.\n", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -287,12 +287,12 @@ FMOD::Sound* FMODAudioEngine::loadStream(const std::wstring& filename)
     FMOD::Sound* sound;
     if (!is_file_existw(filename.c_str()))
     {
-        wprintf(L"FMOD: stream file not found %s\n", filename.c_str());
+        RLOGE(false, "FMOD: stream file not found {}\n", NRW(filename).c_str());
         return NULL;
     }
-    result = _system->createStream(Strings::narrow(filename).c_str(), FMOD_DEFAULT, 0, &sound);
+    result = _system->createStream(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    wprintf(L"FMOD: preload file %s was streamed.\n", Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str());
+    RLOG("FMOD: preload file {} was streamed.\n", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -405,7 +405,7 @@ bool FMODAudioEngine::destroySoundChannel(std::string soundName)
     }
     else
     {
-        printf("FMOD: sound by name %s wasn't found.\n", soundName.c_str());
+        RLOG("FMOD: sound by name {} wasn't found.\n", soundName.c_str());
         return false;
     }
 }
@@ -423,7 +423,7 @@ void FMODAudioEngine::pauseSound(std::string soundName)
     }
     else
     {
-        printf("FMOD: sound by name %s wasn't found.\n", soundName.c_str());
+        RLOGE(false, "FMOD: sound by name {} wasn't found.\n", soundName.c_str());
     }
 }
 
@@ -440,7 +440,7 @@ void FMODAudioEngine::resumeSound(std::string soundName)
     }
     else
     {
-        printf("FMOD: sound by name %s wasn't found.\n", soundName.c_str());
+         RLOGE(false, "FMOD: sound by name {} wasn't found.\n", soundName.c_str());
     }
 }
 
@@ -526,11 +526,11 @@ int FMODAudioEngine::genSoundID()
 
 void FMODAudioEngine::addEventListener(int listener)
 {
-    if (_eventListener != 0)
-    {
-        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_eventListener);
-    }
-    _eventListener = listener;
+    //if (_eventListener != 0)
+    //{
+    //    ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_eventListener);
+    //}
+    //_eventListener = listener;
 }
 
 void FMODAudioEngine::onEvent(FMODAudioEventType eventType, std::string soundName)

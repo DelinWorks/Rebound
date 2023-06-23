@@ -32,10 +32,6 @@
 #include "string_manipulation_lib/base64.hpp"
 #include <chrono>
 
-#define MINI_CASE_SENSITIVE
-#include "Helper/INI/ini.h"
-#include <iostream>
-
 #include "Helper/Logging.hpp"
 #include "Helper/PlatDefines.h"
 #include "shared_scenes/ProtectedTypes.hpp"
@@ -158,7 +154,7 @@ bool IsCheatEngineProcessRunning()
 static void window_focus_callback(GLFWwindow* window, i32 focused)
 {
 #if WIN32
-    if (Darkness::getInstance()->isAntiCheatReady && IsCheatEngineProcessRunning()) {
+    if (Darkness::getInstance()->_isAntiCheatReady && IsCheatEngineProcessRunning()) {
         MessageBoxA(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window),
             "third-party software detected, please close cheat engine or any of the like and start the game again.",
             "anti-cheat engine",
@@ -181,7 +177,7 @@ static void window_focus_callback(GLFWwindow* window, i32 focused)
                 glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
                 glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
                 glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
-                GameUtils::CursorsAndWindows::GLFW_ClipCursor(true);
+                GameUtils::GLFW_ClipCursor(true);
         }
         FMODAudioEngine::getInstance()->resumeAllSounds();
     } else {
@@ -362,14 +358,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
         glfwSetWindowFocusCallback(window->getWindow(), window_focus_callback);
         glfwSetWindowCloseCallback(window->getWindow(), window_close_callback);
         glfwSetWindowAspectRatio(window->getWindow(), 16, 9);
-        Image* img = new Image();
-        img->initWithImageFile("cursor.png");
-        GLFWimage* icon = new GLFWimage();
-        icon->width = img->getWidth();
-        icon->height = img->getHeight();
-        icon->pixels = img->getData();
-        GLFWcursor* cursor = glfwCreateCursor(icon, 1, 1);
-        glfwSetCursor(window->getWindow(), cursor);
         Darkness::getInstance()->gameWindow.window = window->getWindow();
 #else
         glview = GLViewImpl::create("Dark Dimensions");
@@ -387,6 +375,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(0);
 #endif
 
+    //director->setAnimationInterval(1.0f / glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate);
 #if (AX_TARGET_PLATFORM == AX_PLATFORM_WIN32) || (AX_TARGET_PLATFORM == AX_PLATFORM_MAC) || (AX_TARGET_PLATFORM == AX_PLATFORM_LINUX)
     if (!Darkness::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate);
@@ -395,7 +384,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     //director->setAnimationInterval(1.0f / 60);
 #ifdef _DEBUG
-    director->setAnimationInterval(0);
 #endif
     director->setAnimationInterval(0);
     // Set the design resolution
@@ -408,6 +396,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #ifdef WIN32
     window_focus_callback(Darkness::getInstance()->gameWindow.window, true);
 #endif
+
+    ShapingEngine::Options::_convertToArabicNumbers = false;
 
     Darkness::getInstance()->initAntiCheat();
 
@@ -431,7 +421,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //            smallResolutionSize.width / designResolutionSize.width));
     //}
 
-    Director::getInstance()->setProjection(ax::Director::Projection::_2D);
+    Darkness::getInstance()->setCursorNormal();
+
+    Director::getInstance()->setProjection(ax::Director::Projection::_3D);
 
     register_all_packages();
 

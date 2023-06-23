@@ -1,11 +1,13 @@
-#include "Components/FollowNodeTransformComponent.h"
-#include "shared_scenes/ProtectedTypes.hpp"
-#include "Helper/ChangeValue.h"
-#include "axmol.h"
-#include "Nodes/PhysicsWorld.h"
-
 #ifndef __H_CATPLAYER__
 #define __H_CATPLAYER__
+
+#include <axmol.h>
+#include "shared_scenes/ProtectedTypes.hpp"
+#include "Helper/ChangeValue.h"
+#include "Nodes/PhysicsWorld.h"
+#include "shared_scenes/GameUtils.h"
+#include "2d/CCTweenFunction.h"
+#include "Components/Components.h"
 
 #define WALL_JUMP_COLLISION_INDEX			(1 << 4)
 #define ONE_WAY_COLLISION_INDEX				(1 << 5)
@@ -108,7 +110,7 @@ public:
 	float playerStuckDuration = 0;
 	ax::Vec2 contactDebug[4];
 	MaxPushList<ax::Vec2> debugLineTraceY;
-	ChangeValueBool controllerJump;
+	ChangeValue<bool> controllerJump;
 
 	CatPlayer() : jumpCallback(this), teleportCallback(this) {
 		debugLineTraceY = MaxPushList<ax::Vec2>(i8(10));

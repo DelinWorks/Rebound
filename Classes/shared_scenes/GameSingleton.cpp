@@ -52,9 +52,10 @@ void Darkness::init()
         gameWindow.isCursorLockedToWindow = true;
         gameWindow.isAllowedToLeave = false;
         gameWindow.lastKnownWindowRect = cocos2d::Rect(0, 0, 1280, 720);
-        gameWindow.windowPolicy = ResolutionPolicy::SHOW_ALL;
+        gameWindow.windowPolicy = ResolutionPolicy::FIXED_WIDTH;
         gameWindow.currentWindowCursor = 0;
         gameWindow.focusState = false;
+        gameWindow.guiScale = 1;
     }
 }
 
@@ -75,6 +76,48 @@ ax::Controller::KeyStatus Darkness::getKeyState(ax::Controller::Key key)
                 break;
             }
     return ax::Controller::KeyStatus{0,0,0};
+}
+
+void Darkness::setCursorNormal()
+{
+    if (!cursor) {
+        Image* img = new Image();
+        img->initWithImageFile("cursor.png");
+        GLFWimage* icon = new GLFWimage();
+        icon->width = img->getWidth();
+        icon->height = img->getHeight();
+        icon->pixels = img->getData();
+        cursor = glfwCreateCursor(icon, 1, 1);
+    }
+    glfwSetCursor(gameWindow.window, cursor);
+}
+
+void Darkness::setCursorHand()
+{
+    if (!hand) {
+        Image* img = new Image();
+        img->initWithImageFile("cursor_selected.png");
+        GLFWimage* icon = new GLFWimage();
+        icon->width = img->getWidth();
+        icon->height = img->getHeight();
+        icon->pixels = img->getData();
+        hand = glfwCreateCursor(icon, 5, 1);
+    }
+    glfwSetCursor(gameWindow.window, hand);
+}
+
+void Darkness::setCursorHold()
+{
+    if (!hold) {
+        Image* img = new Image();
+        img->initWithImageFile("cursor_held.png");
+        GLFWimage* icon = new GLFWimage();
+        icon->width = img->getWidth();
+        icon->height = img->getHeight();
+        icon->pixels = img->getData();
+        hold = glfwCreateCursor(icon, 5, 1);
+    }
+    glfwSetCursor(gameWindow.window, hold);
 }
 
 void Darkness::destroyInstance()
@@ -132,15 +175,8 @@ std::atomic<bool> exit_thread_hook{ false };
 
 void Darkness::initAntiCheat()
 {
-    if (isAntiCheatReady)
+    if (_isAntiCheatReady)
         return;
-
-    //GetWriteWatch(
-    //    WRITE_WATCH_FLAG_RESET,
-    //    ptr,
-    //    4,
-    //    pageAddresses
-    //);
 
     //  Check for sus externally loaded modules ///////////////////////////////
 #ifdef WIN32
@@ -250,7 +286,7 @@ void Darkness::initAntiCheat()
         });
 #endif
 
-    isAntiCheatReady = true;
+    _isAntiCheatReady = true;
 }
 
 void Darkness::updateAntiCheat(float delta)
@@ -267,34 +303,40 @@ void Darkness::updateAntiCheat(float delta)
     }
 #endif
 
-    if (!isAntiCheatReady)
+    if (!_isAntiCheatReady)
         return;
 
     //  Game clock speed anti-cheat check  ////////////////////////////////////
 
-    if (timeSinceStart == 0ULL || elapsedGameTime > 10.0F)
+    if (_timeSinceStart == 0ULL || _elapsedGameTime > 100.0F ||
+        Director::getInstance()->getRunningScene()->_hashOfName == 14169343825431587970 /* scene.MapEditor */)
     {
-        timeSinceStart = currentTime = time(0);
-        elapsedGameTime = 0.0F;
+        _timeSinceStart = _currentTime = time(0);
+        _elapsedGameTime = 0.0F;
     }
-    elapsedGameTime += delta;
+    _elapsedGameTime += delta;
 
-    f32 timeDiff = abs(elapsedGameTime - float(currentTime - timeSinceStart));
+    f32 timeDiff = abs(_elapsedGameTime - float(_currentTime - _timeSinceStart));
 
-#ifndef _DEBUG
-    if (timeDiff > 3)
-    {
-#ifdef WIN32
-        MessageBoxA(glfwGetWin32Window(gameWindow.window),
-            "game clock is not steady, possibly a third-party program is modifying the clock speed.",
-            "anti-cheat engine",
-            0x00000010L | 0x00004000L | 0x00000000L);
-        while (true) {}
-#endif
-    }
-#endif
+//#ifndef WWDWD
+//    if (timeDiff > 1)
+//    {
+//        _accumulatedKickTries++;
+//        printf("_accumilatedKickTries: %d", _accumulatedKickTries);
+//        if (_accumulatedKickTries > 2) {
+//#ifdef WIN32
+//            MessageBoxA(glfwGetWin32Window(gameWindow.window),
+//                "game clock is not steady, a third-party program might be modifying the delta time of the game.",
+//                "anti-cheat engine",
+//                0x00000010L | 0x00004000L | 0x00000000L);
+//            exit(0);
+//#endif
+//        }
+//    } else
+//        _accumulatedKickTries = 0;
+//#endif
 
-    currentTime = time(0);
+    _currentTime = time(0);
 
     ///////////////////////////////////////////////////////////////////////////
 }
