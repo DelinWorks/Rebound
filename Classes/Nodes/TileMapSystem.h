@@ -140,6 +140,7 @@ namespace TileSystem {
 
         ~TileArray();
 
+        bool isVertexCacheBuilt = false;
         TilesetArray* cachedTilesetArr = nullptr;
         bool _tileArrayDirty = false;
         std::set<i32> _emptyTilesets;
@@ -244,12 +245,15 @@ namespace TileSystem {
         Color4F _layerColor = Color4F::WHITE;
         TilesetArray* _tilesetArr = nullptr;
         std::vector<Vec2> _chunksToRemove;
-        std::map<Vec2, ChunkRenderer*> _chunks;
+        std::unordered_map<Vec2Hashable, ChunkRenderer*> _chunks;
     };
 
     struct TileTransform {
         ax::Vec2 chunk;
-        i32 id;
+        TileID id;
+
+        TileTransform() : chunk(ax::Vec2::ZERO), id(0) {}
+        TileTransform(ax::Vec2 _chunk, TileID _id) : chunk(_chunk), id(_id) {}
     };
 
     class Map : public ChunkRenderMethod, public ax::Node {

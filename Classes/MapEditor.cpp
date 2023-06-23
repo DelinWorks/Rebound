@@ -92,8 +92,7 @@ bool MapEditor::init()
     VirtualWorldManager::resizeRenderTextures(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
-    map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(2000000, 1000000));
-    map->cacheVertices(false);
+    map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(1024 * 16 * 4, 1024 * 16 * 4));
     _worlds[0]->addChild(map, 10);
 
     grid = Node::create();
@@ -454,7 +453,7 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("background");
         map->addLayer("collision");
         map->addLayer("decoration");
-        map->_layers[2]->setBlendFunc(BlendFunc::ADDITIVE);
+        map->_layers[2]->setBlendFunc(BlendFunc::ALPHA_PREMULTIPLIED);
         map->bindLayer(0);
 
         BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
@@ -760,13 +759,14 @@ void MapEditor::lateUpdate(f32 dt)
 
 // DON'T CALL THIS MANUALLY
 void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
+    BENCHMARK_SECTION_BEGIN("LOOK UP BENCHMARK");
     if (selectionPlace == selectionPosition) return;
     std::vector v = { _tilesetPicker->selectedIndex + 1 };
-    BENCHMARK_SECTION_BEGIN("Tile placement test");
     auto& undoCmd = editorTopUndoStateOrDefault();
     undoCmd.action = Editor::UNDOREDO_TILEMAP;
     undoCmd.affected.map = map;
     undoCmd.affected.layer_idx = map->_layerIdx;
+    //undoCmd.affected.allocateBuckets();
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
             TileID gid = v[Random::maxInt(v.size() - 1)] | editorTileCoords.state();
@@ -774,6 +774,11 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
             map->setTileAt({ float(x), float(y) }, gid);
             undoCmd.affected.addOrIgnoreTileNext({ float(x), float(y) }, gid);
         }
+    auto& m = undoCmd.affected.map->_layers[map->_layerIdx]->_chunks;
+    int unique_elements = m.size();
+    int bucket_count = m.bucket_count();
+    float collision_percentage = (1 - (float)unique_elements / (float)bucket_count) * 100;
+    RLOG("Collision Count Of Next Tiles Map: {}", collision_percentage);
     BENCHMARK_SECTION_END();
 }
 
@@ -978,13 +983,11 @@ void MapEditor::onMouseMove(ax::Event* event)
 {
     Vec2 worldPos = GameUtils::convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
     if (!isSelectableHoveredLastFrame) {
-        BENCHMARK_SECTION_BEGIN("Select Editor Test");
         isSelectableHovered = false;
         for (auto& _ : _selectables)
             if (isSelectableHovered = _->editorDraw(worldPos))
                 break;
         isSelectableHoveredLastFrame = true;
-        BENCHMARK_SECTION_END();
     }
 
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
@@ -1146,12 +1149,12 @@ void MapEditor::buildEntireUi()
     list->setBorderLayoutAnchor(TOP_RIGHT);
     list->setBackgroundSpriteCramped3({ 0, 10 });
     container->addChild(list);
-    for (int i = 0; i < 99; i++)
+    for (int i = 0; i < 6; i++)
     {
-        list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 100))), [=](CUI::Button* target) {
-            list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 100))), [](CUI::Button* target) {}));
-        list->updateLayoutManagers(true);
-            }));
+        list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 30))), [=](CUI::Button* target) {
+            list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 30))), [](CUI::Button* target) {}));
+            list->updateLayoutManagers(true);
+        }));
     }
 
     //tabs->addElement(L"Tileset3");
@@ -1219,7 +1222,7 @@ void MapEditor::buildEntireUi()
                 std::string s = Strings::gen_random(Random::rangeInt(5, 30));
                 auto textObj = ax::Label::createWithBMFont(CUI::_fontName, s);
                 auto selectable = Selectable::create(textObj);
-                _worlds[1]->addChild(selectable);
+                _worlds[0]->addChild(selectable);
                 _selectables.push_back(selectable);
                 selectable->setPositionY(20 * i);
             }

@@ -16,15 +16,20 @@ CUI::Toggle* CUI::Toggle::create()
 
 void CUI::Toggle::init(std::wstring _text, Size _contentsize)
 {
+    if (_rescalingAllowed)
+        addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     scheduleUpdate();
     cont = CUI::Container::create();
+    cont->DenyRescaling();
     auto fl = FlowLayout();
     fl.spacing = Math::getOdd(20);
     fl.reverseStack = false;
     cont->setLayout(fl);
     knob = Button::create();
+    knob->DenyRescaling();
     knob->initIcon(isToggled ? "toggle_selected" : "toggle_non");
     label = Label::create();
+    label->DenyRescaling();
     label->init(_text, TTFFS);
     button = createPlaceholderButton();
     cont->addChild(knob);
@@ -32,7 +37,7 @@ void CUI::Toggle::init(std::wstring _text, Size _contentsize)
     addChild(button);
     addChild(cont);
     _callback = [](bool, Toggle*) {};
-    cont->updateLayoutManagers();
+    cont->updateLayoutManagers(true);
     update(0);
 }
 
@@ -41,7 +46,7 @@ void CUI::Toggle::update(f32 dt)
     auto dSize = getDynamicContentSize();
     auto ns = GameUtils::getNodeIgnoreDesignScale();
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
-    if (setContentSize(dSize / ns)) {
+    if (setContentSize(dSize * Vec2(ns.x, 1))) {
         cont->updateLayoutManagers();
         button->setContentSize((dSize + Vec2(0, 10)) * ns);
         HoverEffectGUI::update(dt, dSize * ns);

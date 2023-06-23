@@ -174,6 +174,8 @@ namespace CUI
         bool _closestStaticBorder = false;
         std::vector<CUI::GUI*> _allButtons;
 
+        std::function<void()> _onContainerDismiss = []() {};
+
     protected:
         bool _isSelfHover = false;
         bool _isElementBlocking = false;

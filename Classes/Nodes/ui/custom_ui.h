@@ -31,6 +31,8 @@ using namespace ax;
 
 #define GET_UI_SCALE_MUL (_UiScaleMul ? _UiScale : 1.0)
 
+#define FULL_HD_NODE_SCALING Vec2(1280, 720) / Vec2(1920, 1080)
+
 namespace CUI
 {
     inline float _UiScale = 1; // Dynamically modified within runtime.
@@ -48,6 +50,7 @@ namespace CUI
     inline std::stack<GUI*> _modalStack;
     inline GUI* _pCurrentHeldItem = nullptr;
     inline GUI* _pCurrentHoveredItem = nullptr;
+    inline GUI* _pCurrentScrollControlItem = nullptr;
     inline GUI* _pCurrentHoveredTooltipItem = nullptr;
     inline ax::backend::ProgramState* _pHoverShader = nullptr;
 
@@ -57,6 +60,7 @@ namespace CUI
 
     inline ax::backend::ProgramState* _backgroundShader;
 
+    inline ax::Vec2 _currentHeldItemLocationInView;
     inline ax::Vec2 _savedLocationInView;
 
     inline std::string_view _fontName = "fonts/bitsy.fnt"sv;
@@ -68,7 +72,9 @@ namespace CUI
 
     inline ui::Button* createPlaceholderButton()
     {
-        auto button = ui::Button::create();
+        auto button = new ui::Button();
+        button->autorelease();
+        button->setAnchorPoint(Vec2(0.5, 0.5));
 #ifdef SHOW_BUTTON_HITBOX
         button->loadTextureNormal("pixel.png");
         button->setOpacity(120);
@@ -78,7 +84,7 @@ namespace CUI
 #endif
         button->setTouchEnabled(false);
         button->setSwallowTouches(false);
-        button->setEnabled(false);
+        //button->setEnabled(false);
         button->ignoreContentAdaptWithSize(false);
         return button;
     }

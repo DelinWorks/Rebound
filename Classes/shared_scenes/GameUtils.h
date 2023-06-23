@@ -216,9 +216,10 @@ namespace GameUtils
         public:
             TileSystem::Map* map;
             u16 layer_idx;
-            std::map<ax::Vec2, u32> prev_tiles;
-            std::map<ax::Vec2, u32> next_tiles;
+            std::unordered_map<Vec2Hashable, u32> prev_tiles;
+            std::unordered_map<Vec2Hashable, u32> next_tiles;
 
+            void allocateBuckets();
             void addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid);
             void addOrIgnoreTileNext(ax::Vec2 pos, u32 gid);
         };

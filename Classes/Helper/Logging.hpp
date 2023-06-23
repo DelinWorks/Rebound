@@ -29,6 +29,8 @@ inline int _loggerCurrLine;
 #define LOG_RELEASE
 #endif
 
+#define RB_PROMISE_RELEASE(O) PoolManager::getInstance()->getCurrentPool()->addObject(O);
+
 namespace Rebound
 {
 	template <typename... T>

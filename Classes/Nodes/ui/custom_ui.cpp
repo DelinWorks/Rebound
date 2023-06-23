@@ -81,8 +81,8 @@ void CUI::GUI::updateEnabled(bool state, bool _processToggleTree)
 
 CUI::GUI::GUI()
 {
-	_contentSizeDebug = DrawNode::create(1);
 #ifdef DRAW_NODE_DEBUG
+	_contentSizeDebug = DrawNode::create(1);
 	addChild(_contentSizeDebug, 99);
 	_contentSizeDebug->setTag(YOURE_NOT_WELCOME_HERE);
 #endif

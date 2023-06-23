@@ -48,8 +48,9 @@ void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)
 			GameUtils::setNodeIgnoreDesignScale___FUNCTIONAL(_, true, 1);
 		}
 
-		auto p = GameUtils::createGPUProgram("deform.frag", "default.vert");
+		auto p = GameUtils::createGPUProgram("chrom.frag", "default.vert");
 		_worlds[0]->rtPass->getSprite()->setProgramState(p);
+		_worlds[0]->rtPass->getSprite()->getTexture()->setAliasTexParameters();
 		_worlds[1]->skipSameTransform = true;
 	}
 }

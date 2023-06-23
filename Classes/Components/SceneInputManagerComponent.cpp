@@ -112,9 +112,9 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
 
         if (_uiContainer) _uiContainer->keyRelease(keyCode);
 
-        if (_uiContainer)
-            if (_uiContainer->blockKeyboard())
-                return;
+        //if (_uiContainer)
+        //    if (_uiContainer->blockKeyboard())
+        //        return;
 
         onKeyReleased(keyCode, event);
     };
@@ -178,6 +178,11 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         _mouseLocationDelta = _oldMouseLocation - _newMouseLocation;
         _mouseLocationInView = e->getLocationInView();
         CUI::_savedLocationInView = _mouseLocationInView;
+
+        if (CUI::_pCurrentHeldItem && CUI::_pCurrentScrollControlItem && !_mouseLocationInView.fuzzyEquals(CUI::_currentHeldItemLocationInView, 5)) {
+            CUI::_pCurrentHeldItem->release(INVALID_LOCATION, getCamera());
+            CUI::_pCurrentHeldItem = nullptr;
+        }
 
         //if (CUI::_pCurrentHoveredItem)
         //    Darkness::getInstance()->setCursorHand();

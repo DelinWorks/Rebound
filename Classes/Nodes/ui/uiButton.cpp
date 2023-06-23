@@ -93,18 +93,18 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
         if (_capinsets.equals(Rect::ZERO)) {
             icon = ax::ui::Scale9Sprite::createWithSpriteFrameName(_normal_sp);
             icon->setScale9Enabled(false);
-            icon->_roundRenderMatrix = true;
             addChild(icon, 0);
         } else {
             icon = ax::ui::Scale9Sprite::createWithSpriteFrameName(_normal_sp);
             icon->setCapInsets(_capinsets);
-            icon->_roundRenderMatrix = true;
             addChild(icon, 0);
         }
+        icon->_roundRenderMatrix = true;
         preCompContentSize = (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
     }
     else {
         field = ax::Label::createWithBMFont(_fontname, ShapingEngine::render(_text));
+        field->setAdditionalKerning(1);
         sprite = ax::ui::Scale9Sprite::createWithSpriteFrameName(normal_sp, capinsets);
         sprite->setContentSize(_contentsize);
         sprite->setColor(selected_color);
@@ -116,7 +116,8 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
     button = createPlaceholderButton();
     addChild(button);
     _callback = [] (Button*) {};
-    onFontScaleUpdate(_UiScale);
+    onFontScaleUpdate(1);
+    update(0);
 }
 
 void CUI::Button::update(f32 dt) {
@@ -212,8 +213,9 @@ bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
 {
     if (!isEnabled() || !isVisible()) return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
-        if (_pCurrentHeldItem) _pCurrentHeldItem->release({ INFINITY, INFINITY }, cam);
+        if (_pCurrentHeldItem) _pCurrentHeldItem->release(INVALID_LOCATION, cam);
         _pCurrentHeldItem = this;
+        _currentHeldItemLocationInView = mouseLocationInView;
         auto fade = FadeTo::create(0, 100);
         if (field) {
             field->stopAllActions();

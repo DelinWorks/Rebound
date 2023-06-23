@@ -5,6 +5,7 @@
 #include <cmath>
 #include <vector>
 #include "axmol.h"
+#include <functional>
 
 namespace Math
 {
@@ -75,6 +76,21 @@ namespace Math
         return v;
     }
 
+    inline int cantorPairNeg(uint32_t x, uint32_t y) {
+        x += INT32_MAX / 2;
+        y += INT32_MAX / 2;
+        return (x + y) * (x + y + 1) / 2 + y;
+    }
+
+    inline ax::Vec2 cantorUnpairNeg(uint32_t z) {
+        ax::Vec2 v;
+        int w = floor((sqrt(8 * z + 1) - 1) / 2);
+        int t = (w * w + w) / 2;
+        v.y = z - t;
+        v.x = w - v.y;
+        return v - INT32_MAX / 2;
+    }
+
     inline int closestPowerOfTwo(int n) {
         int log2n = log2(n);
         if (n - pow(2, log2n) >= pow(2, log2n + 1) - n)
@@ -118,6 +134,39 @@ namespace Math
 
 #define CANTOR_PAIR Math::cantorPair
 #define CANTOR_UNPAIR Math::cantorUnpair
+}
+
+class Vec2Hashable {
+public:
+    int x; int y;
+
+    Vec2Hashable(const ax::Vec2 v) : x(v.x), y(v.y) {}
+    Vec2Hashable(const Vec2Hashable& v) : x(v.x), y(v.y) {}
+    Vec2Hashable(int _x, int _y) : x(_x), y(_y) {}
+
+    bool operator==(const Vec2Hashable& other) const
+    {
+        return (x == other.x && y == other.y);
+    }
+};
+
+namespace std {
+    template<>
+    struct hash<Vec2Hashable> {
+        size_t operator()(const Vec2Hashable& v) const noexcept {
+            const uint32_t kFnvOffsetBasis = 0x811c9dc5;
+            const uint32_t kFnvPrime = 0x01000193;
+            const uint32_t uX = static_cast<uint32_t>(v.x);
+            const uint32_t uY = static_cast<uint32_t>(v.y);
+            // Compute FNV-1a hash of (x, y)
+            uint32_t hash = kFnvOffsetBasis;
+            hash ^= uX;
+            hash *= kFnvPrime;
+            hash ^= uY;
+            hash *= kFnvPrime;
+            return hash;
+        }
+    };
 }
 
 #endif

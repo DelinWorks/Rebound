@@ -102,8 +102,11 @@ bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
     // reset the camera position so that hits are generated correctly.
     //cam->setPosition(Vec2::ZERO);
     bool isClickSwallowed = false;
-    if (_isElementBlocking && _bgButton)
+    bool shouldDismiss = false;
+    if (_isElementBlocking && _bgButton) {
         isClickSwallowed = !_bgButton->hitTest(mouseLocationInView, cam, nullptr);
+        shouldDismiss = _isDismissible && isClickSwallowed;
+    }
     auto& list = getChildren();
     for (int i = list.size() - 1; i > -1; i--)
     {
@@ -116,14 +119,20 @@ bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
         if (_bgButton->hitTest(mouseLocationInView, cam, nullptr))
             isClickSwallowed = true;
     }
-    if (_isDismissible && !isClickSwallowed)
+    if (_isDismissible && !isClickSwallowed || shouldDismiss) {
+        _onContainerDismiss();
         removeFromParent();
+    }
     if (_isElementBlocking && isClickSwallowed) isClickSwallowed = false;
     return isClickSwallowed || _isBlocking;
 }
 
 bool CUI::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 {
+    if (_pCurrentScrollControlItem) {
+        _pCurrentScrollControlItem->release(mouseLocationInView, cam);
+        _pCurrentScrollControlItem = nullptr;
+    }
     if (_pCurrentHeldItem) {
         auto b = _pCurrentHeldItem->release(mouseLocationInView, cam);
         _pCurrentHeldItem = nullptr;
@@ -188,8 +197,10 @@ void CUI::Container::updateLayoutManagers(bool recursive)
             auto gcast = DCAST(GUI, _);
             if (ccast)
                 ccast->updateLayoutManagers(true);
-            if (gcast)
+            if (gcast) {
+                gcast->update(0);
                 gcast->updateInternalObjects();
+            }
         }
     }
 
@@ -507,6 +518,7 @@ void CUI::FlowLayout::build(CUI::Container* container)
         listSize++;
     }
     float marginF = direction == STACK_RIGHT || direction == STACK_TOP ? margin : -margin;
+    marginF *= ns.x;
     if (reverseStack)
         std::reverse(list.begin(), list.end());
     f32 cumSize = 0;
@@ -579,7 +591,7 @@ void CUI::DependencyConstraint::build(CUI::GUI* element)
     if (worldPos)
         element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
     else
-        element->setPosition((parent->getContentSize() * anchor));
+        element->setPosition((parent->getContentSize() * anchor) + worldPosOffset);
 }
 
 void CUI::ContentSizeConstraint::build(CUI::GUI* element) {

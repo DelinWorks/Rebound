@@ -191,7 +191,7 @@ TileID TilesetArray::relativeID(u16 id, TileID gid) {
 
 TilesetArray::~TilesetArray() {
     for (auto& _ : _tileSets)
-        AX_SAFE_RELEASE(_);
+        RB_PROMISE_RELEASE(_);
     _tileSets.clear();
     LOG_RELEASE;
 }
@@ -455,6 +455,7 @@ SingleTilesetChunkRenderer* SingleTilesetChunkRenderer::create() {
     auto ref = new SingleTilesetChunkRenderer();
     if (ref->init()) {
         ref->autorelease();
+        ref->retain();
         return ref;
     }
     AX_SAFE_DELETE(ref);
@@ -507,6 +508,7 @@ ChunkRenderer* ChunkRenderer::create(ChunkDescriptor desc) {
     auto ref = new ChunkRenderer();
     if (ref->init()) {
         ref->autorelease();
+        ref->retain();
 
         ref->_isParent = true;
         ref->_mesh = nullptr;
@@ -530,9 +532,11 @@ ChunkRenderer* ChunkRenderer::create(ChunkDescriptor desc) {
 
 ChunkRenderer::~ChunkRenderer() {
     _tiles->retainedChunks--;
-    AX_SAFE_RELEASE(_tiles);
+    RB_PROMISE_RELEASE(_tiles);
     _tilesetArr->retainedChunks--;
-    AX_SAFE_RELEASE(_tilesetArr);
+    RB_PROMISE_RELEASE(_tilesetArr);
+    for (auto& _ : _chunks)
+        RB_PROMISE_RELEASE(_);
     LOG_RELEASE;
 }
 
@@ -644,11 +648,12 @@ TileSystem::Layer* TileSystem::Layer::create(std::string_view name) {
 }
 
 TileSystem::Layer::~Layer() {
+    for (auto& _ : _chunks)
+        RB_PROMISE_RELEASE(_.second);
     LOG_RELEASE;
 }
 
 ChunkRenderer* TileSystem::Layer::getChunkAtPos(Vec2 pos, TileID hintGid) {
-    pos.x = round(pos.x); pos.y = round(pos.y);
     auto iter = _chunks.find(pos);
     if (iter == _chunks.end()) {
         if (hintGid == 0) return nullptr;
@@ -737,7 +742,7 @@ TileSystem::Map* TileSystem::Map::create(Vec2 _tileSize, i32 _contentScale, Vec2
 
 TileSystem::Map::~Map() {
     tileMapVirtualCamera = nullptr;
-    AX_SAFE_RELEASE(_tilesetArr);
+    RB_PROMISE_RELEASE(_tilesetArr);
     LOG_RELEASE;
 }
 
@@ -775,7 +780,7 @@ void TileSystem::Map::reload() {
 }
 
 TileTransform TileSystem::Map::getTileTransform(const ax::Vec2& pos) {
-    TileTransform t;
+    TileTransform t{};
     t.chunk.x = floor(pos.x / CHUNK_SIZE);
     t.chunk.y = floor(pos.y / CHUNK_SIZE);
     float _x = fmod(pos.x, CHUNK_SIZE);

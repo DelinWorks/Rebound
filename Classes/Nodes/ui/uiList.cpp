@@ -1,9 +1,10 @@
 #include "uiList.h"
 
-CUI::List::List(Vec2 _prefferedSize)
+CUI::List::List(Vec2 _prefferedSize, bool rescalingAllowed)
 {
     scheduleUpdate();
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
+    if (rescalingAllowed)
+        addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
 
     elementCont = CUI::Container::create();
     scrollCont = CUI::Container4Edge::create(ax::Vec2::ZERO);
@@ -89,9 +90,9 @@ CUI::List::List(Vec2 _prefferedSize)
     ePos = { 0, getContentSize().y / 2 };
 }
 
-CUI::List* CUI::List::create(Vec2 _prefferedSize)
+CUI::List* CUI::List::create(Vec2 _prefferedSize, bool rescalingAllowed)
 {
-    List* ref = new List(_prefferedSize);
+    List* ref = new List(_prefferedSize, rescalingAllowed);
     if (ref->init())
     {
         ref->autorelease();
@@ -120,21 +121,23 @@ void CUI::List::updateLayoutManagers(bool recursive)
     ePos = elementCont->getPosition();
 }
 
-void CUI::List::addElement(Container* container)
+void CUI::List::addElement(Container* container, int extendCoeff)
 {
-    container->_disregardGraph = false;
+    container->_disregardGraph = true;
     auto y = container->getContentSize().y;
     container->setStatic();
     container->setContentSize(Vec2(0, y) + container->getMargin(), false);
     container->setConstraint(ContentSizeConstraint(this, {-14, 0}, false, false, true));
     container->setPositionX(-7);
-    if (elements.size() % 2 == 0)
-        container->setBackgroundSpriteDarken();
+    if (elements.size() % 2 != 0)
+        container->setBackgroundSpriteDarken(Vec2(UINT32_MAX, 0));
     elements.push_back(container);
     container->disableRebuildOnEnter();
     elementCont->addChild(container);
     GUI::DisableDynamicsRecursive(container);
     elemContPos = INVALID_LOCATION;
+    if (extendCoeff != 0 && _prefferedSize.x < extendCoeff)
+        setContentSize(Vec2(extendCoeff, _prefferedSize.y), true);
 }
 
 void CUI::List::update(f32 dt)
@@ -162,6 +165,7 @@ void CUI::List::update(f32 dt)
         float map = Math::map(scrollKnob->getPositionY(), getContentSize().y / 2 - 16, getContentSize().y / -2 + 16, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
         ePos.y = Math::clamp(map, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
         elementCont->setPosition(ePos);
+        _pCurrentScrollControlItem = nullptr;
     }
 
     // Ui Culling
@@ -180,6 +184,7 @@ void CUI::List::update(f32 dt)
         if (elementCont->getContentSize().y / 2 < getContentSize().y)
             scrollCont->disable(true); else scrollCont->enable(true);
     }
+    deltaScroll2 = LERP(deltaScroll2, deltaScroll, 20 * dt);
 }
 
 void CUI::List::mouseScroll(EventMouse* event)
@@ -187,7 +192,7 @@ void CUI::List::mouseScroll(EventMouse* event)
     if (elementCont->getContentSize().y / 2 < getContentSize().y) {
         Vec2 cp = elementCont->getPosition();
         elementCont->setPositionY(cp.y + 5);
-        elementCont->runAction(EaseBackOut::create(MoveTo::create(1, cp)));
+        elementCont->runAction(EaseBackOut::create(MoveTo::create(.4, cp)));
         return;
     }
     float avg = 0.0f;
@@ -203,6 +208,48 @@ void CUI::List::mouseScroll(EventMouse* event)
     elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));
     elemContPos = INVALID_LOCATION;
     update(0);
+}
+
+bool CUI::List::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+{
+    if (_pCurrentScrollControlItem == this) {
+        auto ns = GameUtils::getNodeIgnoreDesignScale();
+        ePos.y -= deltaScroll - _savedLocationInView.y / ns.y;
+        ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
+        elementCont->setPositionY(ePos.y);
+        deltaScroll = _savedLocationInView.y / ns.y;
+        return Container::hover(INVALID_LOCATION, cam);
+    }
+    return Container::hover(mouseLocationInView, cam);
+}
+
+bool CUI::List::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+{
+    if (_bgButton->hitTest(mouseLocationInView, cam, nullptr) &&
+        elementCont->getContentSize().y / 2 > getContentSize().y) {
+        _pCurrentScrollControlItem = this;
+        auto ns = GameUtils::getNodeIgnoreDesignScale();
+        deltaScroll = _savedLocationInView.y / ns.y;
+        deltaScroll2 = deltaScroll;
+        ePos.y = elementCont->getPositionY();
+    }
+    return Container::press(mouseLocationInView, cam);
+}
+
+bool CUI::List::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+{
+    if (_pCurrentScrollControlItem == this)
+        _pCurrentScrollControlItem = nullptr;
+    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    ePos.y -= (deltaScroll2 - _savedLocationInView.y / ns.y) * 8;
+    bool backOut = ePos.y < getContentSize().y / 2 || ePos.y > elementCont->getContentSize().y / 2 - getContentSize().y / 2;
+    ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
+    elementCont->stopAllActions();
+    if (backOut)
+        elementCont->runAction(EaseBackOut::create(MoveTo::create(0.5, ePos)));
+    else
+        elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(1, ePos)));
+    return Container::release(mouseLocationInView, cam);
 }
 
 CUI::List::~List()

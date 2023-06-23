@@ -9,23 +9,28 @@ namespace CUI
 {
     class List : public Container {
     public:
-        List(Vec2 _prefferedSize);
+        List(Vec2 _prefferedSize, bool rescalingAllowed = true);
 
         ~List();
 
-        static CUI::List* create(Vec2 _prefferedSize);
+        static CUI::List* create(Vec2 _prefferedSize, bool rescalingAllowed = true);
 
-        void addElement(Container* container);
+        void addElement(Container* container, int extendCoeff = 0);
 
         void update(f32 dt) override;
 
         virtual void mouseScroll(EventMouse* event) override;
 
+        bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+
         void calculateContentBoundaries() override;
         void updateLayoutManagers(bool recursive = false) override;
 
-    private:
         Vec2 prefferredListSize = ax::Vec2::ZERO;
+        Vec2 ePos;
+    private:
         EventPassClippingNode* clipping;
         Container* elementCont;
         Container* scrollCont;
@@ -35,7 +40,8 @@ namespace CUI
         CUI::Button* downB;
         float vel = 0.0;
         Vec2 elemContPos;
-        Vec2 ePos;
+        float deltaScroll;
+        float deltaScroll2;
         std::vector<Container*> elements;
     };
 }

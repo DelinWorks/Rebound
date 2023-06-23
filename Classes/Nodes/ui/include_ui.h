@@ -16,6 +16,7 @@
 #include "uiContainer4Edge.h"
 #include "uiTabs.h"
 #include "uiList.h"
+#include "uiDropDown.h"
 
 #ifndef EXCLUDE_EXTENSIONS
 
@@ -26,6 +27,8 @@
 #define CONTAINER_MAKE_MINIMIZABLE CUI::Functions::makeMinimizable
 
 #define TO_CONTAINER(T) CUI::Functions::containerize(T)
+
+const Color3B LB_INACTIVE(100, 100, 100);
 
 namespace CUI {
     class Functions {
@@ -212,10 +215,107 @@ namespace CUI {
             optionsCont->addChild(toggle);
             hsvcontrol->addChild(optionsCont);
 
+            auto options2Cont = Container::create();
+            options2Cont->setBorderLayout(LEFT, BorderContext::PARENT);
+            options2Cont->setBorderLayoutAnchor(CENTER);
+            options2Cont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 0, 0, true));
+
+            {
+                auto alphaBlending = std::vector<std::wstring>({
+                    L"zero", L"one", L"src alpha",
+                    L"one minus src alpha", L"dst alpha",
+                    L"one minus dst alpha", L"constant alpha",
+                    L"src alpha saturate", L"one minus const alpha"
+                    });
+
+                auto dd1c = Container::create();
+                dd1c->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 10, 15, false));
+                auto ddlb = Label::create();
+                ddlb->init(L"SRC A:", TTFFS);
+                ddlb->color = LB_INACTIVE;
+                auto dd1 = DropDown::create();
+                dd1->init(alphaBlending);
+                dd1->_callback = [=](DropDown* target) {
+                    target->showMenu(hsvcontrol, LEFT, LEFT, Vec2(-0.03, 0));
+                };
+                dd1c->addChild(ddlb);
+                dd1c->addChild(dd1);
+                options2Cont->addChild(dd1c);
+            }
+
+            {
+                auto alphaBlending = std::vector<std::wstring>({
+                    L"zero", L"one", L"src alpha",
+                    L"one minus src alpha", L"dst alpha",
+                    L"one minus dst alpha", L"constant alpha",
+                    L"src alpha saturate", L"one minus const alpha"
+                    });
+
+                auto dd1c = Container::create();
+                dd1c->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 10, 15, false));
+                auto ddlb = Label::create();
+                ddlb->init(L"DST A:", TTFFS);
+                ddlb->color = LB_INACTIVE;
+                auto dd1 = DropDown::create();
+                dd1->init(alphaBlending);
+                dd1->_callback = [=](DropDown* target) {
+                    target->showMenu(hsvcontrol, LEFT, LEFT, Vec2(-0.03, 0));
+                };
+                dd1c->addChild(ddlb);
+                dd1c->addChild(dd1);
+                options2Cont->addChild(dd1c);
+            }
+
+            {
+                auto colorBlending = std::vector<std::wstring>({
+                    L"zero", L"one", L"src color",
+                    L"one minus src color", L"dst color",
+                    L"one minus dst color"
+                });
+
+                auto dd1c = Container::create();
+                dd1c->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 10, 15, false));
+                auto ddlb = Label::create();
+                ddlb->init(L"SRC C:", TTFFS);
+                ddlb->color = LB_INACTIVE;
+                auto dd1 = DropDown::create();
+                dd1->init(colorBlending);
+                dd1->_callback = [=](DropDown* target) {
+                    target->showMenu(hsvcontrol, LEFT, LEFT, Vec2(-0.03, 0));
+                };
+                dd1c->addChild(ddlb);
+                dd1c->addChild(dd1);
+                options2Cont->addChild(dd1c);
+            } 
+            
+            {
+                auto colorBlending = std::vector<std::wstring>({
+                    L"zero", L"one", L"src color",
+                    L"one minus src color", L"dst color",
+                    L"one minus dst color"
+                    });
+
+                auto dd1c = Container::create();
+                dd1c->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 10, 15, false));
+                auto ddlb = Label::create();
+                ddlb->init(L"DST C:", TTFFS);
+                ddlb->color = LB_INACTIVE;
+                auto dd1 = DropDown::create();
+                dd1->init(colorBlending);
+                dd1->_callback = [=](DropDown* target) {
+                    target->showMenu(hsvcontrol, LEFT, LEFT, Vec2(-0.03, 0));
+                };
+                dd1c->addChild(ddlb);
+                dd1c->addChild(dd1);
+                options2Cont->addChild(dd1c);
+            }
+
+            hsvcontrol->addChild(options2Cont);
+
             auto dismissCont = Container::create();
             dismissCont->setBorderLayout(BOTTOM, BorderContext::PARENT);
             dismissCont->setBorderLayoutAnchor(BOTTOM);
-            dismissCont->setMargin({ 0, 8 });
+            dismissCont->setMargin({ 0, 18 });
             hsvcontrol->addChild(dismissCont);
             auto closeB = Button::create();
             closeB->init(L"Hide Panel", TTFFS);
@@ -234,7 +334,7 @@ namespace CUI {
             tabs->addElement(L"Custom", savedCont);
             tabs->addElement(L"Contrast");
             tabs->addElement(L"Blend Oper", optionsCont);
-            tabs->addElement(L"Blend Func");
+            tabs->addElement(L"Blend Func", options2Cont);
 
             hsv->_callback = [=](const HSV& hsv, HSVWheel* target) {
                 auto col = hsv.toColor4F();
@@ -338,7 +438,7 @@ namespace CUI {
             elem->init(layer_name, TTFFS, { 180, 0 });
             elem->_callback = callback;
             main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
-            Vec2 hpadding = Vec2(2, elem->preCalculatedHeight() / 2 / CUI::_UiScale);
+            Vec2 hpadding = Vec2(2, 0);
             //elem->hAlignment = ax::TextHAlignment::LEFT;
             auto left = TO_CONTAINER(elem);
             left->DenyRescaling();
@@ -346,10 +446,10 @@ namespace CUI {
             left->setBorderLayoutAnchor(LEFT);
             auto visi = CUI::Button::create();
             visi->DenyRescaling();
-            visi->initIcon("editor_visible", hpadding);
+            visi->initIcon("editor_visible", hpadding + Vec2(0, 4));
             auto lock = CUI::Button::create();
             lock->DenyRescaling();
-            lock->initIcon("editor_lock", hpadding);
+            lock->initIcon("editor_lock", hpadding + Vec2(0, 2));
             auto opt = CUI::Button::create();
             opt->DenyRescaling();
             opt->initIcon("editor_settings", hpadding);

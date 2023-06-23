@@ -18,8 +18,8 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     setContentSize(_prefferedSize);
     addChild(clipping);
 
-    elementCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, 0, 0, false));
-    elementCont->setConstraint(DependencyConstraint(this, LEFT));
+    elementCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, -48, 0, false));
+    elementCont->setConstraint(DependencyConstraint(this, LEFT, Vec2::ZERO, false, Vec2(0, 0)));
 
     scrollCont->setStatic();
     scrollCont->setContentSize(Vec2(18, _prefferedSize.y));
@@ -33,7 +33,6 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     leftB = CUI::Button::create();
 
     rightB->initIcon("editor_arrow_right", {2, 5});
-    rightB->icon->_roundRenderMatrix = true;
     //rightB->_callback = [=](Button* target) {
     //    float avg = 0.0f;
     //    int count = 0;
@@ -55,7 +54,6 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     scrollCont->addChild(rightB);
 
     leftB->initIcon("editor_arrow_left", {2, 5});
-    leftB->icon->_roundRenderMatrix = true;
     //leftB->_callback = [=](Button* target) {
     //    float avg = 0.0f;
     //    int count = 0;
@@ -74,8 +72,6 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     //    } else target->disable();
     //};
     scrollCont->addChild(leftB);
-
-    ePos = INVALID_LOCATION;
 }
 
 CUI::Tabs* CUI::Tabs::create(Vec2 _prefferedSize)
@@ -112,8 +108,15 @@ void CUI::Tabs::updateLayoutManagers(bool recursive)
 
 void CUI::Tabs::addElement(std::wstring e, GUI* container)
 {
+    if (elementCont->getChildrenCount() > 0) {
+        auto sep = CUI::Button::create();
+        sep->init(L"|", TTFFS);
+        sep->disable();
+        elementCont->addChild(sep);
+    }
+
     auto b = CUI::Button::create();
-    b->init(e, TTFFS);
+    b->init(e, TTFFS, Vec2::ZERO, { -6, 3 });
     elementCont->addChild(b);
     tabIndices.push_back({ b, container });
 
@@ -139,7 +142,7 @@ void CUI::Tabs::update(f32 dt)
 {
     if (_pCurrentHeldItem == rightB || _pCurrentHeldItem == leftB) {
         ePos = ePos - Vec2(vel * (_pCurrentHeldItem == rightB ? dt : -dt), 0);
-        ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+        ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2 - 8);
         elementCont->setPosition(ePos);
         vel += 600 * dt;
     }
@@ -180,7 +183,7 @@ void CUI::Tabs::mouseScroll(EventMouse* event)
     }
     avg /= count;
     ePos = ePos + Vec2(avg / 3 * (event->getScrollY() < 0 ? 1 : -1), 0);
-    ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
+    ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2 - 8);
     elementCont->stopAllActions();
     elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));
     elemContPos = INVALID_LOCATION;

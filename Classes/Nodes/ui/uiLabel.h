@@ -54,8 +54,11 @@ namespace CUI
         float wrap = 0;
         ax::TextHAlignment hAlignment = ax::TextHAlignment::LEFT;
         ax::TextVAlignment vAlignment = ax::TextVAlignment::TOP;
+        Color3B color = Color3B::WHITE;
 
         void setString(std::string _text);
         void setString(std::wstring _text);
+
+        void updateInternalObjects() override;
     };
 }

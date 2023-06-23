@@ -412,24 +412,32 @@ void GameUtils::Editor::UndoRedoState::applyUndoStateTilemapEdit()
 {
     affected.map->bindLayer(affected.layer_idx);
     for (auto& _ : affected.prev_tiles)
-        affected.map->setTileAt({ _.first.x, _.first.y }, _.second);
+        affected.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
 }
 
 void GameUtils::Editor::UndoRedoState::applyRedoStateTilemapEdit()
 {
     affected.map->bindLayer(affected.layer_idx);
     for (auto& _ : affected.next_tiles)
-        affected.map->setTileAt({ _.first.x, _.first.y }, _.second);
+        affected.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
+}
+
+void GameUtils::Editor::UndoRedoAffectedTiles::allocateBuckets()
+{
+    BENCHMARK_SECTION_BEGIN("ALLOCATE BUCKET");
+    prev_tiles.reserve(100);
+    next_tiles.reserve(100);
+    BENCHMARK_SECTION_END();
 }
 
 void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid)
 {
-    if (prev_tiles.find({ pos.x, pos.y }) == prev_tiles.end())
+    if (prev_tiles.find(pos) == prev_tiles.end())
         prev_tiles.emplace(pos, gid);
 }
 
 void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTileNext(ax::Vec2 pos, u32 gid)
 {
-    if (next_tiles.find({ pos.x, pos.y }) == next_tiles.end())
+    if (next_tiles.find(pos) == next_tiles.end())
         next_tiles.emplace(pos, gid);
 }
