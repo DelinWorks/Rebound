@@ -185,6 +185,8 @@ bool MapEditor::init()
     //streak = MotionStreak::create(0.1, 1, 8, Color3B::WHITE, "streak.png");
     //uiNode->addChild(streak);
 
+    channelMgr.getColor(999).color = Color4F(LAYER_BACKGROUND_COLOR);
+
     return true;
 }
 
@@ -1095,7 +1097,8 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     // a one frame delay which can be frustration.
     Node::update(0);
     tick(_director->getDeltaTime());
-    VirtualWorldManager::renderAllPasses(this, Color4F(LAYER_BACKGROUND_COLOR));
+    VirtualWorldManager::renderAllPasses(this, channelMgr.getColor(999).color);
+    RLOG("SSIZE: {}", sizeof(GameUtils::Editor::ColorChannel));
     Scene::visit(renderer, parentTransform, parentFlags);
 }
 
@@ -1649,7 +1652,9 @@ void MapEditor::buildEntireUi()
     _editorToolTip = CUI::ToolTip::create();
     container->addChild(_editorToolTip, 2);
 
-    container->addChild(CUI::Functions::createFledgedHSVPanel());
+    BENCHMARK_SECTION_BEGIN("Create Color Manager Panel");
+    container->addChild(CUI::Functions::createFledgedHSVPanel(&channelMgr));
+    BENCHMARK_SECTION_END();
 
     rebuildEntireUi();
 }

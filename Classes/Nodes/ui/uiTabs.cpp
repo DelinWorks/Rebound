@@ -125,8 +125,11 @@ void CUI::Tabs::addElement(std::wstring e, GUI* container)
             if (tabIndices[i].button == target) {
                 int idx = i;
                 target->enableIconHighlight();
-                if (tabIndices[i].cont)
+                if (tabIndices[i].cont) {
                     tabIndices[i].cont->enableSelf(true);
+                    auto c = DCAST(Container, tabIndices[i].cont);
+                    if (c) c->_onContainerTabSelected(c);
+                }
                 tabIndex = idx;
             }
             else {

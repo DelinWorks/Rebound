@@ -247,12 +247,10 @@ void CUI::Container::onEnter() {
 }
 
 void CUI::Container::onEnable()
-{
-}
+{}
 
 void CUI::Container::onDisable()
-{
-}
+{}
 
 void CUI::Container::setBorderLayoutAnchor(ax::Vec2 offset)
 {
@@ -509,7 +507,7 @@ void CUI::FlowLayout::build(CUI::Container* container)
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto cSize = _->getScaledContentSize();
+        auto cSize = constSize ? constSizeV : _->getScaledContentSize();
         if (cSize.x == 0 || cSize.y == 0)
             continue;
         cSize.x += _spacing.x * 2;
@@ -527,7 +525,7 @@ void CUI::FlowLayout::build(CUI::Container* container)
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto cSize = _->getScaledContentSize();
+        auto cSize = constSize ? constSizeV : _->getScaledContentSize();
         if (cSize.x == 0 || cSize.y == 0)
             continue;
         if (_) {

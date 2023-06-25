@@ -213,6 +213,8 @@ public:
     bool isSelectableHoveredLastFrame = false;
     bool isSelectableHovered = false;
     std::vector<Selectable*> _selectables;
+
+    GameUtils::Editor::ColorChannelManager channelMgr;
 };
 
 #endif

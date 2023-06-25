@@ -68,5 +68,7 @@ namespace CUI
         Size getDynamicContentSize();
 
         Size getFitContentSize();
+
+        void toggle(bool state);
     };
 }

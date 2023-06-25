@@ -38,6 +38,7 @@ namespace CUI
         bool extend = false;
         Vec2 preCompContentSize;
         Vec2 curdSizeContentSize;
+        bool runActionOnIcon = true;
 
         ButtonCallback _callback;
 

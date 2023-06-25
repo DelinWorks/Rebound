@@ -99,6 +99,11 @@ void CUI::HSVWheel::updateColorValues()
     newColor->setColor(hsv.toColor3B());
     opacity->setValue(hsv.a, false);
     newColor->setOpacity(hsv.a * 255);
+    if (channelMgr) {
+        auto& c = channelMgr->getColor(currentChannel);
+        c.color = hsv.toColor4F();
+        channelMgr->updateCell(currentChannel);
+    }
 }
 
 void CUI::HSVWheel::updateColorValues(Color4F color)
@@ -106,7 +111,7 @@ void CUI::HSVWheel::updateColorValues(Color4F color)
     hsv.fromRgba(color);
     opacity->setValue(hsv.a);
     sqHsv.h = hsv.h;
-    oldColor->setColor(sqHsv.toColor3B());
+    oldColor->setColor(hsv.toColor3B());
     oldColor->setOpacity(color.a * 255);
     updateColorValues();
     _callback(hsv, this);

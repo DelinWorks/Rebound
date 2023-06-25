@@ -101,6 +101,7 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
         }
         icon->_roundRenderMatrix = true;
         preCompContentSize = (icon->getContentSize() * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling) + clampoffset);
+        icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);
     }
     else {
         field = ax::Label::createWithBMFont(_fontname, ShapingEngine::render(_text));
@@ -181,7 +182,7 @@ void CUI::Button::onEnable()
         field->runAction(fade);
         field->runAction(tint);
     }
-    else {
+    else if (runActionOnIcon) {
         icon->stopAllActions();
         icon->runAction(fade);
     }
@@ -196,7 +197,7 @@ void CUI::Button::onDisable()
             field->runAction(fade);
             field->runAction(tint);
         }
-        else {
+        else if (runActionOnIcon) {
             icon->stopAllActions();
             icon->runAction(fade);
         }
@@ -221,7 +222,7 @@ bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
             field->stopAllActions();
             field->runAction(fade);
         }
-        else {
+        else if (runActionOnIcon) {
             icon->stopAllActions();
             icon->runAction(fade);
         }
@@ -234,11 +235,10 @@ bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
 bool CUI::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     auto fade = FadeTo::create(0.1f, 255);
-    auto tint = TintTo::create(0.1f, Color3B::WHITE);
     if (field) {
         field->runAction(fade);
     }
-    else icon->runAction(fade);
+    else if (runActionOnIcon) icon->runAction(fade);
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         _callback(this);
         SoundGlobals::playUiHoverSound();
@@ -262,13 +262,13 @@ void CUI::Button::enableIconHighlight()
 {
     selected_color = Color3B(0, 237, 255);
     if (field) field->setColor(selected_color);
-    if (icon) icon->setColor(selected_color);
+    if (icon && runActionOnIcon) icon->setColor(selected_color);
 }
 
 void CUI::Button::disableIconHighlight()
 {
     if (field) field->setColor(Color3B::WHITE);
-    if (icon) icon->setColor(Color3B::WHITE);
+    if (icon && runActionOnIcon) icon->setColor(Color3B::WHITE);
 }
 
 float CUI::Button::preCalculatedHeight()
@@ -291,7 +291,6 @@ void CUI::Button::onFontScaleUpdate(float scale)
         field->setBMFontSize(UINT16_MAX * _BMFontScale);
         field->getFontAtlas()->setAliasTexParameters();
     }
-    else icon->setScale(_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling);
 }
 
 void CUI::Button::updateInternalObjects()

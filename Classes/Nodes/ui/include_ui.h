@@ -98,7 +98,69 @@ namespace CUI {
             return cont;
         }
 
-        static Container* createFledgedHSVPanel() {
+        static void fillContainerColorGrid(GameUtils::Editor::ColorChannelManager* m, Container* c,
+            int rows, int columns, int page, std::function<void(int i)> _onColorSelect) {
+            for (auto& _ : c->_userData.l1)
+                _->removeFromParentAndCleanup(true);
+            c->_userData.l1.clear();
+
+            auto flowCL = FlowLayout(SORT_VERTICAL, STACK_CENTER, 5);
+            flowCL.constSize = true; flowCL.constSizeV = Vec2(1, 30);
+            auto colBColorCont = Container::create();
+            colBColorCont->setLayout(flowCL);
+            auto colColorCont = Container::create();
+            colColorCont->setLayout(flowCL);
+            c->addChild(colBColorCont);
+            c->addChild(colColorCont);
+            c->_userData.l1.push_back(colBColorCont);
+            c->_userData.l1.push_back(colColorCont);
+            int idx = page * rows * columns;
+            for (int i = 0; i < rows; i++) {
+                if (idx > 999) break;
+                if (i != 0) colBColorCont ->addChild(Separator::create(Vec2(1, 3)));
+                auto rowBColorCont = Container::create();
+                auto flowL = FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 24, 0, false);
+                flowL.constSize = true; flowL.constSizeV = Vec2(50, 1);
+                rowBColorCont->setLayout(flowL);
+                for (int i = 0; i < columns; i++) {
+                    if (idx > 999) break;
+                    auto bgb = Button::create();
+                    bgb->initIcon("color_cell", Rect::ZERO);
+                    bgb->runActionOnIcon = false;
+                    auto& col = m->getColor(idx);
+                    bgb->icon->setColor(Color3B(col.color));
+                    bgb->icon->setOpacity(col.color.a * 255);
+                    if (col.pCell) AX_SAFE_RELEASE(col.pCell); // release ownership of cell
+                    col.pCell = bgb->icon; AX_SAFE_RETAIN(bgb->icon); // capture ownership of cell
+                    rowBColorCont->addChild(bgb);
+                    bgb->_callback = [=](Button* target) {
+                        _onColorSelect(idx);
+                    };
+                    idx++;
+                }
+                colBColorCont->addChild(rowBColorCont);
+            }
+            idx = page * rows * columns;
+            for (int i = 0; i < rows; i++) {
+                if (idx > 999) break;
+                if (i != 0) colColorCont->addChild(Separator::create(Vec2(1, 3)));
+                auto rowColorCont = Container::create();
+                auto flowL = FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 24, 0, false);
+                flowL.constSize = true; flowL.constSizeV = Vec2(50, 1);
+                rowColorCont->setLayout(flowL);
+                for (int i = 0; i < columns; i++) {
+                    if (idx > 999) break;
+                    auto lb = Label::create();
+                    lb->init(WFMT(L"%d", idx++), TTFFS);
+                    lb->setOpacity(200);
+                    lb->field->setAdditionalKerning(2);
+                    rowColorCont->addChild(lb);
+                }
+                colColorCont->addChild(rowColorCont);
+            }
+        }
+
+        static Container* createFledgedHSVPanel(GameUtils::Editor::ColorChannelManager* manager) {
             auto container = Container::create();
             container->setBorderLayout(LEFT, BorderContext::PARENT);
             container->setBorderLayoutAnchor(LEFT);
@@ -107,6 +169,7 @@ namespace CUI {
             container->setBackgroundBlocking();
 
             auto hsv = HSVWheel::create();
+            hsv->channelMgr = manager;
             container->addChild(hsv);
 
             auto hsvcontrol = Container::create();
@@ -189,19 +252,20 @@ namespace CUI {
             colorCont->addChild(Separator::create(Vec2(1, 10)));
             lb->setGlobalZOrder(UINT32_MAX);
 
-            auto savedCont = Container::create();
-            lb = Label::create();
-            lb->init(L"TODO: IMPLEMENT COLOR SAVING", TTFFS);
-            savedCont->addChild(lb);
-            hsvcontrol->addChild(savedCont);
-
             auto optionsCont = Container::create();
-            optionsCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 2, 0));
-            auto rg = new RadioGroup();
+            optionsCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 6, 0));
             auto toggle = Toggle::create();
+            toggle->hoverTooltip = L"Whether to enable color blending on this color channel.";
+            toggle->init(L"Enable Blending ");
+            toggle->toggle(true);
+            optionsCont->addChild(toggle);
+            optionsCont->addChild(Separator::create(Vec2(1, 10)));
+            auto rg = new RadioGroup();
+            toggle = Toggle::create();
             toggle->hoverTooltip = L"GL_FUNC_ADD: This is the default blending operation,\nit adds the source color to the destination color.";
             toggle->init(L"Add (DEFAULT)   ");
             rg->addChild(toggle);
+            toggle->toggle(true);
             optionsCont->addChild(toggle);
             toggle = Toggle::create();
             toggle->hoverTooltip = L"GL_FUNC_SUBTRACT: This subtracts the source color from the destination color.";
@@ -214,6 +278,7 @@ namespace CUI {
             rg->addChild(toggle);
             optionsCont->addChild(toggle);
             hsvcontrol->addChild(optionsCont);
+            optionsCont->addChild(Separator::create(Vec2(1, 10)));
 
             auto options2Cont = Container::create();
             options2Cont->setBorderLayout(LEFT, BorderContext::PARENT);
@@ -309,17 +374,77 @@ namespace CUI {
                 dd1c->addChild(dd1);
                 options2Cont->addChild(dd1c);
             }
+            options2Cont->addChild(Separator::create(Vec2(1, 10)));
 
             hsvcontrol->addChild(options2Cont);
 
+            auto selGroupCont = Container::create();
+            selGroupCont->setBorderLayout(BOTTOM_LEFT, BorderContext::PARENT);
+            selGroupCont->setBorderLayoutAnchor(BOTTOM_LEFT);
+            selGroupCont->setMargin({ 0, 12 });
+            auto glb = Label::create();
+            glb->init(L"Channel: 0", TTFFS);
+            glb->setUiPadding(Vec2(34, 0));
+            selGroupCont->addChild(glb);
+            hsvcontrol->addChild(selGroupCont, 1);
+
+            auto channelCont = Container::create();
+            channelCont->setPositionY(8);
+
+            auto flowCL = FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 0);
+            auto ns = GameUtils::getNodeIgnoreDesignScale();
+            Vec2 hpadding = { 6, 85 };
+            auto channelPageBCont = Container::create();
+            channelPageBCont->setLayout(flowCL);
+            channelCont->addChild(channelPageBCont);
+            auto rightPageB = Button::create();
+            rightPageB->initIcon("editor_arrow_right", hpadding);
+            auto leftPageB = Button::create();
+            leftPageB->initIcon("editor_arrow_left", hpadding);
+            channelPageBCont->addChild(rightPageB);
+            channelPageBCont->addChild(leftPageB);
+
+            Vec2 rowcol = Vec2(3, 5);
+
+            auto onColorSelect = [=](int i) {
+                glb->setString(WFMT(L"Channel: %d", i));
+                hsv->currentChannel = i;
+                hsv->updateColorValues(manager->getColor(i).color);
+            };
+
+            rightPageB->_callback = [=](Button* target) {
+                fillContainerColorGrid(manager, channelCont, rowcol.u, rowcol.v, ++channelCont->_userData.index, onColorSelect);
+                channelCont->updateLayoutManagers(true);
+                if (channelCont->_userData.index >= 66) rightPageB->disableSelf();
+                leftPageB->enable();
+            };
+
+            leftPageB->_callback = [=](Button* target) {
+                if (channelCont->_userData.index == 0) return;
+                fillContainerColorGrid(manager, channelCont, rowcol.u, rowcol.v, --channelCont->_userData.index, onColorSelect);
+                channelCont->updateLayoutManagers(true);
+                if (channelCont->_userData.index == 0) leftPageB->disableSelf();
+                rightPageB->enable();
+            };
+
+            channelCont->_userData.c1 = channelPageBCont;
+
+            channelCont->_userData.index = 0;
+            hsvcontrol->addChild(channelCont);
+            channelCont->_onContainerTabSelected = [=](Container* s) {
+                fillContainerColorGrid(manager, s, rowcol.u, rowcol.v, channelCont->_userData.index, onColorSelect);
+                auto& fl = channelCont->_userData.c1->_flowLayout;
+                fl.constSize = true; fl.constSizeV = Vec2(hsvcontrol->getContentSize().x / ns.x - 40, 1);
+                s->updateLayoutManagers(true);
+            };
+
             auto dismissCont = Container::create();
-            dismissCont->setBorderLayout(BOTTOM, BorderContext::PARENT);
-            dismissCont->setBorderLayoutAnchor(BOTTOM);
-            dismissCont->setMargin({ 0, 18 });
-            hsvcontrol->addChild(dismissCont);
+            dismissCont->setBorderLayout(BOTTOM_RIGHT, BorderContext::PARENT);
+            dismissCont->setBorderLayoutAnchor(BOTTOM_RIGHT);
+            dismissCont->setMargin({ 0, 12 });
+            hsvcontrol->addChild(dismissCont, 1);
             auto closeB = Button::create();
-            closeB->init(L"Hide Panel", TTFFS);
-            ((ax::Label*)closeB->field)->setAdditionalKerning(3);
+            closeB->init(L"Close", TTFFS);
             closeB->_callback = [=](Button* target) {
                 container->removeFromParent();
             };
@@ -331,10 +456,11 @@ namespace CUI {
             tabs->setBorderLayoutAnchor(TOP);
             hsvcontrol->addChild(tabs);
             tabs->addElement(L"Values", colorCont);
-            tabs->addElement(L"Custom", savedCont);
-            tabs->addElement(L"Contrast");
+            tabs->addElement(L"Channels", channelCont);
             tabs->addElement(L"Blend Oper", optionsCont);
             tabs->addElement(L"Blend Func", options2Cont);
+            tabs->addElement(L"Shaders");
+            tabs->addElement(L"Shader Properties");
 
             hsv->_callback = [=](const HSV& hsv, HSVWheel* target) {
                 auto col = hsv.toColor4F();

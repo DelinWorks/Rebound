@@ -44,6 +44,9 @@ namespace CUI
         bool isPickingWheel = false;
         bool isPickingSquare = false;
 
+        GameUtils::Editor::ColorChannelManager* channelMgr;
+        u16 currentChannel;
+
         bool init(float scale);
 
         void update(f32 dt) override;

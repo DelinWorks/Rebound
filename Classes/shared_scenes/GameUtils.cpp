@@ -441,3 +441,28 @@ void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTileNext(ax::Vec2 pos,
     if (next_tiles.find(pos) == next_tiles.end())
         next_tiles.emplace(pos, gid);
 }
+
+GameUtils::Editor::ColorChannelManager::ColorChannelManager()
+{
+    _colors = new GameUtils::Editor::ColorChannel[1000];
+}
+
+GameUtils::Editor::ColorChannelManager::~ColorChannelManager()
+{
+    delete[] _colors;
+}
+
+GameUtils::Editor::ColorChannel& GameUtils::Editor::ColorChannelManager::getColor(u16 id)
+{
+    return _colors[id];
+}
+
+void GameUtils::Editor::ColorChannelManager::updateCell(u16 id)
+{
+    auto it = _colors[id];
+    if (it.pCell) {
+        auto n = it.pCell;
+        n->setColor(Color3B(it.color));
+        n->setOpacity(it.color.a * 255);
+    }
+}

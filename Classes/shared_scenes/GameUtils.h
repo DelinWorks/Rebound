@@ -237,5 +237,23 @@ namespace GameUtils
             void applyUndoStateTilemapEdit();
             void applyRedoStateTilemapEdit();
         };
+
+        struct ColorChannel {
+            Color4F color = Color4F::WHITE;
+            backend::BlendDescriptor blend;
+            Node* pCell = nullptr;
+        };
+
+        class ColorChannelManager {
+        public:
+            ColorChannelManager();
+            ~ColorChannelManager();
+
+            ColorChannel& getColor(u16 id);
+            void updateCell(u16 id);
+
+        private:
+            ColorChannel* _colors;
+        };
     }
 }

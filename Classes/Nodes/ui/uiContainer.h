@@ -22,6 +22,14 @@
 
 namespace CUI
 {
+    class Container;
+
+    struct UserData {
+        std::vector<GUI*> l1;
+        Container* c1;
+        int index;
+    };
+
     enum Layout : u8 {
         LAYOUT_NONE = 0,
         LAYOUT_FLOW = 1,
@@ -53,12 +61,14 @@ namespace CUI
         FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
             FlowLayoutDirection _direction = FlowLayoutDirection::STACK_CENTER,
             float _spacing = 0, float _margin = 0, bool _reverseStack = true)
-            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack) { }
+            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack), constSize(false), constSizeV(Vec2::ZERO) { }
         FlowLayoutSort sort;
         FlowLayoutDirection direction;
         float spacing;
         float margin;
         bool reverseStack;
+        bool constSize;
+        Vec2 constSizeV;
 
         void build(CUI::Container* container);
     };
@@ -176,6 +186,11 @@ namespace CUI
 
         std::function<void()> _onContainerDismiss = []() {};
 
+        std::function<void(Container*)> _onContainerTabSelected = [](Container* self) {};
+
+        UserData _userData;
+        FlowLayout _flowLayout;
+
     protected:
         bool _isSelfHover = false;
         bool _isElementBlocking = false;
@@ -186,7 +201,6 @@ namespace CUI
         Layout _layout;
         Constraint _constraint;
         BorderLayout _borderLayout;
-        FlowLayout _flowLayout;
         DependencyConstraint _depConst;
         ContentSizeConstraint _csConst;
     };

@@ -110,13 +110,7 @@ bool CUI::Toggle::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     onEnable(); // Used for effects only
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
-        if (group) {
-            group->select(this);
-            knob->icon->setSpriteFrame((isToggled = true) ? "toggle_selected" : "toggle_non");
-        } else {
-            _callback(isToggled = !isToggled, this);
-            knob->icon->setSpriteFrame(isToggled ? "toggle_selected" : "toggle_non");
-        }
+        toggle(!isToggled);
         SoundGlobals::playUiHoverSound();
         return true;
     }
@@ -131,6 +125,19 @@ Size CUI::Toggle::getDynamicContentSize()
 Size CUI::Toggle::getFitContentSize()
 {
 	return getDynamicContentSize();
+}
+
+void CUI::Toggle::toggle(bool state)
+{
+    isToggled = state;
+    if (group) {
+        group->select(this);
+        knob->icon->setSpriteFrame((isToggled = true) ? "toggle_selected" : "toggle_non");
+    }
+    else {
+        _callback(state, this);
+        knob->icon->setSpriteFrame(state ? "toggle_selected" : "toggle_non");
+    }
 }
 
 CUI::RadioGroup::RadioGroup()
