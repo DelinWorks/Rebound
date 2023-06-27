@@ -548,6 +548,8 @@ void MapEditor::onInitDone(f32 dt)
     }
 }
 
+#pragma region editor_input_&_update
+
 void MapEditor::perSecondUpdate(f32 dt)
 {
     //std::vector<TileID> Rtiles = { 0 };
@@ -1114,6 +1116,10 @@ void MapEditor::menuCloseCallback(Ref* pSender)
 
 }
 
+#pragma endregion
+
+#pragma region editor_user_interface
+
 void MapEditor::buildEntireUi()
 {
     GameUtils::updateIgnoreDesignScale();
@@ -1665,6 +1671,10 @@ void MapEditor::rebuildEntireUi()
     SCENE_BUILD_UI;
 }
 
+#pragma endregion
+
+#pragma region editor_selection_&_camera
+
 ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)
 {
     start_pos.x -= _tileSize / 2;
@@ -1797,6 +1807,10 @@ void MapEditor::editorTileFlipRotateUpdateState()
     if (editorTileCoords.is90) tileRot90->enableIconHighlight(); else tileRot90->disableIconHighlight();
 }
 
+#pragma endregion
+
+#pragma region editor_undo_redo_functions
+
 void MapEditor::editorUndoRedoMax(int m)
 {
     _undo.set_capacity(m);
@@ -1875,6 +1889,18 @@ GameUtils::Editor::UndoRedoState* MapEditor::editorTopUndoStateOrNull()
     return _undo.size() > 0 ? (&_undo.top()) : nullptr;
 }
 
+void MapEditor::colorPaletteUndoRedoPush()
+{
+    editorPushUndoState();
+    _undo.top().setAction(Editor::UNDOREDO_COLOR_PALETTE);
+    _undo.top().affectedColors.manager = &channelMgr;
+    _undo.top().affectedColors.color_idx = channelId;
+}
+
+#pragma endregion
+
+#pragma region editor_signaling
+
 void MapEditor::handleSignal(std::string signal)
 {
     if (signal == "tooltip_hsv_reset")
@@ -1887,15 +1913,11 @@ void MapEditor::handleSignal(std::string signal)
             L"Doing so will prevent bugs or glitches in the GUI."), 10);
 }
 
-using namespace CUI;
+#pragma endregion
 
-void MapEditor::colorPaletteUndoRedoPush()
-{
-    editorPushUndoState();
-    _undo.top().setAction(Editor::UNDOREDO_COLOR_PALETTE);
-    _undo.top().affectedColors.manager = &channelMgr;
-    _undo.top().affectedColors.color_idx = channelId;
-}
+#pragma region editor_user_interface_builders
+
+using namespace CUI;
 
 CUI::Container* MapEditor::createFledgedHSVPanel() {
     auto container = Container::create();
@@ -2308,3 +2330,5 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
 
     return container;
 }
+
+#pragma endregion
