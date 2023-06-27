@@ -29,6 +29,8 @@ MapEditor::~MapEditor()
 #define SELECTION_SQUARE_TRI_ALLOWED Color4F(0, 0.58f, 1.0f, 0.08f)
 #define SELECTION_SQUARE_TRI_DENIED Color4F(1, 0.19f, 0.19f, 0.08f)
 
+#pragma region editor_initialization
+
 bool MapEditor::init()
 {
     if (!Scene::init())
@@ -547,6 +549,8 @@ void MapEditor::onInitDone(f32 dt)
         }
     }
 }
+
+#pragma endregion
 
 #pragma region editor_input_&_update
 
