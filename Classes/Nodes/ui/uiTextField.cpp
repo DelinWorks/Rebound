@@ -129,6 +129,7 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
     cursor_control_parent->addChild(cursor_control);
     addChild(button);
     _callback = [](TextField* target) {};
+    _onFocusCallback = []() {};
     //hover_cv = ChangeValue<bool>();
     //password_hover = ChangeValue<bool>();
 }
@@ -225,6 +226,8 @@ bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
 
 void CUI::TextField::focus()
 {
+    if (!isUiFocused())
+        _onFocusCallback();
     field->attachWithIME();
     if (isUiFocused()) return;
     field->setString(ShapingEngine::Helper::narrow(cachedString));

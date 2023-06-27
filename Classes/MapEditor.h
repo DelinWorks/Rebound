@@ -144,6 +144,8 @@ public:
     ax::DrawNode* worldCoordsLines;
     ax::DrawNode* cameraCenterIndicator;
 
+    GameUtils::Editor::ColorChannelManager channelMgr;
+
     ChangeValue<bool> gridHideValue;
     ChangeValue<float> gridOpacityValue;
 
@@ -196,6 +198,10 @@ public:
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _undo;
     HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
 
+    u16 channelId = 0;
+    void colorPaletteUndoRedoPush();
+    CUI::Container* createFledgedHSVPanel();
+
     CUI::Button* tileFlipH;
     CUI::Button* tileFlipV;
     CUI::Button* tileRot90;
@@ -207,14 +213,13 @@ public:
     void editorRedo();
     void editorPushUndoState();
     GameUtils::Editor::UndoRedoState& editorTopUndoStateOrDefault();
+    GameUtils::Editor::UndoRedoState* editorTopUndoStateOrNull();
     CUI::Button* undoB;
     CUI::Button* redoB;
 
     bool isSelectableHoveredLastFrame = false;
     bool isSelectableHovered = false;
     std::vector<Selectable*> _selectables;
-
-    GameUtils::Editor::ColorChannelManager channelMgr;
 };
 
 #endif

@@ -80,6 +80,7 @@ bool CUI::HSVWheel::init(float scale)
     newColor->setColor(sqHsv.toColor3B());
     addChild(opacity);
     _callback = [](HSV hsv, HSVWheel* target) {};
+    _onClickCallback = []() {};
     return true;
 }
 
@@ -171,6 +172,7 @@ bool CUI::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     if (isEnabled() && button->hitTest(mouseLocationInView, cam, nullptr)) {
         if (resetButton->hitTest(mouseLocationInView, cam, nullptr)) {
+            _onClickCallback();
             auto c = Color4F(oldColor->getColor());
             c.a = oldColor->getOpacity() / 255.0;
             updateColorValues(c);
@@ -178,11 +180,16 @@ bool CUI::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             GameUtils::SignalHandeler::signalSceneRoot("tooltip_hsv_reset");
             return true;
         }
-        if (opacity->press(mouseLocationInView, cam)) return true;
+        if (opacity->press(mouseLocationInView, cam)) {
+            _onClickCallback();
+            return true;
+        }
         if (wButton->hitTest(mouseLocationInView, cam, nullptr)
             && wButton->getWorldPosition().distance(mouseLocationInView) < 130 * getScale()) {
             setForceRawInput(true);
             _pCurrentHeldItem = this;
+            if (isPickingSquare || isPickingWheel)
+                _onClickCallback();
         }
         return true;
     }

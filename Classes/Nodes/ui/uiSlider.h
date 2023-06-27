@@ -33,6 +33,7 @@ namespace CUI
         ChangeValue<bool> hover_cv;
 
         float currentValue;
+        std::function<void()> _onClickCallback;
         SliderCallback _callback;
         
         void setValue(float v, bool call = true);

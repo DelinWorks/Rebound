@@ -39,6 +39,7 @@ namespace CUI
 
         Slider* opacity;
 
+        std::function<void()> _onClickCallback;
         HSVWheelCallback _callback;
 
         bool isPickingWheel = false;

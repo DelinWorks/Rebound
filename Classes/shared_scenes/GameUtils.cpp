@@ -390,6 +390,33 @@ void GameUtils::SignalHandeler::signalSceneRoot(std::string signal)
     if (handeler) handeler->signal(signal);
 }
 
+void GameUtils::Editor::UndoRedoState::setAction(UndoRedoCategory action)
+{
+    this->action = action;
+    switch (action) {
+    case UNDOREDO_COLOR_PALETTE:
+        isStateExplicit = true;
+        break;
+    case UNDOREDO_TILEMAP:
+        isStateExplicit = false;
+        break;
+    }
+}
+
+GameUtils::Editor::UndoRedoCategory GameUtils::Editor::UndoRedoState::getAction()
+{
+    return action;
+}
+
+void GameUtils::Editor::UndoRedoState::applyExplicitState()
+{
+    switch (action) {
+    case UNDOREDO_COLOR_PALETTE:
+        applyExplicitStateColorPaletteEdit();
+        break;
+    }
+}
+
 void GameUtils::Editor::UndoRedoState::applyUndoState()
 {
     switch (action) {
@@ -410,24 +437,27 @@ void GameUtils::Editor::UndoRedoState::applyRedoState()
 
 void GameUtils::Editor::UndoRedoState::applyUndoStateTilemapEdit()
 {
-    affected.map->bindLayer(affected.layer_idx);
-    for (auto& _ : affected.prev_tiles)
-        affected.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
+    affectedTiles.map->bindLayer(affectedTiles.layer_idx);
+    for (auto& _ : affectedTiles.prev_tiles)
+        affectedTiles.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
 }
 
 void GameUtils::Editor::UndoRedoState::applyRedoStateTilemapEdit()
 {
-    affected.map->bindLayer(affected.layer_idx);
-    for (auto& _ : affected.next_tiles)
-        affected.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
+    affectedTiles.map->bindLayer(affectedTiles.layer_idx);
+    for (auto& _ : affectedTiles.next_tiles)
+        affectedTiles.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
+}
+
+void GameUtils::Editor::UndoRedoState::applyExplicitStateColorPaletteEdit()
+{
+    auto m = affectedColors;
+    (m.manager->getColor(m.color_idx)) = m.color;
 }
 
 void GameUtils::Editor::UndoRedoAffectedTiles::allocateBuckets()
 {
-    BENCHMARK_SECTION_BEGIN("ALLOCATE BUCKET");
-    prev_tiles.reserve(100);
-    next_tiles.reserve(100);
-    BENCHMARK_SECTION_END();
+    // TODO: implement bucket allocations @Turky!!!
 }
 
 void GameUtils::Editor::UndoRedoAffectedTiles::addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid)
@@ -465,4 +495,9 @@ void GameUtils::Editor::ColorChannelManager::updateCell(u16 id)
         n->setColor(Color3B(it.color));
         n->setOpacity(it.color.a * 255);
     }
+}
+
+void GameUtils::Editor::UndoRedoAffectedColorPalette::setColor(ColorChannel color)
+{
+    this->color = color;
 }

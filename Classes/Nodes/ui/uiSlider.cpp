@@ -56,6 +56,7 @@ void CUI::Slider::init(
     addChild(button);
     addChild(slider);
     _callback = [](float, Slider*) {};
+    _onClickCallback = []() {};
     update(0);
 }
 
@@ -109,7 +110,10 @@ void CUI::Slider::onDisable()
 bool CUI::Slider::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     isHeld = button->hitTest(mouseLocationInView, cam, _NOTHING);
-    if (isHeld) _pCurrentHeldItem = this;
+    if (isHeld) {
+        _onClickCallback();
+        _pCurrentHeldItem = this;
+    }
     return isHeld;
 }
 

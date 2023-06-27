@@ -48,6 +48,7 @@ namespace CUI
         bool show_password = false;
         bool remove_zeros = true;
 
+        std::function<void()> _onFocusCallback;
         TextFieldCallback _callback;
 
         void init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv, std::string_view _fontname = _fontName);
