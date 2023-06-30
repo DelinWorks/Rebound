@@ -48,14 +48,24 @@
 #include "Helper/Math.h"
 using namespace Math;
 
+#include "ZEditorToolbox/EditorToolbox.h"
 #include "Helper/SelectionBox.h"
 #include "Helper/ChangeValue.h"
 #include "Nodes/ui/include_ui.h"
 #include "Components/Components.h"
 #include "Nodes/VirtualWorld.h"
 #include "Helper/HAFStack.hpp"
-#include "Editor/SelectableObject.h"
+#include "ZEditorToolbox/SelectableObject.h"
 #include "Nodes/TileMapSystem.h"
+
+#define GRID_COLOR Color4F::BLACK
+#define LAYER_BACKGROUND_COLOR Color4B(40, 47, 54, 255)
+#define LAYER_BACKGROUND_BOUND_COLOR Color4B(30, 37, 44, 255)
+#define LINE_BACKGROUND_BOUND_COLOR Color4F(0.7, 0.7, 0.7, 1)
+#define SELECTION_SQUARE_ALLOWED Color4F(0, 0.58f, 1.0f, 0.8f)
+#define SELECTION_SQUARE_DENIED Color4F(1, 0.19f, 0.19f, 0.8f)
+#define SELECTION_SQUARE_TRI_ALLOWED Color4F(0, 0.58f, 1.0f, 0.08f)
+#define SELECTION_SQUARE_TRI_DENIED Color4F(1, 0.19f, 0.19f, 0.08f)
 
 using namespace TileSystem;
 
@@ -144,7 +154,7 @@ public:
     ax::DrawNode* worldCoordsLines;
     ax::DrawNode* cameraCenterIndicator;
 
-    GameUtils::Editor::ColorChannelManager channelMgr;
+    EditorToolbox::ColorChannelManager channelMgr;
 
     ChangeValue<bool> gridHideValue;
     ChangeValue<float> gridOpacityValue;
@@ -195,11 +205,15 @@ public:
 
     bool isCtrlPressed = false;
     bool isShiftPressed = false;
-    HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _undo;
-    HeapAllocatedFixedStack<GameUtils::Editor::UndoRedoState> _redo;
+    HeapAllocatedFixedStack<EditorToolbox::UndoRedoState> _undo;
+    HeapAllocatedFixedStack<EditorToolbox::UndoRedoState> _redo;
+
+    CUI::HSVWheel* currentShownWheel;
+    static void fillContainerColorGrid(EditorToolbox::ColorChannelManager* m, CUI::Container* c,
+        int rows, int columns, int page, std::function<void(int i)> _onColorSelect);
 
     u16 channelId = 0;
-    void colorPaletteUndoRedoPush();
+    void editorPushUndoColorPalette();
     CUI::Container* createFledgedHSVPanel();
 
     CUI::Button* tileFlipH;
@@ -207,13 +221,14 @@ public:
     CUI::Button* tileRot90;
     void editorTileFlipRotateUpdateState();
 
+    void editorUndoRedoAlterStacks(std::function<void(EditorToolbox::UndoRedoState&)>);
     void editorUndoRedoMax(int m);
     void editorUndoRedoUpdateState();
     void editorUndo();
     void editorRedo();
     void editorPushUndoState();
-    GameUtils::Editor::UndoRedoState& editorTopUndoStateOrDefault();
-    GameUtils::Editor::UndoRedoState* editorTopUndoStateOrNull();
+    EditorToolbox::UndoRedoState& editorTopUndoStateOrDefault();
+    EditorToolbox::UndoRedoState* editorTopUndoStateOrNull();
     CUI::Button* undoB;
     CUI::Button* redoB;
 

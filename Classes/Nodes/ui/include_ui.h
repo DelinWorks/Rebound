@@ -98,68 +98,6 @@ namespace CUI {
             return cont;
         }
 
-        static void fillContainerColorGrid(GameUtils::Editor::ColorChannelManager* m, Container* c,
-            int rows, int columns, int page, std::function<void(int i)> _onColorSelect) {
-            for (auto& _ : c->_userData.l1)
-                _->removeFromParentAndCleanup(true);
-            c->_userData.l1.clear();
-
-            auto flowCL = FlowLayout(SORT_VERTICAL, STACK_CENTER, 5);
-            flowCL.constSize = true; flowCL.constSizeV = Vec2(1, 30);
-            auto colBColorCont = Container::create();
-            colBColorCont->setLayout(flowCL);
-            auto colColorCont = Container::create();
-            colColorCont->setLayout(flowCL);
-            c->addChild(colBColorCont);
-            c->addChild(colColorCont);
-            c->_userData.l1.push_back(colBColorCont);
-            c->_userData.l1.push_back(colColorCont);
-            int idx = page * rows * columns;
-            for (int i = 0; i < rows; i++) {
-                if (idx > 999) break;
-                if (i != 0) colBColorCont ->addChild(Separator::create(Vec2(1, 3)));
-                auto rowBColorCont = Container::create();
-                auto flowL = FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 24, 0, false);
-                flowL.constSize = true; flowL.constSizeV = Vec2(50, 1);
-                rowBColorCont->setLayout(flowL);
-                for (int i = 0; i < columns; i++) {
-                    if (idx > 999) break;
-                    auto bgb = Button::create();
-                    bgb->initIcon("color_cell", Rect::ZERO);
-                    bgb->runActionOnIcon = false;
-                    auto& col = m->getColor(idx);
-                    bgb->icon->setColor(Color3B(col.color));
-                    bgb->icon->setOpacity(col.color.a * 255);
-                    if (col.pCell) AX_SAFE_RELEASE(col.pCell); // release ownership of cell
-                    col.pCell = bgb->icon; AX_SAFE_RETAIN(bgb->icon); // capture ownership of cell
-                    rowBColorCont->addChild(bgb);
-                    bgb->_callback = [=](Button* target) {
-                        _onColorSelect(idx);
-                    };
-                    idx++;
-                }
-                colBColorCont->addChild(rowBColorCont);
-            }
-            idx = page * rows * columns;
-            for (int i = 0; i < rows; i++) {
-                if (idx > 999) break;
-                if (i != 0) colColorCont->addChild(Separator::create(Vec2(1, 3)));
-                auto rowColorCont = Container::create();
-                auto flowL = FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 24, 0, false);
-                flowL.constSize = true; flowL.constSizeV = Vec2(50, 1);
-                rowColorCont->setLayout(flowL);
-                for (int i = 0; i < columns; i++) {
-                    if (idx > 999) break;
-                    auto lb = Label::create();
-                    lb->init(WFMT(L"%d", idx++), TTFFS);
-                    lb->setOpacity(200);
-                    lb->field->setAdditionalKerning(2);
-                    rowColorCont->addChild(lb);
-                }
-                colColorCont->addChild(rowColorCont);
-            }
-        }
-
         static CUI::Container* createLayerWidget(std::wstring layer_name, CUI::ButtonCallback callback) {
             auto main = CUI::Container::create();
             main->DenyRescaling();

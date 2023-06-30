@@ -6,6 +6,7 @@
 #include "Helper/ShapingEngine.hpp"
 #include "Components/UiRescaleComponent.h"
 #include "uiSlider.h"
+#include "ZEditorToolbox/ColorChannelManager.h"
 
 USING_NS_CC;
 
@@ -45,7 +46,8 @@ namespace CUI
         bool isPickingWheel = false;
         bool isPickingSquare = false;
 
-        GameUtils::Editor::ColorChannelManager* channelMgr;
+        bool doNotPushStateOnce = false;
+        EditorToolbox::ColorChannelManager* channelMgr;
         u16 currentChannel;
 
         bool init(float scale);
@@ -53,7 +55,7 @@ namespace CUI
         void update(f32 dt) override;
 
         void updateColorValues();
-        void updateColorValues(Color4F color);
+        void updateColorValues(Color4F color, bool _doNotPushStateOnce = false);
 
         bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
         bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);

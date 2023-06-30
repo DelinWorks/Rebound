@@ -159,7 +159,7 @@ RLOG("benchmark {} took: {} millis, {} micros", benchmark_bb7_name, std::chrono:
 #define ADD_IMAGE(T) Director::getInstance()->getTextureCache()->addImage(T)
 #define ADD_IMAGE_ALIAS(N, T) Director::getInstance()->getTextureCache()->addImage(T); N->setAliasTexParameters();
 
-#define IS_REF_DELETED(R) !!DCAST(ax::Ref, R)
+#define IS_REF_ALIVE(R) !!DCAST(ax::Ref, R)
 
 USING_NS_CC;
 
@@ -206,75 +206,4 @@ namespace GameUtils
 
         static void signalSceneRoot(std::string signal);
     };
-
-    namespace Editor {
-
-        struct ColorChannel {
-            Color4F color = Color4F::WHITE;
-            backend::BlendDescriptor blend;
-            Node* pCell = nullptr;
-        };
-
-        class ColorChannelManager {
-        public:
-            ColorChannelManager();
-            ~ColorChannelManager();
-
-            ColorChannel& getColor(u16 id);
-            void updateCell(u16 id);
-
-        private:
-            ColorChannel* _colors;
-        };
-
-        enum UndoRedoCategory {
-            UNDOREDO_NONE = 0,
-            UNDOREDO_COLOR_PALETTE = 1,
-            UNDOREDO_TILEMAP = 2,
-        };
-
-        class UndoRedoAffectedColorPalette {
-        public:
-            ColorChannelManager* manager;
-            u16 color_idx;
-            ColorChannel color;
-
-            void setColor(ColorChannel color);
-        };
-
-        class UndoRedoAffectedTiles {
-        public:
-            TileSystem::Map* map;
-            u16 layer_idx;
-            std::unordered_map<Vec2Hashable, u32> prev_tiles;
-            std::unordered_map<Vec2Hashable, u32> next_tiles;
-
-            void allocateBuckets();
-            void addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid);
-            void addOrIgnoreTileNext(ax::Vec2 pos, u32 gid);
-        };
-
-        class UndoRedoState {
-        public:
-
-            UndoRedoAffectedColorPalette affectedColors;
-            UndoRedoAffectedTiles affectedTiles;
-
-            bool isStateExplicit;
-            void setAction(UndoRedoCategory action);
-            UndoRedoCategory getAction();
-
-            void applyExplicitState();
-            void applyUndoState();
-            void applyRedoState();
-
-        private:
-            UndoRedoCategory action = UndoRedoCategory::UNDOREDO_NONE;
-
-            void applyUndoStateTilemapEdit();
-            void applyRedoStateTilemapEdit();
-
-            void applyExplicitStateColorPaletteEdit();
-        };
-    }
 }

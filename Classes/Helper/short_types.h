@@ -1,5 +1,4 @@
-#ifndef _SHORTTYPES_H__
-#define _SHORTTYPES_H__
+#pragma once
 
 //#define I8 byte
 //#define I16 short
@@ -12,6 +11,8 @@
 //#define F32 float
 //#define F64 double
 //#define STR std::string
+
+#include <iostream>
 
 // signed 8 bit int (signed char)
 typedef std::int8_t i8;
@@ -99,5 +100,3 @@ public:
     size_t _max_push_count;
     std::list<T> _list;
 };
-
-#endif

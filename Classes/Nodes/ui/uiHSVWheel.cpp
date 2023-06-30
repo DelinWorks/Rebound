@@ -107,8 +107,9 @@ void CUI::HSVWheel::updateColorValues()
     }
 }
 
-void CUI::HSVWheel::updateColorValues(Color4F color)
+void CUI::HSVWheel::updateColorValues(Color4F color, bool _doNotPushStateOnce)
 {
+    doNotPushStateOnce = _doNotPushStateOnce;
     hsv.fromRgba(color);
     opacity->setValue(hsv.a);
     sqHsv.h = hsv.h;
@@ -116,6 +117,7 @@ void CUI::HSVWheel::updateColorValues(Color4F color)
     oldColor->setOpacity(color.a * 255);
     updateColorValues();
     _callback(hsv, this);
+    doNotPushStateOnce = false;
 }
 
 bool CUI::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
