@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ https://axmolengine.github.io/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,10 @@
 #include "AppDelegate.h"
 #include "axmol.h"
 
+#ifdef _DEBUG
+#define USE_WIN32_CONSOLE
+#endif
+
 USING_NS_AX;
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
@@ -33,24 +37,19 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    Darkness::getInstance()->console.args = lpCmdLine;
-
     // create the application instance
-#ifdef NULL
+#ifdef USE_WIN32_CONSOLE
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 #endif
+    
+    Darkness::getInstance()->console.args = lpCmdLine;
 
     // create the application instance
     AppDelegate app;
-
-    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
     int ret = Application::getInstance()->run();
-
-    //_CrtDumpMemoryLeaks();
 
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
