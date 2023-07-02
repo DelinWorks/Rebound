@@ -359,6 +359,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         glfwSetWindowCloseCallback(window->getWindow(), window_close_callback);
         glfwSetWindowAspectRatio(window->getWindow(), 16, 9);
         Darkness::getInstance()->gameWindow.window = window->getWindow();
+        glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 40, 37);
 #else
         glview = GLViewImpl::create("Dark Dimensions");
 #endif
@@ -369,6 +370,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
         //glfwWindowHint(GLFW_SAMPLES, 4);
         //glEnable(GL_MULTISAMPLE);
     }
+
+    
 
 #ifdef AX_PLATFORM_MOBILE
     Darkness::getInstance()->gameWindow.windowSize = Size(glview->getFrameSize().x, glview->getFrameSize().y);

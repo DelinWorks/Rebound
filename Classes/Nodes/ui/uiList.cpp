@@ -184,7 +184,7 @@ void CUI::List::update(f32 dt)
         if (elementCont->getContentSize().y / 2 < getContentSize().y)
             scrollCont->disable(true); else scrollCont->enable(true);
     }
-    deltaScroll2 = LERP(deltaScroll2, deltaScroll, 20 * dt);
+    deltaScroll2 = LERP(deltaScroll2, deltaScroll, 50 * dt);
 }
 
 void CUI::List::mouseScroll(EventMouse* event)

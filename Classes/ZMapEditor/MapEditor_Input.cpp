@@ -132,12 +132,9 @@ void MapEditor::onMouseUp(ax::Event* event)
 void MapEditor::onMouseMove(ax::Event* event)
 {
     Vec2 worldPos = GameUtils::convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
-    if (!isSelectableHoveredLastFrame) {
-        isSelectableHovered = false;
-        for (auto& _ : _selectables)
-            if (isSelectableHovered = _->editorDraw(worldPos))
-                break;
-        isSelectableHoveredLastFrame = true;
+    isSelectableHovered = false;
+    for (auto& _ : _selectables) {
+        isSelectableHovered = _->editorDraw(worldPos) || isSelectableHovered;
     }
 
     if (!hasMouseMoved) { hasMouseMoved = true; return; }

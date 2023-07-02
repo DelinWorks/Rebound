@@ -117,6 +117,8 @@ void MapEditor::buildEntireUi()
                 std::string s = Strings::gen_random(Random::rangeInt(5, 30));
                 auto textObj = ax::Label::createWithBMFont(CUI::_fontName, s);
                 auto selectable = Selectable::create(textObj);
+                selectable->setScale(Random::float01() + 1);
+                selectable->setRotation(Random::rangeFloat(-30, 30));
                 _worlds[0]->addChild(selectable);
                 _selectables.push_back(selectable);
                 selectable->setPositionY(20 * i);

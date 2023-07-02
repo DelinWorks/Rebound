@@ -767,11 +767,6 @@ void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
             map->setTileAt({ float(x), float(y) }, gid);
             undoCmd.affectedTiles.addOrIgnoreTileNext({ float(x), float(y) }, gid);
         }
-    auto& m = undoCmd.affectedTiles.map->_layers[map->_layerIdx]->_chunks;
-    int unique_elements = m.size();
-    int bucket_count = m.bucket_count();
-    float collision_percentage = (1 - (float)unique_elements / (float)bucket_count) * 100;
-    RLOG("Collision Count Of Next Tiles Map: {}", collision_percentage);
     BENCHMARK_SECTION_END();
 }
 
