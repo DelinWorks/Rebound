@@ -88,7 +88,7 @@ static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
     long Style = GetWindowLong(windowHandle, GWL_STYLE);
     //Style &= ~WS_MAXIMIZEBOX;
     SetWindowLong(windowHandle, GWL_STYLE, Style);
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 }
 
 static void window_maximize_callback(GLFWwindow* window, i32 maximized)
@@ -344,7 +344,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         const char* buildType = "RELEASE";
 #endif
         if (Darkness::getInstance()->gameWindow.isFullscreen) resolutionSize = { 1,1 };
-        glview = window = GLViewImpl::createWithRect(FMT("Dark Dimensions (%s) (%s) BUILD: %s TIMESTAMP: %s %s", buildType, "D3D11", "1.0.0-alpha", __DATE__, __TIME__), cocos2d::Rect(0, 0, resolutionSize.width, resolutionSize.height), 1.0F, true);
+        glview = window = GLViewImpl::createWithRect(FMT("Rebound (%s) (%s) BUILD: %s TIMESTAMP: %s %s", buildType, "D3D11", "1.0.0-alpha", __DATE__, __TIME__), cocos2d::Rect(0, 0, resolutionSize.width, resolutionSize.height), 1.0F, true);
         Darkness::getInstance()->gameWindow.windowSize = Size(resolutionSize.width, resolutionSize.height);
         //glfwSetInputMode(window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwSetWindowSizeCallback(window->getWindow(), window_size_callback);
@@ -382,7 +382,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //director->setAnimationInterval(1.0f / 60);
 #ifdef _DEBUG
 #endif
-    director->setAnimationInterval(0);
+    //director->setAnimationInterval(0);
     // Set the design resolution
     if (!Darkness::getInstance()->console.isHeadless)
         glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);

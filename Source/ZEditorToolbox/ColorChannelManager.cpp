@@ -23,7 +23,8 @@ EditorToolbox::ColorChannel& EditorToolbox::ColorChannelManager::getColor(u16 id
 
 void EditorToolbox::ColorChannelManager::setColor(u16 id, ColorChannel c)
 {
-    _colors[id] = c;
+    _colors[id].color = c.color;
+    _colors[id].blend = c.blend;
 }
 
 void EditorToolbox::ColorChannelManager::updateCell(u16 id)

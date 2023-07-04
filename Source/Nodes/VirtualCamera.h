@@ -10,6 +10,7 @@ public:
 
 	void setZoom(float zoom);
 
+	ax::Mat4 getUnscaledWorldSpaceMatrix();
 	ax::Mat4 getWorldSpaceMatrix();
 	ax::Mat4 getScreenSpaceMatrix();
 };

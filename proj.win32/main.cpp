@@ -27,8 +27,8 @@
 #include "axmol.h"
 
 #ifdef _DEBUG
-#define USE_WIN32_CONSOLE
 #endif
+#define USE_WIN32_CONSOLE
 
 USING_NS_AX;
 

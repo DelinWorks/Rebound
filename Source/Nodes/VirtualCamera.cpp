@@ -11,6 +11,15 @@ void VirtualCamera::setZoom(float zoom)
 	setScale(zoom);
 }
 
+ax::Mat4 VirtualCamera::getUnscaledWorldSpaceMatrix()
+{
+	auto matrix = getChildren().at(0)->getNodeToWorldTransform();
+	auto director = Director::getInstance();
+	auto visibleSize = director->getVisibleSize();
+	auto screenSize = director->getOpenGLView()->getFrameSize();
+	return matrix;
+}
+
 ax::Mat4 VirtualCamera::getWorldSpaceMatrix()
 {
 	auto matrix = getChildren().at(0)->getNodeToWorldTransform();

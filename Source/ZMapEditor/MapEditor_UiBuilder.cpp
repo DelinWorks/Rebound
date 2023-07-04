@@ -587,8 +587,8 @@ void MapEditor::fillContainerColorGrid(EditorToolbox::ColorChannelManager* m, CU
             auto& col = m->getColor(idx);
             bgb->icon->setColor(Color3B(col.color));
             bgb->icon->setOpacity(col.color.a * 255);
-            ////if (col.pCell) AX_SAFE_RELEASE(col.pCell); // release ownership of cell
-            col.pCell = bgb->icon; // AX_SAFE_RETAIN(bgb->icon); // capture ownership of cell
+            //if (col.pCell) AX_SAFE_RELEASE(col.pCell); // release ownership of cell
+            col.pCell = bgb->icon; //AX_SAFE_RETAIN(bgb->icon); // capture ownership of cell
             rowBColorCont->addChild(bgb);
             bgb->_callback = [=](Button* target) {
                 _onColorSelect(idx);

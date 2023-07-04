@@ -526,6 +526,23 @@ void MapEditor::onInitDone(f32 dt)
 
         setCameraScaleIndex();
 
+        //for (int i = 0; i < 8; i++) {
+        //    testLb = SpriteBatchNode::create("textures/w.png");
+
+        //    for (int i = 0; i < 8000; i++) {
+        //        auto s = Sprite::create("textures/w.png");
+        //        s->setPosition(Random::rangeFloat(-600, 600), Random::rangeFloat(-600, 600));
+        //        s->retain();
+        //        s->setUserData(testLb);
+        //        s->setScaleX(.1);
+        //        _sprites.push_back(s);
+        //        testLb->addChild(s);
+        //        _objectCount++;
+        //    }
+
+        //    _worlds[1]->addChild(testLb);
+        //}
+
         isInitDone = true;
     }
     else {
@@ -882,9 +899,50 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     // calls visit before update which makes the game have
     // a one frame delay which can be frustration.
     Node::update(0);
+
+    auto& pc = _camera->getPosition();
+    Rect view(visibleSize / -2 * _camera->getScale() + pc, visibleSize / 2 * _camera->getScale() + pc);
+
+    auto lastTime = std::chrono::high_resolution_clock::now();
+
+    //auto dt = Director::getInstance()->getDeltaTime();
+    //for (auto&& _ : _sprites) {
+    //    auto p = _->getPosition();
+    //    p = p.rotateByAngle(Vec2(0, 0), AX_DEGREES_TO_RADIANS(dt * 10));
+    //    _->setPosition(p);
+
+    //    //_->setRotation(_->getRotation() - dt * 10);
+
+    //    auto& s = _->getContentSize();
+    //    Rect range(s / -2 * MAX(_->getScaleX(), _->getScaleY()) + p, s / 2 * MAX(_->getScaleX(), _->getScaleY()) + p);
+
+    //    bool visible = Math::rectIntersectsRectOffOrigin(view, range);
+
+    //    if (_->getParent() && !visible) {
+    //        auto now = std::chrono::high_resolution_clock::now();
+    //        auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTime).count();
+
+    //        if (millis < 15) {
+    //            _->removeFromParent();
+    //            _objectCount--;
+    //        }
+    //    }
+    //    else if (!_->getParent() && visible) {
+    //        auto batch = (SpriteBatchNode*)_->getUserData();
+    //        batch->addChild(_);
+    //        _objectCount++;
+    //    }
+    //}
+
+    RLOG("CURRENT OBJECT COUNT: {}", _objectCount);
+
     tick(_director->getDeltaTime());
     VirtualWorldManager::renderAllPasses(this, channelMgr.getColor(0).color);
+
     Scene::visit(renderer, parentTransform, parentFlags);
+
+    //Mat4 p = _camera->getUnscaledWorldSpaceMatrix().getInversed();
+    //testLb->draw(renderer, p * trans, parentFlags);
 }
 
 void MapEditor::menuCloseCallback(Ref* pSender)
