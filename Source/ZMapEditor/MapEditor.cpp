@@ -16,7 +16,7 @@ Scene* MapEditor::createScene()
 
 MapEditor::~MapEditor()
 {
-    RLOGE(true, "sqlite3_close result: {}", sqlite3_close(pdb));
+    //RLOGE(true, "sqlite3_close result: {}", sqlite3_close(pdb));
     LOG_RELEASE;
 }
 
@@ -449,10 +449,10 @@ void MapEditor::onInitDone(f32 dt)
         map->_layers[2]->setBlendFunc(BlendFunc::ALPHA_PREMULTIPLIED);
         map->bindLayer(0);
 
-        BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
-        std::string data = FileUtils::getInstance()->getStringFromFile("C:/Users/turky/Desktop/new 1.txt"sv);
-        auto base64 = Strings::to_base64(zlibString::compress_string(data));
-        BENCHMARK_SECTION_END();
+        //BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
+        //std::string data = FileUtils::getInstance()->getStringFromFile("C:/Users/turky/Desktop/new 1.txt"sv);
+        //auto base64 = Strings::to_base64(zlibString::compress_string(data));
+        //BENCHMARK_SECTION_END();
 
         //auto img = new Image();
         //img->initWithImageFile("C:/Users/turky/Pictures/Untitled1(Photo)(noise_scale)(Level1)(x6.000000).png");
@@ -609,7 +609,7 @@ void MapEditor::update(f32 dt)
 {
     updateDirectorToStatsCount(map->_tileCount, 0);
     if (getContainer()) {
-        bool cond = getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
+        bool cond = getContainer()->mouseHover(_input->_mouseLocationInViewNoScene, _defaultCamera);
         selectionNode->setVisible(!cond && !isEditorDragging && !isSelectableHovered);
     }
     isSelectableHoveredLastFrame = false;
@@ -900,10 +900,10 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     // a one frame delay which can be frustration.
     Node::update(0);
 
-    auto& pc = _camera->getPosition();
-    Rect view(visibleSize / -2 * _camera->getScale() + pc, visibleSize / 2 * _camera->getScale() + pc);
+    //auto& pc = _camera->getPosition();
+    //Rect view(visibleSize / -2 * _camera->getScale() + pc, visibleSize / 2 * _camera->getScale() + pc);
 
-    auto lastTime = std::chrono::high_resolution_clock::now();
+    //auto lastTime = std::chrono::high_resolution_clock::now();
 
     //auto dt = Director::getInstance()->getDeltaTime();
     //for (auto&& _ : _sprites) {
@@ -934,7 +934,7 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     //    }
     //}
 
-    RLOG("CURRENT OBJECT COUNT: {}", _objectCount);
+    //RLOG("CURRENT OBJECT COUNT: {}", _objectCount);
 
     tick(_director->getDeltaTime());
     VirtualWorldManager::renderAllPasses(this, channelMgr.getColor(0).color);

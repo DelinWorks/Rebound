@@ -148,12 +148,6 @@ public:
     CUI::Button* cameraScaleB;
     CUI::Label* cameraScaleL;
 
-    int _objectCount = 0;
-
-    std::vector<Sprite*> _sprites;
-
-    ax::SpriteBatchNode* testLb;
-
     ax::Node* selectionNode;
     ax::DrawNode* selectionPlaceSquare;
     ax::DrawNode* selectionPlaceSquareForbidden;

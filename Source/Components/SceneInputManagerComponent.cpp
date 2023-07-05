@@ -149,7 +149,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
 
         if (_uiContainer) {
             if ((e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->isUiFocused()))
-                if (_uiContainer->press(e->getLocationInView(), getCamera())) return;
+                if (_uiContainer->mousePress(e->getLocationInView(), getCamera())) return;
             if (_uiContainer->blockMouse()) return;
         }
 
@@ -162,7 +162,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         Darkness::getInstance()->setCursorNormal();
 
         if (_uiContainer && e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT) {
-            if (_uiContainer->release(e->getLocationInView(), getCamera())) return;
+            if (_uiContainer->mouseRelease(e->getLocationInView(), getCamera())) return;
             //if (_uiContainer->blockMouse()) return;
         }
 
@@ -180,7 +180,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         CUI::_savedLocationInView = _mouseLocationInView;
 
         if (CUI::_pCurrentHeldItem && CUI::_pCurrentScrollControlItem && !_mouseLocationInView.fuzzyEquals(CUI::_currentHeldItemLocationInView, 5)) {
-            CUI::_pCurrentHeldItem->release(INVALID_LOCATION, getCamera());
+            CUI::_pCurrentHeldItem->mouseRelease(INVALID_LOCATION, getCamera());
             CUI::_pCurrentHeldItem = nullptr;
         }
 
