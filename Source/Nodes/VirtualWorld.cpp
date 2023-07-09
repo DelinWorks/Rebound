@@ -17,8 +17,6 @@ VirtualWorldManager::~VirtualWorldManager()
 	AX_SAFE_RELEASE(_camera);
 	for (auto& _ : _worlds)
 		AX_SAFE_RELEASE(_);
-	for (auto& _ : _rts)
-		AX_SAFE_RELEASE(_);
 }
 
 void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)

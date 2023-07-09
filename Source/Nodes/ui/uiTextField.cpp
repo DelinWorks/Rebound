@@ -162,8 +162,8 @@ bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         setUiHovered(button->hitTest(mouseLocationInView, cam, _NOTHING));
         hover_cv.setValue(isUiHovered());
         _pCurrentHoveredTooltipItem = isUiHovered() ? this : (_pCurrentHoveredTooltipItem == this ? nullptr : _pCurrentHoveredTooltipItem);
-        if (hover_cv.isChanged() && sprite->isVisible())
-            HoverEffectGUI::hover();
+        if (hover_cv.isChanged() && hover_cv.getValue())
+            SoundGlobals::playUiHoverSound();
 #else
         hover->setValue(false);
         password_hover->setValue(false);
@@ -235,6 +235,7 @@ void CUI::TextField::focus()
     auto fade = FadeTo::create(0.1f, 255);
     if (field->getString().length() > 0)
         cursor_control->setVisible(true);
+    SoundGlobals::playUiHoldSound();
     notifyFocused(this, true);
 }
 
@@ -245,6 +246,7 @@ void CUI::TextField::defocus()
     field->detachWithIME();
     cursor_control->setVisible(false);
     notifyFocused(this, false);
+    SoundGlobals::playUiClickSound();
     HoverEffectGUI::hover();
 }
 

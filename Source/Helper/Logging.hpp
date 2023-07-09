@@ -16,9 +16,9 @@ inline int _loggerCurrColor;
 inline const char* _loggerCurrFileName;
 inline int _loggerCurrLine;
 
-#define RLOG _loggerCurrColor = 11; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log
-#define RLOGW _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log
-#define RLOGE _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::loge
+#define RLOG(...) do { _loggerCurrColor = 11; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log(__VA_ARGS__); } while (false);
+#define RLOGW(...) do { _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log(__VA_ARGS__); } while (false);
+#define RLOGE(...) do { _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::loge(__VA_ARGS__); } while (false);
 
 #define LOG_RELEASE /*RLOGW("object {} release", typeid(this).name())*/
 

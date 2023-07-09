@@ -36,8 +36,8 @@
 #include "Helper/PlatDefines.h"
 #include "shared_scenes/ProtectedTypes.hpp"
 
-#define _GLFW_WIN32
-#include <glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <glfw3native.h>
 
 USING_NS_CC;
 

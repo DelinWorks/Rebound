@@ -153,7 +153,8 @@ bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
                 icon->setPositionY(0);
         }
 
-        //if (hover_cv.isChanged())
+        if (hover_cv.isChanged() && hover_cv.getValue())
+            SoundGlobals::playUiHoverSound();
         //    HoverEffectGUI::hover();
 #else
         hover->setValue(false);
@@ -226,6 +227,7 @@ bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
             icon->stopAllActions();
             icon->runAction(fade);
         }
+        SoundGlobals::playUiHoldSound();
         return true;
     }
     hover(mouseLocationInView, cam);
@@ -241,7 +243,7 @@ bool CUI::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     else if (runActionOnIcon) icon->runAction(fade);
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         _callback(this);
-        SoundGlobals::playUiHoverSound();
+        SoundGlobals::playUiClickSound();
         return true;
     }
     return false;

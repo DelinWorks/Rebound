@@ -64,8 +64,8 @@ bool CUI::Toggle::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             if (label) { if (isUiHovered()) label->field->enableUnderline(); else label->field->disableEffect(ax::LabelEffect::UNDERLINE); }
         }
 
-        if (hover_cv.isChanged())
-            HoverEffectGUI::hover();
+        if (hover_cv.isChanged() && hover_cv.getValue())
+            SoundGlobals::playUiHoverSound();
     }
 
     return hover_cv.getValue();
@@ -99,6 +99,7 @@ bool CUI::Toggle::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     {
         if (_pCurrentHeldItem) _pCurrentHeldItem->release({ INFINITY, INFINITY }, cam);
         _pCurrentHeldItem = this;
+        SoundGlobals::playUiHoldSound();
         onDisable(); // Used for effects only
         return true;
     }
@@ -111,7 +112,7 @@ bool CUI::Toggle::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     onEnable(); // Used for effects only
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         toggle(!isToggled);
-        SoundGlobals::playUiHoverSound();
+        SoundGlobals::playUiClickSound();
         return true;
     }
 	return false;

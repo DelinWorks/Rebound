@@ -13,7 +13,7 @@ void ERRCHECK_fn(FMOD_RESULT result, const char *file, int line) {
     if (result != FMOD_OK)
     {
 #ifdef WIN32
-        RLOGE(false, "{}({}): FMOD error: {}\n", file, line, FMOD_ErrorString(result));
+        RLOGE(false, "{}({}): FMOD error: {}", file, line, FMOD_ErrorString(result));
 #endif
     }
 }
@@ -249,7 +249,7 @@ void FMODAudioEngine::releaseSound(const std::wstring &filename)
     }
     else
     {
-        RLOGE(false, "FMOD: The specified resource %s is not loaded, so it can't be unloaded\n", NRW(filename).c_str());
+        RLOGE(false, "FMOD: The specified resource %s is not loaded, so it can't be unloaded", NRW(filename).c_str());
     }
 }
 
@@ -272,12 +272,12 @@ FMOD::Sound* FMODAudioEngine::load(const std::wstring &filename)
     FMOD::Sound *sound;
     if (!is_file_existw(filename.c_str()))
     {
-        RLOGE(false, "FMOD: preload file not found {}\n", NRW(filename).c_str());
+        RLOGE(false, "FMOD: preload file not found {}", NRW(filename).c_str());
         return NULL;
     }
     result = _system->createSound(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    RLOG("FMOD: preload file {} was loaded to memory.\n", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
+    RLOG("FMOD: preload file {} was loaded to memory.", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -287,12 +287,12 @@ FMOD::Sound* FMODAudioEngine::loadStream(const std::wstring& filename)
     FMOD::Sound* sound;
     if (!is_file_existw(filename.c_str()))
     {
-        RLOGE(false, "FMOD: stream file not found {}\n", NRW(filename).c_str());
+        RLOGE(false, "FMOD: stream file not found {}", NRW(filename).c_str());
         return NULL;
     }
     result = _system->createStream(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    RLOG("FMOD: preload file {} was streamed.\n", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
+    RLOG("FMOD: preload file {} was streamed.", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -352,20 +352,20 @@ FMOD::Channel* FMODAudioEngine::playSound(std::string soundname, const std::wstr
         ERRCHECK(result);
     }
 
-    FMOD_REVERB_PROPERTIES default_prop = FMOD_PRESET_CONCERTHALL;
-    ERRCHECK(_system->setReverbProperties(0, &default_prop));
+    //FMOD_REVERB_PROPERTIES default_prop = FMOD_PRESET_CONCERTHALL;
+    //ERRCHECK(_system->setReverbProperties(0, &default_prop));
 
     result = _system->playSound(sound, _channelGroup, false, &channel);
 
-    channel->setPosition(Director::getInstance()->getDeltaTime() * 1000, 0);
+    //channel->setPosition(Director::getInstance()->getDeltaTime() * 1000, 0);
 
-    _soundDeltaVec.push_back(channel);
+    //_soundDeltaVec.push_back(channel);
     //FMOD::DSP* dsp;
     //result = _system->createDSPByType(FMOD_DSP_TYPE_ITECHO, &dsp);
     //dsp->setParameterFloat(FMOD_DSP_ITECHO_WETDRYMIX, 6);
     //channel->addDSP(0, dsp);
 
-    result = channel->setReverbProperties(0, 0);
+    /*result = channel->setReverbProperties(0, 0);*/
 
     //float pitch = 1;
     //dsp->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1 / pitch);
@@ -405,7 +405,7 @@ bool FMODAudioEngine::destroySoundChannel(std::string soundName)
     }
     else
     {
-        RLOG("FMOD: sound by name {} wasn't found.\n", soundName.c_str());
+        RLOG("FMOD: sound by name {} wasn't found.", soundName.c_str());
         return false;
     }
 }
@@ -423,7 +423,7 @@ void FMODAudioEngine::pauseSound(std::string soundName)
     }
     else
     {
-        RLOGE(false, "FMOD: sound by name {} wasn't found.\n", soundName.c_str());
+        RLOGE(false, "FMOD: sound by name {} wasn't found.", soundName.c_str());
     }
 }
 
@@ -440,7 +440,7 @@ void FMODAudioEngine::resumeSound(std::string soundName)
     }
     else
     {
-         RLOGE(false, "FMOD: sound by name {} wasn't found.\n", soundName.c_str());
+         RLOGE(false, "FMOD: sound by name {} wasn't found.", soundName.c_str());
     }
 }
 
@@ -561,27 +561,27 @@ FMOD_RESULT F_CALLBACK FMODAudioEngine::systemcallback(FMOD_SYSTEM* system, FMOD
         int numdrivers;
 
 
-        printf("NOTE : FMOD_SYSTEM_CALLBACKTYPE_DEVICELISTCHANGED occured.\n");
+        printf("NOTE : FMOD_SYSTEM_CALLBACKTYPE_DEVICELISTCHANGED occured.");
 
 
         sys->getNumDrivers(&numdrivers);
 
 
-        printf("Numdevices = %d\n", numdrivers);
+        printf("Numdevices = %d", numdrivers);
         break;
     }
     case FMOD_SYSTEM_CALLBACK_MEMORYALLOCATIONFAILED:
     {
-        printf("ERROR : FMOD_SYSTEM_CALLBACKTYPE_MEMORYALLOCATIONFAILED occured.\n");
-        printf("%s.\n", commanddata1);
-        printf("%d bytes.\n", commanddata2);
+        printf("ERROR : FMOD_SYSTEM_CALLBACKTYPE_MEMORYALLOCATIONFAILED occured.");
+        printf("%s.", commanddata1);
+        printf("%d bytes.", commanddata2);
         break;
     }
     case FMOD_SYSTEM_CALLBACK_THREADCREATED:
     {
-        printf("NOTE : FMOD_SYSTEM_CALLBACKTYPE_THREADCREATED occured.\n");
-        printf("Thread ID = %d\n", (int)commanddata1);
-        printf("Thread Name = %s\n", (char*)commanddata2);
+        printf("NOTE : FMOD_SYSTEM_CALLBACKTYPE_THREADCREATED occured.");
+        printf("Thread ID = %d", (int)commanddata1);
+        printf("Thread Name = %s", (char*)commanddata2);
         break;
     }
     case FMOD_SYSTEM_CALLBACK_BADDSPCONNECTION:
@@ -590,18 +590,18 @@ FMOD_RESULT F_CALLBACK FMODAudioEngine::systemcallback(FMOD_SYSTEM* system, FMOD
         FMOD::DSP* dest = (FMOD::DSP*)commanddata2;
 
 
-        printf("ERROR : FMOD_SYSTEM_CALLBACKTYPE_BADDSPCONNECTION occured.\n");
+        printf("ERROR : FMOD_SYSTEM_CALLBACKTYPE_BADDSPCONNECTION occured.");
         if (source)
         {
             char name[256];
             source->getInfo(name, 0, 0, 0, 0);
-            printf("SOURCE = %s\n", name);
+            printf("SOURCE = %s", name);
         }
         if (dest)
         {
             char name[256];
             dest->getInfo(name, 0, 0, 0, 0);
-            printf("DEST = %s\n", name);
+            printf("DEST = %s", name);
         }
         break;
     }

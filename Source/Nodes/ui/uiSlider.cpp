@@ -84,8 +84,8 @@ bool CUI::Slider::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             hover_cv.setValue(isUiHovered());
         }
 
-        if (hover_cv.isChanged())
-            HoverEffectGUI::hover();
+        if (hover_cv.isChanged() && hover_cv.getValue())
+            SoundGlobals::playUiHoverSound();
     }
 
     return hover_cv.getValue();
@@ -113,6 +113,7 @@ bool CUI::Slider::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     if (isHeld) {
         _onClickCallback();
         _pCurrentHeldItem = this;
+        SoundGlobals::playUiHoldSound();
     }
     return isHeld;
 }
@@ -121,6 +122,7 @@ bool CUI::Slider::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 {
     isHeld = false;
     hover(mouseLocationInView, cam);
+    SoundGlobals::playUiClickSound();
     return false;
 }
 

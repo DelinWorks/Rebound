@@ -64,10 +64,16 @@ bool CUI::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             image->setPositionX(Math::clamp(image->getPositionX(), -textureSize.x, 0));
             image->setPositionY(Math::clamp(image->getPositionY(), 0, textureSize.y));
             bg->setPosition(image->getPosition());
-            if (!pressLocation.fuzzyEquals(mouseLocationInView, 4)) pressLocation = INVALID_LOCATION;
+            if (!pressLocation.fuzzyEquals(mouseLocationInView, 4))
+                pressLocation = INVALID_LOCATION;
         }
-        auto b = button->hitTest(mouseLocationInView, cam, nullptr);
-        if (b) _pCurrentHoveredItem = this;
+        bool b = button->hitTest(mouseLocationInView, cam, nullptr);
+        hover_cv.setValue(b);
+        if (b) {
+            _pCurrentHoveredItem = this;
+            if (hover_cv.isChanged() && hover_cv.getValue())
+                SoundGlobals::playUiHoverSound();
+        }
         else if (_pCurrentHoveredItem == this)
             _pCurrentHoveredItem = nullptr;
         return isUiEnabled() && b;
@@ -80,6 +86,7 @@ bool CUI::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         _pCurrentHeldItem = this;
         mousePos = mouseLocationInView;
         pressLocation = mousePos;
+        SoundGlobals::playUiHoldSound();
     }
     return false;
 }
@@ -98,6 +105,7 @@ bool CUI::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
                     Vec2(pos.x * gridSize.x + gridSize.x, -(pos.y * gridSize.y + gridSize.y)),
                     Color4F(0, 0.58f, 1.0f, 0.5f));
                 selectedIndex = pos.y * (textureSize.x / gridSize.x) + pos.x;
+                SoundGlobals::playUiClickSound();
             }
         }
     }

@@ -609,7 +609,7 @@ void MapEditor::update(f32 dt)
 {
     updateDirectorToStatsCount(map->_tileCount, 0);
     if (getContainer()) {
-        bool cond = getContainer()->mouseHover(_input->_mouseLocationInViewNoScene, _defaultCamera);
+        bool cond = getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
         selectionNode->setVisible(!cond && !isEditorDragging && !isSelectableHovered);
     }
     isSelectableHoveredLastFrame = false;
@@ -934,7 +934,7 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
     //    }
     //}
 
-    //RLOG("CURRENT OBJECT COUNT: {}", _objectCount);
+    //RLOG("CURRENT OBJECT COUNT: {}", 0);
 
     tick(_director->getDeltaTime());
     VirtualWorldManager::renderAllPasses(this, channelMgr.getColor(0).color);

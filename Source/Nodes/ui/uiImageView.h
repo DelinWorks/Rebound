@@ -29,6 +29,8 @@ namespace CUI
         ax::Size gridSize;
         ax::Vec2 pressLocation;
         int selectedIndex = 0;
+
+        ChangeValue<bool> hover_cv;
         
         bool init(ax::Size _contentsize = ax::Size::ZERO, ax::Texture2D* texture = nullptr);
 
