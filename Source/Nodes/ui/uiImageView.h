@@ -12,7 +12,7 @@ namespace CUI
 {
     class ImageView : public GUI {
     public:
-        static CUI::ImageView* create(ax::Size _contentsize, ax::Texture2D* texture);
+        static CUI::ImageView* create(ax::Size _contentsize, ax::Texture2D* texture, bool rescalingAllowed = true);
 
         ~ImageView();
 
@@ -28,11 +28,12 @@ namespace CUI
         ax::DrawNode* selection;
         ax::Size gridSize;
         ax::Vec2 pressLocation;
+        float zoom;
         int selectedIndex = 0;
 
         ChangeValue<bool> hover_cv;
         
-        bool init(ax::Size _contentsize = ax::Size::ZERO, ax::Texture2D* texture = nullptr);
+        bool init(ax::Size _contentsize = ax::Size::ZERO, ax::Texture2D* texture = nullptr, bool rescalingAllowed = true);
 
         void enableGridSelection(ax::Size _gridsize);
 

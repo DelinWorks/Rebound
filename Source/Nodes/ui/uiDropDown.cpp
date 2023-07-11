@@ -49,7 +49,7 @@ void CUI::DropDown::init(std::vector<std::wstring>& _items, Size _contentsize)
 
 void CUI::DropDown::update(f32 dt)
 {
-    auto dSize = getDynamicContentSize() * _UiScale;
+    auto dSize = (getDynamicContentSize() + _padding) * _UiScale;
     auto ns = FULL_HD_NODE_SCALING;
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
     if (setContentSize(dSize * Vec2(ns.x * 0.75, ns.y) + Vec2(24, 10))) {
@@ -70,8 +70,8 @@ bool CUI::DropDown::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
             if (label) { if (isUiHovered()) label->field->enableUnderline(); else label->field->disableEffect(ax::LabelEffect::UNDERLINE); }
         }
 
-        if (hover_cv.isChanged())
-            HoverEffectGUI::hover();
+        if (hover_cv.isChanged() && hover_cv.getValue())
+            SoundGlobals::playUiHoverSound();
     }
 
     return hover_cv.getValue();
@@ -106,6 +106,7 @@ bool CUI::DropDown::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         if (_pCurrentHeldItem) _pCurrentHeldItem->release({ INFINITY, INFINITY }, cam);
         _pCurrentHeldItem = this;
         onDisable(); // Used for effects only
+        SoundGlobals::playUiHoldSound();
         return true;
     }
     hover(mouseLocationInView, cam);
@@ -118,7 +119,7 @@ bool CUI::DropDown::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
         knob->icon->setSpriteFrame("editor_arrow_right");
         _callback(this);
-        SoundGlobals::playUiHoverSound();
+        SoundGlobals::playUiClickSound();
         return true;
     }
     return false;

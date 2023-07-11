@@ -42,7 +42,7 @@ void MapEditor::buildEntireUi()
     auto list = CUI::List::create({ 300, 300 });
     list->setBorderLayout(TOP_RIGHT, PARENT);
     list->setBorderLayoutAnchor(TOP_RIGHT);
-    list->setBackgroundSpriteCramped3({ 0, 10 });
+    list->setBackgroundSpriteCramped({ 3,3 }, { 1, -1 });
     container->addChild(list);
     for (int i = 0; i < 6; i++)
     {
@@ -52,14 +52,12 @@ void MapEditor::buildEntireUi()
             }));
     }
 
-    //tabs->addElement(L"Tileset3");
-
     _tilesetPicker = CUI::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
     auto c = TO_CONTAINER(_tilesetPicker);
     c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
     c->setBorderLayoutAnchor(BorderLayout::BOTTOM_RIGHT);
-    c->setBackgroundSpriteCramped3(ax::Vec2::ZERO);
+    c->setBackgroundSpriteCramped(ax::Vec2::ZERO);
     c->setBackgroundBlocking();
     c->setMargin({ 3, 3 });
     container->addChild(c);
@@ -179,6 +177,7 @@ void MapEditor::buildEntireUi()
     padding = { 52, 5 };
 
     auto extContainer = CUI::Container::create();
+    auto ext2Container = CUI::Container::create();
 
     CUI::callbackAccess.emplace("ext_edit_container", extContainer);
 
@@ -398,6 +397,31 @@ void MapEditor::buildEntireUi()
     CONTAINER_MAKE_MINIMIZABLE(topRightContainer);
 
     auto vis = Director::getInstance()->getVisibleSize();
+    ext2Container->setBorderLayoutAnchor(LEFT);
+    ext2Container->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
+        RIGHT, { -0.005, 1.02 }));
+    ext2Container->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0));
+    ext2Container->setBackgroundSpriteCramped(ax::Vec2::ZERO, { -1, -1 });
+    ext2Container->setTag(GUI_ELEMENT_EXCLUDE);
+    ext2Container->setBackgroundBlocking();
+    ext2Container->setMargin({ 5, 0 });
+
+    auto rowContainer = CUI::Container::create();
+    rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 32, 0, false));
+    rowContainer->setTag(CONTAINER_FLOW_TAG);
+    rowContainer->setMargin({ 0, 4 });
+
+    auto modeDropdown = CUI::DropDown::create();
+    modeDropdown->setUiPadding({ 10, 10 });
+    auto items = std::vector<std::wstring>{ L"Object Mode",L"TileMap Mode" };
+    modeDropdown->init(items);
+    modeDropdown->_callback = [=](DropDown* target) {
+        target->showMenu(ext2Container, LEFT, TOP_LEFT, Vec2(-0.55, 0.25));
+    };
+    rowContainer->addChild(modeDropdown);
+
+    ext2Container->addChild(rowContainer);
+
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
     extContainer->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
         BOTTOM_LEFT, { -0.02, 0.01 }));
@@ -407,7 +431,7 @@ void MapEditor::buildEntireUi()
     extContainer->setBackgroundBlocking();
     extContainer->setMargin({ 5, 0 });
 
-    auto rowContainer = CUI::Container::create();
+    rowContainer = CUI::Container::create();
     rowContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 32, 0, false));
     rowContainer->setTag(CONTAINER_FLOW_TAG);
     rowContainer->setMargin({ 0, 4 });
@@ -475,6 +499,7 @@ void MapEditor::buildEntireUi()
     extContainer->addChild(rowContainer);
 
     editContainer->addChild(extContainer);
+    editContainer->addChild(ext2Container);
 
     topRightContainer->addChild(editContainer);
 
@@ -716,7 +741,6 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
     colorContAlpha->addChild(tfa);
     colorCont->addChild(colorContAlpha);
     colorCont->addChild(Separator::create(Vec2(1, 10)));
-    lb->setGlobalZOrder(UINT32_MAX);
 
     auto optionsCont = Container::create();
     optionsCont->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 6, 0));

@@ -1,9 +1,9 @@
 #include "uiImageView.h"
 
-CUI::ImageView* CUI::ImageView::create(Size _contentsize, ax::Texture2D* texture)
+CUI::ImageView* CUI::ImageView::create(Size _contentsize, ax::Texture2D* texture, bool rescalingAllowed)
 {
     CUI::ImageView* ret = new CUI::ImageView();
-    if (ret->init(_contentsize, texture))
+    if (ret->init(_contentsize, texture, rescalingAllowed))
     {
         ret->autorelease();
     }
@@ -14,8 +14,9 @@ CUI::ImageView* CUI::ImageView::create(Size _contentsize, ax::Texture2D* texture
     return ret;
 }
 
-bool CUI::ImageView::init(Size _contentsize, ax::Texture2D* texture) {
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
+bool CUI::ImageView::init(Size _contentsize, ax::Texture2D* texture, bool rescalingAllowed) {
+    if (rescalingAllowed)
+        addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     button = createPlaceholderButton();
     auxButton = createPlaceholderButton();
     //button->setOpacity(0);

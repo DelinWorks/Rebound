@@ -191,7 +191,7 @@ void CUI::List::mouseScroll(EventMouse* event)
 {
     if (elementCont->getContentSize().y / 2 < getContentSize().y) {
         Vec2 cp = elementCont->getPosition();
-        elementCont->setPositionY(cp.y + 5);
+        elementCont->setPositionY(cp.y + 5 * event->getScrollY());
         elementCont->runAction(EaseBackOut::create(MoveTo::create(.4, cp)));
         return;
     }
@@ -254,5 +254,6 @@ bool CUI::List::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
 
 CUI::List::~List()
 {
+    _pCurrentHoveredItem = nullptr;
     LOG_RELEASE;
 }
