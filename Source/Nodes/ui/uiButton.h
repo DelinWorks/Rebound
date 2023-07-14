@@ -72,7 +72,7 @@ namespace CUI
 
         Size getFitContentSize();
 
-        void enableIconHighlight();
+        void enableIconHighlight(Color3B highlight = Color3B(0, 237, 255));
         void disableIconHighlight();
 
         float preCalculatedHeight();

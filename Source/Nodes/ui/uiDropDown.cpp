@@ -195,7 +195,7 @@ void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, Vec2
 
     float oldScale = menu->getScale();
     menu->setScaleX(0);
-    menu->runAction(EaseBackOut::create(ScaleTo::create(0.08, oldScale)));
+    menu->runAction(EaseBackOut::create(ScaleTo::create(0.16, oldScale)));
 }
 
 void CUI::DropDown::setSelection(int idx)

@@ -59,7 +59,7 @@ using namespace Math;
 #include "Nodes/TileMapSystem.h"
 
 #define GRID_COLOR Color4F::BLACK
-#define LAYER_BACKGROUND_COLOR Color4B(40, 47, 54, 255)
+#define LAYER_BACKGROUND_COLOR Color4B(40, 47, 64, 255)
 #define LAYER_BACKGROUND_BOUND_COLOR Color4B(30, 37, 44, 255)
 #define LINE_BACKGROUND_BOUND_COLOR Color4F(0.7, 0.7, 0.7, 1)
 #define SELECTION_SQUARE_ALLOWED Color4F(0, 0.58f, 1.0f, 0.8f)
@@ -68,6 +68,14 @@ using namespace Math;
 #define SELECTION_SQUARE_TRI_DENIED Color4F(1, 0.19f, 0.19f, 0.08f)
 
 using namespace TileSystem;
+
+enum class TileMapEditMode {
+    NONE = 0,
+    PLACE = 1,
+    REMOVE = 2,
+    BUCKET = 3,
+    SELECT = 4
+};
 
 class MapEditor : public ax::Scene,
                   public SceneInputManager,
@@ -80,10 +88,6 @@ public:
 
     ~MapEditor();
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-    SIZE_T prevWorkingSetSize;
-#endif
-
     f32 global_dt;
     f32 fps_dt;
     void update(f32 dt) override;
@@ -92,9 +96,9 @@ public:
     f32 elapsedDt = 0;
     void perSecondUpdate(f32 dt);
     void lateUpdate(f32 dt);
-    void editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize);
-    void editUpdate_place(f32 x, f32 y, f32 _width, f32 _height);
-    void editUpdate_remove(f32 x, f32 y, f32 _width, f32 _height);
+
+    void tileMapEditUpdate(Vec2 prev, Vec2 next);
+    void tileMapModifyRegion(f32 x, f32 y, f32 _width, f32 _height);
 
     virtual bool init();
     void onInitDone(f32 dt);
@@ -126,14 +130,11 @@ public:
 
     sqlite3* pdb;
 
+    ax::Vec2 _mousePosTileHint;
+    std::set<ax::Vec2> _editorPrevMoveTiles;
     TileSystem::Map* map;
 
     TileArray* tarr;
-
-    ax::Sprite*                map_sprite_stamp;
-    ax::Texture2D*             map_default_tex;
-    ax::backend::ProgramState* map_default_tile_shader;
-    ax::BlendFunc*             map_default_tile_shader_blend;
 
     ax::Size visibleSize;
     ax::Node* grid;
@@ -144,7 +145,7 @@ public:
     ax::Vec2 chunkSelectionPlace;
     f32 cameraScale;
     i32 cameraScaleIndex = 10;
-    f32 possibleCameraScales[19] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
+    f32 possibleCameraScales[18] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
     CUI::Button* cameraScaleB;
     CUI::Label* cameraScaleL;
 
@@ -173,7 +174,15 @@ public:
     ax::Vec2 removeSelectionStartPos;
     ax::DrawNode* removeSelectionNode;
     ax::Vec2 selectionPosition;
-    bool isRemoving = false;
+    bool isTileMapRect = false;
+
+    CUI::Button* placeB;
+    CUI::Button* removeB;
+    CUI::Button* bucketB;
+    CUI::Button* selectB;
+    void setTileMapEditMode(TileMapEditMode mode);
+    void updateTileMapEditModeState();
+    TileMapEditMode TEditMode;
 
     TileSystem::TileTexCoords editorTileCoords;
 

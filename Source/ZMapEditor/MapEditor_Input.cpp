@@ -48,6 +48,19 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_V)
         tileFlipV->_callback(nullptr);
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_B)
+        setTileMapEditMode(TileMapEditMode::PLACE);
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_R)
+        setTileMapEditMode(TileMapEditMode::REMOVE);
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_F)
+        setTileMapEditMode(TileMapEditMode::BUCKET);
+
+    if (keyCode == EventKeyboard::KeyCode::KEY_P)
+        setTileMapEditMode(TileMapEditMode::SELECT);
+
     //
     //#ifdef WIN32
     //    if (keyCode == EventKeyboard::KeyCode::KEY_T)
@@ -97,7 +110,7 @@ void MapEditor::onMouseDown(ax::Event* event)
     {
         if (selectionNode->isVisible()) {
             editorPushUndoState();
-            isRemoving = true;
+            isTileMapRect = true;
             removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
         }
     }
@@ -119,12 +132,11 @@ void MapEditor::onMouseUp(ax::Event* event)
     }
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
-        if (!isRemoving) return;
-        isRemoving = false;
+        if (!isTileMapRect) return;
+        isTileMapRect = false;
         selectionPosition = Vec2(INFINITY, INFINITY);
         Rect rect = createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocation, _camera, true), map->_tileSize.x);
-        editUpdate_place(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-        RLOG("remove_selection_tool: begin: {},{} end: {},{}", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+        tileMapModifyRegion(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         removeSelectionNode->clear();
     }
 }
@@ -132,6 +144,7 @@ void MapEditor::onMouseUp(ax::Event* event)
 void MapEditor::onMouseMove(ax::Event* event)
 {
     Vec2 worldPos = GameUtils::convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
+
     isSelectableHovered = false;
     for (auto& _ : _selectables) {
         isSelectableHovered = _->editorDraw(worldPos) || isSelectableHovered;
@@ -143,7 +156,6 @@ void MapEditor::onMouseMove(ax::Event* event)
         cameraLocation->setPositionX(cameraLocation->getPositionX() + (_input->_mouseLocationDelta.x * _camera->getScale()));
         cameraLocation->setPositionY(cameraLocation->getPositionY() + (_input->_mouseLocationDelta.y * -1 * _camera->getScale()));
     }
-    //CCLOG("%f,%f", cameraLocation->getPositionX(), cameraLocation->getPositionY());
 }
 
 void MapEditor::onMouseScroll(ax::Event* event)

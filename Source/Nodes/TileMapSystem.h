@@ -99,7 +99,6 @@ namespace TileSystem {
         ax::Vec2 _tileSize;
         ax::Vec2 _textureSize;
         ax::Vec2 _sizeInPixels;
-        MeshMaterial* _material;
 
         Tileset(ax::Texture2D* _texture);
 
@@ -193,6 +192,7 @@ namespace TileSystem {
         void unload();
 
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override;
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, ax::MeshMaterial* mat);
 
         void cacheVertices(bool _resize);
     };
@@ -215,7 +215,7 @@ namespace TileSystem {
 
         void draw(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
         void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) override {}
-        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount, const ax::BlendFunc& blendFunc);
+        void visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount, ax::MeshMaterial* mat, const ax::BlendFunc& blendFunc);
 
         void cacheVertices(bool _resize);
 
@@ -241,6 +241,7 @@ namespace TileSystem {
         ax::BlendFunc blend;
         u32 currentMaxDrawCallCount;
 
+        ax::MeshMaterial* _material;
         std::string _layerName = "";
         Color4F _layerColor = Color4F::WHITE;
         TilesetArray* _tilesetArr = nullptr;
@@ -278,6 +279,8 @@ namespace TileSystem {
         */
         TileTransform getTileTransform(const ax::Vec2& pos);
 
+        void setTileAt(Layer* _layer, const ax::Vec2& pos, TileID gid);
+
         void setTileAt(const ax::Vec2& pos, TileID gid);
 
         TileID getTileAt(const ax::Vec2& pos);
@@ -291,6 +294,7 @@ namespace TileSystem {
         Layer* _layerBind;
         u16 _layerIdx;
         std::vector<Layer*> _layers;
+        Layer* _editorLayer;
 
         void cacheVertices(bool _resize);
 

@@ -260,9 +260,9 @@ Size CUI::Button::getFitContentSize()
     return field->getContentSize() + Vec2((_ForceOutline ? _PmtFontOutline : 1), 0);
 }
 
-void CUI::Button::enableIconHighlight()
+void CUI::Button::enableIconHighlight(Color3B highlight)
 {
-    selected_color = Color3B(0, 237, 255);
+    selected_color = highlight;
     if (field) field->setColor(selected_color);
     if (icon && runActionOnIcon) icon->setColor(selected_color);
 }

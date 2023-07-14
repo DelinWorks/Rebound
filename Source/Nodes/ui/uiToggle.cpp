@@ -43,12 +43,12 @@ void CUI::Toggle::init(std::wstring _text, Size _contentsize)
 
 void CUI::Toggle::update(f32 dt)
 {
-    auto dSize = getDynamicContentSize();
-    auto ns = GameUtils::getNodeIgnoreDesignScale();
+    auto dSize = (getDynamicContentSize() + _padding) * _UiScale;
+    auto ns = FULL_HD_NODE_SCALING;
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
-    if (setContentSize(dSize * Vec2(ns.x, 1))) {
+    if (setContentSize(dSize * Vec2(ns.x * 0.75, ns.y) + Vec2(35, 10))) {
         cont->updateLayoutManagers();
-        button->setContentSize((dSize + Vec2(0, 10)) * ns);
+        button->setContentSize(dSize * ns * 0.75 + Vec2(35, 10));
         HoverEffectGUI::update(dt, dSize * ns);
     }
 }

@@ -438,25 +438,41 @@ void MapEditor::buildEntireUi()
 
     padding = Vec2(8, 2);
 
-    auto extEditB = CUI::Button::create();
+    auto extEditB = placeB = CUI::Button::create();
     extEditB->hoverTooltip = L"Place (B) Tiles into the selected layer,\nright click for rectangle placement.";
     extEditB->initIcon("editor_place", padding);
     rowContainer->addChild(extEditB);
 
-    extEditB = CUI::Button::create();
-    extEditB->hoverTooltip = L"Bucket Fill (F) Tiles into the selected layer.";
-    extEditB->initIcon("editor_bucket_fill", padding);
-    rowContainer->addChild(extEditB);
+    extEditB->_callback = [&](CUI::Button* target) {
+        setTileMapEditMode(TileMapEditMode::PLACE);
+    };
 
-    extEditB = CUI::Button::create();
+    extEditB = removeB = CUI::Button::create();
     extEditB->hoverTooltip = L"Remove (R) Tiles from the selected layer,\nright click for rectangle removal.";
     extEditB->initIcon("editor_remove", padding);
     rowContainer->addChild(extEditB);
 
-    extEditB = CUI::Button::create();
+    extEditB->_callback = [&](CUI::Button* target) {
+        setTileMapEditMode(TileMapEditMode::REMOVE);
+    };
+
+    extEditB = bucketB = CUI::Button::create();
+    extEditB->hoverTooltip = L"Bucket Fill (F) Tiles into the selected layer.";
+    extEditB->initIcon("editor_bucket_fill", padding);
+    rowContainer->addChild(extEditB);
+
+    extEditB->_callback = [&](CUI::Button* target) {
+        setTileMapEditMode(TileMapEditMode::BUCKET);
+    };
+
+    extEditB = selectB = CUI::Button::create();
     extEditB->hoverTooltip = L"Select (P) Tiles in the selected layer,\nright click for rectangle selection.";
     extEditB->initIcon("editor_select", padding);
     rowContainer->addChild(extEditB);
+
+    extEditB->_callback = [&](CUI::Button* target) {
+        setTileMapEditMode(TileMapEditMode::SELECT);
+    };
 
     extContainer->addChild(rowContainer);
 

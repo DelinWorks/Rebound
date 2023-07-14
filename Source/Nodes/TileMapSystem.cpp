@@ -126,17 +126,9 @@ TileID TileTexCoords::state() {
 Tileset::Tileset(ax::Texture2D* _texture) {
     this->_texture = _texture;
     _texture->setAliasTexParameters();
-    _material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_TEXTURE, false);
-    _material->setTexture(_texture, ax::NTextureData::Usage::None);
-    _material->setTransparent(true);
-    _material->setForce2DQueue(true);
-    _material->getStateBlock().setCullFace(true);
-    _material->getStateBlock().setCullFaceSide(ax::CullFaceSide::NONE);
-    _material->retain();
 }
 
 Tileset::~Tileset() {
-    _material->release();
     LOG_RELEASE;
 }
 
@@ -318,8 +310,8 @@ i32 ChunkFactory::buildVertexIndex(TileArray* tileArr, Tileset* tileset, std::ve
             u16 startindex = vertices.size() / vertexSize;
 
 #if USE_VERTEX_BLEED_TOLERANCE == 1
-            auto marginX = 1.0 / tileset->_tileSize.x;
-            auto marginY = 1.0 / tileset->_tileSize.y;
+            auto marginX = 1.0 / (tileset->_textureSize.x * tileset->_tileSize.x);
+            auto marginY = 1.0 / (tileset->_textureSize.y * tileset->_tileSize.y);
 
             f32 x = (x1 * tileset->_tileSize.x) - marginX;
             f32 y = (y1 * tileset->_tileSize.y - tileset->_tileSize.y) - marginY;
@@ -478,7 +470,10 @@ void SingleTilesetChunkRenderer::unload() {
     _chunkDirty = true;
 }
 
-void SingleTilesetChunkRenderer::visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) {
+void SingleTilesetChunkRenderer::visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags) {}
+
+void TileSystem::SingleTilesetChunkRenderer::visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, ax::MeshMaterial* mat)
+{
     if (_chunkDirty)
     {
         if (_resize) {
@@ -488,7 +483,7 @@ void SingleTilesetChunkRenderer::visit(Renderer* renderer, const Mat4& parentTra
         if (_mesh && _resize || !_mesh && !_resize) {
             if (!_resize)
                 _mesh = ChunkFactory::buildTiledMesh(_tiles, _tileset, _resize);
-            _mesh->setMaterial(_tileset->_material);
+            _mesh->setMaterial(mat);
             addMesh(_mesh);
         }
         if (_mesh && !_resize) {
@@ -496,8 +491,10 @@ void SingleTilesetChunkRenderer::visit(Renderer* renderer, const Mat4& parentTra
         }
         _chunkDirty = false;
     }
-    if (_mesh && getDisplayedOpacity())
+    if (_mesh && getDisplayedOpacity()) {
+        mat->setTexture(_tileset->_texture, ax::NTextureData::Usage::None);
         MeshRenderer::visit(renderer, parentTransform, parentFlags);
+    }
 }
 
 void SingleTilesetChunkRenderer::cacheVertices(bool _resize) {
@@ -572,7 +569,7 @@ void ChunkRenderer::setPositionInChunkSpace(f32 x, f32 y) {
     _pos = { x,y };
 }
 
-void ChunkRenderer::visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount, const ax::BlendFunc& blendFunc) {
+void ChunkRenderer::visit(Renderer* renderer, const Mat4& parentTransform, u32 parentFlags, u32* renderCount, ax::MeshMaterial* mat, const ax::BlendFunc& blendFunc) {
     auto tiles = _tiles->getArrayPointer();
     if (!resizeChunkCount())
         return;
@@ -616,7 +613,7 @@ void ChunkRenderer::visit(Renderer* renderer, const Mat4& parentTransform, u32 p
         // *  0  0  0  1
 
         _->setBlendFunc(blendFunc);
-        _->visit(renderer, transform, parentFlags);
+        _->visit(renderer, transform, parentFlags, mat);
         //(*renderCount)++;
         _chunkDirty = false;
     }
@@ -639,6 +636,13 @@ TileSystem::Layer* TileSystem::Layer::create(std::string_view name) {
 
         ref->autorelease();
 
+        ref->_material = ax::MeshMaterial::createBuiltInMaterial(ax::MeshMaterial::MaterialType::QUAD_TEXTURE, false);
+        ref->_material->setTransparent(true);
+        ref->_material->setForce2DQueue(true);
+        ref->_material->getStateBlock().setCullFace(true);
+        ref->_material->getStateBlock().setCullFaceSide(ax::CullFaceSide::BACK);
+        ref->_material->retain();
+
         ref->setCascadeOpacityEnabled(true);
 
         return ref;
@@ -650,6 +654,7 @@ TileSystem::Layer* TileSystem::Layer::create(std::string_view name) {
 TileSystem::Layer::~Layer() {
     for (auto& _ : _chunks)
         RB_PROMISE_RELEASE(_.second);
+    AX_SAFE_RELEASE(_material);
     LOG_RELEASE;
 }
 
@@ -678,7 +683,10 @@ ChunkRenderer* TileSystem::Layer::getChunkAtPos(Vec2 pos, TileID hintGid) {
     }
 }
 
-void TileSystem::Layer::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags) {
+void TileSystem::Layer::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags)
+{
+    if (!isVisible()) return;
+
     currentMaxDrawCallCount = 0;
     for (auto& [unused, _] : _chunks) {
         if (_->_isModified) {
@@ -694,7 +702,7 @@ void TileSystem::Layer::visit(Renderer* renderer, const Mat4& parentTransform, u
             _->_isModified = false;
         }
 
-        _->visit(renderer, parentTransform, parentFlags, &currentMaxDrawCallCount, blend);
+        _->visit(renderer, parentTransform, parentFlags, &currentMaxDrawCallCount, _material, blend);
 
         if (currentMaxDrawCallCount > maxDrawCallCount)
             break;
@@ -705,17 +713,20 @@ void TileSystem::Layer::visit(Renderer* renderer, const Mat4& parentTransform, u
     _chunksToRemove.clear();
 }
 
-void TileSystem::Layer::cacheVertices(bool _resize) {
+void TileSystem::Layer::cacheVertices(bool _resize)
+{
     this->_resize = _resize;
     for (auto& _ : _chunks)
         _.second->cacheVertices(_resize);
 }
 
-void TileSystem::Layer::setBlendFunc(const BlendFunc& blendFunc) {
+void TileSystem::Layer::setBlendFunc(const BlendFunc& blendFunc)
+{
     blend = blendFunc;
 }
 
-const BlendFunc& TileSystem::Layer::getBlendFunc() const {
+const BlendFunc& TileSystem::Layer::getBlendFunc() const
+{
     return blend;
 }
 
@@ -730,6 +741,10 @@ TileSystem::Map* TileSystem::Map::create(Vec2 _tileSize, i32 _contentScale, Vec2
         ref->_chunkSizeInPixels = ref->_tileSize * ref->_chunkSize;
         ref->_gridSize = CHUNK_SIZE * 6;
 
+        ref->_editorLayer = Layer::create("EDITOR_LAYER_HIDDEN");
+        ref->addChild(ref->_editorLayer);
+        ref->_editorLayer->setOpacity(100);
+
         ref->autorelease();
 
         ref->setCascadeOpacityEnabled(true);
@@ -740,46 +755,54 @@ TileSystem::Map* TileSystem::Map::create(Vec2 _tileSize, i32 _contentScale, Vec2
     return nullptr;
 }
 
-TileSystem::Map::~Map() {
+TileSystem::Map::~Map()
+{
     tileMapVirtualCamera = nullptr;
     RB_PROMISE_RELEASE(_tilesetArr);
     LOG_RELEASE;
 }
 
-void TileSystem::Map::addLayer(Layer* _layer) {
+void TileSystem::Map::addLayer(Layer* _layer)
+{
     _layers.push_back(_layer);
     _layer->cacheVertices(_resize);
     addChild(_layer);
     _layer->_tilesetArr = _tilesetArr;
 }
 
-void TileSystem::Map::addLayer(std::string name) {
+void TileSystem::Map::addLayer(std::string name)
+{
     auto l = TileSystem::Layer::create(name);
     addLayer(l);
 }
 
-void TileSystem::Map::bindLayer(u16 idx) {
+void TileSystem::Map::bindLayer(u16 idx)
+{
     _layerIdx = idx;
     _layerBind = _layers[idx];
 }
 
-void TileSystem::Map::setTilesetArray(TilesetArray* _tilesetArr) {
+void TileSystem::Map::setTilesetArray(TilesetArray* _tilesetArr)
+{
     this->_tilesetArr = _tilesetArr;
     for (auto& _ : _layers)
         _->_tilesetArr = _tilesetArr;
+    _editorLayer->_tilesetArr = _tilesetArr;
     _tileSize = _tilesetArr->_tileSize;
     _tilesetArr->calculateBounds();
     _tilesetArr->retain();
 }
 
-void TileSystem::Map::reload() {
+void TileSystem::Map::reload()
+{
     if (_tilesetArr) {
         _tilesetArr->reloadTextures();
         _tilesetArr->calculateBounds();
     }
 }
 
-TileTransform TileSystem::Map::getTileTransform(const ax::Vec2& pos) {
+TileTransform TileSystem::Map::getTileTransform(const ax::Vec2& pos)
+{
     TileTransform t{};
     t.chunk.x = floor(pos.x / CHUNK_SIZE);
     t.chunk.y = floor(pos.y / CHUNK_SIZE);
@@ -794,20 +817,22 @@ TileTransform TileSystem::Map::getTileTransform(const ax::Vec2& pos) {
     return t;
 }
 
-void TileSystem::Map::setTileAt(const ax::Vec2& pos, TileID gid) {
-    if (!_layerBind || pos.x >= _mapSize.x || pos.x < -_mapSize.x || pos.y >= _mapSize.y || pos.y < -_mapSize.y)
+void TileSystem::Map::setTileAt(Layer* _layer, const ax::Vec2& pos, TileID gid)
+{
+    if (!_layer || pos.x >= _mapSize.x || pos.x < -_mapSize.x || pos.y >= _mapSize.y || pos.y < -_mapSize.y)
         return;
     TileArray* tilesArr;
     TileTransform i = getTileTransform(pos);
-    if (!cachedChunkPosition.equals(i.chunk) || !cachedChunk) {
-        cachedChunk = _layerBind->getChunkAtPos(i.chunk, gid);
-        cachedChunkPosition = i.chunk;
-        if (!cachedChunk) return;
-        tilesArr = cachedChunk->_tiles;
-    }
-    else tilesArr = cachedChunk->_tiles;
+    cachedChunk = _layer->getChunkAtPos(i.chunk, gid);
+    cachedChunkPosition = i.chunk;
+    if (!cachedChunk) return;
+    tilesArr = cachedChunk->_tiles;
     auto cond = ChunkFactory::setTile(tilesArr, i.id, gid, _resize);
     _tileCount += (gid == 0 ? (!cond ? -1 : 0) : (cond ? 1 : 0));
+}
+
+void TileSystem::Map::setTileAt(const ax::Vec2& pos, TileID gid) {
+    setTileAt(_layerBind, pos, gid);
 }
 
 TileID TileSystem::Map::getTileAt(const ax::Vec2& pos) {
@@ -831,6 +856,7 @@ void TileSystem::Map::visit(Renderer* renderer, const Mat4& parentTransform, uin
     cachedChunkPosition = { FLT_MAX, FLT_MAX };
     for (auto& _ : _layers)
         _->visit(renderer, parentTransform, parentFlags);
+    _editorLayer->visit(renderer, parentTransform, parentFlags);
 }
 
 void TileSystem::Map::cacheVertices(bool _resize) {

@@ -29,12 +29,6 @@ bool MapEditor::init()
 
     REGISTER_SCENE(MapEditor);
 
-#ifdef WIN32
-    PROCESS_MEMORY_COUNTERS_EX pmc;
-    GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-    prevWorkingSetSize = pmc.PrivateUsage;
-#endif
-
     cameraLocation = Node::create();
 
     ax::Device::setKeepScreenOn(true);
@@ -446,7 +440,7 @@ void MapEditor::onInitDone(f32 dt)
         map->addLayer("background");
         map->addLayer("collision");
         map->addLayer("decoration");
-        map->_layers[2]->setBlendFunc(BlendFunc::ALPHA_PREMULTIPLIED);
+        map->_layers[2]->setBlendFunc(BlendFunc::ADDITIVE);
         map->bindLayer(0);
 
         //BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
@@ -526,22 +520,7 @@ void MapEditor::onInitDone(f32 dt)
 
         setCameraScaleIndex();
 
-        //for (int i = 0; i < 8; i++) {
-        //    testLb = SpriteBatchNode::create("textures/w.png");
-
-        //    for (int i = 0; i < 8000; i++) {
-        //        auto s = Sprite::create("textures/w.png");
-        //        s->setPosition(Random::rangeFloat(-600, 600), Random::rangeFloat(-600, 600));
-        //        s->retain();
-        //        s->setUserData(testLb);
-        //        s->setScaleX(.1);
-        //        _sprites.push_back(s);
-        //        testLb->addChild(s);
-        //        _objectCount++;
-        //    }
-
-        //    _worlds[1]->addChild(testLb);
-        //}
+        setTileMapEditMode(TileMapEditMode::SELECT);
 
         isInitDone = true;
     }
@@ -558,51 +537,6 @@ void MapEditor::onInitDone(f32 dt)
 
 void MapEditor::perSecondUpdate(f32 dt)
 {
-    //std::vector<TileID> Rtiles = { 0 };
-
-    //for (int i = 0; i < CHUNK_BUFFER_SIZE; i++) {
-    //    if (Random::float01() > 0.9) {
-    //        TileID newGid = Rtiles[Random::maxInt(Rtiles.size() - 1)];
-
-    //        if (Random::float01() > 0.5)
-    //            newGid |= TILE_FLAG_ROTATE;
-    //        if (Random::float01() > 0.5)
-    //            newGid |= TILE_FLAG_FLIP_X;
-    //        if (Random::float01() > 0.5)
-    //            newGid |= TILE_FLAG_FLIP_Y;
-
-    //        ChunkFactory::setTile(tarr, i, newGid);
-    //    }
-    //}
-
-    //coord.ccw();
-
-    //for (i16 i = 0; i < 1024; i++)
-    //{
-    //    int startIdx = i;
-    //    startIdx *= 36;
-
-    //    //vertices[(3 + startIdx) + 9 * i] = 1.0f;
-    //    //vertices[(4 + startIdx) + 9 * i] = 0.0f;
-    //    //vertices[(5 + startIdx) + 9 * i] = 0.0f;
-    //    //vertices[(6 + startIdx) + 9 * i] = 1.0f;
-
-    //    vertices[(7 + startIdx) + 9 * 0] = coord.tl.U;
-    //    vertices[(8 + startIdx) + 9 * 0] = coord.tl.V;
-
-    //    vertices[(7 + startIdx) + 9 * 1] = coord.tr.U;
-    //    vertices[(8 + startIdx) + 9 * 1] = coord.tr.V;
-
-    //    vertices[(7 + startIdx) + 9 * 2] = coord.bl.U;
-    //    vertices[(8 + startIdx) + 9 * 2] = coord.bl.V;
-
-    //    vertices[(7 + startIdx) + 9 * 3] = coord.br.U;
-    //    vertices[(8 + startIdx) + 9 * 3] = coord.br.V;
-    //}
-
-    //BENCHMARK_SECTION_BEGIN("update gpu buffer");
-    //TileMeshCreator::updateMeshVertexData(vertices, renderer->getMesh());
-    //BENCHMARK_SECTION_END();
 }
 
 void MapEditor::update(f32 dt)
@@ -610,7 +544,8 @@ void MapEditor::update(f32 dt)
     updateDirectorToStatsCount(map->_tileCount, 0);
     if (getContainer()) {
         bool cond = getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
-        selectionNode->setVisible(!cond && !isEditorDragging && !isSelectableHovered);
+        selectionNode->setVisible(!(cond || isEditorDragging || isSelectableHovered));
+        map->_editorLayer->setVisible(!(cond || isEditorDragging || isSelectableHovered || isTileMapRect || TEditMode != TileMapEditMode::PLACE));
     }
     isSelectableHoveredLastFrame = false;
 }
@@ -621,27 +556,14 @@ void MapEditor::tick(f32 dt)
 
     elapsedDt += dt;
 
-    //TileSystem::zPositionMultiplier = 1.0 + sin(elapsedDt) * 0.1;
-
-    //SET_UNIFORM(_rts[1]->getSprite()->getProgramState(), "u_time", float(elapsedDt * 0.1));
-    //_rt->getSprite()->getTexture()->setAliasTexParameters();
-    //_rts[1]->getSprite()->setSkewX(sin(elapsedDt * 6) * 10);
-    //_rts[1]->getSprite()->setSkewY(cos(elapsedDt * 10) * 10);
-    //_rt->getSprite()->setScale(1.25);
-
-    //if (getContainer()) getContainer()->updateLayoutManagers(true);
-
-    //ps->addParticles(1, -1, -1);
-    //ps->addParticles(1, -1, 0);
-
     onInitDone(dt);
     if (!isInitDone)
         return;
 
-    auto* focusState = &Darkness::getInstance()->gameWindow.focusState;
-    if (*focusState) {
+    bool& focusState = Darkness::getInstance()->gameWindow.focusState;
+    if (focusState) {
         map->reload();
-        *focusState = false;
+        focusState = false;
     }
 
     if (CUI::_pCurrentHoveredTooltipItem &&
@@ -662,26 +584,7 @@ void MapEditor::tick(f32 dt)
     }
     else if (CUI::_pCurrentHoveredTooltipItem && _hoverToolTipTime < 1.0f) _hoverToolTipTime += dt;
 
-    //float angle = MATH_RAD_TO_DEG(Vec2::angle(Vec2(1, 0), Vec2(1, 1)));
-
-    //streak->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
-
-    //for (auto& i : findNodesByTag(this, 91))
-    //    ((ParticleSystemQuad*)i)->setEmissionShape(0, ParticleSystem::createCircleShape({ 0,0 }, pos.x * 2));
-
-    //ps->setPosition(convertFromScreenToSpace(mouseLocation, visibleSize, getDefaultCamera(), true));
-
     global_dt = dt;
-
-    //auto sound = FMODAudioEngine::getInstance()->getSoundChannel("sound1");
-    //if (sound != nullptr)
-    //{
-    //    unsigned i32 pos;
-    //    sound->getPosition(&pos, FMOD_TIMEUNIT_MS);
-    //    std::cout << pos << std::endl;
-    //}
-
-    //std::cout << this->getChildrenCount() << "\n";
 
     setWorldBoundsLayerColorTransforms(_camera);
 
@@ -721,7 +624,7 @@ void MapEditor::tick(f32 dt)
         selectionPlaceSquareForbidden->setVisible(false);
     }
 
-    if (isRemoving)
+    if (isTileMapRect)
     {
         selectionPlaceSquare->setVisible(false);
         selectionPlaceSquareForbidden->setVisible(false);
@@ -750,70 +653,57 @@ void MapEditor::lateUpdate(f32 dt)
             worldCoordsLines->setOpacity(60);
         }
     }
-    //deltaEditing->clear();
-    //deltaEditing->setLineWidth(1);
-    //deltaEditing->drawLine(convertFromScreenToSpace(oldMouseLocationOnUpdate, visibleSize, true), convertFromScreenToSpace(newMouseLocationOnUpdate, visibleSize, true), Color4F::GREEN);
-    //cameraCenterIndicator->setPosition(_defaultCamera->getPosition());
-    //cameraCenterIndicator->setScaleX(_defaultCamera->getScaleX());
-    //cameraCenterIndicator->setScaleY(_defaultCamera->getScaleY());
-    Size place    = Size();
-    place.width   = 10;
-    place.height  = 10;
-    Size remove   = Size();
-    remove.width  = 1;
-    remove.height = 1;
-    editUpdate(oldSelectionPlace, selectionPlace, place, remove);
-    Vec2 loc = convertFromScreenToSpace(visibleSize, _camera);
-    Vec2 loc0 = convertFromScreenToSpace(Vec2::ZERO, _camera);
+
+    auto position = selectionPlace / map->_tileSize;
+    if (_mousePosTileHint != position) {
+        for (auto& _ : _editorPrevMoveTiles)
+            map->setTileAt(map->_editorLayer, _, 0);
+        _editorPrevMoveTiles.clear();
+
+        map->setTileAt(map->_editorLayer, position, (_tilesetPicker->selectedIndex + 1) | editorTileCoords.state());
+        _editorPrevMoveTiles.insert(position);
+        _mousePosTileHint = position;
+    }
+
+    tileMapEditUpdate(oldSelectionPlace, selectionPlace);
 }
 
-// DON'T CALL THIS MANUALLY
-void MapEditor::editUpdate_place(f32 _x, f32 _y, f32 _width, f32 _height) {
-    BENCHMARK_SECTION_BEGIN("LOOK UP BENCHMARK");
+void MapEditor::tileMapModifyRegion(f32 _x, f32 _y, f32 _width, f32 _height)
+{
     if (selectionPlace == selectionPosition) return;
-    std::vector v = { _tilesetPicker->selectedIndex + 1 };
     auto& undoCmd = editorTopUndoStateOrDefault();
     undoCmd.setAction(EditorToolbox::UNDOREDO_TILEMAP);
     undoCmd.affectedTiles.map = map;
     undoCmd.affectedTiles.layer_idx = map->_layerIdx;
-    //undoCmd.affected.allocateBuckets();
+    TileID gid = 0;
+    if (TEditMode == TileMapEditMode::PLACE)
+        gid = _tilesetPicker->selectedIndex + 1;
     for (int x = _x; x < _width; x++)
         for (int y = _y; y < _height; y++) {
-            TileID gid = v[Random::maxInt(v.size() - 1)] | editorTileCoords.state();
+            if (gid != 0)
+                gid = gid | editorTileCoords.state();
             undoCmd.affectedTiles.addOrIgnoreTilePrev({ float(x), float(y) }, map->getTileAt({ float(x), float(y) }));
-            map->setTileAt({ float(x), float(y) }, gid);
+            map->setTileAt(Vec2(x, y), gid);
             undoCmd.affectedTiles.addOrIgnoreTileNext({ float(x), float(y) }, gid);
         }
-    BENCHMARK_SECTION_END();
 }
 
-// DON'T CALL THIS MANUALLY
-void MapEditor::editUpdate_remove(f32 _x, f32 _y, f32 _width, f32 _height) {
-    _x = _x / map->_tileSize.x;
-    _y = _y / map->_tileSize.y;
-    _width = _width / map->_tileSize.x;
-    _height = _height / map->_tileSize.y;
-
-    for (int x = _x; x < _width; x++)
-        for (int y = _y; y < _height; y++)
-            map->setTileAt(Vec2(x, y), 0);
-}
-
-void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& removeStampSize)
+void MapEditor::tileMapEditUpdate(Vec2 prev, Vec2 next)
 {
-    if (isRemoving)
+    if (isTileMapRect)
         createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocationInView, _camera, false), map->_tileSize.x);
 
-    if (isPlacing || isRemoving)
+    if (isPlacing || isTileMapRect)
     {
-        f32 _oldX = old.x, _newX = place.x;
-        f32 _oldY = old.y, _newY = place.y;
+        f32 _oldX = prev.x, _newX = next.x;
+        f32 _oldY = prev.y, _newY = next.y;
         f32 vX, vY, evalX, evalY, finalEval;
         evalX = _oldX - _newX;
         evalY = _oldY - _newY;
         f32 _width = 0, height = 0;
-        finalEval = abs((abs(evalX) - _width) / map->_tileSize.x > (abs(evalY) - height) / map->_tileSize.y ? (abs(evalX) - _width) / map->_tileSize.x : (abs(evalY) - height) / map->_tileSize.y);
-        for (f32 i = 0l; i < 1.0l; i += 1.0l / finalEval)
+        finalEval = abs((abs(evalX) - _width) / map->_tileSize.x > (abs(evalY) - height) / map->_tileSize.y ?
+            (abs(evalX) - _width) / map->_tileSize.x : (abs(evalY) - height) / map->_tileSize.y);
+        for (f64 i = 0l; i < 1.0l; i += 1.0l / finalEval)
         {
             vX = _oldX - _newX;
             vX = vX * i;
@@ -825,41 +715,14 @@ void MapEditor::editUpdate(Vec2& old, Vec2& place, Size& placeStampSize, Size& r
             {
                 vX = round(vX / map->_tileSize.x);
                 vY = round(vY / map->_tileSize.y);
-                //auto rect = createEditToolSelectionBox(Vec2(vX, vY), Vec2(placeStampSize.width, placeStampSize.height), map->_tileSize.x);
-                editUpdate_place(vX, vY, vX + 1, vY + 1);
-                // break the loop cuz we dont want the stamp to be lined with frame lag
-                // cuz that shit steals a TON of frames just skip it if its over 10 units on any axis
-                if (placeStampSize.width > 10 || placeStampSize.height > 10)
-                    break;
+                tileMapModifyRegion(vX, vY, vX + 1, vY + 1);
                 continue;
             }
-            //if (isRemoving)
-            //{
-            //    editUpdate_remove(snap(vX, tileSize), snap(vY, tileSize), removeStampSize.width, removeStampSize.height);
-            //    // Same Here but for removing Tiles
-            //    if (removeStampSize.width > 10 || removeStampSize.height > 10)
-            //        break;
-            //    continue;
-            //}
         }
         if (selectionPlace != selectionPosition)
             selectionPosition = selectionPlace;
     }
-
-
-    //if (isPlacing) {
-    //    for (i32 x = -tileSize * 10; x < tileSize * 10; x += tileSize)
-    //        for (i32 y = -tileSize * 10; y < tileSize * 10; y += tileSize)
-    //            addTileIfNotExists(convertFromSpaceToTileSpace(Vec2(place.x + x, place.y + y)));
-    //}
-
-    //if (isRemoving) {
-    //    for (i32 x = -tileSize * 10; x < tileSize * 10; x += tileSize)
-    //        for (i32 y = -tileSize * 10; y < tileSize * 10; y += tileSize)
-    //            removeTileIfNotExists(convertFromSpaceToTileSpace(Vec2(place.x + x, place.y + y)));
-    //}
 }
-
 
 void MapEditor::setCameraScaleIndex(i32 dir, bool shiftTransform) {
     cameraScaleIndex += dir;
@@ -867,21 +730,6 @@ void MapEditor::setCameraScaleIndex(i32 dir, bool shiftTransform) {
     cameraScaleIndex = (int)clamp(cameraScaleIndex, 0, n);
     f32 preCamScl = cameraScale;
     cameraScale = possibleCameraScales[cameraScaleIndex];
-    //if (cameraScale != 1.0F) {
-    //    cameraScale = cameraScale);
-    //    //cameraScale *= 100;
-    //}
-    ////if (cameraScale < 1)
-    ////    cameraScale = snap_interval(cameraScale, 1, 500);
-    ////else if (cameraScale < 3)
-    ////    cameraScale = snap_interval(cameraScale, 1, 100);
-    ////else if (cameraScale < 10)
-    ////    cameraScale = snap_interval(cameraScale, 1, 10);
-    ////else if (cameraScale < 50)
-    ////    cameraScale = snap_interval(cameraScale, 1, 5);
-    ////else
-    ////    cameraScale = snap_interval(cameraScale, 1, 1);
-    //f32 postCamScl = cameraScale;
 
     Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
     Vec2 pos = cameraLocation->getPosition();
@@ -947,15 +795,13 @@ void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t 
 
 void MapEditor::menuCloseCallback(Ref* pSender)
 {
-    //Close the ax-x game scene and quit the application
     Director::getInstance()->end();
+}
 
-    /*To navigate back to native iOS screen(if present) without quitting the application  ,do not use Director::getInstance()->end() as given above,instead trigger a custom event created in RootViewController.mm as below*/
-
-    //EventCustom customEndEvent("game_scene_close_event");
-    //_eventDispatcher->dispatchEvent(&customEndEvent);
-
-
+void MapEditor::setTileMapEditMode(TileMapEditMode mode)
+{
+    TEditMode = mode;
+    updateTileMapEditModeState();
 }
 
 void MapEditor::rebuildEntireUi()

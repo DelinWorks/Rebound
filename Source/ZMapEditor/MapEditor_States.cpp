@@ -135,6 +135,33 @@ void MapEditor::editorTileFlipRotateUpdateState()
     if (editorTileCoords.isH) tileFlipH->enableIconHighlight(); else tileFlipH->disableIconHighlight();
     if (editorTileCoords.isV) tileFlipV->enableIconHighlight(); else tileFlipV->disableIconHighlight();
     if (editorTileCoords.is90) tileRot90->enableIconHighlight(); else tileRot90->disableIconHighlight();
+    _mousePosTileHint = INVALID_LOCATION;
+}
+
+#define TM_EDIT_BUTTON_HIGHLIGH1 Color3B(131, 255, 146)
+#define TM_EDIT_BUTTON_HIGHLIGH2 Color3B(255, 201, 71)
+
+void MapEditor::updateTileMapEditModeState()
+{
+    placeB->disableIconHighlight();
+    removeB->disableIconHighlight();
+    bucketB->disableIconHighlight();
+    selectB->disableIconHighlight();
+
+    switch (TEditMode) {
+    case TileMapEditMode::PLACE:
+        placeB->enableIconHighlight(TM_EDIT_BUTTON_HIGHLIGH1);
+        break;
+    case TileMapEditMode::REMOVE:
+        removeB->enableIconHighlight(TM_EDIT_BUTTON_HIGHLIGH2);
+        break;
+    case TileMapEditMode::BUCKET:
+        bucketB->enableIconHighlight(TM_EDIT_BUTTON_HIGHLIGH1);
+        break;
+    case TileMapEditMode::SELECT:
+        selectB->enableIconHighlight();
+        break;
+    }
 }
 
 void MapEditor::editorUndoRedoAlterStacks(std::function<void(EditorToolbox::UndoRedoState&)> func)
