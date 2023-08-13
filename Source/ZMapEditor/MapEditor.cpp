@@ -145,16 +145,6 @@ bool MapEditor::init()
     selectionPlaceSquare->setAnchorPoint(Point(0.5, 0.5));
     selectionNode->addChild(selectionPlaceSquare);
 
-    selectionPlaceSquareForbidden = DrawNode::create(1);
-    selectionPlaceSquareForbidden->drawTriangle(Vec2(0, 0), Vec2(0, map->_tileSize.y), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_TRI_DENIED);
-    selectionPlaceSquareForbidden->drawTriangle(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(map->_tileSize.x, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_TRI_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(map->_tileSize.x, 0), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(0, 0), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize.x, 0), Vec2(map->_tileSize.x, map->_tileSize.y), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->drawLine(Vec2(map->_tileSize.x, map->_tileSize.y), Vec2(0, map->_tileSize.y), SELECTION_SQUARE_DENIED);
-    selectionPlaceSquareForbidden->setAnchorPoint(Point(0.5, 0.5));
-    selectionNode->addChild(selectionPlaceSquareForbidden);
-
     worldCoordsLines = DrawNode::create(1);
     worldCoordsLines->drawLine(Vec2(0, -map->_mapSize.x * map->_tileSize.x), Vec2(0, 0), Color4F(0, 0.5, 0, 1));
     worldCoordsLines->drawLine(Vec2(0, 0), Vec2(0, map->_mapSize.x * map->_tileSize.x), Color4F(0, 1, 0, 1));
@@ -545,7 +535,7 @@ void MapEditor::update(f32 dt)
     if (getContainer()) {
         bool cond = getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
         selectionNode->setVisible(!(cond || isEditorDragging || isSelectableHovered));
-        map->_editorLayer->setVisible(!(cond || isEditorDragging || isSelectableHovered || isTileMapRect || TEditMode != TileMapEditMode::PLACE));
+        map->_editorLayer->setVisible(!(cond || isEditorDragging || isSelectableHovered || isTileMapRect || TEditMode != TileMapEditMode::PLACE || modeDropdown->selectedIndex != TILE_MAP_MODE));
     }
     isSelectableHoveredLastFrame = false;
 }
@@ -601,38 +591,37 @@ void MapEditor::tick(f32 dt)
 
     Vec2 pos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
 
-    _input->_oldMouseLocationOnUpdate = _input->_newMouseLocationOnUpdate;
-    _input->_newMouseLocationOnUpdate = _input->_mouseLocation;
-    for (const auto i : uiNodeNonFollow->getChildren())
-        i->setScale(_camera->getScale());
-    Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize * 10), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize * 10));
-    grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
-    //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
-    selectionPlaceSquare->setPosition(selectionPlace);
-    selectionPlaceSquareForbidden->setPosition(selectionPlace);
-    if (selectionPlace.x + map->_tileSize.x / 2 < -map->_mapSize.x * map->_tileSize.x || selectionPlace.x + map->_tileSize.x / 2 > map->_mapSize.x * map->_tileSize.x ||
-        selectionPlace.y + map->_tileSize.y / 2 < -map->_mapSize.y * map->_tileSize.y || selectionPlace.y + map->_tileSize.y / 2 > map->_mapSize.y * map->_tileSize.y)
-    {
-        isLocationEditable = false;
-        selectionPlaceSquare->setVisible(false);
-        selectionPlaceSquareForbidden->setVisible(true);
-    }
-    else
-    {
-        isLocationEditable = true;
-        selectionPlaceSquare->setVisible(true);
-        selectionPlaceSquareForbidden->setVisible(false);
-    }
+    if (modeDropdown->selectedIndex == TILE_MAP_MODE) {
+        _input->_oldMouseLocationOnUpdate = _input->_newMouseLocationOnUpdate;
+        _input->_newMouseLocationOnUpdate = _input->_mouseLocation;
+        for (const auto i : uiNodeNonFollow->getChildren())
+            i->setScale(_camera->getScale());
+        Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize * 10), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize * 10));
+        grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
+        //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
+        selectionPlaceSquare->setPosition(selectionPlace);
+        if (selectionPlace.x + map->_tileSize.x / 2 < -map->_mapSize.x * map->_tileSize.x || selectionPlace.x + map->_tileSize.x / 2 > map->_mapSize.x * map->_tileSize.x ||
+            selectionPlace.y + map->_tileSize.y / 2 < -map->_mapSize.y * map->_tileSize.y || selectionPlace.y + map->_tileSize.y / 2 > map->_mapSize.y * map->_tileSize.y)
+        {
+            isLocationEditable = false;
+            selectionPlaceSquare->setVisible(false);
+        }
+        else
+        {
+            isLocationEditable = true;
+            selectionPlaceSquare->setVisible(true);
+        }
 
-    if (isTileMapRect)
-    {
-        selectionPlaceSquare->setVisible(false);
-        selectionPlaceSquareForbidden->setVisible(false);
-    }
+        if (isTileMapRect)
+            selectionPlaceSquare->setVisible(false);
 
-    oldSelectionPlace = selectionPlace;
-    selectionPlace = Vec2(snap(pos.x - map->_tileSize.x * 1.5f, map->_tileSize.x) + map->_tileSize.x, snap(pos.y - map->_tileSize.y * 1.5f, map->_tileSize.y) + map->_tileSize.y);
-    chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
+        oldSelectionPlace = selectionPlace;
+        selectionPlace = Vec2(snap(pos.x - map->_tileSize.x * 1.5f, map->_tileSize.x) + map->_tileSize.x, snap(pos.y - map->_tileSize.y * 1.5f, map->_tileSize.y) + map->_tileSize.y);
+        chunkSelectionPlace = Vec2(snap(pos.x - map->_chunkSize / 2, map->_chunkSize), snap(pos.y - map->_chunkSize / 2, map->_chunkSize));
+    }
+    else {
+        selectionPlaceSquare->setVisible(false);
+    }
 
     lateUpdate(dt);
 }

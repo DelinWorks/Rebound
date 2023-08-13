@@ -82,13 +82,21 @@ Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _ti
     rect.size.x = rect.size.x / map->_tileSize.x;
     rect.size.y = rect.size.y / map->_tileSize.y;
 
+    auto color1 = SELECTION_SQUARE_ALLOWED;
+    auto color2 = SELECTION_SQUARE_TRI_ALLOWED;
+
+    if (TEditMode == TileMapEditMode::REMOVE) {
+        color1 = SELECTION_SQUARE_DENIED;
+        color2 = SELECTION_SQUARE_TRI_DENIED;
+    }
+
     removeSelectionNode->clear();
-    removeSelectionNode->drawLine(box.left.begin, box.left.end, SELECTION_SQUARE_DENIED);
-    removeSelectionNode->drawLine(box.bottom.begin, box.bottom.end, SELECTION_SQUARE_DENIED);
-    removeSelectionNode->drawLine(box.right.begin, box.right.end, SELECTION_SQUARE_DENIED);
-    removeSelectionNode->drawLine(box.top.begin, box.top.end, SELECTION_SQUARE_DENIED);
-    removeSelectionNode->drawTriangle(box.first.p0, box.first.p1, box.first.p2, SELECTION_SQUARE_TRI_DENIED);
-    removeSelectionNode->drawTriangle(box.second.p0, box.second.p1, box.second.p2, SELECTION_SQUARE_TRI_DENIED);
+    removeSelectionNode->drawLine(box.left.begin, box.left.end, color1);
+    removeSelectionNode->drawLine(box.bottom.begin, box.bottom.end, color1);
+    removeSelectionNode->drawLine(box.right.begin, box.right.end, color1);
+    removeSelectionNode->drawLine(box.top.begin, box.top.end, color1);
+    removeSelectionNode->drawTriangle(box.first.p0, box.first.p1, box.first.p2, color2);
+    removeSelectionNode->drawTriangle(box.second.p0, box.second.p1, box.second.p2, color2);
     return rect;
 }
 

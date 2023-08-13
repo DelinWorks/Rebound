@@ -411,7 +411,7 @@ void MapEditor::buildEntireUi()
     rowContainer->setTag(CONTAINER_FLOW_TAG);
     rowContainer->setMargin({ 0, 4 });
 
-    auto modeDropdown = CUI::DropDown::create();
+    modeDropdown = CUI::DropDown::create();
     modeDropdown->setUiPadding({ 10, 10 });
     auto items = std::vector<std::wstring>{ L"Object Mode",L"TileMap Mode" };
     modeDropdown->init(items);

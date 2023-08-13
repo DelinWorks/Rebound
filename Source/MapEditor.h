@@ -149,9 +149,13 @@ public:
     CUI::Button* cameraScaleB;
     CUI::Label* cameraScaleL;
 
+#define OBJECT_MODE 0
+#define TILE_MAP_MODE 1
+
+    CUI::DropDown* modeDropdown;
+
     ax::Node* selectionNode;
     ax::DrawNode* selectionPlaceSquare;
-    ax::DrawNode* selectionPlaceSquareForbidden;
     ax::DrawNode* worldCoordsLines;
     ax::DrawNode* cameraCenterIndicator;
 
@@ -176,6 +180,7 @@ public:
     ax::Vec2 selectionPosition;
     bool isTileMapRect = false;
 
+    bool isCtrlTMRemove = false;
     CUI::Button* placeB;
     CUI::Button* removeB;
     CUI::Button* bucketB;

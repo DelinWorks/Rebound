@@ -19,7 +19,14 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     if (keyCode == EventKeyboard::KeyCode::KEY_S) editorWASDCamMoveRect.size.y = -1;
     if (keyCode == EventKeyboard::KeyCode::KEY_D) editorWASDCamMoveRect.size.x = 1;
 
-    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) { isCtrlPressed = true; }
+    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) {
+        if (TEditMode == TileMapEditMode::PLACE) {
+            setTileMapEditMode(TileMapEditMode::REMOVE);
+            isCtrlTMRemove = true;
+        }
+        isCtrlPressed = true;
+    }
+
     if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT) { isShiftPressed = true; }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_Z && isCtrlPressed) editorUndo();
@@ -73,7 +80,14 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
 void MapEditor::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
-    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) isCtrlPressed = false;
+    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL) {
+        isCtrlPressed = false;
+        if (TEditMode == TileMapEditMode::REMOVE && isCtrlTMRemove) {
+            setTileMapEditMode(TileMapEditMode::PLACE);
+            isCtrlTMRemove = false;
+        }
+    }
+
     if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT) isShiftPressed = false;
 
     if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ALT) isEditorDragging = false;
@@ -96,9 +110,12 @@ void MapEditor::onMouseDown(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
         if (selectionNode->isVisible()) {
-            editorPushUndoState();
-            selectionPosition = Vec2(INFINITY, INFINITY);
-            isPlacing = true;
+            if (modeDropdown->selectedIndex == TILE_MAP_MODE) {
+                if (TEditMode != TileMapEditMode::SELECT)
+                    editorPushUndoState();
+                isPlacing = true;
+                selectionPosition = Vec2(INFINITY, INFINITY);
+            }
         }
         //auto mouseClick = DrawNode::create(1);
         //mouseClick->setPosition(Vec2(_input->_mouseLocation.x - (visibleSize.x / 2), (_input->_mouseLocation.y + (visibleSize.y / -2)) * -1));
@@ -109,9 +126,12 @@ void MapEditor::onMouseDown(ax::Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         if (selectionNode->isVisible()) {
-            editorPushUndoState();
-            isTileMapRect = true;
-            removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
+            if (modeDropdown->selectedIndex == TILE_MAP_MODE) {
+                if (TEditMode != TileMapEditMode::SELECT)
+                    editorPushUndoState();
+                isTileMapRect = true;
+                removeSelectionStartPos = convertFromScreenToSpace(_input->_mouseLocation, _camera, true);
+            }
         }
     }
 }
