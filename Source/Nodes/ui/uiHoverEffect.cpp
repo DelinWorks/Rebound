@@ -46,7 +46,7 @@ CUI::HoverEffectGUI::HoverEffectGUI()
     //_hoverSprite->addChild(_prtcl, 2);
 }
 
-void CUI::HoverEffectGUI::update(f32 dt, Vec2 size) {
+void CUI::HoverEffectGUI::update(F32 dt, Vec2 size) {
     //if (_hoverSprite->isVisible()) {
     //    _hoverSprite->setContentSize(size + _hoverOffset);
     //    _hoverShaderTime1 += dt;

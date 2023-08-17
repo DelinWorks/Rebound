@@ -11,17 +11,17 @@ public:
 	bool init();
 	void attachCamera(ax::Camera* camera);
 
-	void update(f32 dt);
-	PROTECTED(f32) playerPosX, playerPosY;
-	PROTECTED(f32) speed;
-	f32 curZoom;
-	f32 zoomAmount;
-	i8 zoomDir;
-	f32 zoomSnapTimer = 0;
+	void update(F32 dt);
+	PROTECTED(F32) playerPosX, playerPosY;
+	PROTECTED(F32) speed;
+	F32 curZoom;
+	F32 zoomAmount;
+	I8 zoomDir;
+	F32 zoomSnapTimer = 0;
 	bool isReceivingInputs;
 	ax::Vec2 movementDirection;
 	bool isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
-	PROTECTED(f32) playerMoveBeginEase, playerMoveStopEase;
+	PROTECTED(F32) playerMoveBeginEase, playerMoveStopEase;
 
 
 	Player() {

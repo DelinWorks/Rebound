@@ -36,26 +36,26 @@ namespace CUI
         ChangeValue<bool> hover_cv;
         bool adaptToWindowSize = false;
         bool extend = false;
-        Vec2 preCompContentSize;
-        Vec2 curdSizeContentSize;
+        V2D preCompContentSize;
+        V2D curdSizeContentSize;
         bool runActionOnIcon = true;
 
         ButtonCallback _callback;
 
         ~Button();
         
-        void init(std::wstring _text, int _fontSize, Size _size = ax::Size::ZERO, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
-        void initIcon(std::string _frameName, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
-        void initIcon(std::string _frameName, Rect _capInsets, Size _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
+        void init(std::wstring _text, int _fontSize, S2D _size = S2D::ZERO, S2D _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
+        void initIcon(std::string _frameName, S2D _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
+        void initIcon(std::string _frameName, Rect _capInsets, S2D _hitboxPadding = BUTTON_HITBOX_CORNER_TOLERANCE);
 
-        void init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
-            cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
-            Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-            Color3B _selected_color, bool _allowExtend, bool _isIcon, Size _hitboxpadding);
+        void init(std::wstring _text, std::string_view _fontname, I32 _fontsize,
+            R2D _capinsets, S2D _contentsize, R2D _clampregion,
+            S2D _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
+            Color3B _selected_color, bool _allowExtend, bool _isIcon, S2D _hitboxpadding);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
 
         void focus();
 
@@ -65,8 +65,8 @@ namespace CUI
 
         void onDisable() override;
 
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
 

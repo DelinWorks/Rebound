@@ -38,15 +38,15 @@
 ->attachSceneGraph(this) \
 );
 
-#define REBUILD_UI if (Darkness::getInstance()->gameWindow.isScreenSizeDirty) \
+#define REBUILD_UI if (Rebound::getInstance()->gameWindow.isScreenSizeDirty) \
 { \
 visibleSize = Director::getInstance()->getVisibleSize(); \
-RLOG("resize game window: [{},{}]", Darkness::getInstance()->gameWindow.windowSize.width, Darkness::getInstance()->gameWindow.windowSize.height); \
+RLOG("resize game window: [{},{}]", Rebound::getInstance()->gameWindow.windowSize.width, Rebound::getInstance()->gameWindow.windowSize.height); \
 rebuildEntireUi(); \
-Darkness::getInstance()->gameWindow.isScreenSizeDirty = false; \
+Rebound::getInstance()->gameWindow.isScreenSizeDirty = false; \
 }
 
-#define SCENE_BUILD_UI auto scale = Darkness::getInstance()->gameWindow.guiScale; \
+#define SCENE_BUILD_UI auto scale = Rebound::getInstance()->gameWindow.guiScale; \
 GameUtils::updateIgnoreDesignScale(); \
 if (getContainer()) { getContainer()->updateLayoutManagers(true); \
     getContainer()->onFontScaleUpdate(1); } \
@@ -71,9 +71,9 @@ for (auto& _ : list) { \
     } \
 } \
 
-#define SET_POSITION_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / 2), (visibleSize.height / 2)));
-#define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(Vec2((visibleSize.width / -2), (visibleSize.height / -2)));
-#define DECOMPOSE_VEC2(V, X, Y) Vec2(V.x * X, V.y * Y)
+#define SET_POSITION_HALF_SCREEN(node) node->setPosition(V2D((visibleSize.width / 2), (visibleSize.height / 2)));
+#define SET_POSITION_MINUS_HALF_SCREEN(node) node->setPosition(V2D((visibleSize.width / -2), (visibleSize.height / -2)));
+#define DECOMPOSE_V2D(V, X, Y) V2D(V.x * X, V.y * Y)
 
 #define SET_UNIFORM(ps, name, value)  do {   \
 decltype(value) __v = value;                           \
@@ -175,19 +175,19 @@ namespace GameUtils
     void GLFW_SetBorder(HWND window, int on);
 #endif
 
-    Vec2 parseVector2D(std::string position);
+    V2D parseVector2D(std::string position);
 
     backend::ProgramState* createGPUProgram(std::string resources_frag_shader_path = "", std::string resources_vertex_shader_path = "");
 
     void addSpriteFramesFromJson(const std::string_view texture_path, const std::string_view json_path);
 
-    Vec2 convertFromScreenToSpace(const Vec2& locationInView, Node* cam, bool reverseY = false);
+    V2D convertFromScreenToSpace(const V2D& locationInView, Node* cam, bool reverseY = false);
 
-    Vec2 getNodeIgnoreDesignScale___FUNCTIONAL(bool ignoreScaling = false, float nestedScale = 1.0F);
+    V2D getNodeIgnoreDesignScale___FUNCTIONAL(bool ignoreScaling = false, float nestedScale = 1.0F);
     void setNodeIgnoreDesignScale___FUNCTIONAL(cocos2d::Node* node, bool ignoreScaling = false, float nestedScale = 1.0F);
 
     void updateIgnoreDesignScale();
-    Vec2 getNodeIgnoreDesignScale(bool ignoreScaling = false, float nestedScale = 1.0F);
+    V2D getNodeIgnoreDesignScale(bool ignoreScaling = false, float nestedScale = 1.0F);
     void setNodeIgnoreDesignScale(cocos2d::Node* node, bool ignoreScaling = false, float nestedScale = 1.0F);
 
     Size getWinDiff();

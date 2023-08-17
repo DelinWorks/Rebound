@@ -16,10 +16,10 @@ class WelcomeScene : public ax::Scene, public SceneInputManager
 public:
     static ax::Scene* createScene();
 
-    void update(f32 dt);
+    void update(F32 dt);
     void runNext();
     void rebuildEntireUi();
-    void lateUpdate(f32 dt);
+    void lateUpdate(F32 dt);
 
     virtual bool init();
     bool isInitDone = false;
@@ -42,12 +42,12 @@ public:
 
     CREATE_FUNC(WelcomeScene);
 
-    ax::Size visibleSize;
+    S2D visibleSize;
 
     ax::Sprite* cn;
-    f32 _maxTime = 5;
-    f32 animTime;
-    f32 cnOpacity;
+    F32 _maxTime = 5;
+    F32 animTime;
+    F32 cnOpacity;
 };
 
 #endif

@@ -11,7 +11,7 @@ namespace CUI
         Container4Edge();
         ~Container4Edge();
 
-        static CUI::Container4Edge* create(Vec2 _prefferedSize);
+        static CUI::Container4Edge* create(V2D _prefferedSize);
 
         void setChildTop(CUI::GUI* gui);
         void setChildBottom(CUI::GUI* gui);

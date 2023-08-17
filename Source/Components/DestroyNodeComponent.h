@@ -6,12 +6,12 @@
 
 class DestroyNodeComponent : public Component {
 public:
-    f32 time_s = 0;
-    f32 time_e = 0;
+    F32 time_s = 0;
+    F32 time_e = 0;
 
-    DestroyNodeComponent(f32 _time);
+    DestroyNodeComponent(F32 _time);
 
-    void update(f32 dt);
+    void update(F32 dt);
 
     void onAdd();
 };

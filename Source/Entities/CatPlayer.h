@@ -4,7 +4,6 @@
 #include <axmol.h>
 #include "shared_scenes/ProtectedTypes.hpp"
 #include "Helper/ChangeValue.h"
-#include "Nodes/PhysicsWorld.h"
 #include "shared_scenes/GameUtils.h"
 #include "2d/TweenFunction.h"
 #include "Components/Components.h"
@@ -25,31 +24,31 @@
 
 class CatPlayer;
 
-class RayCastJumpCallback : public b2RayCastCallback
-{
+//class RayCastJumpCallback : public b2RayCastCallback
+//{
+//public:
+//	RayCastJumpCallback(CatPlayer* player) : player(player) {}
+//
+//	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
+//
+//	CatPlayer* player;
+//};
+//
+//class RayCastTeleportCallback : public b2RayCastCallback
+//{
+//public:
+//	RayCastTeleportCallback(CatPlayer* player) : player(player) {}
+//
+//	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
+//
+//	CatPlayer* player;
+//};
+
+class CatPlayer : public ax::Node {
 public:
-	RayCastJumpCallback(CatPlayer* player) : player(player) {}
+	static CatPlayer* createPhysicalEntity();
 
-	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
-
-	CatPlayer* player;
-};
-
-class RayCastTeleportCallback : public b2RayCastCallback
-{
-public:
-	RayCastTeleportCallback(CatPlayer* player) : player(player) {}
-
-	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction) override;
-
-	CatPlayer* player;
-};
-
-class CatPlayer : public ax::Node, public b2ContactListener {
-public:
-	static CatPlayer* createPhysicalEntity(b2World* world);
-
-	b2Body* body;
+	//b2Body* body;
 	ax::Node* body_anchor;
 	ax::Sprite* player_sprite;
 	ax::Sprite* player_shadow_sprite;
@@ -67,7 +66,7 @@ public:
 	std::vector<std::string> jumpAnimationFrames;
 	std::vector<std::string> staggerAnimationFrames;
 
-	i8 lastValidDirection = 0;
+	I8 lastValidDirection = 0;
 	ax::Vec2 lastValidPosition = {0, 0};
 
 	ax::Camera* cam;
@@ -80,29 +79,29 @@ public:
 
 	bool isBodyAnimated = false;
 
-	void tick(f32 dt);
-	void tickCameraSpace(f32 dt);
+	void tick(F32 dt);
+	void tickCameraSpace(F32 dt);
 
 	ax::Vec2 camPos, camWobbleSpeed, camWobbleAmount;
-	f32 camWobbleTime = 0;
+	F32 camWobbleTime = 0;
 	ax::Vec2 camDisplaceVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapPixelVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapLerpVector = ax::Vec2::ZERO;
 	ax::Vec2 camSnapLerpType = ax::Vec2::ZERO;
 	ax::Vec2 camSnapBorderVector = ax::Vec2::ZERO;
 	float camZoomValue = 1;
-	f32 speed;
-	i8 playerDirection;
-	f32 curZoom;
-	f32 zoomAmount;
-	i8 zoomDir;
-	f32 zoomSnapTimer = 0;
+	F32 speed;
+	I8 playerDirection;
+	F32 curZoom;
+	F32 zoomAmount;
+	I8 zoomDir;
+	F32 zoomSnapTimer = 0;
 	bool isReceivingInputs;
 	ax::Vec2 movementDirection;
 	ax::Vec2 playerSnapPlane;
 	ax::Vec2 playerSnapPlaneLerp;
 	bool isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
-	PROTECTED(f32) playerMoveBeginEase, playerMoveStopEase;
+	PROTECTED(F32) playerMoveBeginEase, playerMoveStopEase;
 	bool actionButtonPress = false;
 	PROTECTED(int) numberOfFlips;
 	ax::Sequence* jumpActionDelay;
@@ -112,8 +111,8 @@ public:
 	MaxPushList<ax::Vec2> debugLineTraceY;
 	ChangeValue<bool> controllerJump;
 
-	CatPlayer() : jumpCallback(this), teleportCallback(this) {
-		debugLineTraceY = MaxPushList<ax::Vec2>(i8(10));
+	CatPlayer()/* : jumpCallback(this), teleportCallback(this)*/ {
+		debugLineTraceY = MaxPushList<ax::Vec2>(I8(10));
 		camPos = ax::Vec2::ZERO;
 		speed = 0;
 		playerDirection = 1;
@@ -141,42 +140,42 @@ public:
 
 	void changeAnimation(std::string_view name, bool enforce = false);
 
-	bool onContactBegin(ax::PhysicsContact& contact);
-	bool onContactSeperate(ax::PhysicsContact& contact);
+	//bool onContactBegin(ax::PhysicsContact& contact);
+	//bool onContactSeperate(ax::PhysicsContact& contact);
 
 	float actionRecoveryTime = 0;
 
 	bool hasTouchedGround = false;
-	bool isOnGround();
+	//bool isOnGround();
 
-	b2World* world;
-	void physicsPreStep(DarknessPhysicsWorld* world, f32 dt);
-	void physicsPostStep(DarknessPhysicsWorld* world, f32 dt);
+	//b2World* world;
+	//void physicsPreStep(DarknessPhysicsWorld* world, F32 dt);
+	//void physicsPostStep(DarknessPhysicsWorld* world, F32 dt);
 
 	//virtual void BeginContact(b2Contact* contact);
-	virtual void EndContact(b2Contact* contact);
+	//virtual void EndContact(b2Contact* contact);
 	//virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
 	//virtual void PostSolve(b2Contact* contact, const b2Manifold* oldManifold);
 
-	void jump(f32 dt, bool noEffect = false);
+	//void jump(F32 dt, bool noEffect = false);
 
 	ax::Vec2 startVec1, endVec1;
 	ax::Vec2 startVec2, endVec2;
 	ax::Vec2 startVec3, endVec3;
 	ax::DrawNode* debugDrawNode = nullptr;
-	ax::PhysicsRayCastCallbackFunc rayCastFunc1;
-	ax::PhysicsRayCastCallbackFunc rayCastFunc2;
-	ax::PhysicsRayCastCallbackFunc rayCastFunc3;
-	RayCastJumpCallback jumpCallback;
-	RayCastTeleportCallback teleportCallback;
-	f32 playerYSpeed;
+	//ax::PhysicsRayCastCallbackFunc rayCastFunc1;
+	//ax::PhysicsRayCastCallbackFunc rayCastFunc2;
+	//ax::PhysicsRayCastCallbackFunc rayCastFunc3;
+	//RayCastJumpCallback jumpCallback;
+	//RayCastTeleportCallback teleportCallback;
+	F32 playerYSpeed;
 	bool teleportPlayer = false;
 	bool isPlayerOnGroundRayCast = false;
 	bool isStartUpAnimationDone = false;
 
 	bool didRayCastsHit = false;
 	int checkOtherRayCastsIndex = 0;
-	f32 checkOtherRayCasts[2];
+	F32 checkOtherRayCasts[2];
 
 	int lastCollisionIndex = 1;
 };

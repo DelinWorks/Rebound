@@ -68,7 +68,7 @@ CUI::Container* CUI::Container::createDenyScaling()
     return ref;
 }
 
-bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::Container::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (!isEnabled()) return false;
     _isHitSwallowed = false;
@@ -81,7 +81,7 @@ bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
         auto n = DCAST(GUI, list.at(i));
         if (n) {
             bool cond = !_isElementBlocked || (_isHitSwallowed && _pCurrentHeldItem != n && !n->isForceRawInput());
-            if (n->hover(cond ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
+            if (n->hover(cond ? V2D(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
                 _isHitSwallowed = true;
         }
     }
@@ -96,11 +96,11 @@ bool CUI::Container::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
     return _isHitSwallowed || _isBlocking;
 }
 
-bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::Container::press(V2D mouseLocationInView, Camera* cam)
 {
     if (!isEnabled()) return false;
     // reset the camera position so that hits are generated correctly.
-    //cam->setPosition(Vec2::ZERO);
+    //cam->setPosition(V2D::ZERO);
     bool isClickSwallowed = false;
     bool shouldDismiss = false;
     if (_isElementBlocking && _bgButton) {
@@ -112,7 +112,7 @@ bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
     {
         auto n = DCAST(GUI, list.at(i));
         if (n)
-            if (n->press(isClickSwallowed ? Vec2(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
+            if (n->press(isClickSwallowed ? V2D(UINT16_MAX, UINT16_MAX) : mouseLocationInView, cam))
                 isClickSwallowed = true;
     }
     if (_bgButton && !isClickSwallowed) {
@@ -127,7 +127,7 @@ bool CUI::Container::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* c
     return isClickSwallowed || _isBlocking;
 }
 
-bool CUI::Container::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::Container::release(V2D mouseLocationInView, Camera* cam)
 {
     if (_pCurrentScrollControlItem) {
         _pCurrentScrollControlItem->release(mouseLocationInView, cam);
@@ -148,7 +148,7 @@ void CUI::Container::keyPress(EventKeyboard::KeyCode keyCode)
     // REMOVE THIS CODE LATER // ONLY FOR DEBUGGING //
     if (getFocusSet().size() == 0)
         if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
-            Darkness::destroyInstance();
+            Rebound::destroyInstance();
     // // // // // // // // // // // // // // // // //
 
     for (auto& _ : getFocusSet()) {
@@ -157,7 +157,7 @@ void CUI::Container::keyPress(EventKeyboard::KeyCode keyCode)
     }
 }
 
-Vec2 CUI::Container::getScaledContentSize()
+V2D CUI::Container::getScaledContentSize()
 {
     auto ns = GameUtils::getNodeIgnoreDesignScale();
     return getContentSize() / ns;
@@ -252,71 +252,71 @@ void CUI::Container::onEnable()
 void CUI::Container::onDisable()
 {}
 
-void CUI::Container::setBorderLayoutAnchor(ax::Vec2 offset)
+void CUI::Container::setBorderLayoutAnchor(V2D offset)
 {
     switch (_borderLayout) {
     case BorderLayout::TOP:
-        setAnchorPoint(Vec2(0, 0.5) * offset);
+        setAnchorPoint(V2D(0, 0.5) * offset);
         break;
     case BorderLayout::TOP_RIGHT:
-        setAnchorPoint(Vec2(0.5, 0.5) * offset);
+        setAnchorPoint(V2D(0.5, 0.5) * offset);
         break;
     case BorderLayout::RIGHT:
-        setAnchorPoint(Vec2(0.5, 0) * offset);
+        setAnchorPoint(V2D(0.5, 0) * offset);
         break;
     case BorderLayout::BOTTOM_RIGHT:
-        setAnchorPoint(Vec2(0.5, -0.5) * offset);
+        setAnchorPoint(V2D(0.5, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM:
-        setAnchorPoint(Vec2(0, -0.5) * offset);
+        setAnchorPoint(V2D(0, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM_LEFT:
-        setAnchorPoint(Vec2(-0.5, -0.5) * offset);
+        setAnchorPoint(V2D(-0.5, -0.5) * offset);
         break;
     case BorderLayout::LEFT:
-        setAnchorPoint(Vec2(-0.5, 0) * offset);
+        setAnchorPoint(V2D(-0.5, 0) * offset);
         break;
     case BorderLayout::TOP_LEFT:
-        setAnchorPoint(Vec2(-0.5, 0.5) * offset);
+        setAnchorPoint(V2D(-0.5, 0.5) * offset);
         break;
     default:
-        setAnchorPoint(Vec2(0, 0) * offset);
+        setAnchorPoint(V2D(0, 0) * offset);
     }
 }
 
-void CUI::Container::setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset)
+void CUI::Container::setBorderLayoutAnchor(BorderLayout border, V2D offset)
 {
     switch (border) {
     case BorderLayout::TOP:
-        setAnchorPoint(Vec2(0, 0.5) * offset);
+        setAnchorPoint(V2D(0, 0.5) * offset);
         break;
     case BorderLayout::TOP_RIGHT:
-        setAnchorPoint(Vec2(0.5, 0.5) * offset);
+        setAnchorPoint(V2D(0.5, 0.5) * offset);
         break;
     case BorderLayout::RIGHT:
-        setAnchorPoint(Vec2(0.5, 0) * offset);
+        setAnchorPoint(V2D(0.5, 0) * offset);
         break;
     case BorderLayout::BOTTOM_RIGHT:
-        setAnchorPoint(Vec2(0.5, -0.5) * offset);
+        setAnchorPoint(V2D(0.5, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM:
-        setAnchorPoint(Vec2(0, -0.5) * offset);
+        setAnchorPoint(V2D(0, -0.5) * offset);
         break;
     case BorderLayout::BOTTOM_LEFT:
-        setAnchorPoint(Vec2(-0.5, -0.5) * offset);
+        setAnchorPoint(V2D(-0.5, -0.5) * offset);
         break;
     case BorderLayout::LEFT:
-        setAnchorPoint(Vec2(-0.5, 0) * offset);
+        setAnchorPoint(V2D(-0.5, 0) * offset);
         break;
     case BorderLayout::TOP_LEFT:
-        setAnchorPoint(Vec2(-0.5, 0.5) * offset);
+        setAnchorPoint(V2D(-0.5, 0.5) * offset);
         break;
     default:
-        setAnchorPoint(Vec2(0, 0) * offset);
+        setAnchorPoint(V2D(0, 0) * offset);
     }
 }
 
-void CUI::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType type)
+void CUI::Container::setBackgroundSprite(V2D padding, BgSpriteType type)
 {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::create();
@@ -336,11 +336,11 @@ void CUI::Container::setBackgroundSprite(ax::Vec2 padding, BgSpriteType type)
     //if (type != BgSpriteType::BG_GRAY)
     _background->setProgramState(_backgroundShader);
     //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-    //    ->enableDesignScaleIgnoring(Vec2(2, 2)));
+    //    ->enableDesignScaleIgnoring(V2D(2, 2)));
     Node::addChild(_background, -1);
 }
 
-void CUI::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale)
+void CUI::Container::setBackgroundSpriteCramped(V2D padding, V2D scale)
 {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED, ADVANCEDUI_P1_CAP_INSETS);
@@ -352,7 +352,7 @@ void CUI::Container::setBackgroundSpriteCramped(ax::Vec2 padding, ax::Vec2 scale
     Node::addChild(_background, -1);
 }
 
-void CUI::Container::setBackgroundSpriteCramped2(ax::Vec2 padding, ax::Vec2 scale)
+void CUI::Container::setBackgroundSpriteCramped2(V2D padding, V2D scale)
 {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED2, ADVANCEDUI_P1_CAP_INSETS);
@@ -364,7 +364,7 @@ void CUI::Container::setBackgroundSpriteCramped2(ax::Vec2 padding, ax::Vec2 scal
     Node::addChild(_background, -1);
 }
 
-void CUI::Container::setBackgroundSpriteCramped3(ax::Vec2 padding, ax::Vec2 scale)
+void CUI::Container::setBackgroundSpriteCramped3(V2D padding, V2D scale)
 {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::createWithSpriteFrameName(ADVANCEDUI_TEXTURE_CRAMPED3, ADVANCEDUI_P1_CAP_INSETS);
@@ -376,7 +376,7 @@ void CUI::Container::setBackgroundSpriteCramped3(ax::Vec2 padding, ax::Vec2 scal
     Node::addChild(_background, -1);
 }
 
-void CUI::Container::setBackgroundSpriteDarken(ax::Vec2 padding) {
+void CUI::Container::setBackgroundSpriteDarken(V2D padding) {
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::create("pixel.png");
     _background->setTag(YOURE_NOT_WELCOME_HERE);
@@ -384,7 +384,7 @@ void CUI::Container::setBackgroundSpriteDarken(ax::Vec2 padding) {
     _background->setColor({ 128, 128, 128 });
     _background->setOpacity(20);
     //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-    //    ->enableDesignScaleIgnoring(Vec2(2, 2)));
+    //    ->enableDesignScaleIgnoring(V2D(2, 2)));
     Node::addChild(_background, -1);
 }
 
@@ -452,10 +452,10 @@ void CUI::Container::calculateContentBoundaries()
     float highestX = -FLT_MAX;
     float highestY = -FLT_MAX;
 
-    auto ns = _rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : Vec2::ONE;
+    auto ns = _rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : V2D::ONE;
 
-    Vec2 highestSize = Vec2::ZERO;
-    Vec2 dominantSize = Vec2::ZERO;
+    V2D highestSize = V2D::ZERO;
+    V2D dominantSize = V2D::ZERO;
 
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
@@ -485,13 +485,13 @@ void CUI::Container::calculateContentBoundaries()
         }
     }
 
-    auto scaledMargin = ax::Vec2(
+    auto scaledMargin = V2D(
         _margin.x * 2 * ns.x,
         _margin.y * 2 * ns.y
     );
 
     if (isContainerDynamic())
-        setContentSize((Vec2(abs(highestX * 2 + highestSize.x + scaledMargin.x),
+        setContentSize((V2D(abs(highestX * 2 + highestSize.x + scaledMargin.x),
                              abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
 
     Container::recalculateChildDimensions();
@@ -500,10 +500,10 @@ void CUI::Container::calculateContentBoundaries()
 void CUI::FlowLayout::build(CUI::Container* container)
 {
     auto list = container->getChildren();
-    auto ns = container->_rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : Vec2::ONE;
-    auto _spacing = Vec2(spacing, spacing);
-    f32 sumSize = 0;
-    u16 listSize = 0;
+    auto ns = container->_rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : V2D::ONE;
+    auto _spacing = V2D(spacing, spacing);
+    F32 sumSize = 0;
+    U16 listSize = 0;
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
@@ -519,7 +519,7 @@ void CUI::FlowLayout::build(CUI::Container* container)
     marginF *= ns.x;
     if (reverseStack)
         std::reverse(list.begin(), list.end());
-    f32 cumSize = 0;
+    F32 cumSize = 0;
     if (direction == STACK_CENTER)
         cumSize = (sumSize - (_spacing.x * 1.5 * listSize) - _spacing.x / 2) / -2;
     for (auto& n : list) {
@@ -553,35 +553,35 @@ void CUI::DependencyConstraint::build(CUI::GUI* element)
     //auto container = DCAST(Container, parent);
     //if (container) container->updateLayoutManagers();
 
-    Vec2 anchor = ax::Vec2::ZERO;
+    V2D anchor = V2D::ZERO;
 
     switch (position) {
     case BorderLayout::TOP:
-        anchor = (Vec2(0, 0.5) + offset);
+        anchor = (V2D(0, 0.5) + offset);
         break;
     case BorderLayout::TOP_RIGHT:
-        anchor = (Vec2(0.5, 0.5) + offset);
+        anchor = (V2D(0.5, 0.5) + offset);
         break;
     case BorderLayout::RIGHT:
-        anchor = (Vec2(0.5, 0) + offset);
+        anchor = (V2D(0.5, 0) + offset);
         break;
     case BorderLayout::BOTTOM_RIGHT:
-        anchor = (Vec2(0.5, -0.5) + offset);
+        anchor = (V2D(0.5, -0.5) + offset);
         break;
     case BorderLayout::BOTTOM:
-        anchor = (Vec2(0, -0.5) + offset);
+        anchor = (V2D(0, -0.5) + offset);
         break;
     case BorderLayout::BOTTOM_LEFT:
-        anchor = (Vec2(-0.5, -0.5) + offset);
+        anchor = (V2D(-0.5, -0.5) + offset);
         break;
     case BorderLayout::LEFT:
-        anchor = (Vec2(-0.5, 0) + offset);
+        anchor = (V2D(-0.5, 0) + offset);
         break;
     case BorderLayout::TOP_LEFT:
-        anchor = (Vec2(-0.5, 0.5) + offset);
+        anchor = (V2D(-0.5, 0.5) + offset);
         break;
     default:
-        anchor = (Vec2(0, 0) + offset);
+        anchor = (V2D(0, 0) + offset);
     }
 
     //if (parent) anchor *= parent->getScale();
@@ -594,8 +594,8 @@ void CUI::DependencyConstraint::build(CUI::GUI* element)
 
 void CUI::ContentSizeConstraint::build(CUI::GUI* element) {
     if (element->isContainerDynamic()) return;
-    Vec2 s = parent->getContentSize() + offset;
-    auto ns = ax::Vec2::ONE;
+    V2D s = parent->getContentSize() + offset;
+    auto ns = V2D::ONE;
     if (scale && element->_rescalingAllowed)
         ns = GameUtils::getNodeIgnoreDesignScale();
     s.x = lockX ? element->getPrefferedContentSize().x : s.x * ns.x;
@@ -603,7 +603,7 @@ void CUI::ContentSizeConstraint::build(CUI::GUI* element) {
     element->setContentSize(s);
 }
 
-CUI::Separator* CUI::Separator::create(Vec2 size)
+CUI::Separator* CUI::Separator::create(V2D size)
 {
     CUI::Separator* ref = new CUI::Separator();
     if (ref->init())
@@ -644,18 +644,18 @@ void CUI::EventPassClippingNode::setClipRegion(ax::Rect r)
     else clip->setClippingRegion(r);
 }
 
-bool CUI::EventPassClippingNode::hover(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::EventPassClippingNode::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (mouseLocationInView == INVALID_LOCATION) return false;
     return child->hover(mouseLocationInView, cam);
 }
 
-bool CUI::EventPassClippingNode::press(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::EventPassClippingNode::press(V2D mouseLocationInView, Camera* cam)
 {
     return child->press(mouseLocationInView, cam);
 }
 
-bool CUI::EventPassClippingNode::release(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::EventPassClippingNode::release(V2D mouseLocationInView, Camera* cam)
 {
     return child->release(mouseLocationInView, cam);
 }

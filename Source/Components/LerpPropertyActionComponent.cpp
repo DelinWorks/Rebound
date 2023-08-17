@@ -4,7 +4,7 @@ void LerpPropertyActionComponent::onAdd() {
     //std::cout << "Action Started: " << getOwner()->_ID << std::endl;
 }
 
-void LerpPropertyActionComponent::update(f32 dt) {
+void LerpPropertyActionComponent::update(F32 dt) {
     switch (type)
     {
     case 0:
@@ -30,11 +30,11 @@ LerpPropertyActionComponent::LerpPropertyActionComponent(Node* _owner) {
     owner = _owner;
 }
 
-LerpPropertyActionComponent* LerpPropertyActionComponent::initFloat(f32* _ref, f32 _duration, f32 _start, f32 _end, f32 _finish) {
+LerpPropertyActionComponent* LerpPropertyActionComponent::initFloat(F32* _ref, F32 _duration, F32 _start, F32 _end, F32 _finish) {
     type = 0;
     ref_float = _ref;
     actionNode->setPositionX(start = _start);
-    auto actionTo = MoveTo::create(_duration, Vec2(end = _end, _finish));
+    auto actionTo = MoveTo::create(_duration, V2D(end = _end, _finish));
     auto finishFunc = CallFunc::create([&]() {
         *ref_float = actionNode->getPositionX();
     *ref_float = actionNode->getPositionY();

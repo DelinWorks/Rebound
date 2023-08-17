@@ -175,7 +175,7 @@ void FMODAudioEngine::update(float fDelta)
     FMOD_RESULT result;
     result = _system->update();
 
-    f32 lerpSpeed = 1;
+    F32 lerpSpeed = 1;
 
     if (_mainChannelVol != _mainChannelVolTarget && _mainChannelVol > _mainChannelVolTarget)
     {
@@ -184,7 +184,7 @@ void FMODAudioEngine::update(float fDelta)
         if (_mainChannelVol <= _mainChannelVolTarget)
             _mainChannelVol = _mainChannelVolTarget;
 
-        f32 vol = powf(_mainChannelVol, 1.0F / 0.9F);
+        F32 vol = powf(_mainChannelVol, 1.0F / 0.9F);
         result = _channelGroup->setVolume(vol);
     }
 
@@ -195,7 +195,7 @@ void FMODAudioEngine::update(float fDelta)
         if (_mainChannelVol >= _mainChannelVolTarget)
             _mainChannelVol = _mainChannelVolTarget;
 
-        f32 vol = powf(_mainChannelVol, 1.0F / 2.0F);
+        F32 vol = powf(_mainChannelVol, 1.0F / 2.0F);
         result = _channelGroup->setVolume(vol);
     }
     
@@ -277,7 +277,7 @@ FMOD::Sound* FMODAudioEngine::load(const std::wstring &filename)
     }
     result = _system->createSound(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    RLOG("FMOD: preload file {} was loaded to memory.", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
+    RLOG("FMOD: preload file {} was loaded to memory.", NRW(Strings::wreplace_const(filename, Rebound::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 
@@ -292,7 +292,7 @@ FMOD::Sound* FMODAudioEngine::loadStream(const std::wstring& filename)
     }
     result = _system->createStream(NRW(filename).c_str(), FMOD_DEFAULT, 0, &sound);
     ERRCHECK(result);
-    RLOG("FMOD: preload file {} was streamed.", NRW(Strings::wreplace_const(filename, Darkness::getInstance()->res_path, L"resources/").c_str()));
+    RLOG("FMOD: preload file {} was streamed.", NRW(Strings::wreplace_const(filename, Rebound::getInstance()->res_path, L"resources/").c_str()));
     return sound;
 }
 

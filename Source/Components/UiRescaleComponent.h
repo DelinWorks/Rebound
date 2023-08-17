@@ -5,7 +5,7 @@
 #include "Helper/short_types.h"
 #include "shared_scenes/GameUtils.h"
 
-enum BorderLayout : u8 {
+enum BorderLayout : U8 {
     TOP = 0,
     TOP_RIGHT = 1,
     RIGHT = 2,
@@ -17,7 +17,7 @@ enum BorderLayout : u8 {
     CENTER = 8
 };
 
-enum BorderContext : u8 {
+enum BorderContext : U8 {
     SCREEN_SPACE = 0,
     PARENT = 1,
 };
@@ -28,12 +28,12 @@ public:
     bool _ignore = false;
     bool _resizeHints = false;
     bool _fitting = false;
-    Size _fittingSize;
-    Rect _resizeHintsRect;
-    Size _visibleSize;
+    S2D _fittingSize;
+    R2D _resizeHintsRect;
+    S2D _visibleSize;
     bool _recreateLayer = false;
     bool _isUiElemDirty = false;
-    Vec2 _identityScale = ax::Vec2::ONE;
+    V2D _identityScale = V2D::ONE;
 
     UiRescaleComponent(Size _visibleSize);
 
@@ -47,9 +47,9 @@ public:
     // owner will be casted to LayerColor* object, so be careful using this function
     UiRescaleComponent* enableLayerResizing();
 
-    UiRescaleComponent* enableDesignScaleIgnoring(ax::Vec2 identity = ax::Vec2::ONE);
+    UiRescaleComponent* enableDesignScaleIgnoring(V2D identity = V2D::ONE);
 
-    UiRescaleComponent* setVisibleSizeHints(f32 widthDiv = 2, f32 widthOffset = 0, f32 heightDiv = 2, f32 heightOffset = 0);
+    UiRescaleComponent* setVisibleSizeHints(F32 widthDiv = 2, F32 widthOffset = 0, F32 heightDiv = 2, F32 heightOffset = 0);
 
     UiRescaleComponent* setBorderLayout(BorderLayout border = BorderLayout::CENTER);
 

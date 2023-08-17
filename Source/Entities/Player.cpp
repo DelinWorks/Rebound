@@ -41,19 +41,19 @@ void Player::attachCamera(ax::Camera* camera)
 	camera->addComponent(component1);
 }
 
-void Player::update(f32 dt)
+void Player::update(F32 dt)
 {
 
-	auto joystickX = Darkness::getInstance()->getKeyState(ax::Controller::Key::JOYSTICK_LEFT_X).value;
-	auto joystickY = Darkness::getInstance()->getKeyState(ax::Controller::Key::JOYSTICK_LEFT_Y).value;
+	auto joystickX = Rebound::getInstance()->getKeyState(ax::Controller::Key::JOYSTICK_LEFT_X).value;
+	auto joystickY = Rebound::getInstance()->getKeyState(ax::Controller::Key::JOYSTICK_LEFT_Y).value;
 
 	if (!isMovingRight && !isMovingLeft && abs(joystickX) < 0.1)
 		movementDirection.x = LERP(movementDirection.x, 0, playerMoveStopEase * dt);
 	if (!isMovingUp && !isMovingDown && abs(joystickY) < 0.1)
 		movementDirection.y = LERP(movementDirection.y, 0, playerMoveStopEase * dt);
 
-	auto triggerRight = (Darkness::getInstance()->getKeyState(ax::Controller::Key::AXIS_RIGHT_TRIGGER).value + 1) / 2.0;
-	auto triggerLeft = (Darkness::getInstance()->getKeyState(ax::Controller::Key::AXIS_LEFT_TRIGGER).value + 1) / 2.0;
+	auto triggerRight = (Rebound::getInstance()->getKeyState(ax::Controller::Key::AXIS_RIGHT_TRIGGER).value + 1) / 2.0;
+	auto triggerLeft = (Rebound::getInstance()->getKeyState(ax::Controller::Key::AXIS_LEFT_TRIGGER).value + 1) / 2.0;
 
 	if (abs(joystickX) >= 0.1)
 		movementDirection.x = LERP(movementDirection.x, clampf(joystickX * 1.5 * tweenfunc::easeIn(abs(joystickX), 1), -1, 1), playerMoveBeginEase * dt);
@@ -102,7 +102,7 @@ void Player::update(f32 dt)
 
 void Player::setInputState(bool isReceivingInputs)
 {
-	Darkness::getInstance()->setupController();
+	Rebound::getInstance()->setupController();
 	this->isReceivingInputs = isReceivingInputs;
 }
 

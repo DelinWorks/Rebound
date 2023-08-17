@@ -30,34 +30,34 @@ bool GameplayScene::init()
 
     visibleSize = { 1280, 720 };
 
-    physics = new DarknessPhysicsWorld();
-    if (physics->init({ 0, -10 }))
-        addChild(physics, 10);
-    physics->SetContinuousPhysics(true);
+    //physics = new DarknessPhysicsWorld();
+    //if (physics->init({ 0, -10 }))
+    //    addChild(physics, 10);
+    //physics->SetContinuousPhysics(true);
 
-    physics->preStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPreStep(world, dt); };
-    physics->postStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPostStep(world, dt); };
+    //physics->preStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPreStep(world, dt); };
+    //physics->postStepCallback = [&](DarknessPhysicsWorld* world, f32 dt) -> void { p->physicsPostStep(world, dt); };
 
-    physics->endContactCallback = [&](b2Contact* contact) -> void { p->EndContact(contact); };
+    //physics->endContactCallback = [&](b2Contact* contact) -> void { p->EndContact(contact); };
 
-    p = CatPlayer::createPhysicalEntity(physics);
+    //p = CatPlayer::createPhysicalEntity(physics);
     p->attachCamera(_defaultCamera);
     p->retain();
 
-    map = new TiledMap();
-    if (map->initWithFilename(this, physics, "maps/level1/untitled.tmx", p))
-        addChild(map);
-    else
-    {
-        AX_SAFE_DELETE(map);
+    //map = new TiledMap();
+    //if (map->initWithFilename(this, physics, "maps/level1/untitled.tmx", p))
+    //    addChild(map);
+    //else
+    //{
+    //    AX_SAFE_DELETE(map);
 
-        lb = ax::Label::createWithSystemFont("Press F5 to reload the map or ESC to quit.", "arial", 24);
-        addChild(lb, 10);
+    //    lb = ax::Label::createWithSystemFont("Press F5 to reload the map or ESC to quit.", "arial", 24);
+    //    addChild(lb, 10);
 
-        auto comp = new UiRescaleComponent(visibleSize);
-        comp->enableDesignScaleIgnoring();
-        lb->addComponent(comp);
-    }
+    //    auto comp = new UiRescaleComponent(visibleSize);
+    //    comp->enableDesignScaleIgnoring();
+    //    lb->addComponent(comp);
+    //}
 
     return true;
 }
@@ -70,7 +70,7 @@ void GameplayScene::awake()
     }
 }
 
-void GameplayScene::update(f32 dt)
+void GameplayScene::update(F32 dt)
 {
     currentPhysicsDt += dt;
 
@@ -96,7 +96,7 @@ void GameplayScene::update(f32 dt)
     while (lastPhysicsDt < currentPhysicsDt)
     {
         lastPhysicsDt += 1.0 / physicsTPS;
-        physics->update(1.0 / physicsTPS);
+        //physics->update(1.0 / physicsTPS);
     }
 
     p->tick(dt);

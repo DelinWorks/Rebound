@@ -47,19 +47,19 @@ void CUI::DropDown::init(std::vector<std::wstring>& _items, Size _contentsize)
     update(0);
 }
 
-void CUI::DropDown::update(f32 dt)
+void CUI::DropDown::update(F32 dt)
 {
     auto dSize = (getDynamicContentSize() + _padding) * _UiScale;
     auto ns = FULL_HD_NODE_SCALING;
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
-    if (setContentSize(dSize * Vec2(ns.x * 0.75, ns.y) + Vec2(24, 10))) {
+    if (setContentSize(dSize * V2D(ns.x * 0.75, ns.y) + V2D(24, 10))) {
         cont->updateLayoutManagers();
-        button->setContentSize(dSize * ns * 0.75 + Vec2(24, 10));
+        button->setContentSize(dSize * ns * 0.75 + V2D(24, 10));
         HoverEffectGUI::update(dt, dSize * ns);
     }
 }
 
-bool CUI::DropDown::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::DropDown::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (isEnabled())
     {
@@ -98,7 +98,7 @@ void CUI::DropDown::onDisable()
     cont->runAction(fade);
 }
 
-bool CUI::DropDown::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::DropDown::press(V2D mouseLocationInView, Camera* cam)
 {
     if (!isEnabled()) return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING))
@@ -113,7 +113,7 @@ bool CUI::DropDown::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CUI::DropDown::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::DropDown::release(V2D mouseLocationInView, Camera* cam)
 {
     onEnable(); // Used for effects only
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
@@ -135,7 +135,7 @@ Size CUI::DropDown::getFitContentSize()
     return getDynamicContentSize();
 }
 
-void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, Vec2 offset)
+void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, V2D offset)
 {
     parent = parent ? parent : knob;
 
@@ -156,8 +156,8 @@ void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, Vec2
         //main->DenyRescaling();
         auto elem = CUI::Button::create();
         elem->DenyRescaling();
-        Vec2 hpadding = Vec2(UINT16_MAX, 12);
-        elem->init(text, TTFFS, Vec2::ZERO, hpadding);
+        V2D hpadding = V2D(UINT16_MAX, 12);
+        elem->init(text, TTFFS, V2D::ZERO, hpadding);
         auto cont = Container::create();
         cont->addChild(elem);
         auto left = cont;
@@ -186,7 +186,7 @@ void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, Vec2
         totalY += c->getContentSize().y + 1;
     }
     
-    menu->prefferredListSize = Vec2(menu->getContentSize().x - (totalY < maxVerticalSize ? 20 : 10),
+    menu->prefferredListSize = V2D(menu->getContentSize().x - (totalY < maxVerticalSize ? 20 : 10),
         MIN(maxVerticalSize, totalY));
     menu->ePos.y = menu->prefferredListSize.y / 2;
     menu->setContentSize(menu->prefferredListSize);

@@ -69,7 +69,7 @@ namespace CUI {
         }
 
         static void menuContentFitButtons(Container* c, float maxWidth = INFINITY, float prefferedHeight = 0) {
-            auto size = ax::Vec2(0, prefferedHeight);
+            auto size = V2D(0, prefferedHeight);
             for (auto& _ : c->getChildren()) {
                 auto b = DCAST(GUI, _);
                 auto c = DCAST(Container, _);
@@ -106,8 +106,8 @@ namespace CUI {
             elem->DenyRescaling();
             elem->init(layer_name, TTFFS, { 180, 0 });
             elem->_callback = callback;
-            main->setContentSize(Vec2(0, elem->preCalculatedHeight()), false);
-            Vec2 hpadding = Vec2(2, 0);
+            main->setContentSize(V2D(0, elem->preCalculatedHeight()), false);
+            V2D hpadding = V2D(2, 0);
             //elem->hAlignment = ax::TextHAlignment::LEFT;
             auto left = TO_CONTAINER(elem);
             left->DenyRescaling();
@@ -115,10 +115,10 @@ namespace CUI {
             left->setBorderLayoutAnchor(LEFT);
             auto visi = CUI::Button::create();
             visi->DenyRescaling();
-            visi->initIcon("editor_visible", hpadding + Vec2(0, 4));
+            visi->initIcon("editor_visible", hpadding + V2D(0, 4));
             auto lock = CUI::Button::create();
             lock->DenyRescaling();
-            lock->initIcon("editor_lock", hpadding + Vec2(0, 2));
+            lock->initIcon("editor_lock", hpadding + V2D(0, 2));
             auto opt = CUI::Button::create();
             opt->DenyRescaling();
             opt->initIcon("editor_settings", hpadding);

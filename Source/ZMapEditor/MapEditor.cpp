@@ -5,7 +5,7 @@ using namespace backend;
 
 using namespace GameUtils;
 
-void MapEditor::updateDirectorToStatsCount(i32 tileCount, i32 chunkCount)
+void MapEditor::updateDirectorToStatsCount(I32 tileCount, I32 chunkCount)
 {
 }
 
@@ -82,11 +82,11 @@ bool MapEditor::init()
 
     grid = Node::create();
     auto gridDN = DrawNode::create(1);
-    for (i32 i = -(map->_gridSize / map->_tileSize.x) * 8; i <= +(map->_gridSize / map->_tileSize.x) * 8; i++)
+    for (I32 i = -(map->_gridSize / map->_tileSize.x) * 8; i <= +(map->_gridSize / map->_tileSize.x) * 8; i++)
     {
         gridDN->drawLine(Vec2(i * map->_tileSize.x, -map->_gridSize / 2 * 8), Vec2(i * map->_tileSize.x, +map->_gridSize / 2 * 8), GRID_COLOR);
     }
-    for (i32 i = -(map->_gridSize / 2 / map->_tileSize.y) * 8; i <= +(map->_gridSize / 2 / map->_tileSize.y) * 8; i++)
+    for (I32 i = -(map->_gridSize / 2 / map->_tileSize.y) * 8; i <= +(map->_gridSize / 2 / map->_tileSize.y) * 8; i++)
     {
         gridDN->drawLine(Vec2(-map->_gridSize * 8, i * map->_tileSize.y), Vec2(+map->_gridSize * 8, i * map->_tileSize.y), GRID_COLOR);
     }
@@ -165,15 +165,15 @@ bool MapEditor::init()
     return true;
 }
 
-void MapEditor::onInitDone(f32 dt)
+void MapEditor::onInitDone(F32 dt)
 {
     if (!isInitDone)
     {
 #ifdef WIN32
-        glfwRequestWindowAttention(Darkness::getInstance()->gameWindow.window);
+        glfwRequestWindowAttention(Rebound::getInstance()->gameWindow.window);
 #endif
 
-        //i32 result = SQLITE_OK;
+        //I32 result = SQLITE_OK;
         //dbPath = ax::FileUtils::getInstance()->getWritablePath() + dbName;
         ////std::ifstream f(dbPath);
         //switch (loadStep) {
@@ -232,7 +232,7 @@ void MapEditor::onInitDone(f32 dt)
         //        errorInCase = "Failed to create table MapChunkDatas on sqlite object: " + std::string(sqlite3_errmsg(pdb));
         //        return;
         //    }
-        //    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, "CREATE TABLE IF NOT EXISTS MapChunkDatas (position_in_chunk_space TEXT UNIQUE, texture_atlas_id TINYi32 UNSIGNED, chunk_data_binary TEXT);", NULL, NULL, NULL) : result;
+        //    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, "CREATE TABLE IF NOT EXISTS MapChunkDatas (position_in_chunk_space TEXT UNIQUE, texture_atlas_id TINYI32 UNSIGNED, chunk_data_binary TEXT);", NULL, NULL, NULL) : result;
         //    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, "CREATE UNIQUE INDEX IF NOT EXISTS idx_position_in_chunk_space ON MapChunkDatas(position_in_chunk_space);", NULL, NULL, NULL) : result;
         //    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, "CREATE INDEX IF NOT EXISTS idx_texture_atlas_id        ON MapChunkDatas(texture_atlas_id);", NULL, NULL, NULL) : result;
         //    result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, "CREATE INDEX IF NOT EXISTS idx_chunk_data_binary       ON MapChunkDatas(chunk_data_binary);", NULL, NULL, NULL) : result;
@@ -252,10 +252,10 @@ void MapEditor::onInitDone(f32 dt)
         //    }
         //    sqlite3_stmt* stmt;
         //    result = result SQLITE_RESULT_CHECK sqlite3_prepare_v2(pdb, "SELECT COUNT(name) FROM sqlite_master WHERE type='table' AND name='EditorMetaData';", -1, &stmt, NULL) : result;
-        //    i32 isTableExists = 0;
+        //    I32 isTableExists = 0;
         //    if (result == SQLITE_OK)
         //    {
-        //        i32 stmt_result = 0;
+        //        I32 stmt_result = 0;
         //        while (true)
         //        {
         //            stmt_result = sqlite3_step(stmt);
@@ -300,7 +300,7 @@ void MapEditor::onInitDone(f32 dt)
         //        result = sqlite3_prepare_v2(pdb, "SELECT * FROM MapChunkDatas", -1, &stmt, NULL);
         //        if (result == SQLITE_OK)
         //        {
-        //            i32 result = 0;
+        //            I32 result = 0;
         //            while (true)
         //            {
         //                result = sqlite3_step(stmt);
@@ -525,11 +525,11 @@ void MapEditor::onInitDone(f32 dt)
     }
 }
 
-void MapEditor::perSecondUpdate(f32 dt)
+void MapEditor::perSecondUpdate(F32 dt)
 {
 }
 
-void MapEditor::update(f32 dt)
+void MapEditor::update(F32 dt)
 {
     updateDirectorToStatsCount(map->_tileCount, 0);
     if (getContainer()) {
@@ -540,7 +540,7 @@ void MapEditor::update(f32 dt)
     isSelectableHoveredLastFrame = false;
 }
 
-void MapEditor::tick(f32 dt)
+void MapEditor::tick(F32 dt)
 {
     REBUILD_UI;
 
@@ -550,7 +550,7 @@ void MapEditor::tick(f32 dt)
     if (!isInitDone)
         return;
 
-    bool& focusState = Darkness::getInstance()->gameWindow.focusState;
+    bool& focusState = Rebound::getInstance()->gameWindow.focusState;
     if (focusState) {
         map->reload();
         focusState = false;
@@ -584,8 +584,8 @@ void MapEditor::tick(f32 dt)
     cameraLocation->setPosition(cameraLocation->getPosition() + WASDVec);
 
     cameraLocation->setPosition(Vec2(
-        clamp(cameraLocation->getPositionX(), (f32)(map->_mapSize.x * map->_tileSize.x) * -1, (f32)map->_mapSize.x * map->_tileSize.x),
-        clamp(cameraLocation->getPositionY(), (f32)(map->_mapSize.y * map->_tileSize.x) * -1, (f32)map->_mapSize.y * map->_tileSize.x)));
+        clamp(cameraLocation->getPositionX(), (F32)(map->_mapSize.x * map->_tileSize.x) * -1, (F32)map->_mapSize.x * map->_tileSize.x),
+        clamp(cameraLocation->getPositionY(), (F32)(map->_mapSize.y * map->_tileSize.x) * -1, (F32)map->_mapSize.y * map->_tileSize.x)));
 
     _camera->setPosition(cameraLocation->getPosition());
 
@@ -626,7 +626,7 @@ void MapEditor::tick(f32 dt)
     lateUpdate(dt);
 }
 
-void MapEditor::lateUpdate(f32 dt)
+void MapEditor::lateUpdate(F32 dt)
 {
     for (auto& i : grid->getChildren()) {
         if (cameraScale < 5)
@@ -657,7 +657,7 @@ void MapEditor::lateUpdate(f32 dt)
     tileMapEditUpdate(oldSelectionPlace, selectionPlace);
 }
 
-void MapEditor::tileMapModifyRegion(f32 _x, f32 _y, f32 _width, f32 _height)
+void MapEditor::tileMapModifyRegion(F32 _x, F32 _y, F32 _width, F32 _height)
 {
     if (selectionPlace == selectionPosition) return;
     auto& undoCmd = editorTopUndoStateOrDefault();
@@ -684,15 +684,15 @@ void MapEditor::tileMapEditUpdate(Vec2 prev, Vec2 next)
 
     if (isPlacing || isTileMapRect)
     {
-        f32 _oldX = prev.x, _newX = next.x;
-        f32 _oldY = prev.y, _newY = next.y;
-        f32 vX, vY, evalX, evalY, finalEval;
+        F32 _oldX = prev.x, _newX = next.x;
+        F32 _oldY = prev.y, _newY = next.y;
+        F32 vX, vY, evalX, evalY, finalEval;
         evalX = _oldX - _newX;
         evalY = _oldY - _newY;
-        f32 _width = 0, height = 0;
+        F32 _width = 0, height = 0;
         finalEval = abs((abs(evalX) - _width) / map->_tileSize.x > (abs(evalY) - height) / map->_tileSize.y ?
             (abs(evalX) - _width) / map->_tileSize.x : (abs(evalY) - height) / map->_tileSize.y);
-        for (f64 i = 0l; i < 1.0l; i += 1.0l / finalEval)
+        for (F64 i = 0; i < 1.0; i += 1.0 / finalEval)
         {
             vX = _oldX - _newX;
             vX = vX * i;
@@ -713,11 +713,11 @@ void MapEditor::tileMapEditUpdate(Vec2 prev, Vec2 next)
     }
 }
 
-void MapEditor::setCameraScaleIndex(i32 dir, bool shiftTransform) {
+void MapEditor::setCameraScaleIndex(I32 dir, bool shiftTransform) {
     cameraScaleIndex += dir;
-    i32 n = (sizeof(possibleCameraScales) / sizeof(possibleCameraScales[0])) - 1;
+    I32 n = (sizeof(possibleCameraScales) / sizeof(possibleCameraScales[0])) - 1;
     cameraScaleIndex = (int)clamp(cameraScaleIndex, 0, n);
-    f32 preCamScl = cameraScale;
+    F32 preCamScl = cameraScale;
     cameraScale = possibleCameraScales[cameraScaleIndex];
 
     Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);

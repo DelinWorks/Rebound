@@ -4,7 +4,7 @@ CUI::Container4Edge::Container4Edge()
 {
 }
 
-CUI::Container4Edge* CUI::Container4Edge::create(Vec2 _prefferedSize)
+CUI::Container4Edge* CUI::Container4Edge::create(V2D _prefferedSize)
 {
     Container4Edge* ref = new Container4Edge();
     if (ref->init())
@@ -58,7 +58,7 @@ void CUI::Container4Edge::setChildLeft(CUI::GUI* gui)
 
 void CUI::Container4Edge::calculateContentBoundaries()
 {
-    Vec2 size = _prefferedSize;
+    V2D size = _prefferedSize;
 
     auto ns = GameUtils::getNodeIgnoreDesignScale();
 

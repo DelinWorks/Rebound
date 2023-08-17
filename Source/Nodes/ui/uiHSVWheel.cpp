@@ -42,24 +42,24 @@ bool CUI::HSVWheel::init(float scale)
     oldColor = ax::Sprite::create("pixel.png");
     oldColor->_forceBatching = true;
     oldColor->setProgramState(colorP);
-    oldColor->setContentSize(Vec2(85, 50));
+    oldColor->setContentSize(V2D(85, 50));
     oldColor->addChild(resetButton);
     hookPlaceholderButtonToNode(oldColor, resetButton);
     newColor = ax::Sprite::create("pixel.png");
     newColor->_forceBatching = true;
     newColor->setProgramState(colorP);
-    newColor->setContentSize(Vec2(85, 50));
+    newColor->setContentSize(V2D(85, 50));
     oldColor->setPositionY(75);
     oldColor->setPositionX(128);
     newColor->setPositionY(25);
     newColor->setPositionX(128);
     addChild(oldColor);
     addChild(newColor);
-    wheelHandle->setPosition(Vec2(0, 114));
-    squareHandle->setPosition(Vec2(142 / 2.0, 142 / 2.0));
+    wheelHandle->setPosition(V2D(0, 114));
+    squareHandle->setPosition(V2D(142 / 2.0, 142 / 2.0));
     wheelHandle->setScale(_PxArtMultiplier);
     squareHandle->setScale(_PxArtMultiplier);
-    setContentSize(wheel->getContentSize() + Vec2(120, 16));
+    setContentSize(wheel->getContentSize() + V2D(120, 16));
     button->setContentSize(getContentSize());
     opacity = Slider::create();
     opacity->DenyRescaling();
@@ -84,18 +84,18 @@ bool CUI::HSVWheel::init(float scale)
     return true;
 }
 
-void CUI::HSVWheel::update(f32 dt)
+void CUI::HSVWheel::update(F32 dt)
 {
     opacity->update(dt);
 }
 
 void CUI::HSVWheel::updateColorValues()
 {
-    wheelHandle->setPosition(Vec2(114, 0).rotateByAngle(ax::Vec2::ZERO, AX_DEGREES_TO_RADIANS(180 - (hsv.h + 90))));
+    wheelHandle->setPosition(V2D(114, 0).rotateByAngle(V2D::ZERO, AX_DEGREES_TO_RADIANS(180 - (hsv.h + 90))));
     auto saturation = Math::map(hsv.s, 0, 1, -71, 71);
     auto value = Math::map(hsv.v, 0, 1, -71, 71);
     sqHsv.h = hsv.h;
-    squareHandle->setPosition(Vec2(saturation, value));
+    squareHandle->setPosition(V2D(saturation, value));
     square->setColor(sqHsv.toColor3B());
     newColor->setColor(hsv.toColor3B());
     opacity->setValue(hsv.a, false);
@@ -120,14 +120,14 @@ void CUI::HSVWheel::updateColorValues(Color4F color, bool _doNotPushStateOnce)
     doNotPushStateOnce = false;
 }
 
-bool CUI::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::HSVWheel::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (opacity->hover(mouseLocationInView, cam)) return true;
     if (_pCurrentHeldItem == this) {
         if (isPickingWheel) {
             Vec3 p;
             wButton->hitTest(_savedLocationInView, cam, &p);
-            auto normal = Vec2(p.x, p.y);
+            auto normal = V2D(p.x, p.y);
             normal -= wButton->getContentSize() / 2;
             auto theta = atan2(normal.y, normal.x);
             auto angle = AX_RADIANS_TO_DEGREES(theta) - 90;
@@ -139,7 +139,7 @@ bool CUI::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
         if (isPickingSquare) {
             Vec3 p;
             sqButton->hitTest(_savedLocationInView, cam, &p);
-            Vec2 pos(p.x, p.y);
+            V2D pos(p.x, p.y);
             pos.x = Math::clamp(Math::map(pos.x, 0, sqButton->getContentSize().x, -71, 71), -71, 71);
             pos.y = Math::clamp(Math::map(pos.y, 0, sqButton->getContentSize().y, -71, 71), -71, 71);
             auto saturation = Math::map(pos.x, -71, 71, 0, 1);
@@ -170,7 +170,7 @@ bool CUI::HSVWheel::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CUI::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::HSVWheel::press(V2D mouseLocationInView, Camera* cam)
 {
     if (isEnabled() && button->hitTest(mouseLocationInView, cam, nullptr)) {
         if (resetButton->hitTest(mouseLocationInView, cam, nullptr)) {
@@ -198,7 +198,7 @@ bool CUI::HSVWheel::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CUI::HSVWheel::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::HSVWheel::release(V2D mouseLocationInView, Camera* cam)
 {
     if (opacity->release(mouseLocationInView, cam)) return true;
     if (_pCurrentHeldItem == this) {

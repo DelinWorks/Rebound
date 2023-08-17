@@ -13,14 +13,14 @@ USING_NS_CC;
 
 namespace CUI
 {
-    enum DiscardButtons : u8 {
+    enum DiscardButtons : U8 {
         OKAY_ABORT = 0,
         YES_NO = 1,
         OKAY = 2,
         SUBMIT_CANCEL = 3
     };
 
-    enum DiscardType : u8 {
+    enum DiscardType : U8 {
         MESSAGE = 0,
         INPUT = 1
     };
@@ -33,12 +33,12 @@ namespace CUI
 
         void init(const std::wstring& header, const std::wstring& placeholder_or_text, DiscardButtons buttons = DiscardButtons::OKAY_ABORT, DiscardType type = DiscardType::INPUT);
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
-        bool press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool hover(V2D mouseLocationInView, Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
         void keyPress(EventKeyboard::KeyCode keyCode);
         void keyRelease(EventKeyboard::KeyCode keyCode);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
         Size getDynamicContentSize();
 

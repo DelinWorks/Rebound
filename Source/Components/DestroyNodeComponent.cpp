@@ -1,6 +1,6 @@
 #include "DestroyNodeComponent.h"
 
-DestroyNodeComponent::DestroyNodeComponent(f32 _time) {
+DestroyNodeComponent::DestroyNodeComponent(F32 _time) {
     autorelease();
     setName(__func__);
     setEnabled(true);
@@ -8,7 +8,7 @@ DestroyNodeComponent::DestroyNodeComponent(f32 _time) {
     time_e = _time;
 }
 
-void DestroyNodeComponent::update(f32 dt) {
+void DestroyNodeComponent::update(F32 dt) {
     if (time_s < time_e)
         time_s += dt;
     else

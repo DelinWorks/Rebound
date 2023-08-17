@@ -1,13 +1,13 @@
 #include "uiList.h"
 
-CUI::List::List(Vec2 _prefferedSize, bool rescalingAllowed)
+CUI::List::List(V2D _prefferedSize, bool rescalingAllowed)
 {
     scheduleUpdate();
     if (rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
 
     elementCont = CUI::Container::create();
-    scrollCont = CUI::Container4Edge::create(ax::Vec2::ZERO);
+    scrollCont = CUI::Container4Edge::create(V2D::ZERO);
     clipping = EventPassClippingNode::create(elementCont);
 
     setBackgroundBlocking();
@@ -25,7 +25,7 @@ CUI::List::List(Vec2 _prefferedSize, bool rescalingAllowed)
     elementCont->disableProcessToggleTree();
 
     scrollCont->setStatic();
-    scrollCont->setContentSize(Vec2(12, getContentSize().y));
+    scrollCont->setContentSize(V2D(12, getContentSize().y));
     scrollCont->setConstraint(DependencyConstraint(this, RIGHT));
     scrollCont->setBorderLayoutAnchor(RIGHT);
 
@@ -50,7 +50,7 @@ CUI::List::List(Vec2 _prefferedSize, bool rescalingAllowed)
     ////        count++;
     ////    }
     ////    avg /= count;
-    ////    Vec2 pos = ePos - Vec2(avg / 2, 0);
+    ////    V2D pos = ePos - V2D(avg / 2, 0);
     ////    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
     ////    if (ePos != pos) {
     ////        leftB->enable();
@@ -74,7 +74,7 @@ CUI::List::List(Vec2 _prefferedSize, bool rescalingAllowed)
     ////        count++;
     ////    }
     ////    avg /= count;
-    ////    Vec2 pos = ePos + Vec2(avg / 2, 0);
+    ////    V2D pos = ePos + V2D(avg / 2, 0);
     ////    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
     ////    if (ePos != pos) {
     ////        rightB->enable();
@@ -90,7 +90,7 @@ CUI::List::List(Vec2 _prefferedSize, bool rescalingAllowed)
     ePos = { 0, getContentSize().y / 2 };
 }
 
-CUI::List* CUI::List::create(Vec2 _prefferedSize, bool rescalingAllowed)
+CUI::List* CUI::List::create(V2D _prefferedSize, bool rescalingAllowed)
 {
     List* ref = new List(_prefferedSize, rescalingAllowed);
     if (ref->init())
@@ -126,24 +126,24 @@ void CUI::List::addElement(Container* container, int extendCoeff)
     container->_disregardGraph = true;
     auto y = container->getContentSize().y;
     container->setStatic();
-    container->setContentSize(Vec2(0, y) + container->getMargin(), false);
+    container->setContentSize(V2D(0, y) + container->getMargin(), false);
     container->setConstraint(ContentSizeConstraint(this, {-14, 0}, false, false, true));
     container->setPositionX(-7);
     if (elements.size() % 2 != 0)
-        container->setBackgroundSpriteDarken(Vec2(UINT32_MAX, 0));
+        container->setBackgroundSpriteDarken(V2D(UINT32_MAX, 0));
     elements.push_back(container);
     container->disableRebuildOnEnter();
     elementCont->addChild(container);
     GUI::DisableDynamicsRecursive(container);
     elemContPos = INVALID_LOCATION;
     if (extendCoeff != 0 && _prefferedSize.x < extendCoeff)
-        setContentSize(Vec2(extendCoeff, _prefferedSize.y), true);
+        setContentSize(V2D(extendCoeff, _prefferedSize.y), true);
 }
 
-void CUI::List::update(f32 dt)
+void CUI::List::update(F32 dt)
 {
     //if (_pCurrentHeldItem == upB || _pCurrentHeldItem == downB) {
-    //    ePos = ePos - Vec2(0, vel * (_pCurrentHeldItem == upB ? dt : -dt));
+    //    ePos = ePos - V2D(0, vel * (_pCurrentHeldItem == upB ? dt : -dt));
     //    ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
     //    elementCont->setPosition(ePos);
     //    vel += 600 * dt;
@@ -190,7 +190,7 @@ void CUI::List::update(f32 dt)
 void CUI::List::mouseScroll(EventMouse* event)
 {
     if (elementCont->getContentSize().y / 2 < getContentSize().y) {
-        Vec2 cp = elementCont->getPosition();
+        V2D cp = elementCont->getPosition();
         elementCont->setPositionY(cp.y + 5 * event->getScrollY());
         elementCont->runAction(EaseBackOut::create(MoveTo::create(.4, cp)));
         return;
@@ -202,7 +202,7 @@ void CUI::List::mouseScroll(EventMouse* event)
         count++;
     }
     avg /= count;
-    ePos = ePos + Vec2(0, avg * (event->getScrollY() < 0 ? -1 : 1));
+    ePos = ePos + V2D(0, avg * (event->getScrollY() < 0 ? -1 : 1));
     ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
     elementCont->stopAllActions();
     elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));
@@ -210,7 +210,7 @@ void CUI::List::mouseScroll(EventMouse* event)
     update(0);
 }
 
-bool CUI::List::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::List::hover(V2D mouseLocationInView, cocos2d::Camera* cam)
 {
     if (_pCurrentScrollControlItem == this) {
         auto ns = GameUtils::getNodeIgnoreDesignScale();
@@ -223,7 +223,7 @@ bool CUI::List::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
     return Container::hover(mouseLocationInView, cam);
 }
 
-bool CUI::List::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::List::press(V2D mouseLocationInView, cocos2d::Camera* cam)
 {
     if (_bgButton->hitTest(mouseLocationInView, cam, nullptr) &&
         elementCont->getContentSize().y / 2 > getContentSize().y) {
@@ -236,7 +236,7 @@ bool CUI::List::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
     return Container::press(mouseLocationInView, cam);
 }
 
-bool CUI::List::release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::List::release(V2D mouseLocationInView, cocos2d::Camera* cam)
 {
     if (_pCurrentScrollControlItem == this)
         _pCurrentScrollControlItem = nullptr;

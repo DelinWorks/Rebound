@@ -28,8 +28,8 @@ namespace CUI
         ui::Button* button;
         ui::Slider* slider;
         ui::Scale9Sprite* sprite;
-        cocos2d::Size bar_size;
-        cocos2d::Rect capinsets;
+        S2D bar_size;
+        R2D capinsets;
         ChangeValue<bool> hover_cv;
 
         float currentValue;
@@ -40,11 +40,11 @@ namespace CUI
 
         void init(Size _contentsize = ax::Size::ZERO);
 
-        void init(std::string_view barFrame, std::string_view progressFrame, std::string_view knob, ax::Rect _capinsets, cocos2d::Size _contentsize);
+        void init(std::string_view barFrame, std::string_view progressFrame, std::string_view knob, ax::Rect _capinsets, S2D _contentsize);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
 
         void focus();
 
@@ -55,8 +55,8 @@ namespace CUI
         void onDisable() override;
 
         bool isHeld = false;
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
 

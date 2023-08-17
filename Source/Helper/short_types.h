@@ -15,43 +15,43 @@
 #include <iostream>
 
 // signed 8 bit int (signed char)
-typedef std::int8_t i8;
+typedef std::int8_t I8;
 
 // signed 16 bit int (short)
-typedef std::int16_t i16;
+typedef std::int16_t I16;
 
 // signed 32 bit int (int)
-typedef std::int32_t i32;
+typedef std::int32_t I32;
 
 // signed 32 bit int (int)
-typedef std::int64_t i64;
+typedef std::int64_t I64;
 
 // signed 32 bit long (long)
-typedef long l32;
+typedef long L32;
 
 // unsigned 8 bit int (byte)
-typedef std::uint8_t u8;
+typedef std::uint8_t U8;
 
 // unsigned 16 bit int (ushort)
-typedef std::uint16_t u16;
+typedef std::uint16_t U16;
 
 // unsinged 32 bit int (unsigned int)
-typedef std::uint32_t u32;
+typedef std::uint32_t U32;
 
 // unsinged 64 bit long long (unsigned long long)
-typedef std::uint64_t u64;
+typedef std::uint64_t U64;
 
 // signed 64 bit int (long long)
-typedef long long ll;
+typedef long long LL;
 
 // unsigned 64 bit int (unsigned long long)
-typedef unsigned long long ull;
+typedef unsigned long long ULL;
 
 // singed 32 bit floating point (float) (sacrificing precision for speed)
-typedef float f32;
+typedef float F32;
 
 // singed 64 bit floating point (double) (sacrificing speed for precision)
-typedef double f64;
+typedef double F64;
 
 #define TEXT(t) std::string(t)
 #define TO_TEXT(t) std::to_string(t)
@@ -67,6 +67,18 @@ typedef double f64;
 #define _NOTHING nullptr
 
 #define LERP MathUtil::lerp
+
+#include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Vec4.h"
+#include "math/Rect.h"
+
+typedef ax::Vec2 V2D;
+typedef ax::Size S2D;
+typedef ax::Rect R2D;
+
+typedef ax::Vec3 V3D;
+typedef ax::Vec4 V4D;
 
 #include <list>
 

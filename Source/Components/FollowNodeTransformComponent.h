@@ -10,12 +10,12 @@ class FollowNodeTransformComponent : public ax::Component {
 public:
     ax::Node* target = nullptr;
     bool followPos = false, followScl = false, followRot = false;
-    f32 lerpAmount = 0;
+    F32 lerpAmount = 0;
 
-    FollowNodeTransformComponent(ax::Node* _target, bool _followPos = true, bool _followScl = true, bool _followRot = true, f32 _lerpAmount = -1)
+    FollowNodeTransformComponent(ax::Node* _target, bool _followPos = true, bool _followScl = true, bool _followRot = true, F32 _lerpAmount = -1)
         : target(_target), followPos(_followPos), followScl(_followScl), followRot(_followRot), lerpAmount(_lerpAmount) { }
 
-    void update(f32 dt);
+    void update(F32 dt);
 };
 
 #endif

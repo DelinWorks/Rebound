@@ -17,15 +17,15 @@ namespace CUI
 
     class Tabs : public Container {
     public:
-        Tabs(Vec2 _prefferedSize);
+        Tabs(V2D _prefferedSize);
 
         ~Tabs();
 
-        static CUI::Tabs* create(Vec2 _prefferedSize);
+        static CUI::Tabs* create(V2D _prefferedSize);
 
         void addElement(std::wstring e, GUI* container = nullptr);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
         virtual void mouseScroll(EventMouse* event) override;
 
@@ -38,9 +38,9 @@ namespace CUI
         CUI::Button* rightB;
         CUI::Button* leftB;
         float vel = 0.0;
-        Vec2 elemContPos;
-        Vec2 ePos;
-        i32 tabIndex;
+        V2D elemContPos;
+        V2D ePos;
+        I32 tabIndex;
         std::vector<TabGroup> tabIndices;
 
         void calculateContentBoundaries() override;

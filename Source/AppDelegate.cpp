@@ -64,26 +64,26 @@ void AppDelegate::initGLContextAttrs()
 
 // if you want to use the package manager to install more packages,  
 // don't modify or remove this function
-static i32 register_all_packages()
+static I32 register_all_packages()
 {
     return 0; //flag for packages manager
 }
 
 #ifdef WIN32
-static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
+static void window_size_callback(GLFWwindow* window, I32 width, I32 height)
 {
     width = MAX(640, width);
     height = MAX(360, height);
 
-    Darkness::getInstance()->gameWindow.windowSize = Size(width, height);
+    Rebound::getInstance()->gameWindow.windowSize = Size(width, height);
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if (!glview) return;
-    f32 aspect = 16.0f / 9.0f;
+    F32 aspect = 16.0f / 9.0f;
     glview->setFrameSize(width, height);
-    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);
-    //glfwSetWindowTitle(window, std::string("Darkness Among Us (" + std::to_string(width) + "x" + std::to_string(height) + ")").c_str());
-    Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Rebound::getInstance()->gameWindow.windowPolicy);
+    //glfwSetWindowTitle(window, std::string("Rebound Among Us (" + std::to_string(width) + "x" + std::to_string(height) + ")").c_str());
+    Rebound::getInstance()->gameWindow.isScreenSizeDirty = true;
     auto windowHandle = GetForegroundWindow();
     long Style = GetWindowLong(windowHandle, GWL_STYLE);
     //Style &= ~WS_MAXIMIZEBOX;
@@ -91,14 +91,14 @@ static void window_size_callback(GLFWwindow* window, i32 width, i32 height)
     glfwSwapInterval(0);
 }
 
-static void window_maximize_callback(GLFWwindow* window, i32 maximized)
+static void window_maximize_callback(GLFWwindow* window, I32 maximized)
 {
     //if (maximized)
     //{
     //    auto director = Director::getInstance();
     //    auto glview = director->getOpenGLView();
-    //    f32 aspect = 16.0f / 9.0f;
-    //    i32 winSizeX, winSizeY;
+    //    F32 aspect = 16.0f / 9.0f;
+    //    I32 winSizeX, winSizeY;
     //    glfwGetWindowSize(window, &winSizeX, &winSizeY);
     //    //glfwSetWindowSize(window, winSizeX, winSizeX / aspect);
     //    glview->setFrameSize(winSizeX, winSizeX / aspect);
@@ -145,11 +145,11 @@ bool IsCheatEngineProcessRunning()
 }
 #endif
 
-static void window_focus_callback(GLFWwindow* window, i32 focused)
+static void window_focus_callback(GLFWwindow* window, I32 focused)
 {
 #if WIN32
-    if (Darkness::getInstance()->_isAntiCheatReady && IsCheatEngineProcessRunning()) {
-        //MessageBoxA(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window),
+    if (Rebound::getInstance()->_isAntiCheatReady && IsCheatEngineProcessRunning()) {
+        //MessageBoxA(glfwGetWin32Window(Rebound::getInstance()->gameWindow.window),
         //    "third-party software detected, please close cheat engine or any of the like and start the game again.",
         //    "anti-cheat engine",
         //    0x00000010L | 0x00004000L | 0x00000000L);
@@ -160,32 +160,32 @@ static void window_focus_callback(GLFWwindow* window, i32 focused)
 
     if (focused)
     {
-        Darkness::getInstance()->setupController();
-        if (Darkness::getInstance()->gameWindow.isFullscreen) {
+        Rebound::getInstance()->setupController();
+        if (Rebound::getInstance()->gameWindow.isFullscreen) {
                 GLFWmonitor* monitor = glfwGetPrimaryMonitor();
                 const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                i32 xpos, ypos;
+                I32 xpos, ypos;
                 Size frameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
-                glfwGetWindowPos(Darkness::getInstance()->gameWindow.window, &xpos, &ypos);
+                glfwGetWindowPos(Rebound::getInstance()->gameWindow.window, &xpos, &ypos);
                 Director::getInstance()->getOpenGLView()->setFrameSize(mode->width, mode->height);
-                glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
-                glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
-                glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
+                glfwSetWindowSizeLimits(Rebound::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
+                glfwSetWindowPos(Rebound::getInstance()->gameWindow.window, 0, 0);
+                glfwSetWindowSize(Rebound::getInstance()->gameWindow.window, mode->width, mode->height);
                 GameUtils::GLFW_ClipCursor(true);
         }
         FMODAudioEngine::getInstance()->resumeAllSounds();
     } else {
         FMODAudioEngine::getInstance()->pauseAllSounds();
 
-        //SetWindowPos(glfwGetWin32Window(Darkness::getInstance()->window), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        //SetWindowPos(glfwGetWin32Window(Rebound::getInstance()->window), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
 
-    Darkness::getInstance()->gameWindow.focusState = focused;
+    Rebound::getInstance()->gameWindow.focusState = focused;
 }
 
 static void window_close_callback(GLFWwindow* window)
 {
-    //if (!Darkness::getInstance()->gameWindow.isAllowedToLeave) {
+    //if (!Rebound::getInstance()->gameWindow.isAllowedToLeave) {
     //    glfwSetWindowShouldClose(window, GLFW_FALSE);
     //    return;
     //}
@@ -201,17 +201,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
     FileUtils::getInstance()->addSearchPath("content"sv, true);
 //#endif
 
-    PROTECTED(f32) t;
+    PROTECTED(F32) t;
 
     // Rank degree
     t = 1.423F;
 
-    Darkness::getInstance()->setupController();
+    Rebound::getInstance()->setupController();
 
     Device::setKeepScreenOn(true);
 
 #if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32
-    std::wstring ws(Darkness::getInstance()->console.args);
+    std::wstring ws(Rebound::getInstance()->console.args);
     std::string str(ws.begin(), ws.end());
 #else
     std::string str = "";
@@ -273,7 +273,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     //GameUtils::Debug::StopWatch watch;
 
-    //auto f = tINI::File(Strings::narrow(Darkness::getCurrentDirectoryW() + L"\\settings.ini"), commentStart);
+    //auto f = tINI::File(Strings::narrow(Rebound::getCurrentDirectoryW() + L"\\settings.ini"), commentStart);
 
     ////f.Get("Headless", "server_name")             ->Set("Our custom server :D", "Server name that others can view before joining the server");
     ////f.Get("Headless", "dns_check_address")       ->Set("8.8.8.8", "It is adviced to be left as is, Address used to check if server is able to\ncommunicate with machine's network interface,\n8.8.8.8 stands for google's dns which the devs think it's most reliable.");
@@ -302,14 +302,14 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #ifdef AX_PLATFORM_PC
     if (str.compare("headless") == 0)
     {
-        if (!Darkness::getInstance()->console.isConsole)
+        if (!Rebound::getInstance()->console.isConsole)
         {
             AllocConsole();
             freopen("CONIN$", "r", stdin);
             freopen("CONOUT$", "w", stdout);
             freopen("CONOUT$", "w", stderr);
         }
-        Darkness::getInstance()->console.isHeadless = true;
+        Rebound::getInstance()->console.isHeadless = true;
         //lua_host_functions::isServer = true;
         std::cout << "\nheadless mode is on (server mode)\nsome settings.ini entries will be ignored in this mode\n\n";
     }
@@ -335,7 +335,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     bool AX_USE_COMPAT_GL_CHK = TRUE;
 #endif
 
-    if(!glview && !Darkness::getInstance()->console.isHeadless) {
+    if(!glview && !Rebound::getInstance()->console.isHeadless) {
 #ifdef AX_PLATFORM_PC
         GLViewImpl* window;
 #ifdef _DEBUG
@@ -343,17 +343,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #else
         const char* buildType = "RELEASE";
 #endif
-        if (Darkness::getInstance()->gameWindow.isFullscreen) resolutionSize = { 1,1 };
+        if (Rebound::getInstance()->gameWindow.isFullscreen) resolutionSize = { 1,1 };
         glview = window = GLViewImpl::createWithRect(FMT("Rebound (%s) (%s) BUILD: %s TIMESTAMP: %s %s", buildType, "D3D11", "1.0.0-alpha", __DATE__, __TIME__), cocos2d::Rect(0, 0, resolutionSize.width, resolutionSize.height), 1.0F, true);
-        Darkness::getInstance()->gameWindow.windowSize = Size(resolutionSize.width, resolutionSize.height);
+        Rebound::getInstance()->gameWindow.windowSize = Size(resolutionSize.width, resolutionSize.height);
         //glfwSetInputMode(window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwSetWindowSizeCallback(window->getWindow(), window_size_callback);
         glfwSetWindowMaximizeCallback(window->getWindow(), window_maximize_callback);
         glfwSetWindowFocusCallback(window->getWindow(), window_focus_callback);
         glfwSetWindowCloseCallback(window->getWindow(), window_close_callback);
         glfwSetWindowAspectRatio(window->getWindow(), 16, 9);
-        Darkness::getInstance()->gameWindow.window = window->getWindow();
-        glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 40, 37);
+        Rebound::getInstance()->gameWindow.window = window->getWindow();
+        glfwSetWindowPos(Rebound::getInstance()->gameWindow.window, 40, 37);
 #else
         glview = GLViewImpl::create("Dark Dimensions");
 #endif
@@ -368,13 +368,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
     
 
 #ifdef AX_PLATFORM_MOBILE
-    Darkness::getInstance()->gameWindow.windowSize = Size(glview->getFrameSize().x, glview->getFrameSize().y);
+    Rebound::getInstance()->gameWindow.windowSize = Size(glview->getFrameSize().x, glview->getFrameSize().y);
     director->setAnimationInterval(0);
 #endif
 
     //director->setAnimationInterval(1.0f / glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate);
 #if (AX_TARGET_PLATFORM == AX_PLATFORM_WIN32) || (AX_TARGET_PLATFORM == AX_PLATFORM_MAC) || (AX_TARGET_PLATFORM == AX_PLATFORM_LINUX)
-    if (!Darkness::getInstance()->console.isHeadless)
+    if (!Rebound::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate);
     //glfwSwapInterval(1);
 #endif
@@ -384,19 +384,19 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #endif
     director->setAnimationInterval(0);
     // Set the design resolution
-    if (!Darkness::getInstance()->console.isHeadless)
-        glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Darkness::getInstance()->gameWindow.windowPolicy);
+    if (!Rebound::getInstance()->console.isHeadless)
+        glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Rebound::getInstance()->gameWindow.windowPolicy);
 
-    if (Darkness::getInstance()->console.isHeadless)
+    if (Rebound::getInstance()->console.isHeadless)
         director->setAnimationInterval(1.0f / 30);
 
 #ifdef WIN32
-    window_focus_callback(Darkness::getInstance()->gameWindow.window, true);
+    window_focus_callback(Rebound::getInstance()->gameWindow.window, true);
 #endif
 
     ShapingEngine::Options::_convertToArabicNumbers = false;
 
-    Darkness::getInstance()->initAntiCheat();
+    Rebound::getInstance()->initAntiCheat();
 
     //auto frameSize = glview->getFrameSize();
     ////// If the frame's height is larger than the height of medium size.
@@ -418,13 +418,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //            smallResolutionSize.width / designResolutionSize.width));
     //}
 
-    Darkness::getInstance()->setCursorNormal();
+    Rebound::getInstance()->setCursorNormal();
 
     Director::getInstance()->setProjection(ax::Director::Projection::_3D);
 
     register_all_packages();
 
-    if (Darkness::getInstance()->console.isHeadless)
+    if (Rebound::getInstance()->console.isHeadless)
     {
         auto scene = EmptyScene::createScene();
         director->runWithScene(scene);
@@ -459,9 +459,4 @@ void AppDelegate::applicationWillEnterForeground() {
 #if USE_AUDIO_ENGINE
     AudioEngine::resumeAll();
 #endif
-}
-
-void AppDelegate::applicationScreenSizeChanged(i32 newWidth, i32 newHeight)
-{
-    //AXASSERT(false, "Dynamic GUI resolution not supported");
 }

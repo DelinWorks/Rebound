@@ -192,7 +192,7 @@ void MapEditor::onMouseScroll(ax::Event* event)
 
     if (pdb != nullptr)
     {
-        i32 result = 0;
+        I32 result = 0;
         result = result SQLITE_RESULT_CHECK sqlite3_exec(pdb, std::string("UPDATE EditorMetaData SET store_value='" + std::to_string(cameraScaleIndex) + "' WHERE store_key='editor_camera_scale_index';").c_str(), NULL, NULL, NULL) : result;
         SQLITE_CRASH_CHECK(result);
     }

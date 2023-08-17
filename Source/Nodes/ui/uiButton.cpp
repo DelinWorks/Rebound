@@ -71,10 +71,10 @@ void CUI::Button::initIcon(std::string _frameName, Rect _capInsets, Size _hitbox
     );
 }
 
-void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _fontsize,
-    cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
-    Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-    Color3B _selected_color, bool _allowExtend, bool _isIcon , ax::Size _hitboxpadding)
+void CUI::Button::init(std::wstring _text, std::string_view _fontname, I32 _fontsize,
+    R2D _capinsets, S2D _contentsize, R2D _clampregion,
+    S2D _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
+    Color3B _selected_color, bool _allowExtend, bool _isIcon , S2D _hitboxpadding)
 {
     if (_rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
@@ -121,14 +121,14 @@ void CUI::Button::init(std::wstring _text, std::string_view _fontname, i32 _font
     update(0);
 }
 
-void CUI::Button::update(f32 dt) {
+void CUI::Button::update(F32 dt) {
     auto dSize = getDynamicContentSize();
     if (setContentSize(dSize + getUiPadding(), _isContentSizeDynamic))
         updateInternalObjects();
-    //HoverEffectGUI::update(dt, getContentSize() + Vec2(50 * (field_size.x != 0 || field_size.y != 0), 0));
+    //HoverEffectGUI::update(dt, getContentSize() + V2D(50 * (field_size.x != 0 || field_size.y != 0), 0));
 }
 
-bool CUI::Button::hover(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Button::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (!isVisible()) return false;
     if (isEnabled())
@@ -211,7 +211,7 @@ void CUI::Button::onDisable()
     if (icon) icon->setPositionY(0);
 }
 
-bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Button::press(V2D mouseLocationInView, Camera* cam)
 {
     if (!isEnabled() || !isVisible()) return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
@@ -234,7 +234,7 @@ bool CUI::Button::press(ax::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CUI::Button::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Button::release(V2D mouseLocationInView, Camera* cam)
 {
     auto fade = FadeTo::create(0.1f, 255);
     if (field) {
@@ -257,7 +257,7 @@ Size CUI::Button::getDynamicContentSize()
 Size CUI::Button::getFitContentSize()
 {
     if (!field) return Size();
-    return field->getContentSize() + Vec2((_ForceOutline ? _PmtFontOutline : 1), 0);
+    return field->getContentSize() + V2D((_ForceOutline ? _PmtFontOutline : 1), 0);
 }
 
 void CUI::Button::enableIconHighlight(Color3B highlight)
@@ -303,8 +303,8 @@ void CUI::Button::updateInternalObjects()
         else if (adaptToWindowSize)
             field->setScale(1 / GET_UI_SCALE_MUL);
 
-        sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / GET_UI_SCALE_MUL + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
-            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * GET_UI_SCALE_MUL : 0)) / GET_UI_SCALE_MUL + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+        sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / GET_UI_SCALE_MUL + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? Rebound::getInstance()->gameWindow.windowSize.width : clampregion.size.width) : clampregion.size.width,
+            Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * GET_UI_SCALE_MUL : 0)) / GET_UI_SCALE_MUL + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Rebound::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
         button->setContentSize(sprite->getContentSize() + getUiPadding() / 2 + hitboxpadding);
         preCompContentSize = sprite->getContentSize();
     }

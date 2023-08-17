@@ -9,8 +9,8 @@
 #define __H_EDITORFUNCTIONINTERPRETER__
 
 struct EditorFunction {
-	i32         _int = 0;
-	f32         _float = 0.0f;
+	I32         _int = 0;
+	F32         _float = 0.0f;
 	ax::Vec2    _vector = ax::Vec2::ZERO;
 	std::string _enum = "<unknown>";
 	char preferred = '\0';
@@ -21,7 +21,7 @@ struct EditorFunction {
 	bool set(int i) {
 		_int = i;
 		_float = i;
-		_vector = { f32(i), f32(i) };
+		_vector = { F32(i), F32(i) };
 		_enum = "<int>";
 		return true;
 	}
@@ -54,9 +54,9 @@ struct EditorFunction {
 	}
 };
 
-#define TTI_PARAM_ERR { Darkness::getInstance()->MessageBoxWin32("Failed to load tmx map!", \
+#define TTI_PARAM_ERR { Rebound::getInstance()->MessageBoxWin32("Failed to load tmx map!", \
 	ax::StringUtils::format("Couldn't interpret function '%s' with format of (%s) at param (null), expected %d parameters and got %d parameters, %s.\nMake sure you're following the documentation correctly!", bind.c_str(), format.c_str(), in, out, explain.c_str())); }
-#define TTI_ERR { Darkness::getInstance()->MessageBoxWin32("Failed to load tmx map!", \
+#define TTI_ERR { Rebound::getInstance()->MessageBoxWin32("Failed to load tmx map!", \
 	ax::StringUtils::format("Couldn't interpret function '%s' with format of (%s) at param %d, expected %c and got %c, this parameter is strict.\nMake sure you're following the documentation correctly!", bind.c_str(), format.c_str(), i + 1, in, out)); }
 #define TTI_RETURN_ERR { TTI_ERR return false; }
 
@@ -84,7 +84,7 @@ public:
 
 		int n = formats.size();
 
-		for (u8 i = 0; i < (n > 255 ? 255 : n); i++)
+		for (U8 i = 0; i < (n > 255 ? 255 : n); i++)
 		{
 			switch (formats[i])
 			{
@@ -182,7 +182,7 @@ public:
 
 	void bind(std::string bind) { bound = bind; }
 
-	i32 asInt(int idx, bool strict = true) {
+	I32 asInt(int idx, bool strict = true) {
 		auto it = _its.find(bound);
 		if (it == _its.end()) return 0;
 		auto type = it->second[idx > it->second.size() - 1 ? it->second.size() - 1 : idx];
@@ -198,7 +198,7 @@ public:
 		return type._int;
 	}
 
-	f32 asFloat(int idx, bool strict = true) {
+	F32 asFloat(int idx, bool strict = true) {
 		auto it = _its.find(bound);
 		if (it == _its.end()) return 0;
 		auto type = it->second[idx > it->second.size() - 1 ? it->second.size() - 1 : idx];

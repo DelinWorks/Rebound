@@ -15,7 +15,7 @@ public:
 
     virtual bool init();
 
-    void update(f32 dt);
+    void update(F32 dt);
 
     CREATE_FUNC(EmptyScene);
 };

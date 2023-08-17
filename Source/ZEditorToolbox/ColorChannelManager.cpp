@@ -16,18 +16,18 @@ void EditorToolbox::ColorChannelManager::nullifyCells()
         _colors[i].pCell = nullptr;
 }
 
-EditorToolbox::ColorChannel& EditorToolbox::ColorChannelManager::getColor(u16 id)
+EditorToolbox::ColorChannel& EditorToolbox::ColorChannelManager::getColor(U16 id)
 {
     return _colors[id];
 }
 
-void EditorToolbox::ColorChannelManager::setColor(u16 id, ColorChannel c)
+void EditorToolbox::ColorChannelManager::setColor(U16 id, ColorChannel c)
 {
     _colors[id].color = c.color;
     _colors[id].blend = c.blend;
 }
 
-void EditorToolbox::ColorChannelManager::updateCell(u16 id)
+void EditorToolbox::ColorChannelManager::updateCell(U16 id)
 {
     auto it = _colors[id];
     if (it.pCell) {

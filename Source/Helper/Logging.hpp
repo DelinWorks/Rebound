@@ -16,9 +16,9 @@ inline int _loggerCurrColor;
 inline const char* _loggerCurrFileName;
 inline int _loggerCurrLine;
 
-#define RLOG(...) do { _loggerCurrColor = 11; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log(__VA_ARGS__); } while (false);
-#define RLOGW(...) do { _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::log(__VA_ARGS__); } while (false);
-#define RLOGE(...) do { _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; Rebound::loge(__VA_ARGS__); } while (false);
+#define RLOG(...) do { _loggerCurrColor = 11; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; ReboundLog::log(__VA_ARGS__); } while (false);
+#define RLOGW(...) do { _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; ReboundLog::log(__VA_ARGS__); } while (false);
+#define RLOGE(...) do { _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; ReboundLog::loge(__VA_ARGS__); } while (false);
 
 #define LOG_RELEASE /*RLOGW("object {} release", typeid(this).name())*/
 
@@ -31,7 +31,7 @@ inline int _loggerCurrLine;
 
 #define RB_PROMISE_RELEASE(O) PoolManager::getInstance()->getCurrentPool()->addObject(O);
 
-namespace Rebound
+namespace ReboundLog
 {
 	template <typename... T>
 	void log(fmt::format_string<T...> fmt, T&&... args) {

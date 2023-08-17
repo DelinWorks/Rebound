@@ -14,17 +14,17 @@ namespace CUI
 
         static CUI::ToolTip* create();
 
-        void update(f32 dt);
+        void update(F32 dt);
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool hover(V2D mouseLocationInView, cocos2d::Camera* cam);
 
         void showToolTip(std::wstring tooltip, float time_override = -1);
         void hideToolTip();
 
         CUI::Label* label;
 
-        Vec2 position;
+        V2D position;
         float rotation = 0.0;
-        Vec2 mousePos;
+        V2D mousePos;
     };
 }

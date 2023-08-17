@@ -11,20 +11,20 @@ namespace CUI {
 		HoverEffectGUI();
 		~HoverEffectGUI();
 
-		void update(f32 dt, Vec2 size);
+		void update(F32 dt, V2D size);
 		void hover();
 
-		void setHoverOffset(const ax::Vec2& hoverOffset) { _hoverOffset = hoverOffset; }
-		ax::Vec2 getHoverOffset() { return _hoverOffset; }
+		void setHoverOffset(const V2D& hoverOffset) { _hoverOffset = hoverOffset; }
+		V2D getHoverOffset() { return _hoverOffset; }
 
 	protected:
-		ax::Vec2 _hoverOffset = ax::Vec2::ZERO;
+		V2D _hoverOffset = V2D::ZERO;
 		ax::ParticleSystemQuad* _prtcl = nullptr;
 		bool _isPrtclSimulated = false;
 		ax::Sprite* _hoverSprite = nullptr;
-		f32 _hoverShaderTime1 = 0;
-		f32 _hoverShaderTime2 = 0;
-		f32 _hoverShaderTimeLerp2 = 0;
+		F32 _hoverShaderTime1 = 0;
+		F32 _hoverShaderTime2 = 0;
+		F32 _hoverShaderTimeLerp2 = 0;
 	};
 }
 

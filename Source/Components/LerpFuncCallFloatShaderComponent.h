@@ -6,13 +6,13 @@
 
 class LerpFuncCallFloatShaderComponent : public Component {
 public:
-    std::function<void(ax::backend::ProgramState*, f32)> func;
-    f32 current = 0, time = 0, start = 0, end = 0;
+    std::function<void(ax::backend::ProgramState*, F32)> func;
+    F32 current = 0, time = 0, start = 0, end = 0;
     ax::backend::ProgramState* shader = nullptr;
 
-    LerpFuncCallFloatShaderComponent(ax::backend::ProgramState* _shader, std::function<void(ax::backend::ProgramState*, f32)> _func, f32 _time, f32 _start, f32 _end);
+    LerpFuncCallFloatShaderComponent(ax::backend::ProgramState* _shader, std::function<void(ax::backend::ProgramState*, F32)> _func, F32 _time, F32 _start, F32 _end);
 
-    void update(f32 dt);
+    void update(F32 dt);
 };
 
 #endif
