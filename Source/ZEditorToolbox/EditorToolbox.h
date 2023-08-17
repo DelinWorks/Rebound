@@ -20,7 +20,7 @@ namespace EditorToolbox {
     class UndoRedoAffectedColorPalette {
     public:
         ColorChannelManager* manager;
-        u16 color_idx;
+        U16 color_idx;
         ColorChannel color_prev;
         ColorChannel color_next;
         CUI::HSVWheel* wheel = nullptr;
@@ -35,13 +35,13 @@ namespace EditorToolbox {
     class UndoRedoAffectedTiles {
     public:
         TileSystem::Map* map;
-        u16 layer_idx;
-        std::unordered_map<Vec2Hashable, u32> prev_tiles;
-        std::unordered_map<Vec2Hashable, u32> next_tiles;
+        U16 layer_idx;
+        std::unordered_map<Vec2Hashable, U32> prev_tiles;
+        std::unordered_map<Vec2Hashable, U32> next_tiles;
 
         void allocateBuckets();
-        void addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid);
-        void addOrIgnoreTileNext(ax::Vec2 pos, u32 gid);
+        void addOrIgnoreTilePrev(ax::Vec2 pos, U32 gid);
+        void addOrIgnoreTileNext(ax::Vec2 pos, U32 gid);
     };
 
     class UndoRedoState {

@@ -35,9 +35,9 @@ namespace CUI
         ui::Button* button;
         std::string normal_sp;
         Color3B selected_color;
-        cocos2d::Rect capinsets;
-        cocos2d::Rect clampregion;
-        cocos2d::Size clampoffset;
+        R2D capinsets;
+        R2D clampregion;
+        S2D clampoffset;
         ChangeValue<bool> hover_cv;
         ChangeValue<bool> password_hover;
         bool adaptToWindowSize = false;
@@ -53,15 +53,15 @@ namespace CUI
 
         void init(const std::wstring& _placeholder, int _fontSize, Size _size, int maxLength = -1, std::string_view allowedChars = ""sv, std::string_view _fontname = _fontName);
 
-        void init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
-            cocos2d::Rect _capinsets, cocos2d::Size _contentsize, cocos2d::Rect _clampregion,
-            Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-            Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
+        void init(const std::wstring& _placeholder, std::string_view _fontname, I32 _fontsize, bool _password,
+            R2D _capinsets, S2D _contentsize, R2D _clampregion,
+            S2D _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
+            Color3B _selected_color, bool _allowExtend, I32 length, bool _toUpper,
             std::string_view _allowedChars);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
 
         void focus();
 
@@ -71,8 +71,8 @@ namespace CUI
 
         void onDisable() override;
 
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         bool _isLeftCtrlPressed = false;
         void keyPress(EventKeyboard::KeyCode keyCode);

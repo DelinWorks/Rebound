@@ -12,7 +12,7 @@ namespace CUI
 {
     class ImageView : public GUI {
     public:
-        static CUI::ImageView* create(ax::Size _contentsize, ax::Texture2D* texture, bool rescalingAllowed = true);
+        static CUI::ImageView* create(S2D _contentsize, ax::Texture2D* texture, bool rescalingAllowed = true);
 
         ~ImageView();
 
@@ -22,24 +22,24 @@ namespace CUI
         ax::Node* imageP;
         ax::Sprite* image;
         ax::Sprite* bg;
-        ax::Size textureSize;
-        ax::Vec2 mousePos;
+        S2D textureSize;
+        V2D mousePos;
         ax::DrawNode* grid;
         ax::DrawNode* selection;
-        ax::Size gridSize;
-        ax::Vec2 pressLocation;
+        S2D gridSize;
+        V2D pressLocation;
         float zoom;
         int selectedIndex = 0;
 
         ChangeValue<bool> hover_cv;
         
-        bool init(ax::Size _contentsize = ax::Size::ZERO, ax::Texture2D* texture = nullptr, bool rescalingAllowed = true);
+        bool init(S2D _contentsize = S2D::ZERO, ax::Texture2D* texture = nullptr, bool rescalingAllowed = true);
 
-        void enableGridSelection(ax::Size _gridsize);
+        void enableGridSelection(S2D _gridsize);
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         void mouseScroll(ax::EventMouse* event);
 

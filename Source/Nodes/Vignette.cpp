@@ -33,29 +33,29 @@ void Vignette::SetColor(Vec3 c) {
     SET_UNIFORM(Program, "_color", c);
 }
 
-void Vignette::SetColorR(f32 r) {
+void Vignette::SetColorR(F32 r) {
     Vec3 col = Vec3(r, stored.y, stored.z);
     SET_UNIFORM(Program, "_color", col);
     stored = col;
 }
 
-void Vignette::SetColorG(f32 g) {
+void Vignette::SetColorG(F32 g) {
     Vec3 col = Vec3(stored.x, g, stored.z);
     SET_UNIFORM(Program, "_color", col);
     stored = col;
 }
 
-void Vignette::SetColorB(f32 b) {
+void Vignette::SetColorB(F32 b) {
     Vec3 col = Vec3(stored.x, stored.y, b);
     SET_UNIFORM(Program, "_color", col);
     stored = col;
 }
 
-void Vignette::SetDistance(f32 d) {
+void Vignette::SetDistance(F32 d) {
     SET_UNIFORM(Program, "_distance", d);
 }
 
-void Vignette::SetFalloff(f32 f) {
+void Vignette::SetFalloff(F32 f) {
     SET_UNIFORM(Program, "_falloff", f);
 }
 

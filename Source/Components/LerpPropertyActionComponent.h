@@ -13,16 +13,16 @@ public:
     float* ref_float = nullptr;
     int* ref_int = nullptr;
     uint8_t* ref_uint8 = nullptr;
-    f32 start = 0, end = 0, finish = 0;
-    i32 type = 0;
+    F32 start = 0, end = 0, finish = 0;
+    I32 type = 0;
 
     void onAdd();
 
-    void update(f32 dt);
+    void update(F32 dt);
 
     LerpPropertyActionComponent(Node* _owner);
 
-    LerpPropertyActionComponent* initFloat(f32* _ref, f32 _duration, f32 _start, f32 _end, f32 _finish);
+    LerpPropertyActionComponent* initFloat(F32* _ref, F32 _duration, F32 _start, F32 _end, F32 _finish);
 };
 
 #endif

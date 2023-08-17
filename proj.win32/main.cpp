@@ -45,7 +45,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
     freopen("CONOUT$", "w", stderr);
 #endif
     
-    Darkness::getInstance()->console.args = lpCmdLine;
+    Rebound::getInstance()->console.args = lpCmdLine;
 
     // create the application instance
     AppDelegate app;

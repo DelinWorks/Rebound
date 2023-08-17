@@ -17,15 +17,15 @@ public:
 
     void SetColor(Vec3 c);
 
-    void SetColorR(f32 r);
+    void SetColorR(F32 r);
 
-    void SetColorG(f32 g);
+    void SetColorG(F32 g);
 
-    void SetColorB(f32 b);
+    void SetColorB(F32 b);
 
-    void SetDistance(f32 d);
+    void SetDistance(F32 d);
 
-    void SetFalloff(f32 f);
+    void SetFalloff(F32 f);
 
     void Hide();
 

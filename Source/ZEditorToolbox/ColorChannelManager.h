@@ -20,9 +20,9 @@ namespace EditorToolbox {
 
         void nullifyCells();
 
-        ColorChannel& getColor(u16 id);
-        void setColor(u16 id, ColorChannel c);
-        void updateCell(u16 id);
+        ColorChannel& getColor(U16 id);
+        void setColor(U16 id, ColorChannel c);
+        void updateCell(U16 id);
 
     private:
         ColorChannel* _colors;

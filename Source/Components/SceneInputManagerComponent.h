@@ -23,15 +23,15 @@ public:
     Event* onKeyEvent = nullptr;
     std::vector<int> _pressedKeys;
 
-    ax::Vec2 _mouseLocation;
-    ax::Vec2 _oldMouseLocation;
-    ax::Vec2 _newMouseLocation;
-    ax::Vec2 _oldMouseLocationOnUpdate;
-    ax::Vec2 _newMouseLocationOnUpdate;
-    ax::Vec2 _mouseLocationDelta;
-    ax::Vec2 _mouseLocationInView;
+    V2D _mouseLocation;
+    V2D _oldMouseLocation;
+    V2D _newMouseLocation;
+    V2D _oldMouseLocationOnUpdate;
+    V2D _newMouseLocationOnUpdate;
+    V2D _mouseLocationDelta;
+    V2D _mouseLocationInView;
 
-    ax::Vec2 _mouseLocationInViewNoScene;
+    V2D _mouseLocationInViewNoScene;
 
     CUI::Container* _uiContainer = nullptr;
 
@@ -41,7 +41,7 @@ public:
 
     void onAdd();
 
-    void update(f32 dt);
+    void update(F32 dt);
 
     SceneInputManagerComponent* initKeyboard(
         std::function<void(EventKeyboard::KeyCode, Event*)> _onKeyPressed,

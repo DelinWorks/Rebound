@@ -1,6 +1,6 @@
 #include "uiTabs.h"
 
-CUI::Tabs::Tabs(Vec2 _prefferedSize)
+CUI::Tabs::Tabs(V2D _prefferedSize)
 {
     scheduleUpdate();
     //addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
@@ -19,10 +19,10 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     addChild(clipping);
 
     elementCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_RIGHT, -48, 0, false));
-    elementCont->setConstraint(DependencyConstraint(this, LEFT, Vec2::ZERO, false, Vec2(0, 0)));
+    elementCont->setConstraint(DependencyConstraint(this, LEFT, V2D::ZERO, false, V2D(0, 0)));
 
     scrollCont->setStatic();
-    scrollCont->setContentSize(Vec2(18, _prefferedSize.y));
+    scrollCont->setContentSize(V2D(18, _prefferedSize.y));
     scrollCont->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 6));
     scrollCont->setConstraint(DependencyConstraint(this, RIGHT));
     scrollCont->setBorderLayoutAnchor(RIGHT);
@@ -41,7 +41,7 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     //        count++;
     //    }
     //    avg /= count;
-    //    Vec2 pos = ePos - Vec2(avg / 2, 0);
+    //    V2D pos = ePos - V2D(avg / 2, 0);
     //    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
     //    if (ePos != pos) {
     //        leftB->enable();
@@ -62,7 +62,7 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     //        count++;
     //    }
     //    avg /= count;
-    //    Vec2 pos = ePos + Vec2(avg / 2, 0);
+    //    V2D pos = ePos + V2D(avg / 2, 0);
     //    pos.x = Math::clamp(pos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2);
     //    if (ePos != pos) {
     //        rightB->enable();
@@ -74,7 +74,7 @@ CUI::Tabs::Tabs(Vec2 _prefferedSize)
     scrollCont->addChild(leftB);
 }
 
-CUI::Tabs* CUI::Tabs::create(Vec2 _prefferedSize)
+CUI::Tabs* CUI::Tabs::create(V2D _prefferedSize)
 {
     Tabs* ref = new Tabs(_prefferedSize);
     if (ref->init())
@@ -91,8 +91,8 @@ CUI::Tabs* CUI::Tabs::create(Vec2 _prefferedSize)
 void CUI::Tabs::calculateContentBoundaries()
 {
     auto ns = GameUtils::getNodeIgnoreDesignScale();
-    scrollCont->setContentSize(Vec2(28 * ns.x, _prefferedSize.y));
-    setContentSize(Vec2(getContentSize().x, 20 * ns.y));
+    scrollCont->setContentSize(V2D(28 * ns.x, _prefferedSize.y));
+    setContentSize(V2D(getContentSize().x, 20 * ns.y));
     Container::recalculateChildDimensions();
     auto& c = getContentSize();
     clipping->setClipRegion(Rect(c.x / -2 - 3 * ns.x, c.y * 8 / -2, c.x - 18 * ns.x, c.y * 8));
@@ -116,7 +116,7 @@ void CUI::Tabs::addElement(std::wstring e, GUI* container)
     }
 
     auto b = CUI::Button::create();
-    b->init(e, TTFFS, Vec2::ZERO, { -6, 3 });
+    b->init(e, TTFFS, V2D::ZERO, { -6, 3 });
     elementCont->addChild(b);
     tabIndices.push_back({ b, container });
 
@@ -141,10 +141,10 @@ void CUI::Tabs::addElement(std::wstring e, GUI* container)
     };
 }
 
-void CUI::Tabs::update(f32 dt)
+void CUI::Tabs::update(F32 dt)
 {
     if (_pCurrentHeldItem == rightB || _pCurrentHeldItem == leftB) {
-        ePos = ePos - Vec2(vel * (_pCurrentHeldItem == rightB ? dt : -dt), 0);
+        ePos = ePos - V2D(vel * (_pCurrentHeldItem == rightB ? dt : -dt), 0);
         ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2 - 8);
         elementCont->setPosition(ePos);
         vel += 600 * dt;
@@ -173,7 +173,7 @@ void CUI::Tabs::update(f32 dt)
 void CUI::Tabs::mouseScroll(EventMouse* event)
 {
     if (elementCont->getContentSize().x / 2 < _prefferedSize.x) {
-        Vec2 cp = elementCont->getPosition();
+        V2D cp = elementCont->getPosition();
         elementCont->setPositionX(cp.x + 5);
         elementCont->runAction(EaseElasticOut::create(MoveTo::create(2, cp), 0.1));
         return;
@@ -185,7 +185,7 @@ void CUI::Tabs::mouseScroll(EventMouse* event)
         count++;
     }
     avg /= count;
-    ePos = ePos + Vec2(avg / 3 * (event->getScrollY() < 0 ? 1 : -1), 0);
+    ePos = ePos + V2D(avg / 3 * (event->getScrollY() < 0 ? 1 : -1), 0);
     ePos.x = Math::clamp(ePos.x, elementCont->getContentSize().x / -2 + getContentSize().x / 2 - scrollCont->getContentSize().x, getContentSize().x / -2 - 8);
     elementCont->stopAllActions();
     elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));

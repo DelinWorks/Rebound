@@ -88,20 +88,20 @@ public:
 
     ~MapEditor();
 
-    f32 global_dt;
-    f32 fps_dt;
-    void update(f32 dt) override;
-    void tick(f32 dt);
-    f32 updateSchedTime;
-    f32 elapsedDt = 0;
-    void perSecondUpdate(f32 dt);
-    void lateUpdate(f32 dt);
+    F32 global_dt;
+    F32 fps_dt;
+    void update(F32 dt) override;
+    void tick(F32 dt);
+    F32 updateSchedTime;
+    F32 elapsedDt = 0;
+    void perSecondUpdate(F32 dt);
+    void lateUpdate(F32 dt);
 
-    void tileMapEditUpdate(Vec2 prev, Vec2 next);
-    void tileMapModifyRegion(f32 x, f32 y, f32 _width, f32 _height);
+    void tileMapEditUpdate(V2D prev, V2D next);
+    void tileMapModifyRegion(F32 x, F32 y, F32 _width, F32 _height);
 
     virtual bool init();
-    void onInitDone(f32 dt);
+    void onInitDone(F32 dt);
 
     void onKeyHold(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
     void onKeyPressed(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
@@ -110,7 +110,7 @@ public:
     void onMouseUp(ax::Event* event);
     bool hasMouseMoved = false;
     void onMouseMove(ax::Event* event);
-    void setCameraScaleIndex(i32 index = 0, bool shiftTransform = true);
+    void setCameraScaleIndex(I32 index = 0, bool shiftTransform = true);
     void onMouseScroll(ax::Event* event);
     bool onTouchBegan(ax::Touch* touch, ax::Event* event);
     void onTouchMoved(ax::Touch* touch, ax::Event* event);
@@ -122,7 +122,7 @@ public:
 
     TilesetArray* tilesetArr;
 
-    void updateDirectorToStatsCount(i32 tileCount, i32 chunkCount);
+    void updateDirectorToStatsCount(I32 tileCount, I32 chunkCount);
     void menuCloseCallback(ax::Ref* pSender);
     void buildEntireUi();
 
@@ -130,8 +130,8 @@ public:
 
     sqlite3* pdb;
 
-    ax::Vec2 _mousePosTileHint;
-    std::set<ax::Vec2> _editorPrevMoveTiles;
+    V2D _mousePosTileHint;
+    std::set<V2D> _editorPrevMoveTiles;
     TileSystem::Map* map;
 
     TileArray* tarr;
@@ -140,12 +140,12 @@ public:
     ax::Node* grid;
     ax::DrawNode* deltaEditing;
     ax::Node* cameraLocation;
-    ax::Vec2 oldSelectionPlace;
-    ax::Vec2 selectionPlace;
-    ax::Vec2 chunkSelectionPlace;
-    f32 cameraScale;
-    i32 cameraScaleIndex = 10;
-    f32 possibleCameraScales[18] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
+    V2D oldSelectionPlace;
+    V2D selectionPlace;
+    V2D chunkSelectionPlace;
+    F32 cameraScale;
+    I32 cameraScaleIndex = 10;
+    F32 possibleCameraScales[18] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
     CUI::Button* cameraScaleB;
     CUI::Label* cameraScaleL;
 
@@ -173,11 +173,11 @@ public:
     bool isEditorHideGrid = false;
     bool isLocationEditable = false;
     bool isPlacing = false;
-    ax::Rect createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box);
-    ax::Rect createEditToolSelectionBox(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize);
-    ax::Vec2 removeSelectionStartPos;
+    ax::Rect createSelection(V2D start_pos, V2D end_pos, I32 _tileSize, SelectionBox::Box& box);
+    ax::Rect createEditToolSelectionBox(V2D start_pos, V2D end_pos, I32 _tileSize);
+    V2D removeSelectionStartPos;
     ax::DrawNode* removeSelectionNode;
-    ax::Vec2 selectionPosition;
+    V2D selectionPosition;
     bool isTileMapRect = false;
 
     bool isCtrlTMRemove = false;
@@ -194,7 +194,7 @@ public:
     std::string dbPath;
     std::string dbName = "map.daumap";
     std::string errorInCase = "";
-    i32 loadStep = 1;
+    I32 loadStep = 1;
 
     ax::Node* uiNode;
     ax::Node* uiNodeNonFollow;
@@ -206,13 +206,13 @@ public:
     ax::Node* RightMapSizeNode;
     ax::DrawNode* WorldBoundsLimit;
 
-    f32 _hoverToolTipTime = 0.0f;
+    F32 _hoverToolTipTime = 0.0f;
     CUI::GUI* _hoverToolTipPointer;
     CUI::ToolTip* _editorToolTip;
     CUI::Label* _debugText;
     CUI::ImageView* _tilesetPicker;
 
-    void setCameraScaleUiText(f32 scale);
+    void setCameraScaleUiText(F32 scale);
     void setWorldBoundsLayerColorTransforms(VirtualCamera* cam);
 
     Rect editorWASDCamMoveRect;
@@ -226,7 +226,7 @@ public:
     static void fillContainerColorGrid(EditorToolbox::ColorChannelManager* m, CUI::Container* c,
         int rows, int columns, int page, std::function<void(int i)> _onColorSelect);
 
-    u16 channelId = 0;
+    U16 channelId = 0;
     void editorPushUndoColorPalette();
     CUI::Container* createFledgedHSVPanel();
 

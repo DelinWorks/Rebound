@@ -60,7 +60,7 @@ void CUI::Slider::init(
     update(0);
 }
 
-void CUI::Slider::update(f32 dt)
+void CUI::Slider::update(F32 dt)
 {
     slider->setEnabled(isUiHovered());
     auto dSize = getDynamicContentSize();
@@ -75,7 +75,7 @@ void CUI::Slider::update(f32 dt)
     }
 }
 
-bool CUI::Slider::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Slider::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (isEnabled())
     {
@@ -107,7 +107,7 @@ void CUI::Slider::onDisable()
 {
 }
 
-bool CUI::Slider::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Slider::press(V2D mouseLocationInView, Camera* cam)
 {
     isHeld = button->hitTest(mouseLocationInView, cam, _NOTHING);
     if (isHeld) {
@@ -118,7 +118,7 @@ bool CUI::Slider::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return isHeld;
 }
 
-bool CUI::Slider::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Slider::release(V2D mouseLocationInView, Camera* cam)
 {
     isHeld = false;
     hover(mouseLocationInView, cam);

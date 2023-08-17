@@ -40,9 +40,9 @@ namespace CUI
         
         void init(std::vector<std::wstring>& _items, Size _contentsize = ax::Size::ZERO);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
 
         void focus();
 
@@ -53,14 +53,14 @@ namespace CUI
         void onDisable() override;
 
         bool isHeld = false;
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
 
         Size getFitContentSize();
 
-        void showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, Vec2 offset);
+        void showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, V2D offset);
 
         void setSelection(int idx = 0);
     };

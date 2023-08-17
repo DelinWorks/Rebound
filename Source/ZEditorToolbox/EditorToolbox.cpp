@@ -66,13 +66,13 @@ void EditorToolbox::UndoRedoState::applyRedoStateColorPaletteEdit()
 
 void EditorToolbox::UndoRedoAffectedTiles::allocateBuckets() {}
 
-void EditorToolbox::UndoRedoAffectedTiles::addOrIgnoreTilePrev(ax::Vec2 pos, u32 gid)
+void EditorToolbox::UndoRedoAffectedTiles::addOrIgnoreTilePrev(ax::Vec2 pos, U32 gid)
 {
     if (prev_tiles.find(pos) == prev_tiles.end())
         prev_tiles.emplace(pos, gid);
 }
 
-void EditorToolbox::UndoRedoAffectedTiles::addOrIgnoreTileNext(ax::Vec2 pos, u32 gid)
+void EditorToolbox::UndoRedoAffectedTiles::addOrIgnoreTileNext(ax::Vec2 pos, U32 gid)
 {
     if (next_tiles.find(pos) == next_tiles.end())
         next_tiles.emplace(pos, gid);

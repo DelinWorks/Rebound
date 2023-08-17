@@ -10,27 +10,27 @@
 #endif
 #include <string.h>
 
-static Darkness* _darkness = nullptr;
+static Rebound* _rebound = nullptr;
 
-Darkness::Darkness()
+Rebound::Rebound()
 {
 }
 
-Darkness::~Darkness()
+Rebound::~Rebound()
 {
 }
 
-Darkness* Darkness::getInstance()
+Rebound* Rebound::getInstance()
 {
-    if (_darkness == nullptr)
+    if (_rebound == nullptr)
     {
-        _darkness = new Darkness();
-        _darkness->init();
+        _rebound = new Rebound();
+        _rebound->init();
     }
-    return _darkness;
+    return _rebound;
 }
 
-void Darkness::init()
+void Rebound::init()
 {
     Director::getInstance()->getScheduler()->scheduleUpdate(this, 1, false);
 
@@ -41,7 +41,7 @@ void Darkness::init()
 #endif
 
 #ifdef _DEBUG
-    res_path = L"C:/Users/turky/Documents/GitHub/DarknessAmongUs/Resources/";
+    res_path = L"C:/Users/turky/Documents/GitHub/ReboundAmongUs/Resources/";
 #endif
 
     server_path = "https://delingames.xyz/";
@@ -59,13 +59,13 @@ void Darkness::init()
     }
 }
 
-void Darkness::setupController()
+void Rebound::setupController()
 {
     ax::Controller::stopDiscoveryController();
     ax::Controller::startDiscoveryController();
 }
 
-ax::Controller::KeyStatus Darkness::getKeyState(ax::Controller::Key key)
+ax::Controller::KeyStatus Rebound::getKeyState(ax::Controller::Key key)
 {
     auto controllers = ax::Controller::getAllController();
     if (controllers.size() > 0)
@@ -78,7 +78,7 @@ ax::Controller::KeyStatus Darkness::getKeyState(ax::Controller::Key key)
     return ax::Controller::KeyStatus{0,0,0};
 }
 
-void Darkness::setCursorNormal()
+void Rebound::setCursorNormal()
 {
     if (!cursor) {
         Image* img = new Image();
@@ -92,7 +92,7 @@ void Darkness::setCursorNormal()
     glfwSetCursor(gameWindow.window, cursor);
 }
 
-void Darkness::setCursorHand()
+void Rebound::setCursorHand()
 {
     if (!hand) {
         Image* img = new Image();
@@ -106,7 +106,7 @@ void Darkness::setCursorHand()
     glfwSetCursor(gameWindow.window, hand);
 }
 
-void Darkness::setCursorHold()
+void Rebound::setCursorHold()
 {
     if (!hold) {
         Image* img = new Image();
@@ -120,15 +120,15 @@ void Darkness::setCursorHold()
     glfwSetCursor(gameWindow.window, hold);
 }
 
-void Darkness::destroyInstance()
+void Rebound::destroyInstance()
 {
-    glfwHideWindow(Darkness::getInstance()->gameWindow.window);
-    Director::getInstance()->getScheduler()->unscheduleUpdate(_darkness);
-    _darkness->gameWindow.isAllowedToLeave = true;
+    glfwHideWindow(Rebound::getInstance()->gameWindow.window);
+    Director::getInstance()->getScheduler()->unscheduleUpdate(_rebound);
+    _rebound->gameWindow.isAllowedToLeave = true;
     Director::getInstance()->end();
 }
 
-void Darkness::restartInstance()
+void Rebound::restartInstance()
 {
     //auto old_scene = Director::getInstance()->getRunningScene();
     //if (old_scene != nullptr)
@@ -140,14 +140,14 @@ void Darkness::restartInstance()
     Director::getInstance()->replaceScene(scene);
 }
 
-void Darkness::update(float delta)
+void Rebound::update(float delta)
 {
 //#ifndef _DEBUG
     updateAntiCheat(delta);
 //#endif
 }
 
-void Darkness::setupLuaEngine()
+void Rebound::setupLuaEngine()
 {
 
 }
@@ -173,7 +173,7 @@ inline wchar_t* strcasestr(wchar_t* haystack, const wchar_t* needle)
 std::atomic<bool> exit_thread_flag{ false };
 std::atomic<bool> exit_thread_hook{ false };
 
-void Darkness::initAntiCheat()
+void Rebound::initAntiCheat()
 {
     if (_isAntiCheatReady)
         return;
@@ -289,7 +289,7 @@ void Darkness::initAntiCheat()
     _isAntiCheatReady = true;
 }
 
-void Darkness::updateAntiCheat(float delta)
+void Rebound::updateAntiCheat(float delta)
 {
 #ifdef WIN32
     if (exit_thread_flag)
@@ -316,7 +316,7 @@ void Darkness::updateAntiCheat(float delta)
     }
     _elapsedGameTime += delta;
 
-    f32 timeDiff = abs(_elapsedGameTime - float(_currentTime - _timeSinceStart));
+    F32 timeDiff = abs(_elapsedGameTime - float(_currentTime - _timeSinceStart));
 
 //#ifndef WWDWD
 //    if (timeDiff > 1)
@@ -341,7 +341,7 @@ void Darkness::updateAntiCheat(float delta)
     ///////////////////////////////////////////////////////////////////////////
 }
 
-void Darkness::MessageBoxWin32(std::string caption, std::string text)
+void Rebound::MessageBoxWin32(std::string caption, std::string text)
 {
 //#ifdef WIN32
 //    MessageBoxA(glfwGetWin32Window(gameWindow.window), text.c_str(), caption.c_str(), 0x00000010L | 0x00004000L | 0x00000000L);

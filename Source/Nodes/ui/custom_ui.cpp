@@ -1,6 +1,6 @@
 #include "custom_ui.h"
 
-bool CUI::GUI::setContentSize(const Vec2& size, bool recursive)
+bool CUI::GUI::setContentSize(const V2D& size, bool recursive)
 {
 	if (!size.equals(getContentSize())) {
 		_prefferedSize = size;
@@ -23,7 +23,7 @@ bool CUI::GUI::setContentSize(const Vec2& size, bool recursive)
 	return false;
 }
 
-Vec2 CUI::GUI::getScaledContentSize()
+V2D CUI::GUI::getScaledContentSize()
 {
 	return getContentSize();
 }
@@ -115,17 +115,17 @@ void CUI::GUI::setUiOpacity(float opacity)
 	SET_UNIFORM(_backgroundShader, "ui_alpha", opacity);
 }
 
-bool CUI::GUI::hover(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::GUI::hover(V2D mouseLocationInView, Camera* cam)
 {
 	return false;
 }
 
-bool CUI::GUI::press(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::GUI::press(V2D mouseLocationInView, Camera* cam)
 {
 	return false;
 }
 
-bool CUI::GUI::release(Vec2 mouseLocationInView, Camera* cam)
+bool CUI::GUI::release(V2D mouseLocationInView, Camera* cam)
 {
 	return false;
 }
@@ -159,13 +159,13 @@ void CUI::GUI::onExit()
 	notifyFocused(this, false);
 }
 
-void CUI::GUI::setAnchorPoint(const ax::Vec2& anchor)
+void CUI::GUI::setAnchorPoint(const V2D& anchor)
 {
 	_anchorPoint = anchor;
 	Node::setAnchorPoint(anchor);
 }
 
-void CUI::GUI::setAnchorOffset(const ax::Vec2& anchorOffset)
+void CUI::GUI::setAnchorOffset(const V2D& anchorOffset)
 {
 	_anchorOffset = anchorOffset;
 	Node::setAnchorPoint(_anchorPoint * anchorOffset);

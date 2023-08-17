@@ -30,23 +30,23 @@ namespace CUI
         int index;
     };
 
-    enum Layout : u8 {
+    enum Layout : U8 {
         LAYOUT_NONE = 0,
         LAYOUT_FLOW = 1,
     };
 
-    enum Constraint : u8 {
+    enum Constraint : U8 {
         CONSTRAINT_NONE = 0,
         CONSTRAINT_DEPENDENCY = 1,
         CONSTRAINT_CONTENTSIZE = 2,
     };
 
-    enum FlowLayoutSort : u8 {
+    enum FlowLayoutSort : U8 {
         SORT_HORIZONTAL = 0,
         SORT_VERTICAL = 1,
     };
 
-    enum FlowLayoutDirection : u8 {
+    enum FlowLayoutDirection : U8 {
         STACK_LEFT = 0,
         STACK_CENTER = 1,
         STACK_RIGHT = 2,
@@ -61,38 +61,38 @@ namespace CUI
         FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
             FlowLayoutDirection _direction = FlowLayoutDirection::STACK_CENTER,
             float _spacing = 0, float _margin = 0, bool _reverseStack = true)
-            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack), constSize(false), constSizeV(Vec2::ZERO) { }
+            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack), constSize(false), constSizeV(V2D::ZERO) { }
         FlowLayoutSort sort;
         FlowLayoutDirection direction;
         float spacing;
         float margin;
         bool reverseStack;
         bool constSize;
-        Vec2 constSizeV;
+        V2D constSizeV;
 
         void build(CUI::Container* container);
     };
 
     class DependencyConstraint {
     public:
-        DependencyConstraint(GUI* _parent = nullptr, BorderLayout _position = CENTER, Vec2 _offset = ax::Vec2::ZERO,
-            bool _worldPos = false, Vec2 _worldPosOffset = ax::Vec2::ZERO)
+        DependencyConstraint(GUI* _parent = nullptr, BorderLayout _position = CENTER, V2D _offset = V2D::ZERO,
+            bool _worldPos = false, V2D _worldPosOffset = V2D::ZERO)
             : parent(_parent), position(_position), offset(_offset), worldPos(_worldPos), worldPosOffset(_worldPosOffset) { }
         GUI* parent;
         BorderLayout position;
-        Vec2 offset;
+        V2D offset;
         bool worldPos;
-        Vec2 worldPosOffset;
+        V2D worldPosOffset;
 
         void build(CUI::GUI* element);
     };
 
     class ContentSizeConstraint {
     public:
-        ContentSizeConstraint(GUI* _parent = nullptr, Vec2 _offset = ax::Vec2::ZERO, bool _scale = false, bool _lockX = false, bool _lockY = false)
+        ContentSizeConstraint(GUI* _parent = nullptr, V2D _offset = V2D::ZERO, bool _scale = false, bool _lockX = false, bool _lockY = false)
             : parent(_parent), offset(_offset), scale(_scale), lockX(_lockX), lockY(_lockY) { }
         GUI* parent;
-        Vec2 offset;
+        V2D offset;
         bool scale;
         bool lockX;
         bool lockY;
@@ -120,14 +120,14 @@ namespace CUI
         void setConstraint(DependencyConstraint layout);
         void setConstraint(ContentSizeConstraint layout);
 
-        void setBorderLayoutAnchor(ax::Vec2 offset = ax::Vec2::ONE);
-        void setBorderLayoutAnchor(BorderLayout border, ax::Vec2 offset = ax::Vec2::ONE);
+        void setBorderLayoutAnchor(V2D offset = V2D::ONE);
+        void setBorderLayoutAnchor(BorderLayout border, V2D offset = V2D::ONE);
 
-        void setBackgroundSprite(ax::Vec2 padding = {0, 0}, BgSpriteType type = BgSpriteType::BG_NORMAL);
-        void setBackgroundSpriteCramped(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
-        void setBackgroundSpriteCramped2(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
-        void setBackgroundSpriteCramped3(ax::Vec2 padding = { 0, 0 }, ax::Vec2 scale = {1, 1});
-        void setBackgroundSpriteDarken(ax::Vec2 padding = { 0, 0 });
+        void setBackgroundSprite(V2D padding = {0, 0}, BgSpriteType type = BgSpriteType::BG_NORMAL);
+        void setBackgroundSpriteCramped(V2D padding = { 0, 0 }, V2D scale = {1, 1});
+        void setBackgroundSpriteCramped2(V2D padding = { 0, 0 }, V2D scale = {1, 1});
+        void setBackgroundSpriteCramped3(V2D padding = { 0, 0 }, V2D scale = {1, 1});
+        void setBackgroundSpriteDarken(V2D padding = { 0, 0 });
         void setBackgroundDim();
 
         void setBlocking();
@@ -141,17 +141,17 @@ namespace CUI
         virtual void calculateContentBoundaries();
         virtual void updateLayoutManagers(bool recursive = false);
 
-        Vec2 getScaledContentSize();
+        V2D getScaledContentSize();
 
         void onEnter() override;
 
         bool _isHitSwallowed = false;
         // should be called every frame, it will update all ui elements to react if mouseLocationInView vector is inside that object on a specific camera and react on hover or hover leave
-        bool hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool hover(V2D mouseLocationInView, Camera* cam);
 
         // should be called on onMouseDown or onTouchBegan, it will check on every element and react if mouseLocationInView vector is inside that object on a specific camera and perform a click action or defocus action if outside
-        bool press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         void keyPress(EventKeyboard::KeyCode keyCode);
         void keyRelease(EventKeyboard::KeyCode keyCode);
@@ -166,8 +166,8 @@ namespace CUI
             return _isHitSwallowed || isUiFocused();
         }
 
-        void setMargin(const ax::Vec2& margin) { _margin = margin; }
-        const Vec2& getMargin() { return _margin; }
+        void setMargin(const V2D& margin) { _margin = margin; }
+        const V2D& getMargin() { return _margin; }
 
         void onEnable();
         void onDisable();
@@ -180,7 +180,7 @@ namespace CUI
         ui::Button* _bgButton = nullptr;
         ax::ui::Scale9Sprite* _background = nullptr;
         ax::LayerColor* _bgDim= nullptr;
-        ax::Vec2 _backgroundPadding = ax::Vec2::ZERO;
+        V2D _backgroundPadding = V2D::ZERO;
         bool _closestStaticBorder = false;
         std::vector<CUI::GUI*> _allButtons;
 
@@ -197,7 +197,7 @@ namespace CUI
         bool _isBlocking = false;
         bool _isDismissible = false;
         bool _isMinimized = true;
-        ax::Vec2 _margin;
+        V2D _margin;
         Layout _layout;
         Constraint _constraint;
         BorderLayout _borderLayout;
@@ -207,7 +207,7 @@ namespace CUI
 
     class Separator : public GUI {
     public:
-        static Separator* create(ax::Vec2 size);
+        static Separator* create(V2D size);
     };
 
     class EventPassClippingNode : public GUI {
@@ -217,9 +217,9 @@ namespace CUI
         ax::ClippingRectangleNode* clip = nullptr;
         void setClipRegion(ax::Rect r);
 
-        virtual bool hover(Vec2 mouseLocationInView, Camera* cam);
-        virtual bool press(Vec2 mouseLocationInView, Camera* cam);
-        virtual bool release(Vec2 mouseLocationInView, Camera* cam);
+        virtual bool hover(V2D mouseLocationInView, Camera* cam);
+        virtual bool press(V2D mouseLocationInView, Camera* cam);
+        virtual bool release(V2D mouseLocationInView, Camera* cam);
         virtual void keyPress(EventKeyboard::KeyCode keyCode);
         virtual void keyRelease(EventKeyboard::KeyCode keyCode);
         virtual void mouseScroll(EventMouse* event);

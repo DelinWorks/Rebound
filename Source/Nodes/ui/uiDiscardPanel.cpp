@@ -43,7 +43,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
 
     auto label = CUI::Label::create();
     label->init(header, 16 * (type == DiscardType::INPUT ? 2 : 1));
-    label->setUiPadding(Vec2(100, 0));
+    label->setUiPadding(V2D(100, 0));
     auto cc = TO_CONTAINER(label);
     cc->setMargin({ 0, 8 });
     stack->addChild(cc);
@@ -120,7 +120,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
     stack->addChild(TO_CONTAINER(buttonStack));
 }
 
-bool CUI::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::DiscardPanel::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (_modalStack.size() == 0) // Object was popped before
         return false;
@@ -133,7 +133,7 @@ bool CUI::DiscardPanel::hover(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera
     else return false;
 }
 
-bool CUI::DiscardPanel::press(cocos2d::Vec2 mouseLocationInView, cocos2d::Camera* cam)
+bool CUI::DiscardPanel::press(V2D mouseLocationInView, Camera* cam)
 {
     Container::press(mouseLocationInView, cam);
     return true;
@@ -154,7 +154,7 @@ void CUI::DiscardPanel::keyRelease(EventKeyboard::KeyCode keyCode)
 {
 }
 
-void CUI::DiscardPanel::update(f32 dt)
+void CUI::DiscardPanel::update(F32 dt)
 {
 }
 

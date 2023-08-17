@@ -23,7 +23,7 @@ public:
 
     float elapsedDt;
     void awake();
-    void update(f32 dt);
+    void update(F32 dt);
     
     ax::ui::Slider* slider;
     ax::backend::ProgramState* ps1;
@@ -36,7 +36,6 @@ public:
 
     ax::TMXLayer* layerSolid;
 
-    DarknessPhysicsWorld* physics;
     TiledMap* map;
 
     CREATE_FUNC(GameplayScene);

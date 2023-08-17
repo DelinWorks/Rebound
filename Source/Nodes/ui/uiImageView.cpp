@@ -53,7 +53,7 @@ bool CUI::ImageView::init(Size _contentsize, ax::Texture2D* texture, bool rescal
     return Node::init();
 }
 
-bool CUI::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::ImageView::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (isEnabled())
     {
@@ -81,7 +81,7 @@ bool CUI::ImageView::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     }
 }
 
-bool CUI::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::ImageView::press(V2D mouseLocationInView, Camera* cam)
 {
     if (isEnabled() && button->hitTest(mouseLocationInView, cam, nullptr)) {
         _pCurrentHeldItem = this;
@@ -92,18 +92,18 @@ bool CUI::ImageView::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CUI::ImageView::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::ImageView::release(V2D mouseLocationInView, Camera* cam)
 {
     if (_pCurrentHeldItem == this) {
         if (pressLocation.fuzzyEquals(mouseLocationInView, 3)) {
             _pCurrentHeldItem = nullptr;
-            Vec3 hitP;
+            V3D hitP;
             auxButton->hitTest(mouseLocationInView, cam, &hitP);
             if (hitP.x > 0.0 && textureSize.y - hitP.y > 0 && hitP.x < textureSize.x && textureSize.y - hitP.y < textureSize.y) {
-                auto pos = Vec2(floor(hitP.x / gridSize.y), floor((textureSize.y - hitP.y) / gridSize.y));
+                auto pos = V2D(floor(hitP.x / gridSize.y), floor((textureSize.y - hitP.y) / gridSize.y));
                 selection->clear();
-                selection->drawSolidRect(Vec2(pos.x * gridSize.x, -(pos.y * gridSize.y)),
-                    Vec2(pos.x * gridSize.x + gridSize.x, -(pos.y * gridSize.y + gridSize.y)),
+                selection->drawSolidRect(V2D(pos.x * gridSize.x, -(pos.y * gridSize.y)),
+                    V2D(pos.x * gridSize.x + gridSize.x, -(pos.y * gridSize.y + gridSize.y)),
                     Color4F(0, 0.58f, 1.0f, 0.5f));
                 selectedIndex = pos.y * (textureSize.x / gridSize.x) + pos.x;
                 SoundGlobals::playUiClickSound();
@@ -119,7 +119,7 @@ void CUI::ImageView::mouseScroll(ax::EventMouse* event)
     imageP->setScale(Math::clamp(imageP->getScaleX(), 0.25, 5));
 }
 
-void CUI::ImageView::enableGridSelection(ax::Size _gridsize)
+void CUI::ImageView::enableGridSelection(S2D _gridsize)
 {
     gridSize = _gridsize;
     textureSize = Size(CMF(textureSize.x, gridSize.x), CMF(textureSize.y, gridSize.y));
@@ -129,9 +129,9 @@ void CUI::ImageView::enableGridSelection(ax::Size _gridsize)
 
     grid->clear();
     for (int x = 0; x <= textureSize.x / gridSize.x; x++)
-        grid->drawLine(Vec2(x * gridSize.x, 0), Vec2(x * gridSize.x, -textureSize.y), Color4B::BLACK);
+        grid->drawLine(V2D(x * gridSize.x, 0), V2D(x * gridSize.x, -textureSize.y), Color4B::BLACK);
     for (int y = -textureSize.y / gridSize.y; y <= 0; y++)
-        grid->drawLine(Vec2(0, y * gridSize.y), Vec2(textureSize.x, y * gridSize.y), Color4B::BLACK);
+        grid->drawLine(V2D(0, y * gridSize.y), V2D(textureSize.x, y * gridSize.y), Color4B::BLACK);
 }
 
 void CUI::ImageView::onEnable()

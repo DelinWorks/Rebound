@@ -37,10 +37,10 @@ void CUI::TextField::init(const std::wstring& _placeholder, int _fontSize, Size 
     );
 }
 
-void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fontname, i32 _fontsize, bool _password,
-    ax::Rect _capinsets, ax::Size _contentsize, ax::Rect _clampregion,
-    Size _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
-    Color3B _selected_color, bool _allowExtend, i32 length, bool _toUpper,
+void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fontname, I32 _fontsize, bool _password,
+    R2D _capinsets, ax::Size _contentsize, R2D _clampregion,
+    S2D _clampoffset, std::string_view _normal_sp, bool _adaptToWindowSize,
+    Color3B _selected_color, bool _allowExtend, I32 length, bool _toUpper,
     std::string_view _allowedChars)
 {
     if (_rescalingAllowed)
@@ -82,7 +82,7 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
         //password_control_button->setContentSize(Size(password_control->getContentSize().width + 15, password_control->getContentSize().height + 15));
         //password_control->addChild(password_control_button);
         hookPlaceholderButtonToNode(password_control, password_control_button, Size(15, 10), true);
-        //password_control_button->setPosition(Vec2(password_control->getBoundingBox().size.width / 2, password_control->getBoundingBox().size.height / 2));
+        //password_control_button->setPosition(V2D(password_control->getBoundingBox().size.width / 2, password_control->getBoundingBox().size.height / 2));
         password_control_button->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
             switch (type)
             {
@@ -116,7 +116,7 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
     addChild(field, 1);
     addChild(cursor_control_parent, 2);
     {
-        f32 duration = 0.1F;
+        F32 duration = 0.1F;
         auto hide = FadeTo::create(duration, 0);
         auto show = FadeTo::create(duration, 255);
         auto delay = DelayTime::create((1.0 - duration) / 2.0);
@@ -134,23 +134,23 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
     //password_hover = ChangeValue<bool>();
 }
 
-void CUI::TextField::update(f32 dt) {
+void CUI::TextField::update(F32 dt) {
     auto dSize = getDynamicContentSize();
     setContentSize(dSize + getUiPadding());
     if (sprite->isVisible())
         HoverEffectGUI::update(dt, getContentSize());
 }
 
-bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::TextField::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (!adaptToWindowSize && field->getContentSize().width / _UiScale > sprite->getContentSize().width)
         field->getTextFieldRenderer()->setScale(sprite->getContentSize().width / (field->getContentSize().width / _UiScale + capinsets.origin.x * 2) / _UiScale);
     else if (adaptToWindowSize)
         field->getTextFieldRenderer()->setScale(1 / _UiScale);
 
-    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Darkness::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
-        Darkness::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
-        Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * _UiScale : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Darkness::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
+    sprite->setContentSize(Size(extend ? Math::clamp(field->getContentSize().width / _UiScale + clampoffset.width, clampregion.origin.x, adaptToWindowSize ? (password ? Rebound::getInstance()->gameWindow.windowSize.width - (password_control->getContentSize().width * 2 + 30) :
+        Rebound::getInstance()->gameWindow.windowSize.width) : (password ? clampregion.size.width - (password_control->getContentSize().width * 2 + 30) : clampregion.size.width)) : clampregion.size.width,
+        Math::clamp((field->getContentSize().height - (_ForceOutline ? _PmtFontOutline * 2 * _UiScale : 0)) / _UiScale + clampoffset.height, clampregion.origin.y, adaptToWindowSize ? Rebound::getInstance()->gameWindow.windowSize.height : clampregion.size.height)));
     button->setContentSize(sprite->getContentSize());
 
     if (password_control_button != _NOTHING)
@@ -173,11 +173,11 @@ bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
         {
             cursor_control->setVisible(true);
             if (field->getString().length() > 0) {
-                cursor_control->setPosition(Vec2((field->getContentSize().width / 2 + 4) * field->getTextFieldRenderer()->getScale(), 0));
+                cursor_control->setPosition(V2D((field->getContentSize().width / 2 + 4) * field->getTextFieldRenderer()->getScale(), 0));
                 cursor_control->setScale(field->getTextFieldRenderer()->getScale() * _UiScale);
             }
             else {
-                cursor_control->setPosition(Vec2(0, 0));
+                cursor_control->setPosition(V2D(0, 0));
                 cursor_control->setScale(1);
             }
 
@@ -218,7 +218,7 @@ bool CUI::TextField::hover(ax::Vec2 mouseLocationInView, Camera* cam)
     }
 
     if (password) {
-        password_control->setPosition(Vec2(getDynamicContentSize().width / 2 + password_control->getContentSize().width - 8, 0));
+        password_control->setPosition(V2D(getDynamicContentSize().width / 2 + password_control->getContentSize().width - 8, 0));
     }
 
     return hover_cv.getValue();
@@ -267,7 +267,7 @@ void CUI::TextField::onDisable()
     field->runAction(tint);
 }
 
-bool CUI::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::TextField::press(V2D mouseLocationInView, Camera* cam)
 {
     if (!isEnabled())
         return false;
@@ -283,7 +283,7 @@ bool CUI::TextField::press(ax::Vec2 mouseLocationInView, Camera* cam)
     return false;
 }
 
-bool CUI::TextField::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::TextField::release(V2D mouseLocationInView, Camera* cam)
 {
     return false;
 }

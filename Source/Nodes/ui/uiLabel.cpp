@@ -15,7 +15,7 @@ CUI::Label* CUI::Label::create()
     return ret;
 }
 
-void CUI::Label::init(std::wstring _text, i32 _fontsize, Size _size, float _wrap)
+void CUI::Label::init(std::wstring _text, I32 _fontsize, Size _size, float _wrap)
 {
     init(
         _text,
@@ -26,7 +26,7 @@ void CUI::Label::init(std::wstring _text, i32 _fontsize, Size _size, float _wrap
     );
 }
 
-void CUI::Label::init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size, float _wrap)
+void CUI::Label::init(std::wstring& _text, std::string_view _fontname, I32 _fontsize, Size _size, float _wrap)
 {
     if (_rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
@@ -46,12 +46,12 @@ void CUI::Label::enableOutline()
     hasOutline = true;
 }
 
-void CUI::Label::update(f32 dt) {
+void CUI::Label::update(F32 dt) {
     auto dSize = getDynamicContentSize();
     setContentSize(dSize * _UiScale + getUiPadding());
 }
 
-bool CUI::Label::hover(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Label::hover(V2D mouseLocationInView, Camera* cam)
 {
     return false;
 }
@@ -77,19 +77,19 @@ void CUI::Label::onDisable()
     field->runAction(fade);
 }
 
-bool CUI::Label::press(ax::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Label::press(V2D mouseLocationInView, Camera* cam)
 {
     return false;
 }
 
-bool CUI::Label::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Label::release(V2D mouseLocationInView, Camera* cam)
 {
     return false;
 }
 
 Size CUI::Label::getDynamicContentSize()
 {
-    auto dSize = field->getContentSize() - Vec2(0, (_ForceOutline ? _PmtFontOutline * 1 : 0));
+    auto dSize = field->getContentSize() - V2D(0, (_ForceOutline ? _PmtFontOutline * 1 : 0));
     if (size.x == 0)
         return dSize / _UiScale;
     auto calc = dSize.x / _UiScale * (size.x / dSize.x);
@@ -115,7 +115,7 @@ void CUI::Label::onFontScaleUpdate(float scale)
 
 void CUI::Label::updatePositionAndSize()
 {
-    auto dSize = field->getContentSize() * Vec2(1.0, 1.0 / (_ForceOutline ? _PmtFontOutline * 2 : 1));
+    auto dSize = field->getContentSize() * V2D(1.0, 1.0 / (_ForceOutline ? _PmtFontOutline * 2 : 1));
     if (dSize.x > size.x && size.x != 0)
         field->setScale(size.x / dSize.x / _UiScale);
     else 

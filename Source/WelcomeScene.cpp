@@ -73,7 +73,7 @@ void WelcomeScene::onInitDone()
     //Camera::getDefaultCamera()->setZoom(2);
 }
 
-void WelcomeScene::update(f32 dt)
+void WelcomeScene::update(F32 dt)
 {
     onInitDone();
 

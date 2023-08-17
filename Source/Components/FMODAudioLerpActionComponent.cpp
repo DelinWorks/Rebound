@@ -4,7 +4,7 @@ void FMODAudioLerpActionComponent::onAdd()
 {
 }
 
-void FMODAudioLerpActionComponent::update(f32 dt) {
+void FMODAudioLerpActionComponent::update(F32 dt) {
     ref->setVolume(actionNode->getPositionX());
 }
 
@@ -17,7 +17,7 @@ FMODAudioLerpActionComponent::FMODAudioLerpActionComponent(Node* _owner) {
     owner = _owner;
 }
 
-FMODAudioLerpActionComponent* FMODAudioLerpActionComponent::initComponent(FMOD::Channel* sound, f32 _duration, f32 _start, f32 _end) {
+FMODAudioLerpActionComponent* FMODAudioLerpActionComponent::initComponent(FMOD::Channel* sound, F32 _duration, F32 _start, F32 _end) {
     ref = sound;
     getOwner()->setPositionX(start = _start);
     auto actionTo = MoveTo::create(_duration, Vec2(end = _end, 0));

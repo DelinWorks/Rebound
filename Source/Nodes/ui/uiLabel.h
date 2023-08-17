@@ -20,16 +20,16 @@ namespace CUI
         ax::Label* field;
         ax::Size size;
 
-        void init(std::wstring _text, i32 _fontsize, Size _size = Size(0, 0), float _wrap = 0);
+        void init(std::wstring _text, I32 _fontsize, Size _size = Size(0, 0), float _wrap = 0);
 
-        void init(std::wstring& _text, std::string_view _fontname, i32 _fontsize, Size _size = Size(0, 0), float _wrap = 0);
+        void init(std::wstring& _text, std::string_view _fontname, I32 _fontsize, Size _size = Size(0, 0), float _wrap = 0);
 
         bool hasOutline = false;
         void enableOutline();
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
 
         void focus();
 
@@ -39,8 +39,8 @@ namespace CUI
 
         void onDisable() override;
 
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
 
         Size getDynamicContentSize();
 

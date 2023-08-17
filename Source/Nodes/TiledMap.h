@@ -19,8 +19,8 @@ public:
 	CatPlayer* player;
 	ax::Camera* cam;
 	ax::TMXTiledMap* tiledMap;
-	void update(f32 dt) override;
-	bool initWithFilename(ax::Scene* scene, DarknessPhysicsWorld* world, std::string_view file, CatPlayer* _player);
+	void update(F32 dt) override;
+	//bool initWithFilename(ax::Scene* scene, ReboundPhysicsWorld* world, std::string_view file, CatPlayer* _player);
 };
 
 #endif

@@ -22,14 +22,14 @@ public:
             std::string zeros(8 - hexString.length(), '0');
             hexString += zeros;
         }
-        u32 raw = 0;
+        U32 raw = 0;
         std::stringstream ss;
         ss << std::hex << hexString;
         ss >> raw;
-        u8 r = ((raw >> 24) & 0xFF);
-        u8 g = ((raw >> 16) & 0xFF);
-        u8 b = ((raw >> 8) & 0xFF);
-        u8 a = ((raw) & 0xFF);
+        U8 r = ((raw >> 24) & 0xFF);
+        U8 g = ((raw >> 16) & 0xFF);
+        U8 b = ((raw >> 8) & 0xFF);
+        U8 a = ((raw) & 0xFF);
         float red = static_cast<float>(r) / 255.0f;
         float green = static_cast<float>(g) / 255.0f;
         float blue = static_cast<float>(b) / 255.0f;

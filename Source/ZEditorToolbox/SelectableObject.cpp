@@ -16,7 +16,7 @@ Selectable* Selectable::create(ax::Node* child)
 	return nullptr;
 }
 
-bool Selectable::editorDraw(ax::Vec2 worldSpacePosition)
+bool Selectable::editorDraw(V2D worldSpacePosition)
 {
 	bool cond = isMouseOver(worldSpacePosition);
 	drawNode->setVisible(cond);
@@ -29,10 +29,10 @@ bool Selectable::editorDraw(ax::Vec2 worldSpacePosition)
 	return cond;
 }
 
-bool Selectable::isMouseOver(ax::Vec2 worldSpacePosition)
+bool Selectable::isMouseOver(V2D worldSpacePosition)
 {
 	auto rot = worldSpacePosition.rotateByAngle(getPosition(), AX_DEGREES_TO_RADIANS(getRotation()));
-	Vec2 d = rot + getPosition() * Vec2(1, -1);
+	V2D d = rot + getPosition() * V2D(1, -1);
 	auto c = child->getContentSize() * getScale();
 	return Rect(c.x / -2, c.y / -2, c.x, c.y).containsPoint(d);
 }

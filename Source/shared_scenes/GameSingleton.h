@@ -30,20 +30,20 @@ struct GameWindowDescriptor
     GLFWwindow* window;
     cocos2d::Rect lastKnownWindowRect;
     cocos2d::Size windowSize;
-    i32 currentWindowCursor;
+    I32 currentWindowCursor;
     ResolutionPolicy windowPolicy;
     bool focusState;
     float guiScale;
 };
 
 /** Game class responsible for global variables, client connections and save files */
-class AX_DLL Darkness : public axmol::Ref
+class AX_DLL Rebound : public ax::Ref
 {
 public:
-    Darkness();
-    ~Darkness();
+    Rebound();
+    ~Rebound();
 
-    static Darkness* getInstance();
+    static Rebound* getInstance();
 
     void init();
 
@@ -80,8 +80,8 @@ public:
 
     uint64_t _timeSinceStart = 0ULL;
     uint64_t _currentTime = 0ULL;
-    f32 _elapsedGameTime = 0.0F;
-    i8 _accumulatedKickTries = 0;
+    F32 _elapsedGameTime = 0.0F;
+    I8 _accumulatedKickTries = 0;
 
     ////////////////////////////////////////////
 

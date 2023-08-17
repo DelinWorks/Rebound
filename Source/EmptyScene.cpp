@@ -42,7 +42,7 @@ bool EmptyScene::init()
     return true;
 }
 
-void EmptyScene::update(f32 dt)
+void EmptyScene::update(F32 dt)
 {
 
 }

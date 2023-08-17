@@ -14,7 +14,7 @@ CUI::Toggle* CUI::Toggle::create()
     return ret;
 }
 
-void CUI::Toggle::init(std::wstring _text, Size _contentsize)
+void CUI::Toggle::init(std::wstring _text, S2D _contentsize)
 {
     if (_rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
@@ -41,7 +41,7 @@ void CUI::Toggle::init(std::wstring _text, Size _contentsize)
     update(0);
 }
 
-void CUI::Toggle::update(f32 dt)
+void CUI::Toggle::update(F32 dt)
 {
     auto dSize = (getDynamicContentSize() + _padding) * _UiScale;
     auto ns = FULL_HD_NODE_SCALING;
@@ -53,7 +53,7 @@ void CUI::Toggle::update(f32 dt)
     }
 }
 
-bool CUI::Toggle::hover(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Toggle::hover(V2D mouseLocationInView, Camera* cam)
 {
     if (isEnabled())
     {
@@ -92,7 +92,7 @@ void CUI::Toggle::onDisable()
     knob->icon->runAction(fade);
 }
 
-bool CUI::Toggle::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Toggle::press(V2D mouseLocationInView, Camera* cam)
 {
     if (!isEnabled()) return false;
     if (button->hitTest(mouseLocationInView, cam, _NOTHING))
@@ -107,7 +107,7 @@ bool CUI::Toggle::press(cocos2d::Vec2 mouseLocationInView, Camera* cam)
 	return false;
 }
 
-bool CUI::Toggle::release(cocos2d::Vec2 mouseLocationInView, Camera* cam)
+bool CUI::Toggle::release(V2D mouseLocationInView, Camera* cam)
 {
     onEnable(); // Used for effects only
     if (button->hitTest(mouseLocationInView, cam, _NOTHING)) {
@@ -160,8 +160,8 @@ void CUI::RadioGroup::addChild(Toggle* t)
 
 void CUI::RadioGroup::select(Toggle* t)
 {
-    i8 count = 0;
-    i8 selectedIndex = -1;
+    I8 count = 0;
+    I8 selectedIndex = -1;
     for (auto& _ : radios) {
         if (_ != t)
             _->knob->icon->setSpriteFrame(

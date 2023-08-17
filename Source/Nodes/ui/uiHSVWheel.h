@@ -48,17 +48,17 @@ namespace CUI
 
         bool doNotPushStateOnce = false;
         EditorToolbox::ColorChannelManager* channelMgr;
-        u16 currentChannel;
+        U16 currentChannel;
 
         bool init(float scale);
 
-        void update(f32 dt) override;
+        void update(F32 dt) override;
 
         void updateColorValues();
         void updateColorValues(Color4F color, bool _doNotPushStateOnce = false);
 
-        bool hover(cocos2d::Vec2 mouseLocationInView, Camera* cam) override;
-        bool press(cocos2d::Vec2 mouseLocationInView, Camera* cam);
-        bool release(cocos2d::Vec2 mouseLocationInView, Camera* cam);
+        bool hover(V2D mouseLocationInView, Camera* cam) override;
+        bool press(V2D mouseLocationInView, Camera* cam);
+        bool release(V2D mouseLocationInView, Camera* cam);
     };
 }

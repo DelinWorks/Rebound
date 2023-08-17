@@ -14,7 +14,7 @@ void SceneInputManagerComponent::onAdd() {
     RLOG("Input manager initialized for {}", _owner->getName());
 }
 
-void SceneInputManagerComponent::update(f32 dt) {
+void SceneInputManagerComponent::update(F32 dt) {
     for (auto& keyCode : _pressedKeys)
         onKeyHold((EventKeyboard::KeyCode)keyCode, onKeyEvent);
 }
@@ -31,64 +31,64 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
     auto _onKeyHoldCheck = [&](EventKeyboard::KeyCode keyCode, Event* event) {
         do {
             for (auto& i : _pressedKeys)
-                if (i == (i32)keyCode)
+                if (i == (I32)keyCode)
                     return;
-            _pressedKeys.push_back((i32)keyCode);
+            _pressedKeys.push_back((I32)keyCode);
         } while (false);
 
         if ((std::find(_pressedKeys.begin(), _pressedKeys.end(), (int)EventKeyboard::KeyCode::KEY_LEFT_ALT) != _pressedKeys.end()) ||
             (std::find(_pressedKeys.begin(), _pressedKeys.end(), (int)EventKeyboard::KeyCode::KEY_RIGHT_ALT) != _pressedKeys.end()))
         {
             if (keyCode == EventKeyboard::KeyCode::KEY_ENTER) {
-                if (!Darkness::getInstance()->gameWindow.isFullscreen)
+                if (!Rebound::getInstance()->gameWindow.isFullscreen)
                 {
-                    Darkness::getInstance()->gameWindow.isFullscreen = true;
-                    //GameUtils::GLFW_SetBorder(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window), 1);
+                    Rebound::getInstance()->gameWindow.isFullscreen = true;
+                    //GameUtils::GLFW_SetBorder(glfwGetWin32Window(Rebound::getInstance()->gameWindow.window), 1);
                     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
                     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                    i32 xpos, ypos;
+                    I32 xpos, ypos;
                     Size frameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
-                    glfwGetWindowPos(Darkness::getInstance()->gameWindow.window, &xpos, &ypos);
-                    Darkness::getInstance()->gameWindow.lastKnownWindowRect = Rect(xpos, ypos, frameSize.width, frameSize.width / (f32)(16.0 / 9.0));
+                    glfwGetWindowPos(Rebound::getInstance()->gameWindow.window, &xpos, &ypos);
+                    Rebound::getInstance()->gameWindow.lastKnownWindowRect = Rect(xpos, ypos, frameSize.width, frameSize.width / (F32)(16.0 / 9.0));
                     Director::getInstance()->getOpenGLView()->setFrameSize(mode->width, mode->height);
-                    glfwSetWindowSizeLimits(Darkness::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
-                    glfwSetWindowPos(Darkness::getInstance()->gameWindow.window, 0, 0);
-                    glfwSetWindowSize(Darkness::getInstance()->gameWindow.window, mode->width, mode->height);
+                    glfwSetWindowSizeLimits(Rebound::getInstance()->gameWindow.window, 640, 360, mode->width, mode->height);
+                    glfwSetWindowPos(Rebound::getInstance()->gameWindow.window, 0, 0);
+                    glfwSetWindowSize(Rebound::getInstance()->gameWindow.window, mode->width, mode->height);
                     GameUtils::GLFW_ClipCursor(true);
                     return;
                 }
-                else if (Darkness::getInstance()->gameWindow.isFullscreen) {
+                else if (Rebound::getInstance()->gameWindow.isFullscreen) {
 
-                    Darkness::getInstance()->gameWindow.isFullscreen = false;
-                    //GameUtils::GLFW_SetBorder(glfwGetWin32Window(Darkness::getInstance()->gameWindow.window), 0);
+                    Rebound::getInstance()->gameWindow.isFullscreen = false;
+                    //GameUtils::GLFW_SetBorder(glfwGetWin32Window(Rebound::getInstance()->gameWindow.window), 0);
                     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
                     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-                    auto rect = Darkness::getInstance()->gameWindow.lastKnownWindowRect;
-                    glfwSetWindowMonitor(Darkness::getInstance()->gameWindow.window, nullptr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, mode->refreshRate);
+                    auto rect = Rebound::getInstance()->gameWindow.lastKnownWindowRect;
+                    glfwSetWindowMonitor(Rebound::getInstance()->gameWindow.window, nullptr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, mode->refreshRate);
                 }
             }
             else if (keyCode == EventKeyboard::KeyCode::KEY_EQUAL) {
-                Darkness::getInstance()->gameWindow.guiScale += 0.25;
-                Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 8);
-                Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+                Rebound::getInstance()->gameWindow.guiScale += 0.25;
+                Rebound::getInstance()->gameWindow.guiScale = clampf(Rebound::getInstance()->gameWindow.guiScale, 0.5, 8);
+                Rebound::getInstance()->gameWindow.isScreenSizeDirty = true;
                 GameUtils::SignalHandeler::signalSceneRoot("tooltip_gui_scale_advice");
             }
             else if (keyCode == EventKeyboard::KeyCode::KEY_MINUS) {
-                Darkness::getInstance()->gameWindow.guiScale -= 0.25;
-                Darkness::getInstance()->gameWindow.guiScale = clampf(Darkness::getInstance()->gameWindow.guiScale, 0.5, 8);
-                Darkness::getInstance()->gameWindow.isScreenSizeDirty = true;
+                Rebound::getInstance()->gameWindow.guiScale -= 0.25;
+                Rebound::getInstance()->gameWindow.guiScale = clampf(Rebound::getInstance()->gameWindow.guiScale, 0.5, 8);
+                Rebound::getInstance()->gameWindow.isScreenSizeDirty = true;
                 GameUtils::SignalHandeler::signalSceneRoot("tooltip_gui_scale_advice");
             }
         }
 
-        if (!Darkness::getInstance()->gameWindow.isFullscreen)
+        if (!Rebound::getInstance()->gameWindow.isFullscreen)
             GameUtils::GLFW_ClipCursor(false);
 
         //if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
-        //    Darkness::destroyInstance();
+        //    Rebound::destroyInstance();
 
         if (keyCode == EventKeyboard::KeyCode::KEY_F2)
-            Darkness::restartInstance();
+            Rebound::restartInstance();
 
         if (keyCode == EventKeyboard::KeyCode::KEY_F5)
             FMODAudioEngine::destroyInstance();
@@ -106,8 +106,8 @@ SceneInputManagerComponent* SceneInputManagerComponent::initKeyboard(std::functi
     auto _onKeyHoldRelease = [&](EventKeyboard::KeyCode keyCode, Event* event) {
         do {
             for (auto& i : _pressedKeys)
-                if (i == (i32)keyCode)
-                    _pressedKeys.erase(std::remove(_pressedKeys.begin(), _pressedKeys.end(), (i32)keyCode), _pressedKeys.end());
+                if (i == (I32)keyCode)
+                    _pressedKeys.erase(std::remove(_pressedKeys.begin(), _pressedKeys.end(), (I32)keyCode), _pressedKeys.end());
         } while (false);
 
         if (_uiContainer) _uiContainer->keyRelease(keyCode);
@@ -143,9 +143,9 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         EventMouse* e = (EventMouse*)event;
 
         if (e->getMouseButton() != EventMouse::MouseButton::BUTTON_MIDDLE)
-            Darkness::getInstance()->setCursorHand();
+            Rebound::getInstance()->setCursorHand();
         else
-            Darkness::getInstance()->setCursorHold();
+            Rebound::getInstance()->setCursorHold();
 
         if (_uiContainer) {
             if ((e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT || _uiContainer->isUiFocused()))
@@ -159,7 +159,7 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
     auto _onMouseUpCheck = [&](EventMouse* event) {
         EventMouse* e = (EventMouse*)event;
 
-        Darkness::getInstance()->setCursorNormal();
+        Rebound::getInstance()->setCursorNormal();
 
         if (_uiContainer && e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT) {
             if (_uiContainer->release(e->getLocationInView(), getCamera())) return;
@@ -185,9 +185,9 @@ SceneInputManagerComponent* SceneInputManagerComponent::initMouse(std::function<
         }
 
         //if (CUI::_pCurrentHoveredItem)
-        //    Darkness::getInstance()->setCursorHand();
+        //    Rebound::getInstance()->setCursorHand();
         //else
-        //    Darkness::getInstance()->setCursorNormal();
+        //    Rebound::getInstance()->setCursorNormal();
 
         //if (_uiContainer)
         //    if (_uiContainer->blockMouse()) return;

@@ -4,7 +4,7 @@ void GameUtils::GLFW_ClipCursor(bool unset)
 {
     //return;
 
-    //auto mWindow = glfwGetWin32Window(Darkness::getInstance()->gameWindow.window);
+    //auto mWindow = glfwGetWin32Window(Rebound::getInstance()->gameWindow.window);
 
     //RECT rect;
     //GetClientRect(mWindow, &rect);
@@ -26,12 +26,12 @@ void GameUtils::GLFW_ClipCursor(bool unset)
     //rect.right = lr.x;
     //rect.bottom = lr.y;
 
-    //ClipCursor(unset ? nullptr : (Darkness::getInstance()->gameWindow.isCursorLockedToWindow ? &rect : nullptr));
+    //ClipCursor(unset ? nullptr : (Rebound::getInstance()->gameWindow.isCursorLockedToWindow ? &rect : nullptr));
 }
 
 void GameUtils::GLFW_SetCursorNormal()
 {
-    if (Darkness::getInstance()->gameWindow.currentWindowCursor == 0)
+    if (Rebound::getInstance()->gameWindow.currentWindowCursor == 0)
         return;
 
     Image* img = new Image();
@@ -41,13 +41,13 @@ void GameUtils::GLFW_SetCursorNormal()
     icon->height = img->getHeight();
     icon->pixels = img->getData();
     GLFWcursor* cursor = glfwCreateCursor(icon, 0, 0);
-    glfwSetCursor(Darkness::getInstance()->gameWindow.window, cursor);
-    Darkness::getInstance()->gameWindow.currentWindowCursor = 0;
+    glfwSetCursor(Rebound::getInstance()->gameWindow.window, cursor);
+    Rebound::getInstance()->gameWindow.currentWindowCursor = 0;
 }
 
 void GameUtils::GLFW_SetCursorSelected()
 {
-    if (Darkness::getInstance()->gameWindow.currentWindowCursor == 1)
+    if (Rebound::getInstance()->gameWindow.currentWindowCursor == 1)
         return;
 
     Image* img = new Image();
@@ -57,8 +57,8 @@ void GameUtils::GLFW_SetCursorSelected()
     icon->height = img->getHeight();
     icon->pixels = img->getData();
     GLFWcursor* cursor = glfwCreateCursor(icon, 0, 0);
-    glfwSetCursor(Darkness::getInstance()->gameWindow.window, cursor);
-    Darkness::getInstance()->gameWindow.currentWindowCursor = 1;
+    glfwSetCursor(Rebound::getInstance()->gameWindow.window, cursor);
+    Rebound::getInstance()->gameWindow.currentWindowCursor = 1;
 }
 
 void GameUtils::GLFW_SetBorder(HWND window, int on)
@@ -97,7 +97,7 @@ void GameUtils::GLFW_SetBorder(HWND window, int on)
         SWP_NOMOVE | SWP_FRAMECHANGED);
 }
 
-Vec2 GameUtils::parseVector2D(std::string position)
+V2D GameUtils::parseVector2D(std::string position)
 {
     try {
         std::string value = position;
@@ -114,7 +114,7 @@ Vec2 GameUtils::parseVector2D(std::string position)
             strY = value.substr(1, value.length());
         if (strX.length() == 0) strX = "0";
         if (strY.length() == 0) strY = strX;
-        return Vec2(std::stof(strX), std::stof(strY));
+        return V2D(std::stof(strX), std::stof(strY));
     }
     catch (std::exception& e) {
         return { 0,0 };
@@ -165,12 +165,12 @@ void GameUtils::addSpriteFramesFromJson(const std::string_view texture_path, con
                 auto const& sourceSize = it.FindMember("sourceSize")->value;
                 if (frame.IsObject() && sourceSize.IsObject()) {
                     const char* _filename = _value.GetString();
-                    i32 _x = frame.FindMember("x")->value.GetInt();
-                    i32 _y = frame.FindMember("y")->value.GetInt();
-                    i32 _w = frame.FindMember("w")->value.GetInt();
-                    i32 _h = frame.FindMember("h")->value.GetInt();
-                    i32 _sw = sourceSize.FindMember("w")->value.GetInt();
-                    i32 _sh = sourceSize.FindMember("h")->value.GetInt();
+                    I32 _x = frame.FindMember("x")->value.GetInt();
+                    I32 _y = frame.FindMember("y")->value.GetInt();
+                    I32 _w = frame.FindMember("w")->value.GetInt();
+                    I32 _h = frame.FindMember("h")->value.GetInt();
+                    I32 _sw = sourceSize.FindMember("w")->value.GetInt();
+                    I32 _sh = sourceSize.FindMember("h")->value.GetInt();
                     bool rotated = _valuerot.GetBool();
 
                     //std::cout << _name.GetString() << ": " << _filename << "\n"
@@ -180,7 +180,7 @@ void GameUtils::addSpriteFramesFromJson(const std::string_view texture_path, con
                     //    ", h: " << _h << "\n"
                     //    "rotated: " << rotated << "\n\n";
 
-                    auto spFrame = SpriteFrame::createWithTexture(tex, Rect(_x, _y, _w, _h), rotated, Vec2::ZERO, Size(_sw, _sh));
+                    auto spFrame = SpriteFrame::createWithTexture(tex, Rect(_x, _y, _w, _h), rotated, V2D::ZERO, Size(_sw, _sh));
                     cache->addSpriteFrame(spFrame, _filename);
                 }
             }
@@ -188,29 +188,29 @@ void GameUtils::addSpriteFramesFromJson(const std::string_view texture_path, con
     }
 }
 
-Vec2 GameUtils::convertFromScreenToSpace(const Vec2& locationInView, Node* cam, bool reverseY)
+V2D GameUtils::convertFromScreenToSpace(const V2D& locationInView, Node* cam, bool reverseY)
 {
     auto director = Director::getInstance();
     auto visibleSize = director->getVisibleSize();
-    auto loc = director->convertToGL(Vec2(locationInView.x,
+    auto loc = director->convertToGL(V2D(locationInView.x,
         (!reverseY ? visibleSize.y - locationInView.y : locationInView.y)));
     auto screenSize = Director::getInstance()->getWinSizeInPixels();
-    return Vec2((((loc.x - visibleSize.x / 2) * cam->getScale()) + cam->getPositionX()),
+    return V2D((((loc.x - visibleSize.x / 2) * cam->getScale()) + cam->getPositionX()),
         (((loc.y - visibleSize.y / 2) * cam->getScale()) + cam->getPositionY()));
         //.rotateByAngle(cam->getPosition(), -AX_DEGREES_TO_RADIANS(cam->getRotation()));
 }
 
-Vec2 GameUtils::getNodeIgnoreDesignScale___FUNCTIONAL(bool ignoreScaling, float nestedScale)
+V2D GameUtils::getNodeIgnoreDesignScale___FUNCTIONAL(bool ignoreScaling, float nestedScale)
 {
     Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
-    float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
-    float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Darkness::getInstance()->gameWindow.guiScale);
+    float x = actualWinSize.width / actualFrameSize.width * (ignoreScaling ? 1 : Rebound::getInstance()->gameWindow.guiScale);
+    float y = actualWinSize.height / actualFrameSize.height * (ignoreScaling ? 1 : Rebound::getInstance()->gameWindow.guiScale);
 
-    Vec2 s = ax::Vec2::ONE;
+    V2D s = V2D::ONE;
     // If resolution policy is other than SHOW_ALL then we set
     // the scale to x and y value. and there will be no stretching.
-    if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
+    if (Rebound::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
         s.x = x * nestedScale;
         s.y = y * nestedScale;
     }
@@ -232,8 +232,8 @@ void GameUtils::setNodeIgnoreDesignScale___FUNCTIONAL(cocos2d::Node* node, bool 
     node->setScaleY(s.y);
 }
 
-static Vec2 ignoreDesignScale;
-static Vec2 ignoreDesignScaleNoScaling;
+static V2D ignoreDesignScale;
+static V2D ignoreDesignScaleNoScaling;
 
 void GameUtils::updateIgnoreDesignScale()
 {
@@ -243,14 +243,14 @@ void GameUtils::updateIgnoreDesignScale()
     //if (wFrameSize.x + wFrameSize.y < 3000) actualWinSize *= 0.75;
     Size actualFrameSize = Director::getInstance()->getOpenGLView()->getFrameSize();
     Size actualWinSize = Director::getInstance()->getWinSizeInPixels();
-    auto scale = Darkness::getInstance()->gameWindow.guiScale;
+    auto scale = Rebound::getInstance()->gameWindow.guiScale;
     float x = actualWinSize.width / actualFrameSize.width * (scale);
     float y = actualWinSize.height / actualFrameSize.height * (scale);
 
-    Vec2 s = ax::Vec2::ONE;
+    V2D s = V2D::ONE;
     // If resolution policy is other than SHOW_ALL then we set
     // the scale to x and y value. and there will be no stretching.
-    if (Darkness::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
+    if (Rebound::getInstance()->gameWindow.windowPolicy != ResolutionPolicy::SHOW_ALL) {
         s.x = x;
         s.y = y;
     }
@@ -266,7 +266,7 @@ void GameUtils::updateIgnoreDesignScale()
     ignoreDesignScaleNoScaling = s / scale;
 }
 
-Vec2 GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
+V2D GameUtils::getNodeIgnoreDesignScale(bool ignoreScaling, float nestedScale)
 {
     return ignoreScaling ? ignoreDesignScaleNoScaling * nestedScale : ignoreDesignScale * nestedScale;
 }
@@ -286,7 +286,7 @@ Size GameUtils::getWinDiff() {
 
 void GameUtils::setNodeScaleFHD(cocos2d::Node* node)
 {
-    f32 res = Director::getInstance()->getOpenGLView()->getFrameSize().width +
+    F32 res = Director::getInstance()->getOpenGLView()->getFrameSize().width +
         Director::getInstance()->getOpenGLView()->getFrameSize().height;
 }
 

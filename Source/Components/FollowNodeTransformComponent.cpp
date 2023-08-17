@@ -1,6 +1,6 @@
 #include "FollowNodeTransformComponent.h"
 
-void FollowNodeTransformComponent::update(f32 dt)
+void FollowNodeTransformComponent::update(F32 dt)
 {
     if (lerpAmount == -1)
     {
@@ -10,8 +10,8 @@ void FollowNodeTransformComponent::update(f32 dt)
     }
     else
     {
-        ax::Vec2 posFrom = _owner->getPosition();
-        ax::Vec2 posTo = target->getPosition();
+        V2D posFrom = _owner->getPosition();
+        V2D posTo = target->getPosition();
         posFrom.x = LERP(posFrom.x, posTo.x, lerpAmount);
         posFrom.y = LERP(posFrom.y, posTo.y, lerpAmount);
         if (followPos) _owner->setPosition(posFrom);

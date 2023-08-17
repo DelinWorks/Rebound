@@ -5,14 +5,14 @@ using namespace backend;
 
 using namespace GameUtils;
 
-ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _tileSize, SelectionBox::Box& box)
+ax::Rect MapEditor::createSelection(V2D start_pos, V2D end_pos, I32 _tileSize, SelectionBox::Box& box)
 {
     start_pos.x -= _tileSize / 2;
     start_pos.y -= _tileSize / 2;
     end_pos.x -= _tileSize / 2;
     end_pos.y -= _tileSize / 2;
-    start_pos = Vec2(snap(start_pos.x, _tileSize), snap(start_pos.y, _tileSize));
-    end_pos = Vec2(snap(end_pos.x, _tileSize), snap(end_pos.y, _tileSize));
+    start_pos = V2D(snap(start_pos.x, _tileSize), snap(start_pos.y, _tileSize));
+    end_pos = V2D(snap(end_pos.x, _tileSize), snap(end_pos.y, _tileSize));
     start_pos.x += _tileSize / 2;
     start_pos.y += _tileSize / 2;
     end_pos.x += _tileSize / 2;
@@ -51,24 +51,24 @@ ax::Rect MapEditor::createSelection(ax::Vec2 start_pos, ax::Vec2 end_pos, i32 _t
         end_pos.y = start_pos.y;
         start_pos.y = temp;
     }
-    box.left.begin = Vec2(start_pos.x, start_pos.y);
-    box.left.end = Vec2(start_pos.x, end_pos.y);
-    box.bottom.begin = Vec2(start_pos.x, start_pos.y);
-    box.bottom.end = Vec2(end_pos.x, start_pos.y);
-    box.right.begin = Vec2(start_pos.x, end_pos.y);
-    box.right.end = Vec2(end_pos.x, end_pos.y);
-    box.top.begin = Vec2(end_pos.x, start_pos.y);
-    box.top.end = Vec2(end_pos.x, end_pos.y);
-    box.first.p0 = Vec2(start_pos.x, start_pos.y);
-    box.first.p1 = Vec2(start_pos.x, end_pos.y);
-    box.first.p2 = Vec2(end_pos.x, end_pos.y);
-    box.second.p0 = Vec2(end_pos.x, end_pos.y);
-    box.second.p1 = Vec2(end_pos.x, start_pos.y);
-    box.second.p2 = Vec2(start_pos.x, start_pos.y);
+    box.left.begin = V2D(start_pos.x, start_pos.y);
+    box.left.end = V2D(start_pos.x, end_pos.y);
+    box.bottom.begin = V2D(start_pos.x, start_pos.y);
+    box.bottom.end = V2D(end_pos.x, start_pos.y);
+    box.right.begin = V2D(start_pos.x, end_pos.y);
+    box.right.end = V2D(end_pos.x, end_pos.y);
+    box.top.begin = V2D(end_pos.x, start_pos.y);
+    box.top.end = V2D(end_pos.x, end_pos.y);
+    box.first.p0 = V2D(start_pos.x, start_pos.y);
+    box.first.p1 = V2D(start_pos.x, end_pos.y);
+    box.first.p2 = V2D(end_pos.x, end_pos.y);
+    box.second.p0 = V2D(end_pos.x, end_pos.y);
+    box.second.p1 = V2D(end_pos.x, start_pos.y);
+    box.second.p2 = V2D(start_pos.x, start_pos.y);
     return Rect(start_pos.x, start_pos.y, end_pos.x, end_pos.y);
 }
 
-Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _tileSize)
+Rect MapEditor::createEditToolSelectionBox(V2D start_pos, V2D end_pos, I32 _tileSize)
 {
     if (!removeSelectionNode) {
         removeSelectionNode = DrawNode::create(1.0);
@@ -100,7 +100,7 @@ Rect MapEditor::createEditToolSelectionBox(Vec2 start_pos, Vec2 end_pos, i32 _ti
     return rect;
 }
 
-void MapEditor::setCameraScaleUiText(f32 scale)
+void MapEditor::setCameraScaleUiText(F32 scale)
 {
     char buff[8];
     snprintf(buff, sizeof(buff), "x%g", scale);

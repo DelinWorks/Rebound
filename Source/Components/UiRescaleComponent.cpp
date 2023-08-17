@@ -32,14 +32,14 @@ UiRescaleComponent* UiRescaleComponent::enableLayerResizing() {
     return this;
 }
 
-UiRescaleComponent* UiRescaleComponent::enableDesignScaleIgnoring(ax::Vec2 identity) {
+UiRescaleComponent* UiRescaleComponent::enableDesignScaleIgnoring(V2D identity) {
     _ignore = true;
     _isUiElemDirty = true;
     _identityScale = identity;
     return this;
 }
 
-UiRescaleComponent* UiRescaleComponent::setVisibleSizeHints(f32 widthDiv, f32 widthOffset, f32 heightDiv, f32 heightOffset) {
+UiRescaleComponent* UiRescaleComponent::setVisibleSizeHints(F32 widthDiv, F32 widthOffset, F32 heightDiv, F32 heightOffset) {
     _resizeHints = true;
     _resizeHintsRect = Rect(widthDiv, heightDiv, widthOffset, heightOffset);
     _isUiElemDirty = true;
@@ -97,9 +97,9 @@ UiRescaleComponent* UiRescaleComponent::enableSizeFitting(Size _sizeInPixels) {
 void UiRescaleComponent::windowSizeChange(Size newVisibleSize) {
 
     auto repositionNode = [&](Node* target) {
-        auto newPos = Vec2(_resizeHintsRect.origin.x == 0 ? 0 : newVisibleSize.width / _resizeHintsRect.origin.x + _resizeHintsRect.size.width,
+        auto newPos = V2D(_resizeHintsRect.origin.x == 0 ? 0 : newVisibleSize.width / _resizeHintsRect.origin.x + _resizeHintsRect.size.width,
             _resizeHintsRect.origin.y == 0 ? 0 : newVisibleSize.height / _resizeHintsRect.origin.y + _resizeHintsRect.size.height);
-        target->setPosition(Vec2(newPos.x, newPos.y));
+        target->setPosition(V2D(newPos.x, newPos.y));
     };
 
     if (_setLayerColor)
