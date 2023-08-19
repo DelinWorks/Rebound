@@ -4,8 +4,8 @@
 #include "Types.h"
 #include "Helper/Math.h"
 
-namespace ReboundPhysics {
-
+namespace ReboundPhysics
+{
 #define VERTICAL_RESOLUTION_LEEWAY 3
 #define CCD_MAX_TARGETS 320
 #define CCD_STEPS_TO_PERC(T) (1.0 / T)
@@ -51,19 +51,19 @@ namespace ReboundPhysics {
         F32 slopeAngle = 0.0f;
     };
 
-    inline CollisionShape* createRect(V2D pos, V2D size);
+    CollisionShape* createRect(V2D pos, V2D size);
 
-    inline CollisionShape* createSlope(V2D pos, F32 length, F32 base);
+    CollisionShape* createSlope(V2D pos, F32 length, F32 base);
 
-    inline CollisionShape* createRectDynamic(V2D pos, V2D size, F32 gravity);
+    CollisionShape* createRectDynamic(V2D pos, V2D size, F32 gravity);
 
-    inline bool getCollisionShapeIntersect(const CollisionShape& s1, const CollisionShape& s2);
+    bool getCollisionShapeIntersect(const CollisionShape& s1, const CollisionShape& s2);
 
-    inline V2D calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2);
+    V2D calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2);
 
-    inline I32 getLineOrientation(const V2D& a, const V2D& b, const V2D& c);
+    I32 getLineOrientation(const V2D& a, const V2D& b, const V2D& c);
 
-    inline bool isLineSegment(const V2D& a, const V2D& c, const V2D& b);
+    bool isLineSegment(const V2D& a, const V2D& c, const V2D& b);
 
     V2D getIntersectionPoint(const V2D& a, const V2D& b, const V2D& c, const V2D& d);
 
@@ -71,17 +71,17 @@ namespace ReboundPhysics {
 
     // TODO: this is fucking ugly and slow,
     // please use ray orientation to solve this problem efficiently.
-    inline RayCastResult doLineIntersectsRect(const V2D& p1, const V2D& p2, const CollisionShape& rect);
+    RayCastResult doLineIntersectsRect(const V2D& p1, const V2D& p2, const CollisionShape& rect);
 
-    inline RayCastResult doLineIntersectsRects(const V2D& p1, const V2D& p2, std::vector<CollisionShape>& _shapeCollection);
+    RayCastResult doLineIntersectsRects(const V2D& p1, const V2D& p2, std::vector<CollisionShape>& _shapeCollection);
 
-    inline bool getCollisionTriangleIntersect(const CollisionShape& r, const CollisionShape& t);
+    bool getCollisionTriangleIntersect(const CollisionShape& r, const CollisionShape& t);
 
-    inline ResolveResult resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv);
+    ResolveResult resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv);
 
     CollisionShape getTriangleEnvelop(const CollisionShape& triangle);
 
-    inline ResolveResult resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv);
+    ResolveResult resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv);
 
     CollisionShape getRectSweepEnvelope(const CollisionShape& rect1, const CollisionShape& rect2, F32 oExtend);
 
@@ -89,4 +89,8 @@ namespace ReboundPhysics {
     I32 getCCDPrecessionSteps(F32 velocityMagnitude);
 
     void stepDynamic(CollisionShape& s, double delta, double fraction);
+
+    namespace Chunking {
+
+    };
 }

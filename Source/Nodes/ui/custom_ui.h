@@ -19,7 +19,7 @@ using namespace ax;
 #define CONTAINER_CLOSE_TAG -69421
 #define GUI_ELEMENT_EXCLUDE -69422
 
-#define DRAW_NODE_DEBUG
+//#define DRAW_NODE_DEBUG
 //#define SHOW_BUTTON_HITBOX
 
 #define IS_LOCATION_INVALID(L) (L.x == INT16_MAX || L.y == INT16_MAX)

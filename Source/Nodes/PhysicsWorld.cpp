@@ -1,8 +1,6 @@
 #include "PhysicsWorld.h"
 
-using namespace ReboundPhysics;
-
-CollisionShape* ReboundPhysics::createRect(V2D pos, V2D size)
+ReboundPhysics::CollisionShape* ReboundPhysics::createRect(V2D pos, V2D size)
 {
     CollisionShape* s = new CollisionShape();
     s->x = pos.x;
@@ -12,7 +10,7 @@ CollisionShape* ReboundPhysics::createRect(V2D pos, V2D size)
     return s;
 }
 
-CollisionShape* ReboundPhysics::createSlope(V2D pos, F32 length, F32 base)
+ReboundPhysics::CollisionShape* ReboundPhysics::createSlope(V2D pos, F32 length, F32 base)
 {
     CollisionShape* s = new CollisionShape();
     s->x = pos.x;
@@ -23,7 +21,7 @@ CollisionShape* ReboundPhysics::createSlope(V2D pos, F32 length, F32 base)
     return s;
 }
 
-CollisionShape* ReboundPhysics::createRectDynamic(V2D pos, V2D size, F32 gravity)
+ReboundPhysics::CollisionShape* ReboundPhysics::createRectDynamic(V2D pos, V2D size, F32 gravity)
 {
     CollisionShape* s = new CollisionShape();
     s->x = pos.x;
@@ -51,8 +49,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
         F32 overlapY = combinedHalfHeights - std::abs(dy);
 
         if (overlapX >= overlapY) {
-            if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
-                overlapY = 0;
+            //if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
+            //    overlapY = 0;
 
             if (dy > 0)
                 return V2D(0, overlapY);
@@ -60,8 +58,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
                 return V2D(0, -overlapY);
         }
         else {
-            if (rect1.x > rect2.x - rect1.w + 1 && rect1.x + 1 < rect2.x + rect2.w)
-                overlapX = 0;
+            //if (rect1.x > rect2.x - rect1.w + 1 && rect1.x + 1 < rect2.x + rect2.w)
+            //    overlapX = 0;
 
             if (dx > 0)
                 return V2D(overlapX, 0);
@@ -105,33 +103,33 @@ V2D ReboundPhysics::getIntersectionPoint(const V2D& a, const V2D& b, const V2D& 
     }
 }
 
-RayCastResult ReboundPhysics::doLinesIntersect(const V2D& a, const V2D& b, const V2D& c, const V2D& d)
+ReboundPhysics::RayCastResult ReboundPhysics::doLinesIntersect(const V2D& a, const V2D& b, const V2D& c, const V2D& d)
 {
     RayCastResult result{ false };
-    I32 o1 = getLineOrientation(a, b, c);
-    I32 o2 = getLineOrientation(a, b, d);
-    I32 o3 = getLineOrientation(c, d, a);
-    I32 o4 = getLineOrientation(c, d, b);
+    I32 o1 = ReboundPhysics::getLineOrientation(a, b, c);
+    I32 o2 = ReboundPhysics::getLineOrientation(a, b, d);
+    I32 o3 = ReboundPhysics::getLineOrientation(c, d, a);
+    I32 o4 = ReboundPhysics::getLineOrientation(c, d, b);
 
-    result.point = getIntersectionPoint(a, b, c, d);
+    result.point = ReboundPhysics::getIntersectionPoint(a, b, c, d);
     if (o1 != o2 && o3 != o4) {
         result.intersects = true;
         return result;
     }
 
-    if (o1 == 0 && isLineSegment(a, c, b)) {
+    if (o1 == 0 && ReboundPhysics::isLineSegment(a, c, b)) {
         result.intersects = true;
         return result;
     }
-    if (o2 == 0 && isLineSegment(a, d, b)) {
+    if (o2 == 0 && ReboundPhysics::isLineSegment(a, d, b)) {
         result.intersects = true;
         return result;
     }
-    if (o3 == 0 && isLineSegment(c, a, d)) {
+    if (o3 == 0 && ReboundPhysics::isLineSegment(c, a, d)) {
         result.intersects = true;
         return result;
     }
-    if (o4 == 0 && isLineSegment(c, b, d)) {
+    if (o4 == 0 && ReboundPhysics::isLineSegment(c, b, d)) {
         result.intersects = true;
         return result;
     }
@@ -139,24 +137,24 @@ RayCastResult ReboundPhysics::doLinesIntersect(const V2D& a, const V2D& b, const
     return result;
 }
 
-RayCastResult ReboundPhysics::doLineIntersectsRect(const V2D& p1, const V2D& p2, const CollisionShape& rect)
+ReboundPhysics::RayCastResult ReboundPhysics::doLineIntersectsRect(const V2D& p1, const V2D& p2, const CollisionShape& rect)
 {
     RayCastResult result{ false };
     F32 minimumDistance = INFINITY;
-    auto result1 = doLinesIntersect(p1, p2, V2D(rect.x, rect.y), V2D(rect.x + rect.w, rect.y));
+    auto result1 = ReboundPhysics::doLinesIntersect(p1, p2, V2D(rect.x, rect.y), V2D(rect.x + rect.w, rect.y));
     if (result1.intersects) {
         result.intersects = true;
         minimumDistance = p1.distance(result1.point);
         result.point = result1.point;
     }
-    auto result2 = doLinesIntersect(p1, p2, V2D(rect.x, rect.y), V2D(rect.x, rect.y + rect.h));
+    auto result2 = ReboundPhysics::doLinesIntersect(p1, p2, V2D(rect.x, rect.y), V2D(rect.x, rect.y + rect.h));
     F32 dist = p1.distance(result2.point);
     if (result2.intersects && dist < minimumDistance) {
         result.intersects = true;
         minimumDistance = dist;
         result.point = result2.point;
     }
-    auto result3 = doLinesIntersect(p1, p2, V2D(rect.x + rect.w, rect.y), V2D(rect.x + rect.w, rect.y + rect.h));
+    auto result3 = ReboundPhysics::doLinesIntersect(p1, p2, V2D(rect.x + rect.w, rect.y), V2D(rect.x + rect.w, rect.y + rect.h));
     dist = p1.distance(result3.point);
     if (result3.intersects && dist < minimumDistance) {
         result.intersects = true;
@@ -164,7 +162,7 @@ RayCastResult ReboundPhysics::doLineIntersectsRect(const V2D& p1, const V2D& p2,
         result.point = result3.point;
     }
 
-    auto result4 = doLinesIntersect(p1, p2, V2D(rect.x, rect.y + rect.h), V2D(rect.x + rect.w, rect.y + rect.h));
+    auto result4 = ReboundPhysics::doLinesIntersect(p1, p2, V2D(rect.x, rect.y + rect.h), V2D(rect.x + rect.w, rect.y + rect.h));
     dist = p1.distance(result4.point);
     if (result4.intersects && dist < minimumDistance) {
         result.intersects = true;
@@ -174,14 +172,14 @@ RayCastResult ReboundPhysics::doLineIntersectsRect(const V2D& p1, const V2D& p2,
     return result;
 }
 
-RayCastResult ReboundPhysics::doLineIntersectsRects(const V2D& p1, const V2D& p2, std::vector<CollisionShape>& _shapeCollection)
+ReboundPhysics::RayCastResult ReboundPhysics::doLineIntersectsRects(const V2D& p1, const V2D& p2, std::vector<CollisionShape>& _shapeCollection)
 {
     RayCastResult result{ false };
     bool didIntersect = false;
     V2D rayCastHitLocation;
     F32 minimumDistance = INFINITY;
     for (auto& _ : _shapeCollection) {
-        result = doLineIntersectsRect(p1, p2, _);
+        result = ReboundPhysics::doLineIntersectsRect(p1, p2, _);
         if (result.intersects) {
             didIntersect = true;
             if (p1.distanceSquared(result.point) < minimumDistance) {
@@ -202,17 +200,17 @@ bool ReboundPhysics::getCollisionTriangleIntersect(const CollisionShape& r, cons
     //if (!getCollisionShapeIntersect(e, t1)) return false;
 
     return
-        doLinesIntersect(V2D(r.x, r.y), V2D(r.x + r.w, r.y), V2D(t.x, t.y), V2D(t.x, t.y + t.l)).intersects ||
-        doLinesIntersect(V2D(r.x, r.y), V2D(r.x + r.w, r.y), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects ||
-        doLinesIntersect(V2D(r.x, r.y + r.h), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y), V2D(t.x, t.y + t.l)).intersects ||
-        doLinesIntersect(V2D(r.x, r.y + r.h), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects ||
-        doLinesIntersect(V2D(r.x, r.y), V2D(r.x, r.y + r.h), V2D(t.x, t.y), V2D(t.x + t.b, t.y)).intersects ||
-        doLinesIntersect(V2D(r.x, r.y), V2D(r.x, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects ||
-        doLinesIntersect(V2D(r.x + r.w, r.y), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y), V2D(t.x + t.b, t.y)).intersects ||
-        doLinesIntersect(V2D(r.x + r.w, r.y), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects;
+        ReboundPhysics::doLinesIntersect(V2D(r.x, r.y), V2D(r.x + r.w, r.y), V2D(t.x, t.y), V2D(t.x, t.y + t.l)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x, r.y), V2D(r.x + r.w, r.y), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x, r.y + r.h), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y), V2D(t.x, t.y + t.l)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x, r.y + r.h), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x, r.y), V2D(r.x, r.y + r.h), V2D(t.x, t.y), V2D(t.x + t.b, t.y)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x, r.y), V2D(r.x, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x + r.w, r.y), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y), V2D(t.x + t.b, t.y)).intersects ||
+        ReboundPhysics::doLinesIntersect(V2D(r.x + r.w, r.y), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects;
 }
 
-ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv)
+ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv)
 {
     ResolveResult result{ false };
 
@@ -248,7 +246,7 @@ ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShape& _, CollisionS
     return result;
 }
 
-CollisionShape ReboundPhysics::getTriangleEnvelop(const CollisionShape& triangle)
+ReboundPhysics::CollisionShape ReboundPhysics::getTriangleEnvelop(const CollisionShape& triangle)
 {
     if (!triangle.isTriangle) return triangle;
 
@@ -270,10 +268,10 @@ CollisionShape ReboundPhysics::getTriangleEnvelop(const CollisionShape& triangle
     return result;
 }
 
-ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv)
+ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv)
 {
     ResolveResult result{ false, false };
-    auto e = getTriangleEnvelop(t);
+    auto e = ReboundPhysics::getTriangleEnvelop(t);
 
     if (t.l > 0 && r.y + r.h / 2 < e.y || t.l < 0 && r.y + r.h / 2 > e.y + e.h)
         return result;
@@ -357,7 +355,7 @@ ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, Collision
     return result;
 }
 
-CollisionShape ReboundPhysics::getRectSweepEnvelope(const CollisionShape& rect1, const CollisionShape& rect2, F32 oExtend)
+ReboundPhysics::CollisionShape ReboundPhysics::getRectSweepEnvelope(const CollisionShape& rect1, const CollisionShape& rect2, F32 oExtend)
 {
     F32 minX = std::min(rect1.x, rect2.x);
     F32 minY = std::min(rect1.y, rect2.y);

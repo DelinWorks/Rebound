@@ -1,6 +1,7 @@
 #include "WelcomeScene.h"
 #include "shared_scenes/GameUtils.h"
 #include "MapEditor.h"
+#include "PhysicsTestScene.h"
 
 USING_NS_CC;
 
@@ -85,7 +86,7 @@ void WelcomeScene::update(F32 dt)
         //GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
-        auto scene = MapEditor::createScene();
+        auto scene = ReboundPhysicsTest::createScene();
         Director::getInstance()->pushScene(scene);
     }
 
