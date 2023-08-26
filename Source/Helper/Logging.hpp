@@ -57,3 +57,10 @@ namespace ReboundLog
 #endif
 	}
 }
+
+inline const char* benchmark_bb7_name;
+inline std::chrono::steady_clock::time_point benchmark_bb7_start;
+inline std::chrono::steady_clock::time_point benchmark_bb7_end;
+#define BENCHMARK_SECTION_BEGIN(name) benchmark_bb7_name = name; benchmark_bb7_start = std::chrono::high_resolution_clock::now();
+#define BENCHMARK_SECTION_END() benchmark_bb7_end = std::chrono::high_resolution_clock::now(); \
+RLOG("benchmark {} took: {} millis, {} micros", benchmark_bb7_name, std::chrono::duration_cast<std::chrono::milliseconds>(benchmark_bb7_end - benchmark_bb7_start).count(), std::chrono::duration_cast<std::chrono::microseconds>(benchmark_bb7_end - benchmark_bb7_start).count());

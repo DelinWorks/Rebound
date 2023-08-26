@@ -152,11 +152,11 @@ namespace Math
 
 class Vec2Hashable {
 public:
-    int x; int y;
+    float x; float y;
 
-    Vec2Hashable(const ax::Vec2 v) : x(v.x), y(v.y) {}
+    Vec2Hashable(const V2D v) : x(v.x), y(v.y) {}
     Vec2Hashable(const Vec2Hashable& v) : x(v.x), y(v.y) {}
-    Vec2Hashable(int _x, int _y) : x(_x), y(_y) {}
+    Vec2Hashable(float _x, float _y) : x(_x), y(_y) {}
 
     bool operator==(const Vec2Hashable& other) const
     {
@@ -180,6 +180,8 @@ namespace std {
             hash *= kFnvPrime;
             return hash;
         }
+        hash() = default;
+        bool operator==(const hash& other) const = default;
     };
 }
 

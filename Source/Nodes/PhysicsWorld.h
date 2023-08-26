@@ -3,11 +3,13 @@
 #include "Ref.h"
 #include "Types.h"
 #include "Helper/Math.h"
+#include "Helper/QuadTree.hpp"
+#include <Helper/Logging.hpp>
 
 namespace ReboundPhysics
 {
-#define VERTICAL_RESOLUTION_LEEWAY 3
-#define CCD_MAX_TARGETS 320
+#define VERTICAL_RESOLUTION_LEEWAY 8
+#define CCD_MAX_TARGETS 8192
 #define CCD_STEPS_TO_PERC(T) (1.0 / T)
 #define NUM_SIGN(N) (N/abs(N))
 #define FUZZYG(F, S, T) (F >= S - T)
@@ -22,6 +24,7 @@ namespace ReboundPhysics
         CollisionShape(F32 _x, F32 _y, F32 _w, F32 _h) : x(_x), y(_y), w(_w), h(_h) {}
 
         F32 x, y;
+        F32 nx = 0.0, ny = 0.0;
         F32 w, h;
         bool isTriangle = false;
         F32 l, b;
@@ -32,6 +35,7 @@ namespace ReboundPhysics
         V2D lerp_vel = V2D::ZERO;
         bool isMovable = false;
         F32 internalAngle = 0.0f;
+        F32 internalAngleLerp = 0.0f;
         bool isMovableLerpApplied = false;
         CollisionShape* movableGround = nullptr;
         V2D movableGroundPos;
@@ -46,9 +50,12 @@ namespace ReboundPhysics
     };
 
     struct ResolveResult {
-        bool isGrounded;
-        bool isSlope;
+        bool isGrounded = false;
+        bool isSlope = false;
+        bool isSlopeOutsideH = false;
+        bool isSlopeOutsideV = false;
         F32 slopeAngle = 0.0f;
+        F32 verticalMTV = 0.0f;
     };
 
     CollisionShape* createRect(V2D pos, V2D size);
@@ -77,7 +84,7 @@ namespace ReboundPhysics
 
     bool getCollisionTriangleIntersect(const CollisionShape& r, const CollisionShape& t);
 
-    ResolveResult resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv);
+    ResolveResult resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL);
 
     CollisionShape getTriangleEnvelop(const CollisionShape& triangle);
 
@@ -88,9 +95,29 @@ namespace ReboundPhysics
     // OBSOLETE
     I32 getCCDPrecessionSteps(F32 velocityMagnitude);
 
-    void stepDynamic(CollisionShape& s, double delta, double fraction);
+    void stepDynamic(CollisionShape& s, F32 delta, F32 fraction);
 
-    namespace Chunking {
+    void setBodyPosition(CollisionShape& s, V2D newPos, bool sweep);
 
+    namespace Chunking
+    {
+        using namespace SpatialDataStructures;
+
+        inline void check() {
+
+            auto q = new QuadTree<CollisionShape*>(QTBounds(-1073741823, -1073741823, 1073741823, 1073741823));
+
+            std::unordered_map<V2DH, CollisionShape*> _chunks;
+            BENCHMARK_SECTION_BEGIN("Add to quadtree");
+            for (int i = 0; i < 100000; i++)
+                _chunks.emplace(V2D(random(), i * 2), (CollisionShape*)1);
+            BENCHMARK_SECTION_END();
+            BENCHMARK_SECTION_BEGIN("find to quadtree");
+            for (int i = 0; i < 100000; i++)
+                _chunks[V2D(i, i * 2)];
+            BENCHMARK_SECTION_END();
+
+
+        }
     };
 }

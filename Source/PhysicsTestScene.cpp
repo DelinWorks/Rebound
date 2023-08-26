@@ -52,11 +52,11 @@ bool ReboundPhysicsTest::init()
 
     _defaultCamera->setPosition({ 0, 0 });
 
-    _staticShapes.pushBack(createRect(Vec2(UINT16_MAX / -2, -332), Vec2(float(UINT16_MAX), 32)));
+    _staticShapes.pushBack(createRect(Vec2(UINT16_MAX / -2, -300), Vec2(float(UINT16_MAX), 0)));
 
     float iy = 10;
     for (float i = -32 - 200; i < 32 - 200; i += 2) {
-        _staticShapes.pushBack(createRect(Vec2(-250 + float(i * 0), float(-307 + iy)), Vec2(40, 1)));
+        _staticShapes.pushBack(createRect(Vec2(-250 + float(i * 0), float(-307 + iy)), Vec2(40, 6)));
         iy += 14;
     }
 
@@ -83,19 +83,25 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(s->x + s->b, s->y + s->l - 0), 140, -90);
     _staticShapes.pushBack(s);
 
-    _staticShapes.pushBack(modifySlope = createSlope(Vec2(-600, -200), 512, 64));
-    _staticShapes.pushBack(createRect(Vec2(-600, 256 + 86), Vec2(32, 32)));
+    _staticShapes.pushBack(modifySlope = createSlope(Vec2(-600, -200), 256, 64));
+    _staticShapes.pushBack(createRect(Vec2(-600, 32 + 40), Vec2(32, 32)));
     //_staticShapes.pushBack(createRect(Vec2(-720, -300 + 128 + 40), Vec2(32, 0)));
     _staticShapes.pushBack(createSlope(Vec2(-720, -300), 128, 1));
 
     _staticShapes.pushBack(createSlope(Vec2(-880, -300), 128, 32));
     _staticShapes.pushBack(createSlope(Vec2(-880, -300), 128, -32));
 
-    s = createSlope(Vec2(-700, 150), 32, -64);
+    _staticShapes.pushBack(createSlope(Vec2(-1090, -300), 256, 64));
+    _staticShapes.pushBack(createSlope(Vec2(-1090, -300 + 512), -256, 64));
+
+    s = createSlope(Vec2(-670, 113), 128, -64);
     _staticShapes.pushBack(s);
 
-    s = createSlope(Vec2(-700, 50), 64, -64);
+    s = createSlope(Vec2(-670, 54), 64, -64);
     _staticShapes.pushBack(s);
+
+    //for (int i = 0; i < 8192; i++)
+    //    _staticShapes.pushBack(createRect(V2D(-800, 250), V2D(64, 64)));
 
     //_staticShapes.pushBack(createSlope(Vec2(s->x - s->b + 32, s->y + s->l), -32, 128));
     //_staticShapes.pushBack(createRect(Vec2(s->x - 64, s->y + s->l + 256), Vec2(32, 32)));
@@ -173,6 +179,12 @@ void ReboundPhysicsTest::step(double delta)
             }
         }
 
+        _->vel.x = std::clamp<F32>(_->vel.x, -250000, 250000);
+        _->vel.y = std::clamp<F32>(_->vel.y, -250000, 250000);
+
+        _->nx += _->vel.x * delta;
+        _->ny += _->vel.y * delta;
+
         // an extent by 4 pixels is applied to the motion envelope so that
         // any motions that happen outside the envelope are picked.
         float envExtent = 32;
@@ -185,8 +197,8 @@ void ReboundPhysicsTest::step(double delta)
 
                 float ox = _->x;
                 float oy = _->y;
-                float nx = _->x + _->vel.x * delta;
-                float ny = _->y + _->vel.y * delta;
+                float nx = ox + _->nx;
+                float ny = oy + _->ny;
 
                 CollisionShape oldPos = CollisionShape(ox, oy, _->w, _->h);
                 CollisionShape newPos = CollisionShape(nx, ny, _->w, _->h);
@@ -222,6 +234,8 @@ void ReboundPhysicsTest::step(double delta)
             // but that's not important for a minimal & simple arcade physics engine at this stage of development.
             double ccdPrecession = CCD_STEPS_TO_PERC(MAX(1,
                 MAX(envelope.w * sweptVolumePrec - _->w - envExtent * 2, envelope.h * sweptVolumePrec - _->h - envExtent * 2)));
+
+            ccdPrecession *= 4;
 
             bool isSlope = false;
             float slopeIncline = 1.0f;
@@ -273,19 +287,21 @@ void ReboundPhysicsTest::step(double delta)
                             if (getCollisionTriangleIntersect(*_, *targets[i])) {
                                 //auto mtv = calculateRect2RectMTV(_, *targets[i]);
                                 auto r = resolveCollisionSlope(*_, *targets[i], isJumping, lastVerticalMtv);
+                                lastVerticalMtv = r.verticalMTV;
                                 isGrounded = r.isGrounded || isGrounded;
                                 if (!r.isSlope) {
                                     if (isSlopeOccupied)
-                                        isGrounded = resolveCollisionRect(*_, slopeMtvState, slopeMtvStateVec).isGrounded || isGrounded;
+                                        isGrounded = resolveCollisionRect(*_, slopeMtvState, slopeMtvStateVec, true).isGrounded || isGrounded;
                                     auto t = getTriangleEnvelop(*targets[i]);
                                     auto mtv = calculateRect2RectMTV(*_, t);
+                                    if (r.isSlopeOutsideH) mtv.x = 0.0f;
                                     slopeMtvState = t;
                                     slopeMtvStateVec = mtv;
                                     applyDominantSlope = true;
                                     lastVerticalMtv = mtv.y;
                                     isSlopeOccupied = true;
                                 }
-                                _->internalAngle = MathUtil::lerp(_->internalAngle, r.slopeAngle, 8 * delta * ccdPrecession);
+
                                 //else if (lastVerticalMtv != 0) {
                                 //    isSlope = true;
                                 //    slopeIncline = r.slopeIncline;
@@ -304,9 +320,8 @@ void ReboundPhysicsTest::step(double delta)
                         {
                             auto mtv = calculateRect2RectMTV(*_, *targets[i]);
                             lastVerticalMtv = mtv.y;
-                            auto r = resolveCollisionRect(*_, *targets[i], mtv);
+                            auto r = resolveCollisionRect(*_, *targets[i], mtv, false);
                             isGrounded = r.isGrounded || isGrounded;
-                            _->internalAngle = MathUtil::lerp(_->internalAngle, r.slopeAngle, 8 * delta * ccdPrecession);
 
                             if (intersects && targets[i]->isMovable && isGrounded) {
                                 _->movableGround = targets[i];
@@ -326,11 +341,11 @@ void ReboundPhysicsTest::step(double delta)
                             bool isOutsideH = _->x < t.x && t.b > 0 || _->x + _->w > t.x + t.w && t.b < 0;
                             if ((_->y + _->h > t.y + t.h && isOutsideH || _->y < t.y && isOutsideH)
                                 && FUZZY(t.y + t.l, tt.y + tt.l, 10))
-                                slopeMtvStateVec = ax::Vec2::ZERO;
+                                slopeMtvStateVec = V2D::ZERO;
                         }
                         // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
-                        isGrounded = resolveCollisionRect(*_, slopeMtvState, slopeMtvStateVec).isGrounded || isGrounded;
+                        isGrounded = resolveCollisionRect(*_, slopeMtvState, slopeMtvStateVec, true).isGrounded || isGrounded;
                     }
 
                     // Edge case: make sure the player gets pushed by lastVerticalMTV if this slope is before the next object with the last MTV,
@@ -343,6 +358,11 @@ void ReboundPhysicsTest::step(double delta)
 
                     if (quitLater) break;
                 }
+
+                _->internalAngleLerp = MathUtil::lerp(_->internalAngleLerp, _->internalAngle, 8 * delta);
+
+                _->nx = 0.f;
+                _->ny = 0.f;
 
             //if (!_->slopeGround)
             //    _->internalAngle = MathUtil::lerp(_->internalAngle, 0, 8 * delta);
@@ -425,8 +445,7 @@ void ReboundPhysicsTest::onMouseDown(Event* event)
     int xPos = 0;
     for (auto& _ : _dynamicShapes) {
         auto visibleSize = _director->getVisibleSize();
-        _->x = (e->getCursorX() - visibleSize.x / 2) * 2 - 16 + xPos;
-        _->y = (e->getCursorY() - visibleSize.y / 2) * 2 - 16;
+        setBodyPosition(*_, V2D((e->getCursorX() - visibleSize.x / 2) * 2 - 16 + xPos, (e->getCursorY() - visibleSize.y / 2) * 2 - 16), false);
         xPos += 1;
     }
     //_.vel = Vec2::ZERO;
@@ -524,7 +543,7 @@ void ReboundPhysicsTest::update(float delta)
 
     int physicsTPS = 1.0 / delta;
 
-    physicsTPS = physicsTPS < 120 ? 120 : physicsTPS;
+    physicsTPS = physicsTPS < 240 ? 240 : physicsTPS;
 
     //physicsTPS = 1000;
 
@@ -581,10 +600,10 @@ void ReboundPhysicsTest::update(float delta)
         Vec2 tl = Vec2(_->x + 1, _->y + _->h - 1);
         Vec2 tr = Vec2(_->x + 1 + _->w - 1, _->y + _->h - 1);
 
-        bl = bl.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngle);
-        br = br.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngle);
-        tl = tl.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngle);
-        tr = tr.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngle);
+        bl = bl.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngleLerp);
+        br = br.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngleLerp);
+        tl = tl.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngleLerp);
+        tr = tr.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngleLerp);
 
         _physicsDebugNode->drawLine(bl, br, Color4B::GREEN);
         _physicsDebugNode->drawLine(bl, tl, Color4B::GREEN);

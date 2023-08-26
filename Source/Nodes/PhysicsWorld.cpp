@@ -210,39 +210,59 @@ bool ReboundPhysics::getCollisionTriangleIntersect(const CollisionShape& r, cons
         ReboundPhysics::doLinesIntersect(V2D(r.x + r.w, r.y), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects;
 }
 
-ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv)
+ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL)
 {
     ResolveResult result{ false };
 
-    F32 leeway = MAX(0, abs(_.vel.x) / 100);
+    F32 leeway = MAX(0, abs(_.vel.x) / 50);
     bool isWithinLeeway = _.x + _.w - leeway > __.x && __.x + __.w - leeway > _.x;
 
     if (mtv.y != 0 && isWithinLeeway) {
         result.isGrounded = _.gravity > 0 && mtv.y < 0 || _.gravity < 0 && mtv.y > 0;
         if (_.vel.y < -400999999)
             _.vel.y = abs(_.vel.y) / 2;
-        else
-            _.vel.y = 0;
+        else {
+            if (mtv.y < 0 && _.vel.y > 0 || mtv.y > 0 && _.vel.y < 0) {
+                _.vel.y = 0;
+                _.ny = 0.0f;
+            }
+        }
     }
 
-    if (mtv.y < 0 && _.vel.y > 0)
-        _.vel.y = 0;
+    //if (mtv.y < 0 && _.vel.y > 0) {
+    //    //_.vel.y = 0;
+    //    _.ny = 0.0f;
+    //}
 
-    if (_.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y &&
-        _.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h)
+    bool vYT = _.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y;
+    bool vYB = _.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h;
+
+    if (vYT && vYB)
     {
         if (mtv.x > 0 && _.vel.x < 0 || mtv.x < 0 && _.vel.x > 0) {
             _.vel.x = 0;
             _.lerp_vel.x = 0;
+            _.nx = 0.0f;
         }
-
         _.x += mtv.x;
+        if (mtv.x != 0)
+            _.nx = 0.0f;
+
+        if (isWithinLeeway) {
+            _.y += mtv.y;
+            if (mtv.y != 0)
+                _.ny = 0.0f;
+        }
+    }
+    else if (vYT && isWithinLeeway && !ignoreVL) _.y = __.y + __.h;
+
+    if (isWithinLeeway && ignoreVL) {
+        _.y += mtv.y;
+        if (mtv.y != 0)
+            _.ny = 0.0f;
     }
 
-    if (isWithinLeeway)
-        _.y += mtv.y;
-
-    result.slopeAngle = 0.0f;
+    _.internalAngle = 0.0f;
     return result;
 }
 
@@ -270,8 +290,14 @@ ReboundPhysics::CollisionShape ReboundPhysics::getTriangleEnvelop(const Collisio
 
 ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv)
 {
-    ResolveResult result{ false, false };
+    ResolveResult result;
     auto e = ReboundPhysics::getTriangleEnvelop(t);
+
+    if (t.b > 0 && r.x + r.w / 4 > t.x + e.b || t.b < 0 && r.x + r.w / 1.5 < t.x + e.b)
+        result.isSlopeOutsideH = true;
+
+    if (t.l > 0 && r.y + r.h > t.y + t.l || t.l < 0 && r.y < t.y + t.l)
+        result.isSlopeOutsideV = true;
 
     if (t.l > 0 && r.y + r.h / 2 < e.y || t.l < 0 && r.y + r.h / 2 > e.y + e.h)
         return result;
@@ -299,10 +325,20 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
             isTop = true;
         }
 
-        F32 stickyness = isJumping || (NUM_SIGN(r.gravity) < 0 && t.l < 0) || (NUM_SIGN(r.gravity) > 0 && t.l > 0) ? 0 : 3;
+        if (t.b > 0 && r.x + r.w / 4 > t.x + e.b || t.b < 0 && r.x + r.w / 1.5 < t.x + e.b)
+            if (abs(e.l) <= abs(e.b))
+                return false;
+
+        F32 stickyness = abs(r.vel.y) > abs(forceUp) || (NUM_SIGN(r.gravity) < 0 && t.l < 0) || (NUM_SIGN(r.gravity) > 0 && t.l > 0) ? 0 : 6;
 
         if (t.l > 0 && r.y < incline + stickyness || t.l < 0 && r.y > incline - stickyness) {
             r.vel.y = 0;
+            //r.ny = 0.0f;
+
+            double theta_rad = std::atan(t.l / t.b);
+            r.internalAngle = theta_rad;
+
+            if (isTop) r.internalAngle = 0;
 
             if (isJumping && r.y > incline) {
                 result.isGrounded = true;
@@ -312,20 +348,38 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
                 r.x += abs(verticalMtv) / 2 * (e.b / e.l) * NUM_SIGN(t.l);
                 r.vel.x = 0;
                 r.lerp_vel.x = 0;
+                //r.nx = 0.0f;
             }
+
+            //if (t.b > 0 && r.y < incline - 3 || abs(verticalMtv) > 0)
+            //    r.x += abs(verticalMtv) / 2 * (e.b / e.l) * NUM_SIGN(t.l);
+
+            result.verticalMTV = r.y < incline ? incline - r.y : 0;
+
             r.y += incline - r.y;
-            if (e.b > 0 && r.vel.x < 0 || e.b < 0 && r.vel.x > 0)
-                r.vel.y = forceUp * NUM_SIGN(t.l);
-            else if (e.b > 0 && r.vel.x > 0 || e.b < 0 && r.vel.x < 0)
-                r.vel.y = forceUp * -NUM_SIGN(t.l);
+
+            //if (!isTop && abs(r.vel.x) > 100)
+            {
+                if (e.b > 0 && r.vel.x < 0 || e.b < 0 && r.vel.x > 0)
+                    r.vel.y = forceUp * NUM_SIGN(t.l);
+                else if (e.b > 0 && r.vel.x > 0 || e.b < 0 && r.vel.x < 0)
+                    r.vel.y = forceUp * -NUM_SIGN(t.l);
+            }
+
+            //r.ny = 0.0f;
             result.isGrounded = true;
         }
+
         return true;
     };
 
     //alpha = alpha - 1;
     //return sqrt(1 - alpha * alpha);
     //F32 cornerSlopeCurve = circEaseOut(cornerSlope / 10) * 10;
+
+    r.slopeGround = &t;
+    result.isSlope = true;
+
     F32 tangent = Math::map_clamp_out(cornerSlope, 0, 8, 1, 0.13);
     F32 offset = r.h * cornerSlope / (M_PI / tangent);
     if (t.b > 0) {
@@ -342,15 +396,6 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
             incline = Math::map(r.x + r.w + r.w / cornerSlope, e.x - e.b, e.x, t.y + e.l, t.y) + offset;
         if (!resolveSlope()) return result;
     }
-
-    result.isSlope = true;
-
-    double theta_rad = std::atan(t.l / t.b);
-    result.slopeAngle = theta_rad;
-
-    if (isTop) result.slopeAngle = 0;
-
-    r.slopeGround = &t;
 
     return result;
 }
@@ -385,11 +430,25 @@ I32 ReboundPhysics::getCCDPrecessionSteps(F32 velocityMagnitude)
     return std::clamp<int>(ccdPrecession, 1, 200);
 }
 
-void ReboundPhysics::stepDynamic(CollisionShape& s, double delta, double fraction)
+void ReboundPhysics::stepDynamic(CollisionShape& s, F32 delta, F32 fraction)
 {
     s.vel.x = std::clamp<F32>(s.vel.x, -250000, 250000);
     s.vel.y = std::clamp<F32>(s.vel.y, -250000, 250000);
 
-    s.x += s.vel.x * (fraction * delta);
-    s.y += s.vel.y * (fraction * delta);
+    s.x += s.nx * fraction;
+    s.y += s.ny * fraction;
+}
+
+void ReboundPhysics::setBodyPosition(CollisionShape& s, V2D newPos, bool sweep)
+{
+    if (sweep)
+    {
+        s.nx = newPos.x - s.x;
+        s.ny = newPos.y - s.y;
+    }
+    else
+    {
+        s.x = newPos.x;
+        s.y = newPos.y;
+    }
 }
