@@ -9,7 +9,8 @@
 namespace ReboundPhysics
 {
 #define VERTICAL_RESOLUTION_LEEWAY 8
-#define CCD_MAX_TARGETS 8192
+#define CCD_MAX_TARGETS 1024
+#define MOVE_MAX_TARGETS 1024
 #define CCD_STEPS_TO_PERC(T) (1.0 / T)
 #define NUM_SIGN(N) (N/abs(N))
 #define FUZZYG(F, S, T) (F >= S - T)
@@ -39,6 +40,7 @@ namespace ReboundPhysics
         bool isMovableLerpApplied = false;
         CollisionShape* movableGround = nullptr;
         V2D movableGroundPos;
+        V2D movableGroundMtv;
         CollisionShape* slopeGround = nullptr;
 
         ax::Color4F debugColor = ax::Color4F::RED;
@@ -120,4 +122,45 @@ namespace ReboundPhysics
 
         }
     };
+
+    class PhysicsWorld : public ax::Node {
+    private:
+        PhysicsWorld()
+        {
+            _physicsDebugNode = nullptr;
+
+            _moveTargets = new CollisionShape*[MOVE_MAX_TARGETS];
+        }
+
+        ~PhysicsWorld()
+        {
+            delete[] _moveTargets;
+        }
+
+        F64 lastPhysicsDt = 0;
+        F64 currentPhysicsDt = 0;
+        void step(F64 delta);
+
+        ax::DrawNode* _physicsDebugNode;
+
+    public:
+        // ---------- HEAP ----------
+        U32 _moveTargetCount = 0;
+        CollisionShape** _moveTargets;
+        // --------------------------
+
+        bool isJumping = false;
+        bool isGrounded = false;
+
+        CollisionShape* modifySlope;
+        CollisionShape* movingPlat;
+
+        ax::Vector<CollisionShape*> _dynamicShapes;
+        ax::Vector<CollisionShape*> _staticShapes;
+
+        static PhysicsWorld* create();
+        void update(F32 delta) override;
+    };
+
+    void setShapePosition(PhysicsWorld* _worldToRegisterSweep, CollisionShape& _shape, const V2D& newPos);
 }

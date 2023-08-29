@@ -39,9 +39,6 @@ public:
 
     bool init() override;
 
-    double lastPhysicsDt = 0;
-    double currentPhysicsDt = 0;
-    void step(double delta);
     void update(float delta) override;
 
     // touch
@@ -62,22 +59,7 @@ public:
     // a selector callback
     void menuCloseCallback(Ref* sender);
 
-    ax::DrawNode* _physicsDebugNode;
-
-    ax::Vec2 rayCastLocation;
-    ax::Vec2 rayCastHitLocation;
-
-    bool isJumping = false;
-    bool isGrounded = false;
-    ax::Vector<CollisionShape*> _dynamicShapes;
-    ax::Vector<CollisionShape*> _staticShapes;
-
-    CollisionShape* modifySlope;
-
-    CollisionShape* movingPlat;
-    V2D rays[2880];
-    float lastDownwardMtv = 0;
     V2D mouseLoc;
-    V2D rayCastTargetVector = ax::Vec2(15000, 0);
+    PhysicsWorld* _pw;
 
 };
