@@ -49,8 +49,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
         F32 overlapY = combinedHalfHeights - std::abs(dy);
 
         if (overlapX >= overlapY) {
-            //if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
-            //    overlapY = 0;
+            if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
+                overlapY = 0;
 
             if (dy > 0)
                 return V2D(0, overlapY);
@@ -58,8 +58,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
                 return V2D(0, -overlapY);
         }
         else {
-            //if (rect1.x > rect2.x - rect1.w + 1 && rect1.x + 1 < rect2.x + rect2.w)
-            //    overlapX = 0;
+            if (rect1.x > rect2.x - rect1.w + VERTICAL_RESOLUTION_LEEWAY && rect1.x + VERTICAL_RESOLUTION_LEEWAY < rect2.x + rect2.w)
+                overlapX = 0;
 
             if (dx > 0)
                 return V2D(overlapX, 0);
