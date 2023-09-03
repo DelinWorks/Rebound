@@ -55,7 +55,7 @@ bool ReboundPhysicsTest::init()
     _pw = PhysicsWorld::create();
     addChild(_pw);
 
-    _pw->_staticShapes.pushBack(createRect(Vec2(UINT16_MAX / -2, -304), Vec2(float(UINT16_MAX), 4)));
+    _pw->_staticShapes.pushBack(createRect(Vec2(UINT16_MAX / -2, -297), Vec2(float(UINT16_MAX), 0)));
 
     float iy = 10;
     for (float i = -32 - 200; i < 32 - 200; i += 2) {
@@ -86,8 +86,8 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(s->x + s->b, s->y + s->l - 0), 140, -90);
     _pw->_staticShapes.pushBack(s);
 
-    _pw->_staticShapes.pushBack(_pw->modifySlope = createSlope(Vec2(-600, -200), 256, 64));
-    _pw->_staticShapes.pushBack(createRect(Vec2(-600, 32 + 40), Vec2(32, 32)));
+    _pw->_staticShapes.pushBack(_pw->modifySlope = createSlope(Vec2(-600, -240), 256, 64));
+    //_pw->_staticShapes.pushBack(createRect(Vec2(-600, 32 + 40), Vec2(32, 32)));
     //_staticShapes.pushBack(createRect(Vec2(-720, -300 + 128 + 40), Vec2(32, 0)));
     _pw->_staticShapes.pushBack(createSlope(Vec2(-720, -300), 128, 1));
 
@@ -113,7 +113,7 @@ bool ReboundPhysicsTest::init()
     //_staticShapes.push_back(createRect(Vec2(-732, -0 - 64), Vec2(32, 32)));
     //_staticShapes.push_back(createSlope(Vec2(-764, -110), 128, 64));
 
-    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(64, 64), -9.8 * 10 * 100));
+    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(32, 32), -9.8 * 10 * 100));
 
     EventListenerMouse* ml = EventListenerMouse::create();
     ml->onMouseDown = AX_CALLBACK_1(ReboundPhysicsTest::onMouseDown, this);

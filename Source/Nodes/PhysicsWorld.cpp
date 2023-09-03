@@ -49,8 +49,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
         F32 overlapY = combinedHalfHeights - std::abs(dy);
 
         if (overlapX >= overlapY) {
-            if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
-                overlapY = 0;
+            //if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
+            //    overlapY = 0;
 
             if (dy > 0)
                 return V2D(0, overlapY);
@@ -58,8 +58,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
                 return V2D(0, -overlapY);
         }
         else {
-            if (rect1.x > rect2.x - rect1.w + VERTICAL_RESOLUTION_LEEWAY && rect1.x + VERTICAL_RESOLUTION_LEEWAY < rect2.x + rect2.w)
-                overlapX = 0;
+            //if (rect1.x > rect2.x - rect1.w + VERTICAL_RESOLUTION_LEEWAY && rect1.x + VERTICAL_RESOLUTION_LEEWAY < rect2.x + rect2.w)
+            //    overlapX = 0;
 
             if (dx > 0)
                 return V2D(overlapX, 0);
@@ -214,7 +214,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
 {
     ResolveResult result{ false };
 
-    F32 leeway = MAX(0, abs(_.vel.x) / 50);
+    F32 leeway = MAX(1, abs(_.vel.x) / 50);
     bool isWithinLeeway = _.x + _.w - leeway > __.x && __.x + __.w - leeway > _.x;
 
     if (mtv.y != 0 && isWithinLeeway) {
@@ -236,6 +236,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
 
     bool vYT = _.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y;
     bool vYB = _.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h;
+    bool vMtvApplied = false;
 
     if (vYT && vYB)
     {
@@ -252,11 +253,12 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
             _.y += mtv.y;
             if (mtv.y != 0)
                 _.ny = 0.0f;
+            vMtvApplied = true;
         }
     }
     else if (vYT && isWithinLeeway && !ignoreVL) _.y = __.y + __.h;
 
-    if (isWithinLeeway && ignoreVL) {
+    if (isWithinLeeway && ignoreVL && !vMtvApplied) {
         _.y += mtv.y;
         if (mtv.y != 0)
             _.ny = 0.0f;
@@ -288,7 +290,7 @@ ReboundPhysics::CollisionShape ReboundPhysics::getTriangleEnvelop(const Collisio
     return result;
 }
 
-ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv)
+ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv, F32 delta)
 {
     ResolveResult result;
     auto e = ReboundPhysics::getTriangleEnvelop(t);
@@ -308,6 +310,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
 
     F32 cornerSlope = abs(e.l / e.b);
     F32 cornerSlopeDiff = MAX(abs(e.l), abs(e.b)) / MIN(abs(e.l), abs(e.b));
+    F32 cornerAngle = atan2(abs(e.l), abs(e.b));
 
     F32 incline = 0.0f;
     F32 forceUp = abs(r.vel.x) * cornerSlope;
@@ -332,11 +335,18 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
         F32 stickyness = abs(r.vel.y) > abs(forceUp) || (NUM_SIGN(r.gravity) < 0 && t.l < 0) || (NUM_SIGN(r.gravity) > 0 && t.l > 0) ? 0 : 6;
 
         if (t.l > 0 && r.y < incline + stickyness || t.l < 0 && r.y > incline - stickyness) {
-            r.vel.y = 0;
+            //
             //r.ny = 0.0f;
+
+            if (NUM_SIGN(r.gravity) < 0 && r.vel.y < 0)
+                r.vel.y = 0;
+            else if (NUM_SIGN(r.gravity) > 0 && r.vel.y > 0)
+                r.vel.y = 0;
 
             double theta_rad = std::atan(t.l / t.b);
             r.internalAngle = theta_rad;
+
+            //r.x += -r.vel.x * delta * (1.0 - sin(cornerAngle));
 
             if (isTop) r.internalAngle = 0;
 
@@ -358,13 +368,21 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
 
             r.y += incline - r.y;
 
-            //if (!isTop && abs(r.vel.x) > 100)
+            if (!isTop)
             {
                 if (e.b > 0 && r.vel.x < 0 || e.b < 0 && r.vel.x > 0)
                     r.vel.y = forceUp * NUM_SIGN(t.l);
                 else if (e.b > 0 && r.vel.x > 0 || e.b < 0 && r.vel.x < 0)
                     r.vel.y = forceUp * -NUM_SIGN(t.l);
             }
+
+            //if (sin(cornerAngle) > 0.5)
+            //{
+            //    r.x += NUM_SIGN(t.b) * 100 * sin(cornerAngle) * delta;
+            //    r.vel.x /= 1.01;
+            //    r.lerp_vel.x = 0;
+            //    r.vel.y = 0;
+            //}
 
             //r.ny = 0.0f;
             result.isGrounded = true;
@@ -380,8 +398,9 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
     r.slopeGround = &t;
     result.isSlope = true;
 
-    F32 tangent = Math::map_clamp_out(cornerSlope, 0, 8, 1, 0.13);
-    F32 offset = r.h * cornerSlope / (M_PI / tangent);
+    //F32 tangent = Math::map_clamp_out(cornerSlope, 0, 8, 1, 0.13);
+    //F32 offset = r.h * cornerSlope / (M_PI / tangent);
+    F32 offset = Math::map_clamp_out(sin(cornerAngle), 0, 1, 1, r.h / 2);
     if (t.b > 0) {
         if (t.l > 0)
             incline = Math::map(r.x, e.x + e.b, e.x, e.y, e.y + e.l) - offset;
@@ -402,10 +421,10 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
 
 ReboundPhysics::CollisionShape ReboundPhysics::getRectSweepEnvelope(const CollisionShape& rect1, const CollisionShape& rect2, F32 oExtend)
 {
-    F32 minX = std::min(rect1.x, rect2.x);
-    F32 minY = std::min(rect1.y, rect2.y);
-    F32 maxX = std::max(rect1.x + rect1.w, rect2.x + rect2.w);
-    F32 maxY = std::max(rect1.y + rect1.h, rect2.y + rect2.h);
+    F32 minX = MIN(rect1.x, rect2.x);
+    F32 minY = MIN(rect1.y, rect2.y);
+    F32 maxX = MAX(rect1.x + rect1.w, rect2.x + rect2.w);
+    F32 maxY = MAX(rect1.y + rect1.h, rect2.y + rect2.h);
 
     CollisionShape boundingRect;
     boundingRect.x = minX - oExtend;
@@ -503,10 +522,10 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             _->movableGroundPos = newPos;
             _->isMovableLerpApplied = false;
 
-            if (!getCollisionShapeIntersect(*_, CollisionShape(newPos.x, newPos.y - 3, size.width, size.height + 6)))
+            if (!getCollisionShapeIntersect(*_, CollisionShape(newPos.x + 1, newPos.y - 3, size.width - 2, size.height + 6)))
             {
                 float hpush = (newPos.x - oldPos.x) / delta;
-                //if (abs(_->vel.x) < 100)
+                if (abs(hpush) > abs(_->pref_vel.x))
                 _->vel.x = hpush;
                 //_->vel.x = (newPos.x - oldPos.x) / delta;
                 //if (_->movableGroundMtv.x == 0) {
@@ -653,7 +672,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                         {
                             if (getCollisionTriangleIntersect(*_, *targets[i])) {
                                 //auto mtv = calculateRect2RectMTV(_, *targets[i]);
-                                auto r = resolveCollisionSlope(*_, *targets[i], isJumping, lastVerticalMtv);
+                                auto r = resolveCollisionSlope(*_, *targets[i], isJumping, lastVerticalMtv, delta);
                                 lastVerticalMtv = r.verticalMTV;
                                 isGrounded = r.isGrounded || isGrounded;
                                 if (!r.isSlope) {
@@ -719,7 +738,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                     // Edge case: make sure the player gets pushed by lastVerticalMTV if this slope is before the next object with the last MTV,
                     //            we're just re-running the code to resolve the slope again before the lastVerticalMTV is reset.
                     if (_->slopeGround) {
-                        auto r = resolveCollisionSlope(*_, *_->slopeGround, isJumping, lastVerticalMtv);
+                        auto r = resolveCollisionSlope(*_, *_->slopeGround, isJumping, lastVerticalMtv, delta);
                         isGrounded = r.isGrounded || isGrounded;
                     }
                     // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
@@ -751,7 +770,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             //if (!isGrounded)
             //    _->internalAngle = MathUtil::lerp(_->internalAngle, sin(lastPhysicsDt * 10), 2 * delta);
 
-            if (/*size &&*/ steps > 1)
+            if (/*size &&*/ steps > 8)
                 AXLOG("  %d CCD steps swept %d shapes", steps, size);
         }
         //else {
@@ -815,23 +834,31 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
 
     int physicsTPS = 1.0 / delta;
 
-    physicsTPS = physicsTPS < 240 ? 240 : physicsTPS;
+    physicsTPS = physicsTPS < 60 ? 60 : physicsTPS;
 
     //physicsTPS = 1000;
 
     //if (lastPhysicsDt + 10 < currentPhysicsDt)
     //    lastPhysicsDt = currentPhysicsDt;
 
-    //modifySlope->l = 200;
+    //modifySlope->l = 512 + 1024 * cos(lastPhysicsDt * 2);
     //modifySlope->l = 32;
-    //modifySlope->b = 0 + 32 * cos(lastPhysicsDt * 1);
+    modifySlope->b = 40 + 32 * cos(lastPhysicsDt * 1);
 
     while (lastPhysicsDt < currentPhysicsDt)
     {
-        setShapePosition(this, *movingPlat, V2D(100 + 200 * sawtoothSin(lastPhysicsDt * 7), 0 + 170 * sawtoothCos(lastPhysicsDt * 2)));
+        F64 substepRatio = 90.0 / physicsTPS;
+        U8 substeps = substepRatio * 4;
+        substeps = MAX(1, MIN(substeps, 4));
+        RLOG("{}", substeps);
 
-        lastPhysicsDt += 1.0 / physicsTPS;
-        step(1.0 / physicsTPS);
+        for (int i = 0; i < substeps; i++) {
+            lastPhysicsDt += 1.0 / physicsTPS * (1.0 / substeps);
+
+            setShapePosition(this, *movingPlat, V2D(100 + 200 * sawtoothSin(lastPhysicsDt * 7), 0 + 170 * sawtoothCos(lastPhysicsDt * 2)));
+
+            step(1.0 / physicsTPS * (1.0 / substeps));
+        }
     }
 
     //auto visibleSize = _director->getVisibleSize();

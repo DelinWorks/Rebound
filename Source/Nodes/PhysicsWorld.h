@@ -90,7 +90,7 @@ namespace ReboundPhysics
 
     CollisionShape getTriangleEnvelop(const CollisionShape& triangle);
 
-    ResolveResult resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv);
+    ResolveResult resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv, F32 delta);
 
     CollisionShape getRectSweepEnvelope(const CollisionShape& rect1, const CollisionShape& rect2, F32 oExtend);
 
