@@ -313,7 +313,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
     F32 cornerAngle = atan2(abs(e.l), abs(e.b));
 
     F32 incline = 0.0f;
-    F32 forceUp = abs(r.vel.x) * cornerSlope;
+    F32 forceUp = abs(r.vel.x) * cornerSlope * std::clamp<F32>(r.timeSpentOnSlope, 0, 1);
     //if (abs(forceUp) < 3000) forceUp = 0.0f;
     bool isTop = false;
     auto resolveSlope = [&]() -> bool
@@ -499,6 +499,8 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
         _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 1 * delta);
 
         isGrounded = false;
+        _->timeSpentOnSlope += delta * 16;
+        RLOG("{}", _->timeSpentOnSlope);
 
         //if (abs(_->pref_vel.x) > abs(_->lerp_vel.x))
         //    //_->vel.x = _->lerp_vel.x;
@@ -751,6 +753,9 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             _->nx = 0.f;
             _->ny = 0.f;
 
+            if (_->slopeGround == nullptr)
+                _->timeSpentOnSlope = 0;
+
             //if (!_->slopeGround)
             //    _->internalAngle = MathUtil::lerp(_->internalAngle, 0, 8 * delta);
 
@@ -761,7 +766,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                 DebugBreak();
 
             if (isGrounded && _->pref_vel.x == 0) {
-                _->vel.x = MathUtil::lerp(_->vel.x, 0, 5 * delta);
+                _->vel.x = MathUtil::lerp(_->vel.x, 0, 0 * delta);
             }
 
             if (!isGrounded && _->pref_vel.x == 0)
@@ -843,14 +848,14 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
 
     //modifySlope->l = 512 + 1024 * cos(lastPhysicsDt * 2);
     //modifySlope->l = 32;
-    modifySlope->b = 40 + 32 * cos(lastPhysicsDt * 1);
+    modifySlope->b = 512 + 256 * cos(lastPhysicsDt * 1);
 
     while (lastPhysicsDt < currentPhysicsDt)
     {
         F64 substepRatio = 90.0 / physicsTPS;
         U8 substeps = substepRatio * 4;
         substeps = MAX(1, MIN(substeps, 4));
-        RLOG("{}", substeps);
+        //RLOG("{}", substeps);
 
         for (int i = 0; i < substeps; i++) {
             lastPhysicsDt += 1.0 / physicsTPS * (1.0 / substeps);

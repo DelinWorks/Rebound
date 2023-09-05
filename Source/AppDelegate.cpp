@@ -382,7 +382,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //director->setAnimationInterval(1.0f / 60);
 #ifdef _DEBUG
 #endif
-    director->setAnimationInterval(0);
+    //director->setAnimationInterval(0);
     // Set the design resolution
     if (!Rebound::getInstance()->console.isHeadless)
         glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, Rebound::getInstance()->gameWindow.windowPolicy);

@@ -41,6 +41,7 @@ namespace ReboundPhysics
         CollisionShape* movableGround = nullptr;
         V2D movableGroundPos;
         V2D movableGroundMtv;
+        F32 timeSpentOnSlope = 0;
         CollisionShape* slopeGround = nullptr;
 
         ax::Color4F debugColor = ax::Color4F::RED;
