@@ -86,7 +86,7 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(s->x + s->b, s->y + s->l - 0), 140, -90);
     _pw->_staticShapes.pushBack(s);
 
-    _pw->_staticShapes.pushBack(_pw->modifySlope = createSlope(Vec2(-600, -240), 256, 64));
+    _pw->_staticShapes.pushBack(_pw->modifySlope = createSlope(Vec2(-600, -280), 256, 64));
     //_pw->_staticShapes.pushBack(createRect(Vec2(-600, 32 + 40), Vec2(32, 32)));
     //_staticShapes.pushBack(createRect(Vec2(-720, -300 + 128 + 40), Vec2(32, 0)));
     _pw->_staticShapes.pushBack(createSlope(Vec2(-720, -300), 128, 1));
@@ -103,6 +103,8 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(-670, 54), 64, -64);
     _pw->_staticShapes.pushBack(s);
 
+    _pw->partition();
+
     //for (int i = 0; i < 8192; i++)
     //    _staticShapes.pushBack(createRect(V2D(-800, 250), V2D(64, 64)));
 
@@ -114,6 +116,12 @@ bool ReboundPhysicsTest::init()
     //_staticShapes.push_back(createSlope(Vec2(-764, -110), 128, 64));
 
     _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(32, 32), -9.8 * 10 * 100));
+
+    auto s1 = CollisionShape(0, 0, 512, 512);
+    auto v = chunkGetCoverArea(s1);
+
+    for (auto& p : v)
+        RLOG("{} {}", p.x, p.y);
 
     EventListenerMouse* ml = EventListenerMouse::create();
     ml->onMouseDown = AX_CALLBACK_1(ReboundPhysicsTest::onMouseDown, this);

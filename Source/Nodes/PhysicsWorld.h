@@ -16,6 +16,7 @@ namespace ReboundPhysics
 #define FUZZYG(F, S, T) (F >= S - T)
 #define FUZZYL(F, S, T) (F <= S + T)
 #define FUZZY(F, S, T) (FUZZYG(F,S,T) && FUZZYL(F,S,T))
+#define PHYS_CHUNK_SIZE 512
 
     // A class used for physics that describes dynamic/static rectangles and slopes,
     // Might probably need to be divided to reduce memory consumption.
@@ -46,6 +47,10 @@ namespace ReboundPhysics
 
         ax::Color4F debugColor = ax::Color4F::RED;
     };
+
+    typedef ax::Vector<CollisionShape*> CollisionVectorRef;
+    typedef std::vector<CollisionShape*> CollisionVector;
+    typedef std::unordered_map<V2DH, CollisionVector> CollisionChunkMap;
 
     struct RayCastResult {
         bool intersects = false;
@@ -102,27 +107,7 @@ namespace ReboundPhysics
 
     void setBodyPosition(CollisionShape& s, V2D newPos, bool sweep);
 
-    namespace Chunking
-    {
-        using namespace SpatialDataStructures;
-
-        inline void check() {
-
-            auto q = new QuadTree<CollisionShape*>(QTBounds(-1073741823, -1073741823, 1073741823, 1073741823));
-
-            std::unordered_map<V2DH, CollisionShape*> _chunks;
-            BENCHMARK_SECTION_BEGIN("Add to quadtree");
-            for (int i = 0; i < 100000; i++)
-                _chunks.emplace(V2D(random(), i * 2), (CollisionShape*)1);
-            BENCHMARK_SECTION_END();
-            BENCHMARK_SECTION_BEGIN("find to quadtree");
-            for (int i = 0; i < 100000; i++)
-                _chunks[V2D(i, i * 2)];
-            BENCHMARK_SECTION_END();
-
-
-        }
-    };
+    std::vector<V2DH> chunkGetCoverArea(CollisionShape& s);
 
     class PhysicsWorld : public ax::Node {
     private:
@@ -156,8 +141,11 @@ namespace ReboundPhysics
         CollisionShape* modifySlope;
         CollisionShape* movingPlat;
 
-        ax::Vector<CollisionShape*> _dynamicShapes;
-        ax::Vector<CollisionShape*> _staticShapes;
+        CollisionVectorRef _dynamicShapes;
+        CollisionVectorRef _staticShapes;
+        CollisionChunkMap _staticShapeChunks;
+
+        void partition();
 
         static PhysicsWorld* create();
         void update(F32 delta) override;

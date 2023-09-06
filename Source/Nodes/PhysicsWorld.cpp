@@ -472,6 +472,55 @@ void ReboundPhysics::setBodyPosition(CollisionShape& s, V2D newPos, bool sweep)
     }
 }
 
+#pragma optimize("", off)
+std::vector<V2DH> ReboundPhysics::chunkGetCoverArea(CollisionShape& s)
+{
+    //I32 startX = s.x / PHYS_CHUNK_SIZE;
+    //I32 startY = (s.y + s.h) / PHYS_CHUNK_SIZE;
+    //I32 endX = (s.x + s.w) / PHYS_CHUNK_SIZE;
+    //I32 endY = s.y / PHYS_CHUNK_SIZE;
+    //// Calculate the starting and ending chunk positions
+    //I32 startX = 0;
+    //I32 startY = 0;
+    //I32 endX = 0;
+    //I32 endY = 0;
+
+    //if (s.isTriangle)
+    //{
+    //    auto t = getTriangleEnvelop(s);
+    //    startX = s.x / PHYS_CHUNK_SIZE;
+    //    startY = (s.y + s.h) / PHYS_CHUNK_SIZE;
+    //    endX = (s.x + s.w) / PHYS_CHUNK_SIZE;
+    //    endY = s.y / PHYS_CHUNK_SIZE;
+    //}
+    //else
+    //{
+    //    startX = s.x / PHYS_CHUNK_SIZE;
+    //    startY = (s.y + s.h) / PHYS_CHUNK_SIZE;
+    //    endX = (s.x + s.w) / PHYS_CHUNK_SIZE;
+    //    endY = s.y / PHYS_CHUNK_SIZE;
+    //}
+
+    int startX = 1;// (s.x * 512) / 512;
+    int startY = 1;// (s.y * 512) / 512;
+    int endX = 5;// ((s.x * 512) + s.w) / 512;
+    int endY = 5;// ((s.y * 512) + s.h) / 512;
+
+    // Iterate over the chunk range and add each chunk's position to the result vector
+    std::vector<V2DH> chunks;
+
+    for (int x = startX; x <= endX; x++) {
+        for (int y = startY; y <= endY; y++) {
+            chunks.push_back(V2DH(x, y));
+        }
+    }
+
+    //V2D test = V2D(chunks[0].x, chunks[0].y);
+    //chunks;
+    return chunks;
+}
+#pragma optimize("", on)
+
 void ReboundPhysics::setShapePosition(PhysicsWorld* worldToRegisterSweep, CollisionShape& shape, const V2D& newPos)
 {
     if (worldToRegisterSweep)
@@ -499,8 +548,8 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
         _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 1 * delta);
 
         isGrounded = false;
-        _->timeSpentOnSlope += delta * 16;
-        RLOG("{}", _->timeSpentOnSlope);
+        _->timeSpentOnSlope += delta * 32;
+        //RLOG("{}", _->timeSpentOnSlope);
 
         //if (abs(_->pref_vel.x) > abs(_->lerp_vel.x))
         //    //_->vel.x = _->lerp_vel.x;
@@ -548,6 +597,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             CollisionShape* targets[CCD_MAX_TARGETS];
             //CollisionShape* mtargets[MOVE_MAX_TARGETS];
             CollisionShape envelope;
+            std::vector<CollisionVector*> chunks;
             {
                 //float gravity = _->vel.y + _->gravity * delta;
 
@@ -559,6 +609,12 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                 CollisionShape oldPos = CollisionShape(ox, oy, _->w, _->h);
                 CollisionShape newPos = CollisionShape(nx, ny, _->w, _->h);
                 envelope = getRectSweepEnvelope(oldPos, newPos, envExtent);
+
+                auto v = chunkGetCoverArea(envelope);
+
+                for (auto& p : v) {
+                    chunks.push_back(&_staticShapeChunks[p]);
+                }
 
                 for (auto& __ : _staticShapes) {
                     CollisionShape rect = *__;
@@ -815,6 +871,17 @@ inline double sawtoothCos(double angle) {
     return sawtoothSin(angle + M_PI / 2.0);
 }
 
+void ReboundPhysics::PhysicsWorld::partition()
+{
+    for (auto& _ : _staticShapes)
+    {
+        auto v = chunkGetCoverArea(*_);
+
+        for (auto& p : v)
+            _staticShapeChunks[p].push_back(_);
+    }
+}
+
 ReboundPhysics::PhysicsWorld* ReboundPhysics::PhysicsWorld::create()
 {
     auto ret = new PhysicsWorld();
@@ -848,7 +915,7 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
 
     //modifySlope->l = 512 + 1024 * cos(lastPhysicsDt * 2);
     //modifySlope->l = 32;
-    modifySlope->b = 512 + 256 * cos(lastPhysicsDt * 1);
+    modifySlope->b = 512 + 256 * cos(lastPhysicsDt * 10);
 
     while (lastPhysicsDt < currentPhysicsDt)
     {

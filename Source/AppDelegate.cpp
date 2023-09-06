@@ -424,9 +424,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     register_all_packages();
 
-    RLOG("{}", std::log2((2 * INT32_MAX) / 1024));
-    ReboundPhysics::Chunking::check();
-
     if (Rebound::getInstance()->console.isHeadless)
     {
         auto scene = EmptyScene::createScene();
