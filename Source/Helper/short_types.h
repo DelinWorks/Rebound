@@ -29,6 +29,9 @@ typedef std::int64_t I64;
 // signed 32 bit long (long)
 typedef long L32;
 
+// signed 64 bit long (long)
+typedef long long L64;
+
 // unsigned 8 bit int (byte)
 typedef std::uint8_t U8;
 

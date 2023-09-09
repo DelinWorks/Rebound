@@ -55,7 +55,10 @@ bool ReboundPhysicsTest::init()
     _pw = PhysicsWorld::create();
     addChild(_pw);
 
-    _pw->_staticShapes.pushBack(createRect(Vec2(UINT16_MAX / -2, -297), Vec2(float(UINT16_MAX), 0)));
+    _pw->_staticShapes.pushBack(_pw->ground = createRect(Vec2(1000000 / -2, -297), Vec2(float(1000000), 0)));
+    _pw->_staticShapes.pushBack(_pw->ground = createRect(Vec2(10000000 / -2, -50000000), Vec2(float(10000000), 0)));
+
+    _pw->_staticShapes.pushBack(createRect(Vec2(1000000 / -2, -297), Vec2(1, 32)));
 
     float iy = 10;
     for (float i = -32 - 200; i < 32 - 200; i += 2) {
@@ -103,6 +106,9 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(-670, 54), 64, -64);
     _pw->_staticShapes.pushBack(s);
 
+    for (int i = 0; i < 100000; i++)
+        _pw->_staticShapes.pushBack(createRect(V2D(700, -250), V2D(32, 32)));
+
     _pw->partition();
 
     //for (int i = 0; i < 8192; i++)
@@ -115,13 +121,13 @@ bool ReboundPhysicsTest::init()
     //_staticShapes.push_back(createRect(Vec2(-732, -0 - 64), Vec2(32, 32)));
     //_staticShapes.push_back(createSlope(Vec2(-764, -110), 128, 64));
 
-    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(32, 32), -9.8 * 10 * 100));
+    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(64, 64), -9.8 * 10 * 100));
 
-    auto s1 = CollisionShape(0, 0, 512, 512);
-    auto v = chunkGetCoverArea(s1);
+    //auto s1 = createRect(Vec2(UINT16_MAX / -2, -297), Vec2(float(UINT16_MAX), 1));
+    //auto v = chunkGetCoverArea(*s1);
 
-    for (auto& p : v)
-        RLOG("{} {}", p.x, p.y);
+    //for (auto& p : v)
+    //    RLOG("{} {}", p.x, p.y);
 
     EventListenerMouse* ml = EventListenerMouse::create();
     ml->onMouseDown = AX_CALLBACK_1(ReboundPhysicsTest::onMouseDown, this);
@@ -208,7 +214,7 @@ void ReboundPhysicsTest::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     {
         //if (!isGrounded)
         for (auto& _ : _pw->_dynamicShapes)
-            _->vel.y = -5000;
+            _->vel.y = -50000000;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_D)
@@ -227,8 +233,8 @@ void ReboundPhysicsTest::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     {
         auto player = _pw->_dynamicShapes.at(0);
 
-        player->x = _pw->movingPlat->x;
-        player->y = _pw->movingPlat->y + 16;
+        player->x = 10000000 / -2;
+        player->y = -50000000 + 256;
     }
 }
 
@@ -256,7 +262,9 @@ void ReboundPhysicsTest::update(float delta)
 {
     _pw->update(delta);
 
-    _defaultCamera->setPosition(V2D::ZERO);
+    auto p = _pw->_dynamicShapes.at(0);
+    _defaultCamera->setPosition(V2D(p->x, p->y) + V2D(p->w, p->h) / 2);
+    //_defaultCamera->setPosition(V2D::ZERO);
     _defaultCamera->setZoom(2.0f);
 }
 

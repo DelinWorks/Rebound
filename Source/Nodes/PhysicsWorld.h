@@ -9,14 +9,15 @@
 namespace ReboundPhysics
 {
 #define VERTICAL_RESOLUTION_LEEWAY 8
-#define CCD_MAX_TARGETS 1024
-#define MOVE_MAX_TARGETS 1024
+#define CCD_MAX_TARGETS 8192
+#define MOVE_MAX_TARGETS 8192
+#define CHUNK_MAX_TARGETS 8192
 #define CCD_STEPS_TO_PERC(T) (1.0 / T)
 #define NUM_SIGN(N) (N/abs(N))
 #define FUZZYG(F, S, T) (F >= S - T)
 #define FUZZYL(F, S, T) (F <= S + T)
 #define FUZZY(F, S, T) (FUZZYG(F,S,T) && FUZZYL(F,S,T))
-#define PHYS_CHUNK_SIZE 512
+#define PHYS_CHUNK_SIZE 256.0
 
     // A class used for physics that describes dynamic/static rectangles and slopes,
     // Might probably need to be divided to reduce memory consumption.
@@ -44,6 +45,7 @@ namespace ReboundPhysics
         V2D movableGroundMtv;
         F32 timeSpentOnSlope = 0;
         CollisionShape* slopeGround = nullptr;
+        bool hasObjectCollidedChunk = false;
 
         ax::Color4F debugColor = ax::Color4F::RED;
     };
@@ -107,7 +109,8 @@ namespace ReboundPhysics
 
     void setBodyPosition(CollisionShape& s, V2D newPos, bool sweep);
 
-    std::vector<V2DH> chunkGetCoverArea(CollisionShape& s);
+    // static pre-allocated arrays are used for performance
+    I32 chunkGetCoverArea(V2DH* array, CollisionShape s);
 
     class PhysicsWorld : public ax::Node {
     private:
@@ -116,11 +119,13 @@ namespace ReboundPhysics
             _physicsDebugNode = nullptr;
 
             _moveTargets = new CollisionShape*[MOVE_MAX_TARGETS];
+            _coveredChunks = new V2DH[CHUNK_MAX_TARGETS];
         }
 
         ~PhysicsWorld()
         {
             delete[] _moveTargets;
+            delete[] _coveredChunks;
         }
 
         F64 lastPhysicsDt = 0;
@@ -133,6 +138,7 @@ namespace ReboundPhysics
         // ---------- HEAP ----------
         U32 _moveTargetCount = 0;
         CollisionShape** _moveTargets;
+        V2DH* _coveredChunks;
         // --------------------------
 
         bool isJumping = false;
@@ -140,6 +146,7 @@ namespace ReboundPhysics
 
         CollisionShape* modifySlope;
         CollisionShape* movingPlat;
+        CollisionShape* ground;
 
         CollisionVectorRef _dynamicShapes;
         CollisionVectorRef _staticShapes;

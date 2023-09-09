@@ -154,6 +154,7 @@ class Vec2Hashable {
 public:
     float x; float y;
 
+    Vec2Hashable() : x(0), y(0) {}
     Vec2Hashable(const V2D v) : x(v.x), y(v.y) {}
     Vec2Hashable(const Vec2Hashable& v) : x(v.x), y(v.y) {}
     Vec2Hashable(float _x, float _y) : x(_x), y(_y) {}
