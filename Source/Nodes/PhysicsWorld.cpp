@@ -214,7 +214,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
 {
     ResolveResult result{ false };
 
-    F32 leeway = MAX(1, abs(_.vel.x) / 50);
+    F32 leeway = 0;// MAX(1, abs(MIN(300, _.vel.x)) / 50);
     bool isWithinLeeway = _.x + _.w - leeway > __.x && __.x + __.w - leeway > _.x;
 
     if (mtv.y != 0 && isWithinLeeway) {
@@ -234,8 +234,8 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
     //    _.ny = 0.0f;
     //}
 
-    bool vYT = _.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y;
-    bool vYB = _.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h;
+    bool vYT = _.y + mtv.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y;
+    bool vYB = _.y + mtv.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h;
     bool vMtvApplied = false;
 
     if (vYT && vYB)
@@ -257,6 +257,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
         }
     }
     else if (vYT && isWithinLeeway && !ignoreVL) _.y = __.y + __.h;
+    else if (vYB && isWithinLeeway && !ignoreVL) _.y = __.y - _.h;
 
     if (isWithinLeeway && ignoreVL && !vMtvApplied) {
         _.y += mtv.y;
@@ -493,7 +494,7 @@ I32 ReboundPhysics::chunkGetCoverArea(V2DH* array, CollisionShape s)
 
     for (I32 x = startX; x <= endX; x++) {
         for (I32 y = startY; y <= endY; y++) {
-            if (count > CHUNK_MAX_TARGETS) break;
+            if (count >= CHUNK_MAX_TARGETS) break;
             array[count++] = V2DH(x, y);
         }
     }
@@ -526,6 +527,10 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
     {
         //if (isGrounded)
         _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 1 * delta);
+
+        if (isJumping && isGrounded)
+            _->vel.y = 8000 * -NUM_SIGN(_->gravity)/* MAX(1, isSlope ? 0.5 * abs(_->vel.x / 650) * slopeIncline : 1)*/;
+        //_->vel.y = 8000;
 
         isGrounded = false;
         _->timeSpentOnSlope += delta * 32;
@@ -593,13 +598,11 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
 
                 for (I32 i = 0; i < count; i++) {
                     for (auto& __ : _staticShapeChunks[_coveredChunks[i]]) {
-                        __->hasObjectCollidedChunk = false;
                         CollisionShape rect = *__;
                         if (rect.isTriangle)
                             rect = getTriangleEnvelop(*__);
                         if (getCollisionShapeIntersect(rect, envelope)) {
-                            if (size >= CCD_MAX_TARGETS)
-                                break;
+                            if (size >= CCD_MAX_TARGETS) break;
                             targets[size++] = __;
                             //__->debugColor = Color4F::WHITE;
                         }
@@ -697,6 +700,9 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                         quitLater = true;
                     }
                     // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+
+                    for (int i = 0; i < size; i++)
+                        targets[i]->hasObjectCollidedChunk = false;
 
                     for (int i = 0; i < size; i++)
                     {
@@ -799,9 +805,6 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             //if (!_->slopeGround)
             //    _->internalAngle = MathUtil::lerp(_->internalAngle, 0, 8 * delta);
 
-            if (isJumping && isGrounded)
-                _->vel.y = 1500 * -NUM_SIGN(_->gravity)/* MAX(1, isSlope ? 0.5 * abs(_->vel.x / 650) * slopeIncline : 1)*/;
-
             if (!FUZZY(debug1, 1.0, DBL_EPSILON))
                 DebugBreak();
 
@@ -815,7 +818,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             //if (!isGrounded)
             //    _->internalAngle = MathUtil::lerp(_->internalAngle, sin(lastPhysicsDt * 10), 2 * delta);
 
-            if (/*size &&*/ steps > 8)
+            if (/*size &&*/ steps > 1)
                 RLOG("  {} CCD steps swept {} shapes", steps, size);
         }
         //else {
@@ -941,7 +944,7 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
         else
             _physicsDebugNode->drawRect(Vec2(_->x, _->y), Vec2(_->x + _->w, _->y + _->h), _->debugColor);
 
-        if (drawLimit++ > 200) break;
+        if (drawLimit++ > 2000) break;
     }
 
     for (auto& _ : _dynamicShapes)
@@ -968,10 +971,10 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
 
         _physicsDebugNode->drawCircle(Vec2(_->x + _->w / 2, _->y + _->h / 2), _->w / 2 - 1, 0, 32, false, Color4B::RED);
 
-        BENCHMARK_SECTION_BEGIN("chunk cover area");
-        for (int i = 0; i < 400000; i++)
-            chunkGetCoverArea(_coveredChunks, CollisionShape(0, 0, 512, 512));
-        BENCHMARK_SECTION_END();
+        //BENCHMARK_SECTION_BEGIN("chunk cover area");
+        //for (int i = 0; i < 400000; i++)
+        //    chunkGetCoverArea(_coveredChunks, CollisionShape(0, 0, 512, 512));
+        //BENCHMARK_SECTION_END();
 
         I32 count = chunkGetCoverArea(_coveredChunks, *_);
 

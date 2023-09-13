@@ -107,7 +107,7 @@ bool ReboundPhysicsTest::init()
     _pw->_staticShapes.pushBack(s);
 
     for (int i = 0; i < 100000; i++)
-        _pw->_staticShapes.pushBack(createRect(V2D(700, -250), V2D(32, 32)));
+        _pw->_staticShapes.pushBack(createRect(V2D(700 + 32 * i, -250 + 16 * i), V2D(32, 32)));
 
     _pw->partition();
 
@@ -121,7 +121,7 @@ bool ReboundPhysicsTest::init()
     //_staticShapes.push_back(createRect(Vec2(-732, -0 - 64), Vec2(32, 32)));
     //_staticShapes.push_back(createSlope(Vec2(-764, -110), 128, 64));
 
-    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(64, 64), -9.8 * 10 * 100));
+    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(64, 64), -9.8 * 10 * 1000));
 
     //auto s1 = createRect(Vec2(UINT16_MAX / -2, -297), Vec2(float(UINT16_MAX), 1));
     //auto v = chunkGetCoverArea(*s1);
@@ -220,13 +220,13 @@ void ReboundPhysicsTest::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     if (code == EventKeyboard::KeyCode::KEY_D)
     {
         for (auto& _ : _pw->_dynamicShapes)
-            _->pref_vel.x = 2500;
+            _->pref_vel.x = 25000;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_A)
     {
         for (auto& _ : _pw->_dynamicShapes)
-            _->pref_vel.x = -2500;
+            _->pref_vel.x = -25000;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_T)
