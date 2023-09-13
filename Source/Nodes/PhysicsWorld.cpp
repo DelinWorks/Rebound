@@ -214,8 +214,8 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
 {
     ResolveResult result{ false };
 
-    F32 leeway = 0;// MAX(1, abs(MIN(300, _.vel.x)) / 50);
-    bool isWithinLeeway = _.x + _.w - leeway > __.x && __.x + __.w - leeway > _.x;
+    F32 leeway = 1;// MAX(1, abs(MIN(200, _.vel.x)) / 50);
+    bool isWithinLeeway = (_.x + _.w - leeway > __.x) && (__.x + __.w - leeway > _.x);
 
     if (mtv.y != 0 && isWithinLeeway) {
         result.isGrounded = _.gravity > 0 && mtv.y < 0 || _.gravity < 0 && mtv.y > 0;
@@ -256,10 +256,10 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
             vMtvApplied = true;
         }
     }
-    else if (vYT && isWithinLeeway && !ignoreVL) _.y = __.y + __.h;
-    else if (vYB && isWithinLeeway && !ignoreVL) _.y = __.y - _.h;
+    //else if (vYT && isWithinLeeway && !ignoreVL) _.y = __.y + __.h;
+    //else if (vYB && isWithinLeeway && !ignoreVL) _.y = __.y - _.h;
 
-    if (isWithinLeeway && ignoreVL && !vMtvApplied) {
+    if (isWithinLeeway && ignoreVL || !vMtvApplied) {
         _.y += mtv.y;
         if (mtv.y != 0)
             _.ny = 0.0f;

@@ -62,7 +62,7 @@ bool ReboundPhysicsTest::init()
 
     float iy = 10;
     for (float i = -32 - 200; i < 32 - 200; i += 2) {
-        _pw->_staticShapes.pushBack(createRect(Vec2(-250 + float(i * 0), float(-307 + iy)), Vec2(40, 6)));
+        _pw->_staticShapes.pushBack(createRect(Vec2(-250 + float(i * 0), float(-307 + iy)), Vec2(40, 32)));
         iy += 14;
     }
 
@@ -107,7 +107,7 @@ bool ReboundPhysicsTest::init()
     _pw->_staticShapes.pushBack(s);
 
     for (int i = 0; i < 100000; i++)
-        _pw->_staticShapes.pushBack(createRect(V2D(700 + 32 * i, -250 + 16 * i), V2D(32, 32)));
+        _pw->_staticShapes.pushBack(createRect(V2D(700 + 32 * i, -230 + -.5 * i), V2D(32, 32)));
 
     _pw->partition();
 
