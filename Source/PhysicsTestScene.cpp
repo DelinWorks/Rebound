@@ -76,10 +76,6 @@ bool ReboundPhysicsTest::init()
     for (int i = 0; i < 20; i++)
         _pw->_staticShapes.pushBack(createRect(Vec2(-100 + float(i * 20), -200), Vec2(10, 250)));
 
-
-    _pw->movingPlat = createRect(Vec2(0, 360), Vec2(512, 512));
-    _pw->movingPlat->isMovable = true;
-    _pw->_staticShapes.pushBack(_pw->movingPlat);
     auto b = createRect(Vec2(-200, -340), Vec2(600, 600));
     //b->isTrigger = true;
     _pw->_staticShapes.pushBack(b);
@@ -106,8 +102,15 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(-670, 54), 64, -64);
     _pw->_staticShapes.pushBack(s);
 
+    for (int i = 0; i < 20000; i++) {
+        auto m = createRect(Vec2(0, 360), Vec2(512, 512));
+        _pw->movingPlat.push_back(m);
+        m->isMovable = true;
+        _pw->_staticShapes.pushBack(m);
+    }
+
     for (int i = 0; i < 100000; i++)
-        _pw->_staticShapes.pushBack(createRect(V2D(700 + 32 * i, -230 + -.5 * i), V2D(32, 32)));
+        _pw->_staticShapes.pushBack(createRect(V2D(700 + 32 * i, -230 + 7 * i), V2D(32, 32)));
 
     _pw->partition();
 
@@ -121,7 +124,7 @@ bool ReboundPhysicsTest::init()
     //_staticShapes.push_back(createRect(Vec2(-732, -0 - 64), Vec2(32, 32)));
     //_staticShapes.push_back(createSlope(Vec2(-764, -110), 128, 64));
 
-    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(64, 64), -9.8 * 10 * 1000));
+    _pw->_dynamicShapes.pushBack(createRectDynamic(Vec2(300, 600), Vec2(64, 64), -9.8 * 10 * 100));
 
     //auto s1 = createRect(Vec2(UINT16_MAX / -2, -297), Vec2(float(UINT16_MAX), 1));
     //auto v = chunkGetCoverArea(*s1);
@@ -220,13 +223,13 @@ void ReboundPhysicsTest::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     if (code == EventKeyboard::KeyCode::KEY_D)
     {
         for (auto& _ : _pw->_dynamicShapes)
-            _->pref_vel.x = 25000;
+            _->pref_vel.x = 2500;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_A)
     {
         for (auto& _ : _pw->_dynamicShapes)
-            _->pref_vel.x = -25000;
+            _->pref_vel.x = -2500;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_T)

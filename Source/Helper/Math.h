@@ -188,4 +188,34 @@ namespace std {
 
 typedef Vec2Hashable V2DH;
 
+class I64Hashable {
+public:
+    I64 v;
+
+    I64Hashable() : v(0) {}
+    I64Hashable(const I64 _v) : v(_v) {}
+
+    bool operator==(I64 other) const
+    {
+        return v == other;
+    }
+};
+
+namespace std {
+    template<>
+    struct hash<I64Hashable> {
+        size_t operator()(I64 v) const noexcept {
+            const uint64_t m = 0x5bd1e995;
+            const int r = 24;
+            uint64_t hash = 0xDEADBEEF ^ static_cast<uint64_t>(v);
+            hash ^= hash >> r;
+            hash *= m;
+            hash ^= hash >> r;
+            return static_cast<size_t>(hash);
+        }
+        hash() = default;
+        bool operator==(const hash& other) const = default;
+    };
+}
+
 #endif

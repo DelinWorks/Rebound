@@ -21,9 +21,9 @@ ReboundPhysics::CollisionShape* ReboundPhysics::createSlope(V2D pos, F32 length,
     return s;
 }
 
-ReboundPhysics::CollisionShape* ReboundPhysics::createRectDynamic(V2D pos, V2D size, F32 gravity)
+ReboundPhysics::DynamicCollisionShape* ReboundPhysics::createRectDynamic(V2D pos, V2D size, F32 gravity)
 {
-    CollisionShape* s = new CollisionShape();
+    DynamicCollisionShape* s = new DynamicCollisionShape();
     s->x = pos.x;
     s->y = pos.y;
     s->w = size.x;
@@ -37,7 +37,7 @@ bool ReboundPhysics::getCollisionShapeIntersect(const CollisionShape& s1, const 
     return (s1.y <= s2.y + s2.h && s2.y <= s1.y + s1.h && s1.x <= s2.x + s2.w && s2.x <= s1.x + s1.w);
 }
 
-V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2)
+V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2, bool both)
 {
     F32 dx = (rect1.x + rect1.w / 2) - (rect2.x + rect2.w / 2);
     F32 dy = (rect1.y + rect1.h / 2) - (rect2.y + rect2.h / 2);
@@ -48,7 +48,10 @@ V2D ReboundPhysics::calculateRect2RectMTV(const CollisionShape& rect1, const Col
         F32 overlapX = combinedHalfWidths - std::abs(dx);
         F32 overlapY = combinedHalfHeights - std::abs(dy);
 
-        if (overlapX >= overlapY) {
+        if (both)
+            return V2D(dx > 0 ? overlapX : -overlapX, dy > 0 ? overlapY : -overlapY);
+
+        else if (overlapX >= overlapY) {
             //if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
             //    overlapY = 0;
 
@@ -210,7 +213,7 @@ bool ReboundPhysics::getCollisionTriangleIntersect(const CollisionShape& r, cons
         ReboundPhysics::doLinesIntersect(V2D(r.x + r.w, r.y), V2D(r.x + r.w, r.y + r.h), V2D(t.x, t.y + t.l), V2D(t.x + t.b, t.y)).intersects;
 }
 
-ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL)
+ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(DynamicCollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL)
 {
     ResolveResult result{ false };
 
@@ -234,8 +237,8 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
     //    _.ny = 0.0f;
     //}
 
-    bool vYT = _.y + mtv.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y;
-    bool vYB = _.y + mtv.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h;
+    bool vYT = _.y + _.h - VERTICAL_RESOLUTION_LEEWAY > __.y;
+    bool vYB = _.y + VERTICAL_RESOLUTION_LEEWAY < __.y + __.h;
     bool vMtvApplied = false;
 
     if (vYT && vYB)
@@ -256,6 +259,12 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionRect(CollisionShap
             vMtvApplied = true;
         }
     }
+    //else if (isWithinLeeway)
+    //{
+    //    F32 y = calculateRect2RectMTV(_, __, true).y;
+    //    _.y += y;
+    //    vMtvApplied = true;
+    //}
     //else if (vYT && isWithinLeeway && !ignoreVL) _.y = __.y + __.h;
     //else if (vYB && isWithinLeeway && !ignoreVL) _.y = __.y - _.h;
 
@@ -291,7 +300,7 @@ ReboundPhysics::CollisionShape ReboundPhysics::getTriangleEnvelop(const Collisio
     return result;
 }
 
-ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv, F32 delta)
+ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(DynamicCollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv, F32 delta)
 {
     ResolveResult result;
     auto e = ReboundPhysics::getTriangleEnvelop(t);
@@ -375,6 +384,10 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(CollisionSha
                     r.vel.y = forceUp * NUM_SIGN(t.l);
                 else if (e.b > 0 && r.vel.x > 0 || e.b < 0 && r.vel.x < 0)
                     r.vel.y = forceUp * -NUM_SIGN(t.l);
+
+                if (sin(cornerAngle) > sin(AX_DEGREES_TO_RADIANS(60)))
+                    r.vel.x += 100 * delta * NUM_SIGN(t.b) * MIN(r.timeSpentOnSlope * 300, 20);
+                //r.x += r.vel.x * delta / 2;
             }
 
             //if (sin(cornerAngle) > 0.5)
@@ -450,7 +463,7 @@ I32 ReboundPhysics::getCCDPrecessionSteps(F32 velocityMagnitude)
     return std::clamp<int>(ccdPrecession, 1, 200);
 }
 
-void ReboundPhysics::stepDynamic(CollisionShape& s, F32 delta, F32 fraction)
+void ReboundPhysics::stepDynamic(DynamicCollisionShape& s, F32 delta, F32 fraction)
 {
     s.vel.x = std::clamp<F32>(s.vel.x, -250000, 250000);
     s.vel.y = std::clamp<F32>(s.vel.y, -250000, 250000);
@@ -494,7 +507,7 @@ I32 ReboundPhysics::chunkGetCoverArea(V2DH* array, CollisionShape s)
 
     for (I32 x = startX; x <= endX; x++) {
         for (I32 y = startY; y <= endY; y++) {
-            if (count >= CHUNK_MAX_TARGETS) break;
+            //if (count >= CHUNK_MAX_TARGETS) break;
             array[count++] = V2DH(x, y);
         }
     }
@@ -516,12 +529,62 @@ void ReboundPhysics::setShapePosition(PhysicsWorld* worldToRegisterSweep, Collis
 
 void ReboundPhysics::PhysicsWorld::step(F64 delta)
 {
+    //BENCHMARK_SECTION_BEGIN("test move performance");
     for (U32 i = 0; i < _moveTargetCount; i++)
     {
-        _moveTargets[i]->x = _moveTargets[i]->nx;
-        _moveTargets[i]->y = _moveTargets[i]->ny;
+        auto& _ = _moveTargets[i];
+
+        _->x = _->nx;
+        _->y = _->ny;
+
+        I32 countOld = chunkGetCoverArea(_coveredChunksBuffers[0], CollisionShape(_->cx, _->cy, _->cw, _->ch));
+        I32 countNew = chunkGetCoverArea(_coveredChunksBuffers[1], *_);
+
+        if (countOld != countNew || memcmp(_coveredChunksBuffers[0], _coveredChunksBuffers[1], countNew * sizeof(V2DH)) != 0)
+        {
+            for (int i = 0; i < countNew; i++)
+            {
+                auto& newChunk = _coveredChunksBuffers[1][i];
+
+                bool cont = false;
+                for (int p = 0; p < countOld; p++)
+                    if (newChunk == _coveredChunksBuffers[0][p])
+                    {
+                        cont = true;
+                        break;
+                    }
+                if (cont) continue;
+
+                _staticShapeChunks[newChunk].push_back(_);
+            }
+
+            for (int i = 0; i < countOld; i++)
+            {
+                auto& oldChunk = _coveredChunksBuffers[0][i];
+
+                bool cont = false;
+                for (int p = 0; p < countNew; p++)
+                    if (oldChunk == _coveredChunksBuffers[1][p])
+                    {
+                        cont = true;
+                        break;
+                    }
+                if (cont) continue;
+
+                auto& arr = _staticShapeChunks[oldChunk];
+                auto it = std::find(arr.begin(), arr.end(), _);
+                if (it != arr.end())
+                    arr.erase(it);
+            }
+
+            _->cx = _->x;
+            _->cy = _->y;
+            _->cw = _->w;
+            _->ch = _->h;
+        }
     }
     _moveTargetCount = 0;
+    //BENCHMARK_SECTION_END();
 
     for (auto& _ : _dynamicShapes)
     {
@@ -529,7 +592,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
         _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 1 * delta);
 
         if (isJumping && isGrounded)
-            _->vel.y = 8000 * -NUM_SIGN(_->gravity)/* MAX(1, isSlope ? 0.5 * abs(_->vel.x / 650) * slopeIncline : 1)*/;
+            _->vel.y = 2000 * -NUM_SIGN(_->gravity)/* MAX(1, isSlope ? 0.5 * abs(_->vel.x / 650) * slopeIncline : 1)*/;
         //_->vel.y = 8000;
 
         isGrounded = false;
@@ -594,10 +657,10 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                 CollisionShape newPos = CollisionShape(nx, ny, _->w, _->h);
                 envelope = getRectSweepEnvelope(oldPos, newPos, envExtent);
 
-                I32 count = chunkGetCoverArea(_coveredChunks, envelope);
+                I32 count = chunkGetCoverArea(_coveredChunksBuffers[0], envelope);
 
                 for (I32 i = 0; i < count; i++) {
-                    for (auto& __ : _staticShapeChunks[_coveredChunks[i]]) {
+                    for (auto& __ : _staticShapeChunks[_coveredChunksBuffers[0][i]]) {
                         CollisionShape rect = *__;
                         if (rect.isTriangle)
                             rect = getTriangleEnvelop(*__);
@@ -809,7 +872,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                 DebugBreak();
 
             if (isGrounded && _->pref_vel.x == 0) {
-                _->vel.x = MathUtil::lerp(_->vel.x, 0, 0 * delta);
+                _->vel.x = MathUtil::lerp(_->vel.x, 0, 10 * delta);
             }
 
             if (!isGrounded && _->pref_vel.x == 0)
@@ -818,8 +881,8 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             //if (!isGrounded)
             //    _->internalAngle = MathUtil::lerp(_->internalAngle, sin(lastPhysicsDt * 10), 2 * delta);
 
-            if (/*size &&*/ steps > 1)
-                RLOG("  {} CCD steps swept {} shapes", steps, size);
+            //if (/*size &&*/ steps > 1)
+            //    RLOG("  {} CCD steps swept {} shapes", steps, size);
         }
         //else {
         //    for (auto& __ : _staticShapes)
@@ -862,10 +925,20 @@ void ReboundPhysics::PhysicsWorld::partition()
 {
     for (auto& _ : _staticShapes)
     {
-        I32 count = chunkGetCoverArea(_coveredChunks, *_);
+        I32 count = chunkGetCoverArea(_coveredChunksBuffers[0], *_);
 
         for (I32 i = 0; i < count; i++)
-            _staticShapeChunks[_coveredChunks[i]].push_back(_);
+        {
+            _staticShapeChunks[_coveredChunksBuffers[0][i]].push_back(_);
+
+            if (_->isMovable)
+            {
+                _->cx = _->x;
+                _->cy = _->y;
+                _->cw = _->w;
+                _->ch = _->h;
+            }
+        }
     }
 }
 
@@ -914,7 +987,8 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
         for (int i = 0; i < substeps; i++) {
             lastPhysicsDt += 1.0 / physicsTPS * (1.0 / substeps);
 
-            setShapePosition(this, *movingPlat, V2D(100 + 200 * sawtoothSin(lastPhysicsDt * 7), 0 + 170 * sawtoothCos(lastPhysicsDt * 2)));
+            for (int i = 0; i < movingPlat.size(); i++)
+                setShapePosition(this, *movingPlat[i], V2D(100 + 200 * sawtoothSin(lastPhysicsDt * 7), 0 + 170 * sawtoothCos(lastPhysicsDt * 2)));
 
             step(1.0 / physicsTPS * (1.0 / substeps));
         }
@@ -976,12 +1050,12 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
         //    chunkGetCoverArea(_coveredChunks, CollisionShape(0, 0, 512, 512));
         //BENCHMARK_SECTION_END();
 
-        I32 count = chunkGetCoverArea(_coveredChunks, *_);
+        I32 count = chunkGetCoverArea(_coveredChunksBuffers[0], *_);
 
         for (I32 i = 0; i < count; i++) {
-            auto& v = _coveredChunks[i];
+            auto& v = _coveredChunksBuffers[0][i];
             V2D p = V2D(v.x, v.y) * PHYS_CHUNK_SIZE;
-            _physicsDebugNode->drawRect(p, p + V2D(PHYS_CHUNK_SIZE, PHYS_CHUNK_SIZE), Color4B::GRAY);
+            _physicsDebugNode->drawRect(p, p + V2D(PHYS_CHUNK_SIZE, PHYS_CHUNK_SIZE), Color4B::ORANGE);
         }
     }
     //for (int i = 0; i < 2880; i++) {

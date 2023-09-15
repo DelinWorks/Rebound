@@ -8,16 +8,16 @@
 
 namespace ReboundPhysics
 {
-#define VERTICAL_RESOLUTION_LEEWAY 16
+#define VERTICAL_RESOLUTION_LEEWAY 8
 #define CCD_MAX_TARGETS 8192
-#define MOVE_MAX_TARGETS 8192
-#define CHUNK_MAX_TARGETS 8192
+#define MOVE_MAX_TARGETS 65535
+#define CHUNK_MAX_TARGETS UINT16_MAX
 #define CCD_STEPS_TO_PERC(T) (1.0 / T)
 #define NUM_SIGN(N) (N/abs(N))
 #define FUZZYG(F, S, T) (F >= S - T)
 #define FUZZYL(F, S, T) (F <= S + T)
 #define FUZZY(F, S, T) (FUZZYG(F,S,T) && FUZZYL(F,S,T))
-#define PHYS_CHUNK_SIZE 256.0
+#define PHYS_CHUNK_SIZE 512.0
 
     // A class used for physics that describes dynamic/static rectangles and slopes,
     // Might probably need to be divided to reduce memory consumption.
@@ -26,33 +26,45 @@ namespace ReboundPhysics
         CollisionShape() {}
         CollisionShape(F32 _x, F32 _y, F32 _w, F32 _h) : x(_x), y(_y), w(_w), h(_h) {}
 
-        F32 x, y;
+        F32 x = 0, y = 0;
+        F32 w = 0, h = 0;
+
+        F32 cx = 0, cy = 0;
+        F32 cw = 0, ch = 0;
+
         F32 nx = 0.0, ny = 0.0;
-        F32 w, h;
         bool isTriangle = false;
-        F32 l, b;
+        F32 l = 0, b = 0;
         bool isTrigger = false;
-        F32 gravity;
+        bool isMovable = false;
+        bool hasObjectCollidedChunk = false;
+
+        ax::Color4F debugColor = ax::Color4F::WHITE;
+    };
+
+    class DynamicCollisionShape : public CollisionShape {
+    public:
+        DynamicCollisionShape() {}
+        DynamicCollisionShape(F32 _x, F32 _y, F32 _w, F32 _h) { x = _x; y = _y; w = _w; h = _h; }
+
+        F32 gravity = 0;
         V2D vel = V2D::ZERO;
         V2D pref_vel = V2D::ZERO;
         V2D lerp_vel = V2D::ZERO;
-        bool isMovable = false;
         F32 internalAngle = 0.0f;
         F32 internalAngleLerp = 0.0f;
         bool isMovableLerpApplied = false;
         CollisionShape* movableGround = nullptr;
-        V2D movableGroundPos;
-        V2D movableGroundMtv;
+        V2D movableGroundPos = V2D::ZERO;
+        V2D movableGroundMtv = V2D::ZERO;
         F32 timeSpentOnSlope = 0;
         CollisionShape* slopeGround = nullptr;
-        bool hasObjectCollidedChunk = false;
-
-        ax::Color4F debugColor = ax::Color4F::RED;
     };
 
     typedef ax::Vector<CollisionShape*> CollisionVectorRef;
+    typedef ax::Vector<DynamicCollisionShape*> DynamicCollisionVectorRef;
     typedef std::vector<CollisionShape*> CollisionVector;
-    typedef std::unordered_map<V2DH, CollisionVector> CollisionChunkMap;
+    typedef std::unordered_map<V2DH, std::list<CollisionShape*>> CollisionChunkMap;
 
     struct RayCastResult {
         bool intersects = false;
@@ -72,11 +84,11 @@ namespace ReboundPhysics
 
     CollisionShape* createSlope(V2D pos, F32 length, F32 base);
 
-    CollisionShape* createRectDynamic(V2D pos, V2D size, F32 gravity);
+    DynamicCollisionShape* createRectDynamic(V2D pos, V2D size, F32 gravity);
 
     bool getCollisionShapeIntersect(const CollisionShape& s1, const CollisionShape& s2);
 
-    V2D calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2);
+    V2D calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2, bool both = false);
 
     I32 getLineOrientation(const V2D& a, const V2D& b, const V2D& c);
 
@@ -94,18 +106,18 @@ namespace ReboundPhysics
 
     bool getCollisionTriangleIntersect(const CollisionShape& r, const CollisionShape& t);
 
-    ResolveResult resolveCollisionRect(CollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL);
+    ResolveResult resolveCollisionRect(DynamicCollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL);
 
     CollisionShape getTriangleEnvelop(const CollisionShape& triangle);
 
-    ResolveResult resolveCollisionSlope(CollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv, F32 delta);
+    ResolveResult resolveCollisionSlope(DynamicCollisionShape& r, CollisionShape& t, bool isJumping, F32 verticalMtv, F32 delta);
 
     CollisionShape getRectSweepEnvelope(const CollisionShape& rect1, const CollisionShape& rect2, F32 oExtend);
 
     // OBSOLETE
     I32 getCCDPrecessionSteps(F32 velocityMagnitude);
 
-    void stepDynamic(CollisionShape& s, F32 delta, F32 fraction);
+    void stepDynamic(DynamicCollisionShape& s, F32 delta, F32 fraction);
 
     void setBodyPosition(CollisionShape& s, V2D newPos, bool sweep);
 
@@ -119,13 +131,19 @@ namespace ReboundPhysics
             _physicsDebugNode = nullptr;
 
             _moveTargets = new CollisionShape*[MOVE_MAX_TARGETS];
-            _coveredChunks = new V2DH[CHUNK_MAX_TARGETS];
+
+            _coveredChunksBuffers = new V2DH*[2];
+            for (int i = 0; i < 2; i++)
+                _coveredChunksBuffers[i] = new V2DH[CHUNK_MAX_TARGETS];
         }
 
         ~PhysicsWorld()
         {
             delete[] _moveTargets;
-            delete[] _coveredChunks;
+
+            for (int i = 0; i < 2; i++)
+                delete[] _coveredChunksBuffers[i];
+            delete[] _coveredChunksBuffers;
         }
 
         F64 lastPhysicsDt = 0;
@@ -138,19 +156,22 @@ namespace ReboundPhysics
         // ---------- HEAP ----------
         U32 _moveTargetCount = 0;
         CollisionShape** _moveTargets;
-        V2DH* _coveredChunks;
+        // --------------------------
+
+        // ---- PERFORMANCE HEAP ----
+        V2DH** _coveredChunksBuffers;
         // --------------------------
 
         bool isJumping = false;
         bool isGrounded = false;
 
         CollisionShape* modifySlope;
-        CollisionShape* movingPlat;
+        std::vector<CollisionShape*> movingPlat;
         CollisionShape* ground;
 
-        CollisionVectorRef _dynamicShapes;
         CollisionVectorRef _staticShapes;
         CollisionChunkMap _staticShapeChunks;
+        DynamicCollisionVectorRef _dynamicShapes;
 
         void partition();
 
