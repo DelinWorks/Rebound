@@ -3,12 +3,12 @@
 #include "Ref.h"
 #include "Types.h"
 #include "Helper/Math.h"
-#include "Helper/QuadTree.hpp"
+#include "Helper/MemoryPoolVector.hpp"
 #include <Helper/Logging.hpp>
 
 namespace ReboundPhysics
 {
-#define VERTICAL_RESOLUTION_LEEWAY 8
+#define VERTICAL_RESOLUTION_LEEWAY 32
 #define CCD_MAX_TARGETS 8192
 #define MOVE_MAX_TARGETS 65535
 #define CHUNK_MAX_TARGETS UINT16_MAX
@@ -17,7 +17,7 @@ namespace ReboundPhysics
 #define FUZZYG(F, S, T) (F >= S - T)
 #define FUZZYL(F, S, T) (F <= S + T)
 #define FUZZY(F, S, T) (FUZZYG(F,S,T) && FUZZYL(F,S,T))
-#define PHYS_CHUNK_SIZE 512.0
+#define PHYS_CHUNK_SIZE V2D(1024, 8192)
 
     // A class used for physics that describes dynamic/static rectangles and slopes,
     // Might probably need to be divided to reduce memory consumption.
@@ -33,6 +33,7 @@ namespace ReboundPhysics
         F32 cw = 0, ch = 0;
 
         F32 nx = 0.0, ny = 0.0;
+        F32 dx = 0.0, dy = 0.0;
         bool isTriangle = false;
         F32 l = 0, b = 0;
         bool isTrigger = false;
@@ -59,12 +60,14 @@ namespace ReboundPhysics
         V2D movableGroundMtv = V2D::ZERO;
         F32 timeSpentOnSlope = 0;
         CollisionShape* slopeGround = nullptr;
+        F32 hSpeed = 0.0f;
+        bool isMtvXApplied = false;
     };
 
     typedef ax::Vector<CollisionShape*> CollisionVectorRef;
     typedef ax::Vector<DynamicCollisionShape*> DynamicCollisionVectorRef;
-    typedef std::vector<CollisionShape*> CollisionVector;
-    typedef std::unordered_map<V2DH, std::list<CollisionShape*>> CollisionChunkMap;
+    typedef MemPoolVector<CollisionShape*> CollisionMemPoolVector;
+    typedef std::unordered_map<V2DH, CollisionMemPoolVector> CollisionChunkMap;
 
     struct RayCastResult {
         bool intersects = false;
@@ -88,7 +91,7 @@ namespace ReboundPhysics
 
     bool getCollisionShapeIntersect(const CollisionShape& s1, const CollisionShape& s2);
 
-    V2D calculateRect2RectMTV(const CollisionShape& rect1, const CollisionShape& rect2, bool both = false);
+    V2D calculateRect2RectMTV(const DynamicCollisionShape& rect1, const CollisionShape& rect2, bool both, F32 delta);
 
     I32 getLineOrientation(const V2D& a, const V2D& b, const V2D& c);
 
@@ -148,6 +151,7 @@ namespace ReboundPhysics
 
         F64 lastPhysicsDt = 0;
         F64 currentPhysicsDt = 0;
+        void move(F64 delta);
         void step(F64 delta);
 
         ax::DrawNode* _physicsDebugNode;
@@ -172,6 +176,7 @@ namespace ReboundPhysics
         CollisionVectorRef _staticShapes;
         CollisionChunkMap _staticShapeChunks;
         DynamicCollisionVectorRef _dynamicShapes;
+        std::map<void*, std::map<void*, uint32_t>> chunks;
 
         void partition();
 

@@ -61,8 +61,8 @@ bool ReboundPhysicsTest::init()
     _pw->_staticShapes.pushBack(createRect(Vec2(1000000 / -2, -297), Vec2(1, 32)));
 
     float iy = 10;
-    for (float i = -32 - 200; i < 32 - 200; i += 2) {
-        _pw->_staticShapes.pushBack(createRect(Vec2(-250 + float(i * 0), float(-307 + iy)), Vec2(40, 32)));
+    for (float i = -32 - 200; i < 320 - 200; i += 2) {
+        _pw->_staticShapes.pushBack(createRect(Vec2(-250 + float(i * 0), float(-307 + iy)), Vec2(40, 5)));
         iy += 14;
     }
 
@@ -96,21 +96,23 @@ bool ReboundPhysicsTest::init()
     _pw->_staticShapes.pushBack(createSlope(Vec2(-1090, -300), 256, 64));
     _pw->_staticShapes.pushBack(createSlope(Vec2(-1090, -300 + 512), -256, 64));
 
+    _pw->_staticShapes.pushBack(createSlope(Vec2(-1890, -300), 1024, 512));
+
     s = createSlope(Vec2(-670, 113), 128, -64);
     _pw->_staticShapes.pushBack(s);
 
     s = createSlope(Vec2(-670, 54), 64, -64);
     _pw->_staticShapes.pushBack(s);
 
-    for (int i = 0; i < 20000; i++) {
+    for (int i = 0; i < 200; i++) {
         auto m = createRect(Vec2(0, 360), Vec2(512, 512));
         _pw->movingPlat.push_back(m);
         m->isMovable = true;
         _pw->_staticShapes.pushBack(m);
     }
 
-    for (int i = 0; i < 100000; i++)
-        _pw->_staticShapes.pushBack(createRect(V2D(700 + 32 * i, -230 + 7 * i), V2D(32, 32)));
+    for (int i = 0; i < 1000; i++)
+        _pw->_staticShapes.pushBack(createRect(V2D(700 + 284 * i, -200 + 0 * i), V2D(32, 64)));
 
     _pw->partition();
 
@@ -223,13 +225,13 @@ void ReboundPhysicsTest::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     if (code == EventKeyboard::KeyCode::KEY_D)
     {
         for (auto& _ : _pw->_dynamicShapes)
-            _->pref_vel.x = 2500;
+            _->pref_vel.x = 1500;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_A)
     {
         for (auto& _ : _pw->_dynamicShapes)
-            _->pref_vel.x = -2500;
+            _->pref_vel.x = -1500;
     }
 
     if (code == EventKeyboard::KeyCode::KEY_T)
