@@ -86,7 +86,7 @@ void WelcomeScene::update(F32 dt)
         //GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
-        auto scene = ReboundPhysicsTest::createScene();
+        auto scene = MapEditor::createScene();
         Director::getInstance()->pushScene(scene);
     }
 

@@ -61,8 +61,8 @@ V2D ReboundPhysics::calculateRect2RectMTV(const DynamicCollisionShape& rect1, co
             //if (rect1.y > rect2.y - rect1.h + VERTICAL_RESOLUTION_LEEWAY && rect1.y + VERTICAL_RESOLUTION_LEEWAY < rect2.y + rect2.h)
             //    overlapY = 0;
 
-            if (vTY && (rect1.vel.y + rect2.dy) > 0) return V2D::ZERO;
-            if (vBY && (rect1.vel.y + rect2.dy) < 0) return V2D::ZERO;
+            if (vTY && rect1.vel.y > 0 && !isWithinLeeway) if (dx > 0) return V2D(overlapX, 0); else return V2D(-overlapX, 0);
+            if (vBY && rect1.vel.y < 0 && !isWithinLeeway) if (dx > 0) return V2D(overlapX, 0); else return V2D(-overlapX, 0);
 
             if (dy > 0)
                 return V2D(0, overlapY);
