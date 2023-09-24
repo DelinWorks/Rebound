@@ -427,10 +427,7 @@ void MapEditor::onInitDone(F32 dt)
 
         map->setTilesetArray(tilesetArr);
 
-        map->addLayer("background");
-        map->addLayer("collision");
-        map->addLayer("decoration");
-        map->_layers[2]->setBlendFunc(BlendFunc::ADDITIVE);
+        //map->_layers[2]->setBlendFunc(BlendFunc::ADDITIVE);
         map->bindLayer(0);
 
         //BENCHMARK_SECTION_BEGIN("Chunk Serialize Speed");
@@ -679,6 +676,8 @@ void MapEditor::tileMapModifyRegion(F32 _x, F32 _y, F32 _width, F32 _height)
 
 void MapEditor::tileMapEditUpdate(Vec2 prev, Vec2 next)
 {
+    if (map->_layerIdx == UINT32_MAX) return;
+
     if (isTileMapRect)
         createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocationInView, _camera, false), map->_tileSize.x);
 

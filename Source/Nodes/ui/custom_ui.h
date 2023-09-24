@@ -137,7 +137,7 @@ namespace CUI
 
         bool setContentSize(const Vec2& size, bool recursive = true);
 
-        virtual Vec2 getScaledContentSize();
+        virtual V2D getScaledContentSize();
 
         virtual void onFontScaleUpdate(float scale);
 
@@ -182,7 +182,7 @@ namespace CUI
         void setUiEnabled(bool isEnabled) { _isEnabled = isEnabled; }
         bool isUiEnabled() { return _isEnabled; }
 
-        void DenyRescaling() { _rescalingAllowed = false; }
+        void DenyRescaling(bool evenFlow = false) { _rescalingAllowed = false; _flowLayoutRescalingAllowed = evenFlow; }
 
         void setForceRawInput(bool force) { _forceRawInput = force; }
         bool isForceRawInput() { return _forceRawInput; }
@@ -213,6 +213,8 @@ namespace CUI
         bool _iconArtMulEnabled = true;
         bool _forceRawInput = false;
         bool _rescalingAllowed = true;
+        bool _flowLayoutRescalingAllowed = false;
+        bool _ignoreDesignScale = false;
         bool _isInternalEnabled = true;
         bool _isEnabledState = true;
         DrawNode* _contentSizeDebug;

@@ -302,7 +302,7 @@ void CUI::TextField::keyPress(EventKeyboard::KeyCode keyCode)
         field->setString(std::string(field->getString()) + fromClipboard());
     }
 #endif
-    if (keyCode == EventKeyboard::KeyCode::KEY_ENTER || keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
+    if (ANY_ENTER(keyCode) || keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
         defocus();
 }
 
@@ -347,5 +347,9 @@ void CUI::TextField::setString(std::wstring _text)
 
 CUI::TextField::~TextField()
 {
+    if (CUI::_pCurrentHeldItem == this)
+        CUI::_pCurrentHeldItem = nullptr;
+    if (CUI::_pCurrentHoveredTooltipItem == this)
+        CUI::_pCurrentHoveredTooltipItem = nullptr;
     LOG_RELEASE;
 }

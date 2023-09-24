@@ -23,6 +23,8 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
     addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     setBackgroundDim();
 
+    enterCallback = [](CUI::Button*, std::wstring) {};
+
     stack = CUI::Container::create();
     stack->setBorderLayout(BorderLayout::CENTER, BorderContext::PARENT);
     stack->setLayout(CUI::FlowLayout(
@@ -30,6 +32,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
         CUI::FlowLayoutDirection::STACK_CENTER,
         0
     ));
+
     stack->setBorderLayoutAnchor();
     stack->setMargin({ 10, 5 });
     stack->setBackgroundSprite();
@@ -52,7 +55,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
     //stack->addChild(TO_CONTAINER(separator));
 
     if (type == DiscardType::INPUT) {
-        auto textField = CUI::TextField::create();
+        textField = CUI::TextField::create();
         textField->init(placeholder_or_text, 16, { 200, 40 });
         textField->setStyleDotted();
         cc = TO_CONTAINER(textField);
@@ -115,6 +118,15 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
         auto okay = eventButton = CUI::Button::create();
         okay->init(okayText, 16);
         buttonStack->addChild(okay);
+
+        okay->_callback = [&](CUI::Button* target)
+        {
+            if (textField && !textField->field->getString().size())
+                return;
+
+            enterCallback(target, textField->cachedString);
+            discardCallback(target);
+        };
     }
 
     stack->addChild(TO_CONTAINER(buttonStack));
@@ -143,7 +155,10 @@ void CUI::DiscardPanel::keyPress(EventKeyboard::KeyCode keyCode)
 {
     if (keyCode == EventKeyboard::KeyCode::KEY_ESCAPE)
         discardCallback(nullptr);
-    if (keyCode == EventKeyboard::KeyCode::KEY_ENTER) {
+    if (ANY_ENTER(keyCode)) {
+        if (textField && !textField->field->getString().size())
+            return;
+
         if (eventButton && eventButton->_callback)
             eventButton->_callback(nullptr);
         discardCallback(nullptr);

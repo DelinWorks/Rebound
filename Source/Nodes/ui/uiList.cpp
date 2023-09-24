@@ -3,6 +3,7 @@
 CUI::List::List(V2D _prefferedSize, bool rescalingAllowed)
 {
     scheduleUpdate();
+    _rescalingAllowed = rescalingAllowed;
     if (rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
 
@@ -36,6 +37,8 @@ CUI::List::List(V2D _prefferedSize, bool rescalingAllowed)
     scrollCont->addChild(scrollKnob);
 
     SELF addChild(scrollCont);
+
+    disableRebuildOnEnter();
 
     //upB = CUI::Button::create();
     //downB = CUI::Button::create();
@@ -119,6 +122,20 @@ void CUI::List::updateLayoutManagers(bool recursive)
     elementCont->setPosition(ePos);
     scrollCont->updateLayoutManagers(true);
     ePos = elementCont->getPosition();
+
+    auto l = GameUtils::findNodesByTag(this, 9);
+    if (l.size() != 0) l[0]->setVisible(!elements.size());
+}
+
+CUI::Label* CUI::List::setEmptyText(std::wstring _text)
+{
+    auto emptyText = CUI::Label::create();
+    emptyText->setTag(9);
+    emptyText->DenyRescaling();
+    emptyText->hAlignment = TextHAlignment::CENTER;
+    emptyText->init(_text, TTFFS);
+    SELF addChild(emptyText);
+    return emptyText;
 }
 
 void CUI::List::addElement(Container* container, int extendCoeff)
@@ -138,6 +155,7 @@ void CUI::List::addElement(Container* container, int extendCoeff)
     elemContPos = INVALID_LOCATION;
     if (extendCoeff != 0 && _prefferedSize.x < extendCoeff)
         setContentSize(V2D(extendCoeff, _prefferedSize.y), true);
+    isListDirty = true;
 }
 
 void CUI::List::update(F32 dt)
@@ -150,16 +168,23 @@ void CUI::List::update(F32 dt)
     //}
     //else vel = 200;
 
+    if (isListDirty)
+    {
+        updateLayoutManagers(true);
+        isListDirty = false;
+    }
+
     if (_pCurrentHeldItem != scrollKnob) {
         float map = Math::map(elementCont->getPositionY(), getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2, getContentSize().y / 2 - 16, getContentSize().y / -2 + 16);
         scrollKnob->setPositionY(map);
         dtScroll = UINT16_MAX;
     }
     else {
+        auto ns = GameUtils::getNodeIgnoreDesignScale();
         if (dtScroll == UINT16_MAX)
-            dtScroll = _savedLocationInView.y;
-        float v = _savedLocationInView.y - dtScroll;
-        dtScroll = _savedLocationInView.y;
+            dtScroll = _savedLocationInView.y / (_rescalingAllowed ? 1 : ns.y);
+        float v = _savedLocationInView.y / (_rescalingAllowed ? 1 : ns.y) - dtScroll;
+        dtScroll = _savedLocationInView.y / (_rescalingAllowed ? 1 : ns.y);
         v /= getScale();
         scrollKnob->setPositionY(Math::clamp(scrollKnob->getPositionY() + v, getContentSize().y / -2 + 16, getContentSize().y / 2 - 16));
         float map = Math::map(scrollKnob->getPositionY(), getContentSize().y / 2 - 16, getContentSize().y / -2 + 16, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
@@ -181,7 +206,7 @@ void CUI::List::update(F32 dt)
             auto b2 = Rect(0, c2.y / -2 + c1.y / 2, 0, c2.y);
             if (b1.intersectsRect(b2)) _->enableSelf(true); else _->disableSelf(true);
         }
-        if (elementCont->getContentSize().y / 2 < getContentSize().y)
+        if (elementCont->getContentSize().y / 2 < getContentSize().y || elements.size() == 0)
             scrollCont->disable(true); else scrollCont->enable(true);
     }
     deltaScroll2 = LERP(deltaScroll2, deltaScroll, 50 * dt);

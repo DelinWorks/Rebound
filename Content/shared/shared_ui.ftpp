@@ -6,297 +6,312 @@
   "images": [
     {
       "name": "9_slice_box_1.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/9_slice_box_1.png",
       "folder": ""
     },
     {
       "name": "9_slice_box_1_cramped.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped.png",
-      "folder": ""
-    },
-    {
-      "name": "9_slice_box_1_inv.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_inv.png",
-      "folder": ""
-    },
-    {
-      "name": "9_slice_box_1_cramped2.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped2.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/9_slice_box_1_cramped.png",
       "folder": ""
     },
     {
       "name": "9_slice_box_1_gray.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_gray.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/9_slice_box_1_gray.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_inv.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/9_slice_box_1_inv.png",
+      "folder": ""
+    },
+    {
+      "name": "9_slice_box_1_cramped2.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/9_slice_box_1_cramped2.png",
       "folder": ""
     },
     {
       "name": "9_slice_box_1_cramped3.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/9_slice_box_1_cramped3.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/9_slice_box_1_cramped3.png",
       "folder": ""
     },
     {
       "name": "color_cell.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/color_cell.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/color_cell.png",
       "folder": ""
     },
     {
       "name": "editor_add.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_add.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_add.png",
       "folder": ""
     },
     {
       "name": "editor_add_text.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_add_text.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_add_text.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_bl.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_bl.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_bl.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_br.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_br.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_br.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_down.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_down.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_down.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_down_2.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_down_2.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_left.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_left.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_left.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_left_2.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_left_2.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_right.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_right.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_right.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_right_2.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_right_2.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_tl.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_tl.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_tl.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_tr.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_tr.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_tr.png",
       "folder": ""
     },
     {
       "name": "editor_arrow_up.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_arrow_up.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_up.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_up_2.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_up_2.png",
       "folder": ""
     },
     {
       "name": "editor_bucket_fill.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_bucket_fill.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_bucket_fill.png",
       "folder": ""
     },
     {
       "name": "editor_file.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_file.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_file.png",
       "folder": ""
     },
     {
       "name": "editor_flip_h.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_flip_h.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_flip_h.png",
       "folder": ""
     },
     {
       "name": "editor_flip_v.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_flip_v.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_flip_v.png",
       "folder": ""
     },
     {
       "name": "editor_import.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_import.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_import.png",
       "folder": ""
     },
     {
       "name": "editor_invisible.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_invisible.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_invisible.png",
       "folder": ""
     },
     {
       "name": "editor_lock.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_lock.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_lock.png",
       "folder": ""
     },
     {
       "name": "editor_move.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_move.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_move.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_new_layer.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_new_layer.png",
       "folder": ""
     },
     {
       "name": "editor_place.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_place.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_place.png",
       "folder": ""
     },
     {
       "name": "editor_random.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_random.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_random.png",
       "folder": ""
     },
     {
       "name": "editor_rectangle_fill.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_rectangle_fill.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rectangle_fill.png",
       "folder": ""
     },
     {
       "name": "editor_redo.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_redo.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_redo.png",
       "folder": ""
     },
     {
       "name": "editor_remove.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_remove.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_remove.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_rename.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rename.png",
       "folder": ""
     },
     {
       "name": "editor_rotate_l.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_rotate_l.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rotate_l.png",
       "folder": ""
     },
     {
       "name": "editor_rotate_r.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_rotate_r.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rotate_r.png",
       "folder": ""
     },
     {
       "name": "editor_select.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_select.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_select.png",
       "folder": ""
     },
     {
       "name": "editor_settings.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_settings.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_settings.png",
       "folder": ""
     },
     {
       "name": "editor_sub.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_sub.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_sub.png",
       "folder": ""
     },
     {
       "name": "editor_trashbin.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_trashbin.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_trashbin.png",
       "folder": ""
     },
     {
       "name": "editor_undo.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_undo.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_undo.png",
       "folder": ""
     },
     {
       "name": "editor_unlock.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_unlock.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_unlock.png",
       "folder": ""
     },
     {
       "name": "editor_visible.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_visible.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_visible.png",
       "folder": ""
     },
     {
       "name": "editor_zoom_aligned.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_zoom_aligned.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_zoom_aligned.png",
       "folder": ""
     },
     {
       "name": "editor_zoomed_in.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_zoomed_in.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_zoomed_in.png",
       "folder": ""
     },
     {
       "name": "editor_zoomed_out.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/editor_zoomed_out.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_zoomed_out.png",
       "folder": ""
     },
     {
       "name": "hsv_handle.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_handle.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/hsv_handle.png",
       "folder": ""
     },
     {
       "name": "hsv_square.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_square.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/hsv_square.png",
       "folder": ""
     },
     {
       "name": "hsv_wheel.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/hsv_wheel.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/hsv_wheel.png",
       "folder": ""
     },
     {
       "name": "pixel.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/pixel.png",
-      "folder": ""
-    },
-    {
-      "name": "pretext_edit.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/pretext_edit.png",
-      "folder": ""
-    },
-    {
-      "name": "pretext_file.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/pretext_file.png",
-      "folder": ""
-    },
-    {
-      "name": "pretext_menu.png",
-      "path": "E:/dev/Rebound/Resources/editor/unready/pretext_menu.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/pixel.png",
       "folder": ""
     },
     {
       "name": "ptrn_bg_hover.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/ptrn_bg_hover.png",
       "folder": ""
     },
     {
       "name": "ptrn_bg_hover2.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover2.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/ptrn_bg_hover2.png",
       "folder": ""
     },
     {
       "name": "ptrn_bg_hover_shader.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover_shader.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/ptrn_bg_hover_shader.png",
       "folder": ""
     },
     {
       "name": "ptrn_bg_hover_shader_alpha_edge.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/ptrn_bg_hover_shader_alpha_edge.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/ptrn_bg_hover_shader_alpha_edge.png",
       "folder": ""
     },
     {
       "name": "slider_bar.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/slider_bar.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/slider_bar.png",
       "folder": ""
     },
     {
       "name": "slider_knob.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/slider_knob.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/slider_knob.png",
       "folder": ""
     },
     {
       "name": "slider_progress.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/slider_progress.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/slider_progress.png",
       "folder": ""
     },
     {
       "name": "text_cursor.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/text_cursor.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/text_cursor.png",
       "folder": ""
     },
     {
       "name": "toggle_non.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/toggle_non.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/toggle_non.png",
       "folder": ""
     },
     {
       "name": "toggle_selected.png",
-      "path": "E:/dev/Rebound/Resources/shared/unready/toggle_selected.png",
+      "path": "C:/dev/Rebound/Content/shared/unready/toggle_selected.png",
       "folder": ""
     }
   ],
@@ -326,6 +341,6 @@
     "alphaThreshold": "0",
     "detectIdentical": true,
     "packer": "MaxRectsPacker",
-    "packerMethod": "Smart"
+    "packerMethod": "SmartArea"
   }
 }

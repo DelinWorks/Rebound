@@ -365,7 +365,7 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(DynamicColli
             if (abs(e.l) <= abs(e.b))
                 return false;
 
-        F32 stickyness = abs(r.vel.y) > abs(forceUp) || (NUM_SIGN(r.gravity) < 0 && t.l < 0) || (NUM_SIGN(r.gravity) > 0 && t.l > 0) ? 0 : 6;
+        F32 stickyness = abs(r.vel.y) > abs(forceUp) || (NUM_SIGN(r.gravity) < 0 && t.l < 0) || (NUM_SIGN(r.gravity) > 0 && t.l > 0) ? 0 : 3;
 
         if (t.l > 0 && r.y < incline + stickyness || t.l < 0 && r.y > incline - stickyness) {
             //
@@ -617,7 +617,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
         _->vel.y = std::clamp<F32>(_->vel.y, -25000, 25000);
 
         //if (isGrounded)
-        _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 1);//500 * delta);
+        _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 5 * delta);
 
         if (isJumping && isGrounded)
             _->vel.y = 2000 * -NUM_SIGN(_->gravity)/* MAX(1, isSlope ? 0.5 * abs(_->vel.x / 650) * slopeIncline : 1)*/;
@@ -796,6 +796,23 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
                         quitLater = true;
                     }
                     // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+
+                    //auto insertionSortTargets = [&]()
+                    //{
+                    //    for (int i = 1; i < size; i++) {
+                    //        CollisionShape* key = targets[i];
+                    //        //V2D cache = calculateRect2RectMTV(*_, *targets[i], false, 0);
+                    //        int j = i - 1;
+
+                    //        while (j >= 0 && calculateRect2RectMTV(*_, *targets[j], false, 0).y == 0 && !_->isTriangle) {
+                    //            targets[j + 1] = targets[j];
+                    //            j--;
+                    //        }
+                    //        targets[j + 1] = key;
+                    //    }
+                    //};
+
+                    //insertionSortTargets();
 
                     for (int i = 0; i < size; i++)
                         targets[i]->hasObjectCollidedChunk = false;
@@ -1023,7 +1040,7 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
 
         for (int i = 0; i < substeps; i++) {
             lastPhysicsDt += 1.0 / physicsTPS * (1.0 / substeps);
-            step(1.0 / physicsTPS * (1.0 / substeps) * 0.1);
+            step(1.0 / physicsTPS * (1.0 / substeps));
         }
     }
 
@@ -1061,10 +1078,10 @@ void ReboundPhysics::PhysicsWorld::update(F32 delta)
             addChild(_physicsDebugNode);
         }
 
-        Vec2 bl = Vec2(_->x + 1, _->y + 1);
-        Vec2 br = Vec2(_->x + _->w - 1, _->y + 1);
-        Vec2 tl = Vec2(_->x + 1, _->y + _->h - 1);
-        Vec2 tr = Vec2(_->x + 1 + _->w - 1, _->y + _->h - 1);
+        Vec2 bl = Vec2(_->x, _->y);
+        Vec2 br = Vec2(_->x + _->w, _->y);
+        Vec2 tl = Vec2(_->x, _->y + _->h);
+        Vec2 tr = Vec2(_->x + _->w, _->y + _->h);
 
         bl = bl.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngleLerp);
         br = br.rotateByAngle(Vec2(_->x + _->w / 2, _->y + _->h / 2), -_->internalAngleLerp);

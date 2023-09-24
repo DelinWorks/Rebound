@@ -4,6 +4,7 @@
 #include "custom_ui.h"
 #include "uiContainer4Edge.h"
 #include "uiButton.h"
+#include "uiLabel.h"
 
 namespace CUI
 {
@@ -28,8 +29,10 @@ namespace CUI
         void calculateContentBoundaries() override;
         void updateLayoutManagers(bool recursive = false) override;
 
+        CUI::Label* setEmptyText(std::wstring _text);
+
         V2D prefferredListSize = V2D::ZERO;
-        V2D ePos;
+        V2D ePos = V2D::ZERO;
     private:
         EventPassClippingNode* clipping;
         Container* elementCont;
@@ -39,9 +42,10 @@ namespace CUI
         CUI::Button* upB;
         CUI::Button* downB;
         float vel = 0.0;
-        V2D elemContPos;
-        float deltaScroll;
-        float deltaScroll2;
+        V2D elemContPos = V2D::ZERO;
+        float deltaScroll = 0.0;
+        float deltaScroll2 = 0.0;
         std::vector<Container*> elements;
+        bool isListDirty = false;
     };
 }

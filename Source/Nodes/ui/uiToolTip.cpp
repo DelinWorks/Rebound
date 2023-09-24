@@ -18,7 +18,7 @@ CUI::ToolTip* CUI::ToolTip::create()
         ref->label->hAlignment = TextHAlignment::LEFT;
         ref->addChildAsContainer(ref->label)->setCascadeOpacityEnabled(true);
         ref->setBackgroundSprite();
-        ref->setMargin(V2D(10, 10));
+        ref->setMargin(V2D(20, 20));
         ref->setVisible(false);
         ref->autorelease();
     }
@@ -34,16 +34,16 @@ void CUI::ToolTip::update(F32 dt)
     V2D visibleSize = Director::getInstance()->getVisibleSize();
     V2D clampedMousePos = V2D::ZERO;
     clampedMousePos.x = Math::clamp(mousePos.x, visibleSize.x / -2, visibleSize.x / 2 - getContentSize().x);
-    bool isClamped = mousePos.y < visibleSize.y / -2 + getContentSize().y / 2;
+    //bool isClamped = mousePos.y < visibleSize.y / -2 + getContentSize().y / 2;
     clampedMousePos.y = Math::clamp(mousePos.y, visibleSize.y / -2 + getContentSize().y, UINT32_MAX);
     V2D curPos = position;
     curPos.x = LERP(curPos.x, clampedMousePos.x, 15 * dt);
     curPos.y = LERP(curPos.y, clampedMousePos.y, 15 * dt);
-    auto angle = V2D(curPos.x + curPos.y * 2, 1280).getAngle(V2D(clampedMousePos.x + clampedMousePos.y * 2, 1280));
-    float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 4));
-    rotation = LERP(rotation, curRotation, 16 * dt);
-    rotation = Math::clamp(rotation, -50, 50);
-    setRotation(rotation);
+    //auto angle = V2D(curPos.x + curPos.y * 2, 1280).getAngle(V2D(clampedMousePos.x + clampedMousePos.y * 2, 1280));
+    //float curRotation = -AX_RADIANS_TO_DEGREES(angle * (isClamped ? 0 : 4));
+    //rotation = LERP(rotation, curRotation, 16 * dt);
+    //rotation = Math::clamp(rotation, -50, 50);
+    //setRotation(rotation);
     setPosition(clampedMousePos);
     position = curPos;
 }

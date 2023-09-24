@@ -13,6 +13,8 @@ USING_NS_CC;
 
 namespace CUI
 {
+    using EnterCallback = std::function<void(Button* target, std::wstring)>;
+
     enum DiscardButtons : U8 {
         OKAY_ABORT = 0,
         YES_NO = 1,
@@ -44,6 +46,8 @@ namespace CUI
 
         DiscardButtons buttons;
         ButtonCallback discardCallback;
+        EnterCallback enterCallback;
+        TextField* textField = nullptr;
         Button* eventButton;
 
         CUI::Container* stack;

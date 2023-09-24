@@ -776,8 +776,10 @@ void TileSystem::Map::addLayer(std::string name)
     addLayer(l);
 }
 
-void TileSystem::Map::bindLayer(U16 idx)
+void TileSystem::Map::bindLayer(U32 idx)
 {
+    if (idx >= _layers.size()) return;
+
     _layerIdx = idx;
     _layerBind = _layers[idx];
 }

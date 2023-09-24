@@ -20,6 +20,8 @@
 #define ADVANCEDUI_TEXTURE_CRAMPED2 "9_slice_box_1_cramped2"sv
 #define ADVANCEDUI_TEXTURE_CRAMPED3 "9_slice_box_1_cramped3"sv
 
+#define ANY_ENTER(KC) (KC == EventKeyboard::KeyCode::KEY_ENTER || KC == EventKeyboard::KeyCode::KEY_KP_ENTER)
+
 namespace CUI
 {
     class Container;
@@ -61,13 +63,14 @@ namespace CUI
         FlowLayout(FlowLayoutSort _sort = FlowLayoutSort::SORT_HORIZONTAL,
             FlowLayoutDirection _direction = FlowLayoutDirection::STACK_CENTER,
             float _spacing = 0, float _margin = 0, bool _reverseStack = true)
-            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack), constSize(false), constSizeV(V2D::ZERO) { }
+            : sort(_sort), direction(_direction), spacing(_spacing), margin(_margin), reverseStack(_reverseStack), constSize(false), mulSpace(false), constSizeV(V2D::ZERO) { }
         FlowLayoutSort sort;
         FlowLayoutDirection direction;
         float spacing;
         float margin;
         bool reverseStack;
         bool constSize;
+        bool mulSpace;
         V2D constSizeV;
 
         void build(CUI::Container* container);
@@ -109,7 +112,7 @@ namespace CUI
     class Container : public GUI {
     public:
         Container();
-        void setBorderLayout(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE);
+        void setBorderLayout(BorderLayout border, BorderContext context = BorderContext::SCREEN_SPACE, bool designScaleIgnoring = false);
         
         ~Container();
 

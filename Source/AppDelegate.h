@@ -50,7 +50,7 @@ Private inheritance here hides part of interface from Director.
 */
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(1280, 720);
-static cocos2d::Size resolutionSize = cocos2d::Size(1792, 1008);
+static cocos2d::Size resolutionSize = cocos2d::Size(2304, 1296);
 
 class  AppDelegate : private cocos2d::Application
 {

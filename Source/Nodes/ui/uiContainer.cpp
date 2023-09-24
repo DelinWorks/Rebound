@@ -7,7 +7,7 @@ CUI::Container::Container() : _layout(LAYOUT_NONE), _constraint(CONSTRAINT_NONE)
     setDynamic();
 }
 
-void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context) {
+void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context, bool designScaleIgnoring) {
     if (context == BorderContext::PARENT)
         _closestStaticBorder = true;
     auto rcomp = (UiRescaleComponent*)SELF getComponent("UiRescaleComponent");
@@ -15,8 +15,14 @@ void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context)
         rcomp->setBorderLayout(_borderLayout = border);
         return;
     }
-    addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
-        ->setBorderLayout(_borderLayout = border));
+    rcomp = new UiRescaleComponent(Director::getInstance()->getVisibleSize());
+    rcomp->setBorderLayout(_borderLayout = border);
+    if (designScaleIgnoring)
+    {
+        rcomp->enableDesignScaleIgnoring();
+        _ignoreDesignScale = true;
+    }
+    addComponent(rcomp);
 }
 
 CUI::Container* CUI::Container::create()
@@ -243,7 +249,8 @@ void CUI::Container::onEnter() {
         GUI::onEnter();
         onFontScaleUpdate(_UiScale / _UiScaleMul);
         updateLayoutManagers(true);
-    } else Node::onEnter();
+    }
+    else Node::onEnter();
 }
 
 void CUI::Container::onEnable()
@@ -337,6 +344,7 @@ void CUI::Container::setBackgroundSprite(V2D padding, BgSpriteType type)
     _background->setProgramState(_backgroundShader);
     //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
     //    ->enableDesignScaleIgnoring(V2D(2, 2)));
+    _background->_roundRenderMatrix = true;
     Node::addChild(_background, -1);
 }
 
@@ -438,8 +446,12 @@ CUI::Container* CUI::Container::addChildAsContainer(CUI::GUI* gui) {
 
 void CUI::Container::recalculateChildDimensions()
 {
-    if (_background)
-        _background->setContentSize(getContentSize() + _backgroundPadding);
+    V2D scale = V2D(getScaleX() == 0 ? 1 : getScaleX(), getScaleY() == 0 ? 1 : getScaleY());
+    if (_background) {
+        _background->setContentSize(getContentSize() * scale.x + _backgroundPadding);
+        _background->setScaleX(1.0 / scale.x * (_background->getScaleX() / abs(_background->getScaleX())));
+        _background->setScaleY(1.0 / scale.y * (_background->getScaleY() / abs(_background->getScaleY())));
+    }
 
     if (_bgButton)
         _bgButton->setContentSize(getContentSize() + _backgroundPadding + BUTTON_HITBOX_CORNER_TOLERANCE);
@@ -501,13 +513,15 @@ void CUI::FlowLayout::build(CUI::Container* container)
 {
     auto list = container->getChildren();
     auto ns = container->_rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : V2D::ONE;
+    //if (container->_ignoreDesignScale)
+    //    ns = V2D::ONE;
     auto _spacing = V2D(spacing, spacing);
     F32 sumSize = 0;
     U16 listSize = 0;
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto cSize = constSize ? constSizeV : _->getScaledContentSize();
+        auto cSize = constSize ? constSizeV : (_->getScaledContentSize() / (!_->_flowLayoutRescalingAllowed ? V2D::ONE : ns));
         if (cSize.x == 0 || cSize.y == 0)
             continue;
         cSize.x += _spacing.x * 2;
@@ -525,7 +539,7 @@ void CUI::FlowLayout::build(CUI::Container* container)
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        auto cSize = constSize ? constSizeV : _->getScaledContentSize();
+        auto cSize = constSize ? constSizeV : (_->getScaledContentSize() / (!_->_flowLayoutRescalingAllowed ? V2D::ONE : ns));
         if (cSize.x == 0 || cSize.y == 0)
             continue;
         if (_) {
@@ -589,7 +603,11 @@ void CUI::DependencyConstraint::build(CUI::GUI* element)
     if (worldPos)
         element->setPosition((parent->getWorldPosition() + worldPosOffset) - parent->getContentSize() * anchor);
     else
-        element->setPosition((parent->getContentSize() * anchor) + worldPosOffset);
+    {
+        Size dScale = { 1920, 1080 };
+        Size wFrame = Director::getInstance()->getOpenGLView()->getFrameSize();
+        element->setPosition((parent->getContentSize() * anchor) + worldPosOffset * (wFrame / dScale));
+    }
 }
 
 void CUI::ContentSizeConstraint::build(CUI::GUI* element) {

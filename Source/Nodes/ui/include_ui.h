@@ -104,7 +104,7 @@ namespace CUI {
             main->setStatic();
             auto elem = CUI::Button::create();
             elem->DenyRescaling();
-            elem->init(layer_name, TTFFS, { 180, 0 });
+            elem->init(layer_name, TTFFS, { 280, 0 });
             elem->_callback = callback;
             main->setContentSize(V2D(0, elem->preCalculatedHeight()), false);
             V2D hpadding = V2D(2, 0);
@@ -132,6 +132,9 @@ namespace CUI {
             main->setMargin({ 0, 10 });
             main->addChild(left);
             main->addChild(right);
+            left->disableRebuildOnEnter();
+            right->disableRebuildOnEnter();
+            main->disableRebuildOnEnter();
             return main;
         }
     };

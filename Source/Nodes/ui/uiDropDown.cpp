@@ -194,7 +194,7 @@ void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, V2D 
     callbackAccess["main"]->addChild(menu);
 
     float oldScale = menu->getScale();
-    menu->setScaleX(0);
+    menu->setScale(0);
     menu->runAction(EaseBackOut::create(ScaleTo::create(0.16, oldScale)));
 }
 

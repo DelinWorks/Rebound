@@ -240,6 +240,68 @@ EditorToolbox::UndoRedoState* MapEditor::editorTopUndoStateOrNull()
     return _undo.size() > 0 ? (&_undo.top()) : nullptr;
 }
 
+U32 MapEditor::getLayerIndex(std::wstring name)
+{
+    int index = 0;
+    for (auto& _ : _layers)
+        if (_ == name)
+            return index;
+        else
+            index++;
+    return UINT32_MAX;
+}
+
+void MapEditor::bindLayer(U32 index)
+{
+    if (index >= _layers.size()) return;
+    _boundLayer = index;
+    map->bindLayer(index);
+}
+
+void MapEditor::addGeneralLayer(std::wstring name)
+{
+    std::wstring layerName = name;
+    bool hasDuplicate = true;
+    int duplicateCount = 1;
+    while (hasDuplicate)
+    {
+        hasDuplicate = false;
+
+        for (auto& _ : _layers)
+        {
+            if (_ == layerName)
+            {
+                hasDuplicate = true;
+                layerName = name + L"_" + std::to_wstring(++duplicateCount);
+                break;
+            }
+        }
+
+        if (!hasDuplicate) break;
+    }
+
+    _layers.push_back(layerName);
+    _layersList->addElement(CUI::Functions::createLayerWidget(layerName, [&](CUI::Button* target)
+        {
+            if (_boundLayerBtn == target) return;
+            target->enableIconHighlight();
+            if (_boundLayerBtn) _boundLayerBtn->disableIconHighlight();
+            _boundLayerBtn = target;
+            auto str = std::string(target->field->getString());
+            bindLayer(getLayerIndex(Strings::widen(str)));
+        }));
+    map->addLayer(Strings::narrow(layerName));
+    //_isListDirty = true;
+}
+
+void MapEditor::removeLayer(U32 index)
+{
+}
+
+void MapEditor::moveLayer(U32 index, U32 newIndex)
+{
+}
+
 void MapEditor::editorPushUndoColorPalette()
 {
     editorPushUndoState();

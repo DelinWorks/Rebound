@@ -93,8 +93,8 @@ bool ReboundPhysicsTest::init()
     _pw->_staticShapes.pushBack(createSlope(Vec2(-880, -300), 128, 32));
     _pw->_staticShapes.pushBack(createSlope(Vec2(-880, -300), 128, -32));
 
+    _pw->_staticShapes.pushBack(createSlope(Vec2(-1090, -300 + 512), -256, 80000));
     _pw->_staticShapes.pushBack(createSlope(Vec2(-1090, -300), 256, 64));
-    _pw->_staticShapes.pushBack(createSlope(Vec2(-1090, -300 + 512), -256, 64));
 
     _pw->_staticShapes.pushBack(createSlope(Vec2(-1890, -300), 1024, 512));
 
@@ -112,7 +112,7 @@ bool ReboundPhysicsTest::init()
     }
 
     for (int i = 0; i < 1000; i++)
-        _pw->_staticShapes.pushBack(createRect(V2D(700 + 284 * i, -200 + 0 * i), V2D(32, 64)));
+        _pw->_staticShapes.pushBack(createRect(V2D(700 + 284 * i, -200 + 0 * i), V2D(32, 48)));
 
     _pw->partition();
 

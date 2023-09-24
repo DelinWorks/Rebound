@@ -246,6 +246,16 @@ public:
     CUI::Button* undoB;
     CUI::Button* redoB;
 
+    U32 _boundLayer;
+    CUI::Button* _boundLayerBtn = nullptr;
+    CUI::List* _layersList;
+    std::vector<std::wstring> _layers;
+    U32 getLayerIndex(std::wstring name);
+    void bindLayer(U32 index);
+    void addGeneralLayer(std::wstring name);
+    void removeLayer(U32 index);
+    void moveLayer(U32 index, U32 newIndex);
+
     bool isSelectableHoveredLastFrame = false;
     bool isSelectableHovered = false;
     std::vector<Selectable*> _selectables;

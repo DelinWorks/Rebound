@@ -40,11 +40,9 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 
     if (keyCode == EventKeyboard::KeyCode::KEY_T)
     {
-        if (getContainer()) {
-            auto dis = CUI::DiscardPanel::create(CENTER, PARENT);
-            dis->init(L"> Set Layer Name <", L"Layer Name", CUI::OKAY);
-            getContainer()->pushModal(dis);
-        }
+
+        for (int i = 0; i < 1000; i++)
+            _layersList->addElement(CUI::Functions::createLayerWidget(L"t = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO_" + std::to_wstring(i), [=](CUI::Button* target) {}));
     }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_E)

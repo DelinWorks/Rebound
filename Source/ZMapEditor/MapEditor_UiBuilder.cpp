@@ -39,18 +39,89 @@ void MapEditor::buildEntireUi()
     //    tabs->addElement(Strings::widen(Strings::gen_random(RandomHelper::random_int<int>(4, 8))));
     //BENCHMARK_SECTION_END();
 
-    auto list = CUI::List::create({ 300, 300 });
-    list->setBorderLayout(TOP_RIGHT, PARENT);
-    list->setBorderLayoutAnchor(TOP_RIGHT);
-    list->setBackgroundSpriteCramped({ 3,3 }, { 1, -1 });
-    container->addChild(list);
-    for (int i = 0; i < 6; i++)
+    auto topRightContainer = CUI::Container::create();
+    topRightContainer->setBorderLayout(BorderLayout::TOP_RIGHT, BorderContext::PARENT, true);
+    topRightContainer->setBorderLayoutAnchor(BorderLayout::TOP_RIGHT);
+    auto flow = CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 20, 0, true);
+    topRightContainer->setBackgroundBlocking();
+    topRightContainer->setLayout(flow);
+    topRightContainer->setBackgroundSpriteCramped({ 3,13 }, { 1, -1 });
+    container->addChild(topRightContainer);
+
+    auto cont2 = CUI::Container::create();
+    cont2->DenyRescaling();
+    auto layerOpacity = CUI::Slider::create();
+    layerOpacity->DenyRescaling();
+    layerOpacity->init(V2D(100, 10));
+    layerOpacity->scheduleUpdate();
+    cont2->addChild(layerOpacity);
+    topRightContainer->addChild(cont2);
+
+    _layersList = CUI::List::create({ 400, 300 }, false);
+    _layersList->setEmptyText(L"No layers present.\n\ncreate layers to add\ntiles & objcets.")
+        ->field->setLineSpacing(10);
+    topRightContainer->addChild(_layersList);
+
+    cont2 = CUI::Container::create();
+    //cont2->setBorderLayoutAnchor(BorderLayout::RIGHT);
+    cont2->DenyRescaling();
+    cont2->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 25, 0, false));
+    //cont2->setConstraint(ContentSizeConstraint(topRightContainer, V2D::ZERO, false, true, false));
+
+    auto btnt2 = CUI::Button::create();
+    btnt2->DenyRescaling();
+    btnt2->disableArtMul();
+    btnt2->setUiPadding(V2D(10, 0));
+    btnt2->initIcon("editor_new_layer");
+    btnt2->hoverTooltip = L"Creates a new empty layer with a name. The layer can be used for both Tilemaps & Objects.\nThe position at which the layer is in determines rendering order, Top will render front.\nYou can modify whether a layer is visible or interactable or both.\nYou can access advanced options for a specific layer using the wrench icon.";
+    cont2->addChild(btnt2);
+
+    btnt2->_callback = [&](CUI::Button* target)
     {
-        list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 30))), [=](CUI::Button* target) {
-            list->addElement(CUI::Functions::createLayerWidget(Strings::widen(Strings::gen_random(Random::rangeInt(5, 30))), [](CUI::Button* target) {}));
-            list->updateLayoutManagers(true);
-            }));
-    }
+        auto cont = getContainer();
+        if (cont)
+        {
+            auto dis = CUI::DiscardPanel::create(CENTER, PARENT);
+            dis->init(L"> Create a New Layer <", L"Layer Name", CUI::SUBMIT_CANCEL);
+            cont->pushModal(dis);
+            dis->enterCallback = [&](CUI::Button*, std::wstring name)
+            {
+                addGeneralLayer(name);
+            };
+        }
+    };
+
+    btnt2 = CUI::Button::create();
+    btnt2->DenyRescaling();
+    btnt2->disableArtMul();
+    btnt2->initIcon("editor_arrow_up_2");
+    btnt2->hoverTooltip = L"Moves the selected layer UP one level.\nHold to move the layer to the top.\nYou can set the order index in advanced menu too.";
+    cont2->addChild(btnt2);
+
+    btnt2 = CUI::Button::create();
+    btnt2->DenyRescaling();
+    btnt2->disableArtMul();
+    btnt2->initIcon("editor_arrow_down_2");
+    btnt2->hoverTooltip = L"Moves the selected layer DOWN one level.\nHold to move the layer to the bottom.\nYou can set the order index in advanced menu too.";
+    cont2->addChild(btnt2);
+
+    btnt2 = CUI::Button::create();
+    btnt2->DenyRescaling();
+    btnt2->disableArtMul();
+    btnt2->setUiPadding(V2D(10, 0));
+    btnt2->initIcon("editor_rename");
+    btnt2->hoverTooltip = L"Renames the selected layer\nYou can set the name in advanced menu too.";
+    cont2->addChild(btnt2);
+
+    btnt2 = CUI::Button::create();
+    btnt2->DenyRescaling();
+    btnt2->disableArtMul();
+    btnt2->setUiPadding(V2D(10, 0));
+    btnt2->initIcon("editor_trashbin");
+    btnt2->hoverTooltip = L"Removes the selected layer along with its content altogether.\nThis action can safely be undone.";
+    cont2->addChild(btnt2);
+
+    topRightContainer->addChild(cont2);
 
     _tilesetPicker = CUI::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
@@ -62,18 +133,18 @@ void MapEditor::buildEntireUi()
     c->setMargin({ 3, 3 });
     container->addChild(c);
 
-    auto topRightContainer = CUI::Container::create();
-    topRightContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
-    topRightContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0, 0, true));
-    topRightContainer->setBorderLayoutAnchor();
-    topRightContainer->setBackgroundSpriteCramped(V2D::ZERO, { -1, -1 });
-    container->addChild(topRightContainer);
+    auto topLeftContainer = CUI::Container::create();
+    topLeftContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
+    topLeftContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0, 0, true));
+    topLeftContainer->setBorderLayoutAnchor();
+    topLeftContainer->setBackgroundSpriteCramped(V2D::ONE, { -1, -1 });
+    container->addChild(topLeftContainer);
 
     auto menuContainer = CUI::Container::create();
     menuContainer->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 0, 0, false));
     //menuContainer->setBorderLayoutAnchor(BorderLayout::RIGHT);
     menuContainer->setTag(CONTAINER_FLOW_TAG);
-    topRightContainer->addChild(menuContainer);
+    topLeftContainer->addChild(menuContainer);
     menuContainer->setBackgroundBlocking();
 
     auto padding = Size(2, 10);
@@ -394,12 +465,12 @@ void MapEditor::buildEntireUi()
     moveB->setUiPadding(padding);
     editContainer->addChild(moveB);
 
-    CONTAINER_MAKE_MINIMIZABLE(topRightContainer);
+    CONTAINER_MAKE_MINIMIZABLE(topLeftContainer);
 
     auto vis = Director::getInstance()->getVisibleSize();
     ext2Container->setBorderLayoutAnchor(LEFT);
     ext2Container->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
-        RIGHT, { -0.005, 1.02 }));
+        RIGHT, { -0, 1 }, false, V2D(-0.25, 0)));
     ext2Container->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0));
     ext2Container->setBackgroundSpriteCramped(V2D::ZERO, { -1, -1 });
     ext2Container->setTag(GUI_ELEMENT_EXCLUDE);
@@ -413,7 +484,7 @@ void MapEditor::buildEntireUi()
 
     modeDropdown = CUI::DropDown::create();
     modeDropdown->setUiPadding({ 10, 10 });
-    auto items = std::vector<std::wstring>{ L"Object Mode",L"TileMap Mode" };
+    auto items = std::vector<std::wstring>{ L"Object Mode (UNIMPLEMENTED)",L"TileMap Mode" };
     modeDropdown->init(items);
     modeDropdown->_callback = [=](DropDown* target) {
         target->showMenu(ext2Container, LEFT, TOP_LEFT, V2D(-0.55, 0.25));
@@ -424,7 +495,7 @@ void MapEditor::buildEntireUi()
 
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
     extContainer->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
-        BOTTOM_LEFT, { -0.02, 0.01 }));
+        BOTTOM_LEFT, { -0, 0 }, false, V2D(-2, 0.25)));
     extContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0));
     extContainer->setBackgroundSpriteCramped(V2D::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
@@ -517,7 +588,7 @@ void MapEditor::buildEntireUi()
     editContainer->addChild(extContainer);
     editContainer->addChild(ext2Container);
 
-    topRightContainer->addChild(editContainer);
+    topLeftContainer->addChild(editContainer);
 
     auto cameraScaleContainer = CUI::Container::create();
     cameraScaleContainer->setBorderLayout(BorderLayout::TOP, BorderContext::PARENT);
@@ -807,7 +878,7 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
         auto dd1 = DropDown::create();
         dd1->init(alphaBlending);
         dd1->_callback = [=](DropDown* target) {
-            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.03, 0));
+            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.1, 0));
         };
         dd1c->addChild(ddlb);
         dd1c->addChild(dd1);
@@ -830,7 +901,7 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
         auto dd1 = DropDown::create();
         dd1->init(alphaBlending);
         dd1->_callback = [=](DropDown* target) {
-            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.03, 0));
+            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.1, 0));
         };
         dd1c->addChild(ddlb);
         dd1c->addChild(dd1);
@@ -852,7 +923,7 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
         auto dd1 = DropDown::create();
         dd1->init(colorBlending);
         dd1->_callback = [=](DropDown* target) {
-            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.03, 0));
+            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.1, 0));
         };
         dd1c->addChild(ddlb);
         dd1c->addChild(dd1);
@@ -874,7 +945,7 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
         auto dd1 = DropDown::create();
         dd1->init(colorBlending);
         dd1->_callback = [=](DropDown* target) {
-            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.03, 0));
+            target->showMenu(hsvcontrol, LEFT, LEFT, V2D(-0.1, 0));
         };
         dd1c->addChild(ddlb);
         dd1c->addChild(dd1);

@@ -264,10 +264,9 @@ namespace TileSystem {
         ~Map();
 
         void addLayer(Layer* _layer);
-
         void addLayer(std::string name);
 
-        void bindLayer(U16 idx);
+        void bindLayer(U32 idx);
 
         void setTilesetArray(TilesetArray* _tilesetArr);
 
@@ -292,7 +291,7 @@ namespace TileSystem {
 
         TilesetArray* _tilesetArr;
         Layer* _layerBind;
-        U16 _layerIdx;
+        U32 _layerIdx = UINT32_MAX;
         std::vector<Layer*> _layers;
         Layer* _editorLayer;
 
