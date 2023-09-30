@@ -384,6 +384,14 @@ std::vector<Node*> GameUtils::findNodesByTag(Node* parent, int tag, bool contain
     return nodes;
 }
 
+void GameUtils::enumerateNodesRecursive(ax::Node* parent, std::function<void(ax::Node*)> _callback)
+{
+    _callback(parent);
+    if (parent->getChildren().size() == 0) return;
+    for (auto& _ : parent->getChildren())
+        enumerateNodesRecursive(_, _callback);
+}
+
 void GameUtils::SignalHandeler::signalSceneRoot(std::string signal)
 {
     auto handeler = DCAST(SignalHandeler, Director::getInstance()->getRunningScene());

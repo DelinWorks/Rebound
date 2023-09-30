@@ -17,7 +17,28 @@
 
 #define MAX_WC2MB_ALLOCATION 1024
 
-namespace Strings {
+namespace Strings
+{
+    template <class T>
+    inline void ltrim(T& s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+            }));
+    }
+
+    template <class T>
+    inline void rtrim(T& s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+            return !std::isspace(ch);
+            }).base(), s.end());
+    }
+
+    template <class T>
+    inline void trim(T& s) {
+        rtrim(s);
+        ltrim(s);
+    }
+
     inline bool replace(std::string& str, const std::string& from, const std::string& to) {
         size_t start_pos = str.find(from);
         if (start_pos == std::string::npos)
@@ -130,6 +151,35 @@ namespace Strings {
         std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
         std::string utf8 = convert.to_bytes(u16str);
         return utf8;
+    }
+
+    template <class T>
+    inline T alt_duplicate(std::vector<T> list, T dup)
+    {
+        trim<T>(dup);
+        T name = dup;
+        bool hasDuplicate = true;
+        int duplicateCount = 1;
+        while (hasDuplicate)
+        {
+            hasDuplicate = false;
+            for (auto& _ : list)
+            {
+                if (_ == name)
+                {
+                    hasDuplicate = true;
+                    if constexpr (std::is_same_v<T, std::string>) {
+                        name = dup + "_" + std::to_string(++duplicateCount);
+                    }
+                    else if constexpr (std::is_same_v<T, std::wstring>) {
+                        name = dup + L"_" + std::to_wstring(++duplicateCount);
+                    }
+                    break;
+                }
+            }
+            if (!hasDuplicate) break;
+        }
+        return name;
     }
 }
 

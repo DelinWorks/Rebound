@@ -66,6 +66,30 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     if (keyCode == EventKeyboard::KeyCode::KEY_P)
         setTileMapEditMode(TileMapEditMode::SELECT);
 
+    if (keyCode == EventKeyboard::KeyCode::KEY_TAB)
+    {
+        auto c = getContainer();
+        if (hideEditorUIState)
+        {
+            enumerateNodesRecursive(c, [](ax::Node* child) { child->setCascadeColorEnabled(true); });
+
+            c->disableSelf();
+            c->stopAllActions();
+            c->runAction(TintTo::create(0.15, Color3B::BLACK));
+            c->runAction(Sequence::create(EaseCircleActionIn::create(ScaleTo::create(0.25, 2)), FadeOut::create(.1), CallFunc::create([=]() {c->setVisible(false); }), nullptr));
+            hideEditorUIState = false;
+        }
+        else
+        {
+            c->enableSelf();
+            c->setOpacity(0xFF);
+            c->stopAllActions();
+            c->runAction(TintTo::create(0.15, Color3B::WHITE));
+            c->runAction(Sequence::create(CallFunc::create([=]() {c->setVisible(true); }), ScaleTo::create(0, 2), EaseCircleActionOut::create(ScaleTo::create(0.25, 1)), nullptr));
+            hideEditorUIState = true;
+        }
+    }
+
     //
     //#ifdef WIN32
     //    if (keyCode == EventKeyboard::KeyCode::KEY_T)

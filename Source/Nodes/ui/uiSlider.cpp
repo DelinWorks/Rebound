@@ -35,7 +35,7 @@ void CUI::Slider::init(Size _contentsize)
 void CUI::Slider::init(
     std::string_view barFrame,
     std::string_view progressFrame,
-    std::string_view knob,
+    std::string knob,
     ax::Rect _capinsets,
     ax::Size _contentsize)
 {
@@ -43,9 +43,10 @@ void CUI::Slider::init(
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     slider = ui::Slider::create();
     slider->setScale9Enabled(true);
-    slider->loadSlidBallTextures(knob, knob, knob, ui::Widget::TextureResType::PLIST);
+    slider->loadSlidBallTextures(knob + "_pressed", knob + "_pressed", knob + "_hovered", ui::Widget::TextureResType::PLIST);
     slider->loadBarTexture(barFrame, ui::Widget::TextureResType::PLIST);
     slider->loadProgressBarTexture(progressFrame, ui::Widget::TextureResType::PLIST);
+
     slider->setCapInsetsBarRenderer(_capinsets);
     slider->setCapInsetProgressBarRenderer(_capinsets);
     slider->ignoreContentAdaptWithSize(true);

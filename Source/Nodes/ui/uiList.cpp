@@ -32,7 +32,7 @@ CUI::List::List(V2D _prefferedSize, bool rescalingAllowed)
 
     scrollKnob = Button::create();
     scrollKnob->DenyRescaling();
-    scrollKnob->initIcon("slider_knob", ADVANCEDUI_SLIDER_CAP_INSETS, {-1, UINT16_MAX});
+    scrollKnob->initIcon("slider_knob_hovered", ADVANCEDUI_SLIDER_CAP_INSETS, {-1, UINT16_MAX});
     scrollKnob->icon->setContentSize({ scrollKnob->icon->getContentSize().x, 16 });
     scrollCont->addChild(scrollKnob);
 
@@ -146,8 +146,6 @@ void CUI::List::addElement(Container* container, int extendCoeff)
     container->setContentSize(V2D(0, y) + container->getMargin(), false);
     container->setConstraint(ContentSizeConstraint(this, {-14, 0}, false, false, true));
     container->setPositionX(-7);
-    if (elements.size() % 2 != 0)
-        container->setBackgroundSpriteDarken(V2D(UINT32_MAX, 0));
     elements.push_back(container);
     container->disableRebuildOnEnter();
     elementCont->addChild(container);
@@ -156,6 +154,27 @@ void CUI::List::addElement(Container* container, int extendCoeff)
     if (extendCoeff != 0 && _prefferedSize.x < extendCoeff)
         setContentSize(V2D(extendCoeff, _prefferedSize.y), true);
     isListDirty = true;
+}
+
+void CUI::List::removeElement(U32 index)
+{
+    if (index < elements.size())
+    {
+        auto p = elements[index];
+        elementCont->removeChild(p);
+        elements.erase(elements.begin() + index);
+        isListDirty = true;
+    }
+}
+
+void CUI::List::moveElement(U32 index, U32 newIndex)
+{
+    if (index < elements.size() && newIndex <= elements.size() && index != newIndex)
+    {
+        std::swap(elements[index], elements[newIndex]);
+        elementCont->getChildren().swap(index, newIndex);
+        isListDirty = true;
+    }
 }
 
 void CUI::List::update(F32 dt)
@@ -171,8 +190,31 @@ void CUI::List::update(F32 dt)
     if (isListDirty)
     {
         updateLayoutManagers(true);
+
+        if (elementCont->getContentSize().y / 2 < getContentSize().y)
+            ePos.y = getContentSize().y / 2;
+
+        ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
+        elementCont->stopAllActions();
+        elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));
+        elemContPos = INVALID_LOCATION;
+
+        int i = 0;
+        for (auto& _ : elements)
+        {
+            if (i % 2 != 0)
+            {
+                _->setBackgroundSpriteDarken(V2D(UINT32_MAX, 0));
+                _->recalculateChildDimensions();
+                _->setBackgroundVisible(true);
+            }
+            else _->setBackgroundVisible(false);
+            i++;
+        }
+
         isListDirty = false;
     }
+        //recalculateChildDimensions();
 
     if (_pCurrentHeldItem != scrollKnob) {
         float map = Math::map(elementCont->getPositionY(), getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2, getContentSize().y / 2 - 16, getContentSize().y / -2 + 16);
@@ -193,6 +235,15 @@ void CUI::List::update(F32 dt)
         _pCurrentScrollControlItem = nullptr;
     }
 
+    if (elementCont->getContentSize().y / 2 < getContentSize().y || elements.size() == 0)
+        scrollEnableState.setValue(true); else scrollEnableState.setValue(false);
+
+    if (scrollEnableState.isChanged())
+        if (scrollEnableState.getValue())
+            scrollCont->disable(true);
+        else
+            scrollCont->enable(true);
+
     // Ui Culling
     if (!elementCont->getPosition().equals(elemContPos)) {
         elemContPos = elementCont->getPosition();
@@ -206,8 +257,6 @@ void CUI::List::update(F32 dt)
             auto b2 = Rect(0, c2.y / -2 + c1.y / 2, 0, c2.y);
             if (b1.intersectsRect(b2)) _->enableSelf(true); else _->disableSelf(true);
         }
-        if (elementCont->getContentSize().y / 2 < getContentSize().y || elements.size() == 0)
-            scrollCont->disable(true); else scrollCont->enable(true);
     }
     deltaScroll2 = LERP(deltaScroll2, deltaScroll, 50 * dt);
 }

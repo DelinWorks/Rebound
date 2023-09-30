@@ -265,6 +265,7 @@ namespace TileSystem {
 
         void addLayer(Layer* _layer);
         void addLayer(std::string name);
+        void removeLayer(U32 index);
 
         void bindLayer(U32 idx);
 

@@ -191,6 +191,8 @@ namespace GameUtils
 
     std::vector<Node*> findNodesByTag(Node* parent, int tag, bool containParent = true, std::vector<Node*> list = std::vector<Node*>(), bool recursive = false);
 
+    void enumerateNodesRecursive(ax::Node* parent, std::function<void(ax::Node*)> _callback);
+
     class SignalHandeler {
     public:
 

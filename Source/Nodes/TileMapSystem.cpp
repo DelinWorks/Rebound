@@ -776,6 +776,16 @@ void TileSystem::Map::addLayer(std::string name)
     addLayer(l);
 }
 
+void TileSystem::Map::removeLayer(U32 index)
+{
+    if (index < _layers.size())
+    {
+        auto p = _layers[index];
+        removeChild(p);
+        _layers.erase(_layers.begin() + index);
+    }
+}
+
 void TileSystem::Map::bindLayer(U32 idx)
 {
     if (idx >= _layers.size()) return;

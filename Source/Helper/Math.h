@@ -19,6 +19,7 @@ namespace Math
 {
     // takes a value and limits it to be within a specified range defined by the minimumand maximum values. If the value is greater than the maximum, it returns the maximum value. If the value is less than the minimum, it returns the minimum value. Otherwise, it returns the original value.
     inline F32 clamp(F32 current, F32 min, F32 max) {
+        if (min > max) return current;
         if (current > max)
             return max;
         if (current < min)

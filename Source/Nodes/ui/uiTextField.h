@@ -84,8 +84,8 @@ namespace CUI
 
         void setStyleDotted();
 
-        void setString(std::string _text);
-        void setString(std::wstring _text);
+        void setString(std::string text);
+        void setString(std::wstring text);
     };
 }
 

@@ -40,7 +40,7 @@ namespace CUI
 
         void init(Size _contentsize = ax::Size::ZERO);
 
-        void init(std::string_view barFrame, std::string_view progressFrame, std::string_view knob, ax::Rect _capinsets, S2D _contentsize);
+        void init(std::string_view barFrame, std::string_view progressFrame, std::string knob, ax::Rect _capinsets, S2D _contentsize);
 
         void update(F32 dt) override;
 

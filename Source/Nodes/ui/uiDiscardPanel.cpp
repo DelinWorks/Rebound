@@ -30,7 +30,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
     stack->setLayout(CUI::FlowLayout(
         CUI::FlowLayoutSort::SORT_VERTICAL,
         CUI::FlowLayoutDirection::STACK_CENTER,
-        0
+        10
     ));
 
     stack->setBorderLayoutAnchor();
@@ -56,7 +56,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
 
     if (type == DiscardType::INPUT) {
         textField = CUI::TextField::create();
-        textField->init(placeholder_or_text, 16, { 200, 40 });
+        textField->init(placeholder_or_text, TTFFS * 2, { 200, 40 });
         textField->setStyleDotted();
         cc = TO_CONTAINER(textField);
         cc->setMargin({ 0, 8 });
@@ -64,7 +64,7 @@ void CUI::DiscardPanel::init(const std::wstring& header, const std::wstring& pla
     }
     else {
         auto text = CUI::Label::create();
-        text->init(placeholder_or_text, 16 * 1, { 0, 0 }, 0);
+        text->init(placeholder_or_text, TTFFS, { 0, 0 }, 0);
         text->hAlignment = ax::TextHAlignment::CENTER;
         cc = TO_CONTAINER(text);
         cc->setMargin({ 0, 8 });

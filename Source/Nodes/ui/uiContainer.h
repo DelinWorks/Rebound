@@ -180,6 +180,8 @@ namespace CUI
 
         void recalculateChildDimensions();
 
+        void setBackgroundVisible(bool visible);
+
         ui::Button* _bgButton = nullptr;
         ax::ui::Scale9Sprite* _background = nullptr;
         ax::LayerColor* _bgDim= nullptr;

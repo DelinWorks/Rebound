@@ -240,45 +240,18 @@ EditorToolbox::UndoRedoState* MapEditor::editorTopUndoStateOrNull()
     return _undo.size() > 0 ? (&_undo.top()) : nullptr;
 }
 
-U32 MapEditor::getLayerIndex(std::wstring name)
-{
-    int index = 0;
-    for (auto& _ : _layers)
-        if (_ == name)
-            return index;
-        else
-            index++;
-    return UINT32_MAX;
-}
-
 void MapEditor::bindLayer(U32 index)
 {
     if (index >= _layers.size()) return;
     _boundLayer = index;
     map->bindLayer(index);
+
+    editorLayerControlsUpdateState();
 }
 
 void MapEditor::addGeneralLayer(std::wstring name)
 {
-    std::wstring layerName = name;
-    bool hasDuplicate = true;
-    int duplicateCount = 1;
-    while (hasDuplicate)
-    {
-        hasDuplicate = false;
-
-        for (auto& _ : _layers)
-        {
-            if (_ == layerName)
-            {
-                hasDuplicate = true;
-                layerName = name + L"_" + std::to_wstring(++duplicateCount);
-                break;
-            }
-        }
-
-        if (!hasDuplicate) break;
-    }
+    std::wstring layerName = Strings::alt_duplicate<std::wstring>(_layers, name);
 
     _layers.push_back(layerName);
     _layersList->addElement(CUI::Functions::createLayerWidget(layerName, [&](CUI::Button* target)
@@ -288,18 +261,91 @@ void MapEditor::addGeneralLayer(std::wstring name)
             if (_boundLayerBtn) _boundLayerBtn->disableIconHighlight();
             _boundLayerBtn = target;
             auto str = std::string(target->field->getString());
-            bindLayer(getLayerIndex(Strings::widen(str)));
+
+            auto findIndex = [](const std::vector<CUI::Container*>& vec, Node* ptr) -> U32 {
+                auto it = std::find(vec.begin(), vec.end(), ptr);
+                return U32((it != vec.end()) ? std::distance(vec.begin(), it) : -1);
+            };
+
+            bindLayer(findIndex(_layersList->getElements(), target->getParent()->getParent()));
         }));
     map->addLayer(Strings::narrow(layerName));
-    //_isListDirty = true;
+
+    editorLayerControlsUpdateState();
+}
+
+void MapEditor::renameGeneralLayer(U32 index, std::wstring name)
+{
+    if (index != UINT32_MAX && _layers[index] != name)
+    {
+        std::wstring layerName = Strings::alt_duplicate<std::wstring>(_layers, name);
+
+        CUI::Container* container = dynamic_cast<CUI::Container*>(
+            findNodesByTag(_layersList->getElements()[index], CUI::EditorLayerWidget::kLayerMainContainer)[0]);
+
+        CUI::Button* widget = dynamic_cast<CUI::Button*>(
+            findNodesByTag(_layersList->getElements()[index], CUI::EditorLayerWidget::kLayerNameButton)[0]);
+
+        widget->setString(layerName);
+        widget->updateInternalObjects();
+        container->setContentSize(V2D(0, widget->preCalculatedHeight() + container->getMargin().y), true);
+        _layers[index] = layerName;
+        map->_layers[index]->_layerName = Strings::narrow(layerName);
+
+        editorLayerControlsUpdateState();
+    }
 }
 
 void MapEditor::removeLayer(U32 index)
 {
+    if (index < _layers.size())
+    {
+        _layers.erase(_layers.begin() + index);
+        _layersList->removeElement(index);
+        map->removeLayer(index);
+        _boundLayerBtn = nullptr;
+        _boundLayer = UINT32_MAX;
+
+        editorLayerControlsUpdateState();
+    }
 }
 
 void MapEditor::moveLayer(U32 index, U32 newIndex)
 {
+    if (index < _layers.size() && newIndex <= _layers.size() && index != newIndex)
+    {
+        std::swap(_layers[index], _layers[newIndex]);
+        std::swap(map->_layers[index], map->_layers[newIndex]);
+        _layersList->moveElement(index, newIndex);
+        _boundLayer = newIndex;
+
+        editorLayerControlsUpdateState();
+    }
+}
+
+void MapEditor::editorLayerControlsUpdateState()
+{
+    moveLayerUpBtn->disableSelf();
+    moveLayerDownBtn->disableSelf();
+
+    if (_boundLayer >= _layers.size())
+    {
+        renameLayerBtn->disableSelf();
+        removeLayerBtn->disableSelf();
+    }
+    else
+    {
+        if (_layers.size() > 1)
+        {
+            if (_boundLayer != 0)
+                moveLayerUpBtn->enableSelf();
+            if (_boundLayer != _layers.size() - 1)
+                moveLayerDownBtn->enableSelf();
+        }
+
+        renameLayerBtn->enableSelf();
+        removeLayerBtn->enableSelf();
+    }
 }
 
 void MapEditor::editorPushUndoColorPalette()

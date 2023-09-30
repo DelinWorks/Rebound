@@ -509,6 +509,12 @@ void MapEditor::onInitDone(F32 dt)
 
         setTileMapEditMode(TileMapEditMode::SELECT);
 
+        addGeneralLayer(L"Test Layer ___ ");
+        addGeneralLayer(L"Test Layer ___ ");
+        addGeneralLayer(L"Test Layer ___ ");
+        addGeneralLayer(L"Test Layer ___ ");
+        addGeneralLayer(L"Test Layer ___ ");
+
         isInitDone = true;
     }
     else {

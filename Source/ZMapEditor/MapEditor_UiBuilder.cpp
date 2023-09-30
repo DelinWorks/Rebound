@@ -49,13 +49,35 @@ void MapEditor::buildEntireUi()
     container->addChild(topRightContainer);
 
     auto cont2 = CUI::Container::create();
+    cont2->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_CENTER, 10, 0, false));
     cont2->DenyRescaling();
+    auto labelOpacity = CUI::Label::create();
+    labelOpacity->DenyRescaling();
+    labelOpacity->init(L"Opacity: ", TTFFS);
+    cont2->addChild(labelOpacity);
     auto layerOpacity = CUI::Slider::create();
     layerOpacity->DenyRescaling();
-    layerOpacity->init(V2D(100, 10));
+    layerOpacity->init(V2D(90, 10));
     layerOpacity->scheduleUpdate();
     cont2->addChild(layerOpacity);
+    auto textFieldOpacity = CUI::TextField::create();
+    textFieldOpacity->DenyRescaling();
+    textFieldOpacity->init(L" A ", TTFFS, V2D{66, 0}, 3, "0123456789");
+    textFieldOpacity->setStyleDotted();
+    cont2->addChild(textFieldOpacity);
     topRightContainer->addChild(cont2);
+
+    layerOpacity->_callback = [=](float p, CUI::Slider* target)
+        {
+            int alpha = p * 255;
+
+            textFieldOpacity->setString(std::to_wstring(alpha));
+        };
+
+    textFieldOpacity->_callback = [=](CUI::TextField* target)
+        {
+            layerOpacity->setValue(std::stoi(target->cachedString) / 255.0);
+        };
 
     _layersList = CUI::List::create({ 400, 300 }, false);
     _layersList->setEmptyText(L"No layers present.\n\ncreate layers to add\ntiles & objcets.")
@@ -68,7 +90,7 @@ void MapEditor::buildEntireUi()
     cont2->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 25, 0, false));
     //cont2->setConstraint(ContentSizeConstraint(topRightContainer, V2D::ZERO, false, true, false));
 
-    auto btnt2 = CUI::Button::create();
+    auto btnt2 = createLayerBtn = CUI::Button::create();
     btnt2->DenyRescaling();
     btnt2->disableArtMul();
     btnt2->setUiPadding(V2D(10, 0));
@@ -91,21 +113,31 @@ void MapEditor::buildEntireUi()
         }
     };
 
-    btnt2 = CUI::Button::create();
+    btnt2 = moveLayerUpBtn = CUI::Button::create();
     btnt2->DenyRescaling();
     btnt2->disableArtMul();
     btnt2->initIcon("editor_arrow_up_2");
     btnt2->hoverTooltip = L"Moves the selected layer UP one level.\nHold to move the layer to the top.\nYou can set the order index in advanced menu too.";
     cont2->addChild(btnt2);
 
-    btnt2 = CUI::Button::create();
+    btnt2->_callback = [&](CUI::Button* target)
+        {
+            moveLayer(_boundLayer, _boundLayer - 1);
+        };
+
+    btnt2 = moveLayerDownBtn = CUI::Button::create();
     btnt2->DenyRescaling();
     btnt2->disableArtMul();
     btnt2->initIcon("editor_arrow_down_2");
     btnt2->hoverTooltip = L"Moves the selected layer DOWN one level.\nHold to move the layer to the bottom.\nYou can set the order index in advanced menu too.";
     cont2->addChild(btnt2);
 
-    btnt2 = CUI::Button::create();
+    btnt2->_callback = [&](CUI::Button* target)
+        {
+            moveLayer(_boundLayer, _boundLayer + 1);
+        };
+
+    btnt2 = renameLayerBtn = CUI::Button::create();
     btnt2->DenyRescaling();
     btnt2->disableArtMul();
     btnt2->setUiPadding(V2D(10, 0));
@@ -113,7 +145,26 @@ void MapEditor::buildEntireUi()
     btnt2->hoverTooltip = L"Renames the selected layer\nYou can set the name in advanced menu too.";
     cont2->addChild(btnt2);
 
-    btnt2 = CUI::Button::create();
+    btnt2->_callback = [&](CUI::Button* target)
+        {
+            if (_boundLayer != UINT32_MAX)
+            {
+                auto cont = getContainer();
+                if (cont)
+                {
+                    auto dis = CUI::DiscardPanel::create(CENTER, PARENT);
+                    dis->init(L"> Rename Layer <", L"Layer Name", CUI::SUBMIT_CANCEL);
+                    dis->textField->setString(Strings::narrow(_layers[_boundLayer]));
+                    cont->pushModal(dis);
+                    dis->enterCallback = [&](CUI::Button*, std::wstring name)
+                        {
+                            renameGeneralLayer(_boundLayer, name);
+                        };
+                }
+            }
+        };
+
+    btnt2 = removeLayerBtn = CUI::Button::create();
     btnt2->DenyRescaling();
     btnt2->disableArtMul();
     btnt2->setUiPadding(V2D(10, 0));
@@ -121,9 +172,14 @@ void MapEditor::buildEntireUi()
     btnt2->hoverTooltip = L"Removes the selected layer along with its content altogether.\nThis action can safely be undone.";
     cont2->addChild(btnt2);
 
+    btnt2->_callback = [&](CUI::Button* target)
+        {
+            removeLayer(_boundLayer);
+        };
+
     topRightContainer->addChild(cont2);
 
-    _tilesetPicker = CUI::ImageView::create({ 300, 300 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
+    _tilesetPicker = CUI::ImageView::create({ 400, 400 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
     auto c = TO_CONTAINER(_tilesetPicker);
     c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);

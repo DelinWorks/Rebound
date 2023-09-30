@@ -31,6 +31,13 @@
 const Color3B LB_INACTIVE(100, 100, 100);
 
 namespace CUI {
+
+    typedef enum EditorLayerWidget
+    {
+        kLayerMainContainer = 0xAA,
+        kLayerNameButton = 0xAB,
+    } EditorLayerWidget;
+
     class Functions {
     public:
         static void makeMinimizable(Container* c) {
@@ -105,8 +112,10 @@ namespace CUI {
             auto elem = CUI::Button::create();
             elem->DenyRescaling();
             elem->init(layer_name, TTFFS, { 280, 0 });
+            elem->setTag(kLayerNameButton);
             elem->_callback = callback;
             main->setContentSize(V2D(0, elem->preCalculatedHeight()), false);
+            main->setTag(kLayerMainContainer);
             V2D hpadding = V2D(2, 0);
             //elem->hAlignment = ax::TextHAlignment::LEFT;
             auto left = TO_CONTAINER(elem);

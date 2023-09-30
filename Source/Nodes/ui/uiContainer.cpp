@@ -344,7 +344,7 @@ void CUI::Container::setBackgroundSprite(V2D padding, BgSpriteType type)
     _background->setProgramState(_backgroundShader);
     //_background->addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))
     //    ->enableDesignScaleIgnoring(V2D(2, 2)));
-    _background->_roundRenderMatrix = true;
+    _background->_roundRenderMatrix = false;
     Node::addChild(_background, -1);
 }
 
@@ -385,6 +385,7 @@ void CUI::Container::setBackgroundSpriteCramped3(V2D padding, V2D scale)
 }
 
 void CUI::Container::setBackgroundSpriteDarken(V2D padding) {
+    if (_background) return;
     _backgroundPadding = padding;
     _background = ax::ui::Scale9Sprite::create("pixel.png");
     _background->setTag(YOURE_NOT_WELCOME_HERE);
@@ -446,15 +447,24 @@ CUI::Container* CUI::Container::addChildAsContainer(CUI::GUI* gui) {
 
 void CUI::Container::recalculateChildDimensions()
 {
+    float s = Rebound::getInstance()->gameWindow.guiScale / 2;
+
     V2D scale = V2D(getScaleX() == 0 ? 1 : getScaleX(), getScaleY() == 0 ? 1 : getScaleY());
+    scale *= 1.0 / s;
     if (_background) {
-        _background->setContentSize(getContentSize() * scale.x + _backgroundPadding);
+        _background->setContentSize(Math::getEven(getContentSize() * scale.x + _backgroundPadding * s));
         _background->setScaleX(1.0 / scale.x * (_background->getScaleX() / abs(_background->getScaleX())));
         _background->setScaleY(1.0 / scale.y * (_background->getScaleY() / abs(_background->getScaleY())));
     }
 
     if (_bgButton)
         _bgButton->setContentSize(getContentSize() + _backgroundPadding + BUTTON_HITBOX_CORNER_TOLERANCE);
+}
+
+void CUI::Container::setBackgroundVisible(bool visible)
+{
+    if (_background)
+        _background->setVisible(visible);
 }
 
 void CUI::Container::calculateContentBoundaries()

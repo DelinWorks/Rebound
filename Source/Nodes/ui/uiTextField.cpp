@@ -74,6 +74,7 @@ void CUI::TextField::init(const std::wstring& _placeholder, std::string_view _fo
     setContentSize(_contentsize);
     button = createPlaceholderButton();
     cursor_control = Sprite::createWithSpriteFrameName("text_cursor");
+    cursor_control->setScaleY(_fontsize / TTFFS);
     if (password) {
         password_control = Sprite::createWithSpriteFrameName("hide_password");
         addChild(password_control, 2);
@@ -174,17 +175,17 @@ bool CUI::TextField::hover(V2D mouseLocationInView, Camera* cam)
             cursor_control->setVisible(true);
             if (field->getString().length() > 0) {
                 cursor_control->setPosition(V2D((field->getContentSize().width / 2 + 4) * field->getTextFieldRenderer()->getScale(), 0));
-                cursor_control->setScale(field->getTextFieldRenderer()->getScale() * _UiScale);
+                //cursor_control->setScale(field->getTextFieldRenderer()->getScale() * _UiScale);
             }
             else {
                 cursor_control->setPosition(V2D(0, 0));
-                cursor_control->setScale(1);
+                //cursor_control->setScale(1);
             }
 
             std::string sString = TEXT(field->getString());
             sString = std::regex_replace(sString, std::regex("[ ]{2,}"), " ");
             sString = std::regex_replace(sString, std::regex("[\n]"), "");
-            /* REMOVE LEADING ZEROS */ if (remove_zeros) {
+            /* REMOVE LEADING ZEROS */ if (remove_zeros && sString.length() > 1) {
                 int i = 0;
                 while (sString[i] == '0') i++;
                 sString.erase(0, i);
@@ -242,7 +243,7 @@ void CUI::TextField::focus()
 void CUI::TextField::defocus()
 {
     if (!isUiFocused()) return;
-    field->setString(ShapingEngine::render(cachedString));
+    field->setString(ShapingEngine::render(cachedString, true));
     field->detachWithIME();
     cursor_control->setVisible(false);
     notifyFocused(this, false);
@@ -323,7 +324,7 @@ void CUI::TextField::onFontScaleUpdate(float scale)
     //field->getTextFieldRenderer()->getFontAtlas()->setAliasTexParameters();
     //if (_ForceOutline)
     //    field->getTextFieldRenderer()->enableOutline(Color4B(0, 0, 0, 255), _PmtFontOutline * _UiScale);
-    field->getTextFieldRenderer()->setBMFontSize(UINT16_MAX * _BMFontScale);
+    field->getTextFieldRenderer()->setBMFontSize(UINT16_MAX * _BMFontScale * (desc.fontSize / 16));
     field->updateSizeAndPosition();
 }
 
@@ -333,16 +334,16 @@ void CUI::TextField::setStyleDotted()
     field->getTextFieldRenderer()->enableUnderline();
 }
 
-void CUI::TextField::setString(std::string _text)
+void CUI::TextField::setString(std::string text)
 {
-    cachedString = Strings::widen(_text);
-    field->setString(_text);
+    cachedString = Strings::widen(text);
+    field->setString(ShapingEngine::render(cachedString));
 }
 
-void CUI::TextField::setString(std::wstring _text)
+void CUI::TextField::setString(std::wstring text)
 {
-    cachedString = _text;
-    field->getTextFieldRenderer()->setString(Strings::narrow(_text));
+    cachedString = text;
+    field->setString(ShapingEngine::render(cachedString));
 }
 
 CUI::TextField::~TextField()

@@ -17,6 +17,8 @@ namespace CUI
         static CUI::List* create(V2D _prefferedSize, bool rescalingAllowed = true);
 
         void addElement(Container* container, int extendCoeff = 0);
+        void removeElement(U32 index);
+        void moveElement(U32 index, U32 newIndex);
 
         void update(F32 dt) override;
 
@@ -30,6 +32,8 @@ namespace CUI
         void updateLayoutManagers(bool recursive = false) override;
 
         CUI::Label* setEmptyText(std::wstring _text);
+
+        const std::vector<Container*> getElements() { return elements; };
 
         V2D prefferredListSize = V2D::ZERO;
         V2D ePos = V2D::ZERO;
@@ -47,5 +51,6 @@ namespace CUI
         float deltaScroll2 = 0.0;
         std::vector<Container*> elements;
         bool isListDirty = false;
+        ChangeValue<bool> scrollEnableState;
     };
 }

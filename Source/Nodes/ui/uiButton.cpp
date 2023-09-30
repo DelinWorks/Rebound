@@ -177,8 +177,8 @@ void CUI::Button::onEnable()
 {
     if (!_actionOnDisable) return;
 
-    auto fade = FadeTo::create(1, 255);
-    auto tint = TintTo::create(1, Color3B::WHITE);
+    auto fade = FadeTo::create(.25, 255);
+    auto tint = TintTo::create(.25, Color3B::WHITE);
     if (field) {
         field->runAction(fade);
         field->runAction(tint);
@@ -192,8 +192,8 @@ void CUI::Button::onEnable()
 void CUI::Button::onDisable()
 {
     if (_actionOnDisable) {
-        auto fade = FadeTo::create(0, 100);
-        auto tint = TintTo::create(0, Color3B::GRAY);
+        auto fade = FadeTo::create(0.25, 100);
+        auto tint = TintTo::create(0.25, Color3B::GRAY);
         if (field) {
             field->runAction(fade);
             field->runAction(tint);
@@ -209,6 +209,9 @@ void CUI::Button::onDisable()
         defocus();
     }
     if (icon) icon->setPositionY(0);
+
+    if (CUI::_pCurrentHoveredTooltipItem == this)
+        CUI::_pCurrentHoveredTooltipItem = nullptr;
 }
 
 bool CUI::Button::press(V2D mouseLocationInView, Camera* cam)
@@ -310,6 +313,12 @@ void CUI::Button::updateInternalObjects()
     }
     else
         button->setContentSize((icon->getContentSize() + getUiPadding() / 2 + hitboxpadding) * (_iconArtMulEnabled ? _PxArtMultiplier : _pretextIconScaling));
+}
+
+void CUI::Button::setString(std::wstring text)
+{
+    if (field)
+        field->setString(ShapingEngine::render(text, true));
 }
 
 CUI::Button::~Button() {

@@ -22,7 +22,7 @@ namespace CUI
         static CUI::Button* create();
 
         UiFontDescriptor desc;
-        Label* field;
+        ax::Label* field;
         ax::ui::Scale9Sprite* icon;
         ui::Scale9Sprite* sprite;
         ui::Button* button;
@@ -80,5 +80,7 @@ namespace CUI
         void onFontScaleUpdate(float scale) override;
 
         void updateInternalObjects() override;
+
+        void setString(std::wstring text);
     };
 }

@@ -167,6 +167,7 @@ public:
     bool isInitDone = false;
     bool isTouchNew = false;
 
+    bool hideEditorUIState = false;
     ax::Node* rebuildableUiNodes;
     void rebuildEntireUi();
     bool isEditorDragging = false;
@@ -246,15 +247,21 @@ public:
     CUI::Button* undoB;
     CUI::Button* redoB;
 
-    U32 _boundLayer;
+    CUI::Button* createLayerBtn;
+    CUI::Button* moveLayerUpBtn;
+    CUI::Button* moveLayerDownBtn;
+    CUI::Button* renameLayerBtn;
+    CUI::Button* removeLayerBtn;
+    U32 _boundLayer = UINT32_MAX;
     CUI::Button* _boundLayerBtn = nullptr;
     CUI::List* _layersList;
     std::vector<std::wstring> _layers;
-    U32 getLayerIndex(std::wstring name);
     void bindLayer(U32 index);
     void addGeneralLayer(std::wstring name);
+    void renameGeneralLayer(U32 index, std::wstring newName);
     void removeLayer(U32 index);
     void moveLayer(U32 index, U32 newIndex);
+    void editorLayerControlsUpdateState();
 
     bool isSelectableHoveredLastFrame = false;
     bool isSelectableHovered = false;

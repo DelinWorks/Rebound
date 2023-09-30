@@ -195,7 +195,11 @@ void CUI::DropDown::showMenu(GUI* parent, BorderLayout b1, BorderLayout b2, V2D 
 
     float oldScale = menu->getScale();
     menu->setScale(0);
-    menu->runAction(EaseBackOut::create(ScaleTo::create(0.16, oldScale)));
+    menu->runAction(Sequence::create(
+        EaseBackOut::create(ScaleTo::create(0.16, oldScale)),
+        CallFunc::create([=]() { menu->recalculateChildDimensions(); }),
+        nullptr
+    ));
 }
 
 void CUI::DropDown::setSelection(int idx)

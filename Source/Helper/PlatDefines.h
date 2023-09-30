@@ -16,6 +16,7 @@
 #if WIN32
 #include <windows.h>
 #include <commdlg.h>
+#include "string_manipulation_lib/stringFunctions.hpp"
 
 static std::wstring getCurrentDirectoryW()
 {
@@ -53,13 +54,13 @@ static void toClipboard(const std::string& s) {
 static std::string fromClipboard()
 {
 	OpenClipboard(nullptr);
-	HANDLE hData = GetClipboardData(CF_TEXT);
+	HANDLE hData = GetClipboardData(CF_UNICODETEXT);
 	if (!hData) return "?";
-	char* pszText = static_cast<char*>(GlobalLock(hData));
-	std::string text(pszText);
+	auto pszText = static_cast<wchar_t*>(GlobalLock(hData));
+	std::wstring text(pszText);
 	GlobalUnlock(hData);
 	CloseClipboard();
-	return text;
+	return Strings::narrow(text);
 }
 
 static std::wstring getSingleFileDialog(HWND window)
