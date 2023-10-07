@@ -866,8 +866,8 @@ void TileSystem::Map::visit(Renderer* renderer, const Mat4& parentTransform, uin
     chunkMeshCreateCount = 0;
     cachedChunk = nullptr;
     cachedChunkPosition = { FLT_MAX, FLT_MAX };
-    for (auto& _ : _layers)
-        _->visit(renderer, parentTransform, parentFlags);
+    for (auto it = _layers.rbegin(); it != _layers.rend(); ++it)
+        (*it)->visit(renderer, parentTransform, parentFlags);
     _editorLayer->visit(renderer, parentTransform, parentFlags);
 }
 

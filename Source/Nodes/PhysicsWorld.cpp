@@ -409,7 +409,11 @@ ReboundPhysics::ResolveResult ReboundPhysics::resolveCollisionSlope(DynamicColli
                     r.vel.y = forceUp * -NUM_SIGN(t.l);
 
                 if (sin(cornerAngle) > sin(AX_DEGREES_TO_RADIANS(60)))
+                {
+                    r.isSlopeGroundSteep = true;
+                    if (r.vel.x < 0 && t.b > 0 || r.vel.x > 0 && t.b < 0) r.vel = V2D::ZERO;
                     r.vel.x += 100 * delta * NUM_SIGN(t.b) * MIN(MAX(1, r.timeSpentOnSlope) * 300, 20);
+                }
                 //r.x += r.vel.x * delta / 2;
             }
 
@@ -616,8 +620,11 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
         _->vel.x = std::clamp<F32>(_->vel.x, -25000, 25000);
         _->vel.y = std::clamp<F32>(_->vel.y, -25000, 25000);
 
-        //if (isGrounded)
-        _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 5 * delta);
+        if (!_->isSlopeGroundSteep)
+        {
+            _->vel.x = MathUtil::lerp(_->vel.x, _->pref_vel.x, 5 * delta);
+            RLOG("TEST {}", rand());
+        }
 
         if (isJumping && isGrounded)
             _->vel.y = 2000 * -NUM_SIGN(_->gravity)/* MAX(1, isSlope ? 0.5 * abs(_->vel.x / 650) * slopeIncline : 1)*/;
@@ -633,6 +640,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
         //AXLOG("%f", _->internalAngle);
 
         _->slopeGround = nullptr;
+        _->isSlopeGroundSteep = false;
 
         _->vel.x = std::clamp<F32>(_->vel.x, -1000000, 1000000);
         _->vel.y = std::clamp<F32>(_->vel.y, -1000000, 1000000);
@@ -921,7 +929,7 @@ void ReboundPhysics::PhysicsWorld::step(F64 delta)
             if (!FUZZY(debug1, 1.0, DBL_EPSILON))
                 DebugBreak();
 
-            if (isGrounded && _->pref_vel.x == 0) {
+            if (isGrounded && _->pref_vel.x == 0 && !_->isSlopeGroundSteep) {
                 _->vel.x = MathUtil::lerp(_->vel.x, 0, 10 * delta);
             }
 

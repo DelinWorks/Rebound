@@ -60,6 +60,7 @@ namespace ReboundPhysics
         V2D movableGroundMtv = V2D::ZERO;
         F32 timeSpentOnSlope = 0;
         CollisionShape* slopeGround = nullptr;
+        bool isSlopeGroundSteep = false;
         F32 hSpeed = 0.0f;
         bool isMtvXApplied = false;
     };
