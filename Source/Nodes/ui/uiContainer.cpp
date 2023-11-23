@@ -242,6 +242,8 @@ void CUI::Container::updateLayoutManagers(bool recursive)
                 ccast->updateLayoutManagers(true);
         }
     }
+
+    _onContainerLayoutUpdate(this);
 }
 
 void CUI::Container::onEnter() {
@@ -289,6 +291,8 @@ void CUI::Container::setBorderLayoutAnchor(V2D offset)
     default:
         setAnchorPoint(V2D(0, 0) * offset);
     }
+
+    _onContainerLayoutUpdate(this);
 }
 
 void CUI::Container::setBorderLayoutAnchor(BorderLayout border, V2D offset)
@@ -321,6 +325,8 @@ void CUI::Container::setBorderLayoutAnchor(BorderLayout border, V2D offset)
     default:
         setAnchorPoint(V2D(0, 0) * offset);
     }
+
+    _onContainerLayoutUpdate(this);
 }
 
 void CUI::Container::setBackgroundSprite(V2D padding, BgSpriteType type)
@@ -429,11 +435,13 @@ void CUI::Container::notifyLayout()
 {
     updateLayoutManagers();
     GUI::notifyLayout();
+    _onContainerLayoutUpdate(this);
 }
 
 void CUI::Container::addSpecialChild(CUI::GUI* gui)
 {
     _allButtons.push_back(gui);
+    _onContainerLayoutUpdate(this);
 }
 
 CUI::Container* CUI::Container::addChildAsContainer(CUI::GUI* gui) {
@@ -442,6 +450,7 @@ CUI::Container* CUI::Container::addChildAsContainer(CUI::GUI* gui) {
     cont->addChild(gui);
     cont->updateLayoutManagers();
     Node::addChild(cont);
+    _onContainerLayoutUpdate(this);
     return cont;
 }
 
@@ -517,6 +526,8 @@ void CUI::Container::calculateContentBoundaries()
                              abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
 
     Container::recalculateChildDimensions();
+
+    _onContainerLayoutUpdate(this);
 }
 
 void CUI::FlowLayout::build(CUI::Container* container)

@@ -1,5 +1,8 @@
 #include "uiList.h"
 
+#include <algorithm>
+#include <vector>
+
 CUI::List::List(V2D _prefferedSize, bool rescalingAllowed)
 {
     scheduleUpdate();
@@ -39,6 +42,8 @@ CUI::List::List(V2D _prefferedSize, bool rescalingAllowed)
     SELF addChild(scrollCont);
 
     disableRebuildOnEnter();
+
+    _keyPressCallback = [](KeyboardModifierState, EventKeyboard::KeyCode) {};
 
     //upB = CUI::Button::create();
     //downB = CUI::Button::create();
@@ -114,7 +119,7 @@ void CUI::List::calculateContentBoundaries()
     clipping->setClipRegion({ c.x / -2, c.y / -2, c.x, c.y});
 }
 
-void CUI::List::updateLayoutManagers(bool recursive)
+void CUI::List::updateLayoutManagers(bool recusrive)
 {
     Container::updateLayoutManagers(true);
     elementCont->onFontScaleUpdate(1);
@@ -125,6 +130,11 @@ void CUI::List::updateLayoutManagers(bool recursive)
 
     auto l = GameUtils::findNodesByTag(this, 9);
     if (l.size() != 0) l[0]->setVisible(!elements.size());
+}
+
+void CUI::List::scrollToIndex(U16 index)
+{
+    scrollToPromise = index;
 }
 
 CUI::Label* CUI::List::setEmptyText(std::wstring _text)
@@ -147,8 +157,11 @@ void CUI::List::addElement(Container* container, int extendCoeff)
     container->setConstraint(ContentSizeConstraint(this, {-14, 0}, false, false, true));
     container->setPositionX(-7);
     elements.push_back(container);
+    scrollToIndex(elements.size() - 1);
+    isElementListDirty = true;
     container->disableRebuildOnEnter();
     elementCont->addChild(container);
+    container->setUserData((void*)0xFFFE);
     GUI::DisableDynamicsRecursive(container);
     elemContPos = INVALID_LOCATION;
     if (extendCoeff != 0 && _prefferedSize.x < extendCoeff)
@@ -164,6 +177,7 @@ void CUI::List::removeElement(U32 index)
         elementCont->removeChild(p);
         elements.erase(elements.begin() + index);
         isListDirty = true;
+        isElementListDirty = true;
     }
 }
 
@@ -171,9 +185,11 @@ void CUI::List::moveElement(U32 index, U32 newIndex)
 {
     if (index < elements.size() && newIndex <= elements.size() && index != newIndex)
     {
-        std::swap(elements[index], elements[newIndex]);
-        elementCont->getChildren().swap(index, newIndex);
+        GameUtils::moveElement<CUI::Container*>(elements, index, newIndex);
+        scrollToIndex(newIndex);
+        
         isListDirty = true;
+        isElementListDirty = true;
     }
 }
 
@@ -187,9 +203,53 @@ void CUI::List::update(F32 dt)
     //}
     //else vel = 200;
 
+    if (scrollToPromise != UINT16_MAX)
+    {
+        if (scrollIgnoreFirst)
+        {
+            scrollToPromise = UINT16_MAX;
+            scrollIgnoreFirst = false;
+        }
+        else
+        {
+            isListDirty = true;
+            isElementListDirty = true;
+        }
+    }
+
+    if (isElementListDirty)
+    {   
+        /* A fix was just to re-copy the children array again
+           since ax::Vector has problems with the swap function.
+        */
+        {
+            auto& nodes = elementCont->getChildren();
+
+            BENCHMARK_SECTION_BEGIN("TEST LIST UPDATE");
+            nodes.clear(false);
+            for (auto e : elements)
+                nodes.pushBack(e, false);
+            BENCHMARK_SECTION_END();
+        }
+
+        isElementListDirty = false;
+    }
+
     if (isListDirty)
     {
         updateLayoutManagers(true);
+
+        if (scrollToPromise != UINT16_MAX)
+        {
+            if (scrollToPromise < elementCont->getChildren().size())
+            {
+                elemContPos = INVALID_LOCATION;
+                auto c = elementCont->getChildren().at(scrollToPromise);
+                ePos.y = -c->getPositionY() + getContentSize().y / 2 - c->getContentSize().y / 2;
+
+            }
+            scrollToPromise = UINT16_MAX;
+        }
 
         if (elementCont->getContentSize().y / 2 < getContentSize().y)
             ePos.y = getContentSize().y / 2;
@@ -284,6 +344,28 @@ void CUI::List::mouseScroll(EventMouse* event)
     update(0);
 }
 
+void CUI::List::keyPress(EventKeyboard::KeyCode keyCode)
+{
+    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL)
+        _keyboardState.isCtrl = true;
+    if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT)
+        _keyboardState.isShift = true;
+    if (keyCode == EventKeyboard::KeyCode::KEY_ALT)
+        _keyboardState.isShift = true;
+
+    _keyPressCallback(_keyboardState, keyCode);
+}
+
+void CUI::List::keyRelease(EventKeyboard::KeyCode keyCode)
+{
+    if (keyCode == EventKeyboard::KeyCode::KEY_CTRL)
+        _keyboardState.isCtrl = false;
+    if (keyCode == EventKeyboard::KeyCode::KEY_SHIFT)
+        _keyboardState.isShift = false;
+    if (keyCode == EventKeyboard::KeyCode::KEY_ALT)
+        _keyboardState.isShift = false;
+}
+
 bool CUI::List::hover(V2D mouseLocationInView, cocos2d::Camera* cam)
 {
     if (_pCurrentScrollControlItem == this) {
@@ -294,7 +376,9 @@ bool CUI::List::hover(V2D mouseLocationInView, cocos2d::Camera* cam)
         deltaScroll = _savedLocationInView.y / ns.y;
         return Container::hover(INVALID_LOCATION, cam);
     }
-    return Container::hover(mouseLocationInView, cam);
+    auto res = Container::hover(mouseLocationInView, cam);
+    notifyFocused(this, res, true);
+    return res;
 }
 
 bool CUI::List::press(V2D mouseLocationInView, cocos2d::Camera* cam)

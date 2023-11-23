@@ -20,7 +20,7 @@ inline int _loggerCurrLine;
 #define RLOGW(...) do { _loggerCurrColor = 12; _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; ReboundLog::log(__VA_ARGS__); } while (false);
 #define RLOGE(...) do { _loggerCurrFileName = __FILENAME__; _loggerCurrLine = __LINE__; ReboundLog::loge(__VA_ARGS__); } while (false);
 
-#define LOG_RELEASE /*RLOGW("object {} release", typeid(this).name())*/
+#define LOG_RELEASE RLOGW("object {} release", typeid(this).name())
 
 //#ifdef NDEBUG
 //#define RLOG 

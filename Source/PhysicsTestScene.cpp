@@ -104,7 +104,7 @@ bool ReboundPhysicsTest::init()
     s = createSlope(Vec2(-670, 54), 64, -64);
     _pw->_staticShapes.pushBack(s);
 
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < 20; i++) {
         auto m = createRect(Vec2(0, 360), Vec2(512, 512));
         _pw->movingPlat.push_back(m);
         m->isMovable = true;

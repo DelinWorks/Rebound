@@ -79,10 +79,10 @@ void MapEditor::buildEntireUi()
             layerOpacity->setValue(std::stoi(target->cachedString) / 255.0);
         };
 
-    _layersList = CUI::List::create({ 400, 300 }, false);
-    _layersList->setEmptyText(L"No layers present.\n\ncreate layers to add\ntiles & objcets.")
+    _layerManager.layersList = CUI::List::create({ 400, 300 }, false);
+    _layerManager.layersList->setEmptyText(L"No layers present.\n\ncreate layers to add\ntiles & objcets.")
         ->field->setLineSpacing(10);
-    topRightContainer->addChild(_layersList);
+    topRightContainer->addChild(_layerManager.layersList);
 
     cont2 = CUI::Container::create();
     //cont2->setBorderLayoutAnchor(BorderLayout::RIGHT);
@@ -107,9 +107,24 @@ void MapEditor::buildEntireUi()
             dis->init(L"> Create a New Layer <", L"Layer Name", CUI::SUBMIT_CANCEL);
             cont->pushModal(dis);
             dis->enterCallback = [&](CUI::Button*, std::wstring name)
-            {
-                addGeneralLayer(name);
-            };
+                {
+                    _layerManager.addGeneralLayer(name);
+
+                    int idx = _layerManager.getLayerCount() - 1;
+
+                    editorPushUndoState();
+                    auto& undo = editorTopUndoStateOrDefault();
+                    undo.setAction(EditorToolbox::UNDOREDO_LAYER_MODIFY);
+
+                    undo.affectedLayers.action = EditorToolbox::UNDOREDO_LAYER_ADD;
+                    undo.affectedLayers.manager = &_layerManager;
+
+                    undo.affectedLayers.prev_layer_idx = idx;
+
+                    undo.affectedLayers.layer.name = _layerManager.layers[idx];
+                    undo.affectedLayers.layer.layer = map->_layers[idx];
+                    AX_SAFE_RETAIN(undo.affectedLayers.layer.layer);
+                };
         }
     };
 
@@ -122,7 +137,21 @@ void MapEditor::buildEntireUi()
 
     btnt2->_callback = [&](CUI::Button* target)
         {
-            moveLayer(_boundLayer, _boundLayer - 1);
+            int idx = _layerManager.boundLayer;
+
+            editorPushUndoState();
+            auto& undo = editorTopUndoStateOrDefault();
+            undo.setAction(EditorToolbox::UNDOREDO_LAYER_MODIFY);
+
+            undo.affectedLayers.action = EditorToolbox::UNDOREDO_LAYER_MOVE;
+            undo.affectedLayers.manager = &_layerManager;
+
+            undo.affectedLayers.prev_layer_idx = idx;
+            undo.affectedLayers.next_layer_idx = idx - 1;
+
+            undo.affectedLayers.layer.layer = map->_layers[idx];
+
+            _layerManager.moveLayer(_layerManager.boundLayer, _layerManager.boundLayer - 1);
         };
 
     btnt2 = moveLayerDownBtn = CUI::Button::create();
@@ -134,7 +163,21 @@ void MapEditor::buildEntireUi()
 
     btnt2->_callback = [&](CUI::Button* target)
         {
-            moveLayer(_boundLayer, _boundLayer + 1);
+            int idx = _layerManager.boundLayer;
+
+            editorPushUndoState();
+            auto& undo = editorTopUndoStateOrDefault();
+            undo.setAction(EditorToolbox::UNDOREDO_LAYER_MODIFY);
+
+            undo.affectedLayers.action = EditorToolbox::UNDOREDO_LAYER_MOVE;
+            undo.affectedLayers.manager = &_layerManager;
+
+            undo.affectedLayers.prev_layer_idx = idx;
+            undo.affectedLayers.next_layer_idx = idx + 1;
+
+            undo.affectedLayers.layer.layer = map->_layers[idx];
+
+            _layerManager.moveLayer(_layerManager.boundLayer, _layerManager.boundLayer + 1);
         };
 
     btnt2 = renameLayerBtn = CUI::Button::create();
@@ -147,18 +190,33 @@ void MapEditor::buildEntireUi()
 
     btnt2->_callback = [&](CUI::Button* target)
         {
-            if (_boundLayer != UINT32_MAX)
+            if (_layerManager.boundLayer != UINT32_MAX)
             {
                 auto cont = getContainer();
                 if (cont)
                 {
                     auto dis = CUI::DiscardPanel::create(CENTER, PARENT);
                     dis->init(L"> Rename Layer <", L"Layer Name", CUI::SUBMIT_CANCEL);
-                    dis->textField->setString(Strings::narrow(_layers[_boundLayer]));
+                    dis->textField->setString(Strings::narrow(_layerManager.layers[_layerManager.boundLayer]));
                     cont->pushModal(dis);
                     dis->enterCallback = [&](CUI::Button*, std::wstring name)
                         {
-                            renameGeneralLayer(_boundLayer, name);
+                            int idx = _layerManager.boundLayer;
+
+                            editorPushUndoState();
+                            auto& undo = editorTopUndoStateOrDefault();
+                            undo.setAction(EditorToolbox::UNDOREDO_LAYER_MODIFY);
+
+                            undo.affectedLayers.action = EditorToolbox::UNDOREDO_LAYER_RENAME;
+                            undo.affectedLayers.manager = &_layerManager;
+
+                            undo.affectedLayers.prev_layer_idx = idx;
+
+                            undo.affectedLayers.layer.name = _layerManager.layers[idx];
+                            undo.affectedLayers.layer.layer = map->_layers[idx];
+                            undo.affectedLayers.new_name = name;
+
+                            _layerManager.renameGeneralLayer(idx, name);
                         };
                 }
             }
@@ -174,7 +232,23 @@ void MapEditor::buildEntireUi()
 
     btnt2->_callback = [&](CUI::Button* target)
         {
-            removeLayer(_boundLayer);
+            editorPushUndoState();
+            auto& undo = editorTopUndoStateOrDefault();
+            undo.setAction(EditorToolbox::UNDOREDO_LAYER_MODIFY);
+            int idx = _layerManager.boundLayer;
+            if (idx < _layerManager.getLayerCount())
+            {
+                undo.affectedLayers.action = EditorToolbox::UNDOREDO_LAYER_DELETE;
+                undo.affectedLayers.manager = &_layerManager;
+
+                undo.affectedLayers.prev_layer_idx = idx;
+
+                undo.affectedLayers.layer.name = _layerManager.layers[idx];
+                undo.affectedLayers.layer.layer = map->_layers[idx];
+                AX_SAFE_RETAIN(undo.affectedLayers.layer.layer);
+
+                _layerManager.removeLayer(idx);
+            }
         };
 
     topRightContainer->addChild(cont2);
@@ -669,7 +743,6 @@ void MapEditor::buildEntireUi()
             }
             cameraScaleIndex = i;
             cameraScale = possibleCameraScales[cameraScaleIndex];
-            _camera->setZoom(cameraScale / map->_contentScale);
             setCameraScaleUiText(cameraScale);
         }
     };
@@ -1022,7 +1095,7 @@ CUI::Container* MapEditor::createFledgedHSVPanel() {
     hsvcontrol->addChild(selGroupCont, 1);
 
     auto channelCont = Container::create();
-    channelCont->setPositionY(8);
+    channelCont->_onContainerLayoutUpdate = [](Container* self) { self->setPositionY(4 * Rebound::getInstance()->gameWindow.guiScale); };
 
     auto flowCL = FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 0);
     auto ns = GameUtils::getNodeIgnoreDesignScale();

@@ -38,6 +38,7 @@ void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)
 			_->initWithWidthAndHeight(_currentSize.x, _currentSize.y,
 				ax::backend::PixelFormat::NONE, false);
 			auto p = GameUtils::createGPUProgram("default.frag", "default.vert");
+			p->autorelease();
 			_->getSprite()->setProgramState(p);
 
 			SET_POSITION_HALF_SCREEN(_);
@@ -47,6 +48,7 @@ void VirtualWorldManager::resizeRenderTextures(ax::Scene* scene)
 		}
 
 		auto p = GameUtils::createGPUProgram("chrom.frag", "default.vert");
+		p->autorelease();
 		_worlds[0]->rtPass->getSprite()->setProgramState(p);
 		//_worlds[0]->rtPass->getSprite()->getTexture()->setAliasTexParameters();
 		_worlds[1]->skipSameTransform = true;

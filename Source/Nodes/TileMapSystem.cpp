@@ -183,7 +183,7 @@ TileID TilesetArray::relativeID(U16 id, TileID gid) {
 
 TilesetArray::~TilesetArray() {
     for (auto& _ : _tileSets)
-        RB_PROMISE_RELEASE(_);
+        AX_SAFE_RELEASE(_);
     _tileSets.clear();
     LOG_RELEASE;
 }
@@ -529,11 +529,11 @@ Chunk* Chunk::create(ChunkDescriptor desc) {
 
 Chunk::~Chunk() {
     _tiles->retainedChunks--;
-    RB_PROMISE_RELEASE(_tiles);
+    AX_SAFE_RELEASE(_tiles);
     _tilesetArr->retainedChunks--;
-    RB_PROMISE_RELEASE(_tilesetArr);
+    AX_SAFE_RELEASE(_tilesetArr);
     for (auto& _ : _chunks)
-        RB_PROMISE_RELEASE(_);
+        AX_SAFE_RELEASE(_);
     LOG_RELEASE;
 }
 
@@ -653,7 +653,7 @@ TileSystem::Layer* TileSystem::Layer::create(std::string_view name) {
 
 TileSystem::Layer::~Layer() {
     for (auto& _ : _chunks)
-        RB_PROMISE_RELEASE(_.second);
+        AX_SAFE_RELEASE(_.second);
     AX_SAFE_RELEASE(_material);
     LOG_RELEASE;
 }
@@ -663,7 +663,7 @@ Chunk* TileSystem::Layer::getChunkAtPos(V2D pos, TileID hintGid) {
     if (iter == _chunks.end()) {
         if (hintGid == 0) return nullptr;
         TileID* tiles = (TileID*)malloc(CHUNK_BUFFER_SIZE * sizeof(TileID));
-        memset(tiles, 0, CHUNK_BUFFER_SIZE * sizeof(TileID));
+        //memset(tiles, 0, CHUNK_BUFFER_SIZE * sizeof(TileID));
         auto tilesArr = TileArray::create(tiles);
         ChunkFactory::buildVertexCache(tilesArr, _tilesetArr, _resize);
         ChunkDescriptor d{};
@@ -758,7 +758,7 @@ TileSystem::Map* TileSystem::Map::create(V2D _tileSize, I32 _contentScale, V2D _
 TileSystem::Map::~Map()
 {
     tileMapVirtualCamera = nullptr;
-    RB_PROMISE_RELEASE(_tilesetArr);
+    AX_SAFE_RELEASE(_tilesetArr);
     LOG_RELEASE;
 }
 
@@ -781,7 +781,7 @@ void TileSystem::Map::removeLayer(U32 index)
     if (index < _layers.size())
     {
         auto p = _layers[index];
-        removeChild(p);
+        removeChild(p, false);
         _layers.erase(_layers.begin() + index);
     }
 }

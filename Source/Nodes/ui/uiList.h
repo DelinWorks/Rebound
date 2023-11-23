@@ -11,7 +11,6 @@ namespace CUI
     class List : public Container {
     public:
         List(V2D _prefferedSize, bool rescalingAllowed = true);
-
         ~List();
 
         static CUI::List* create(V2D _prefferedSize, bool rescalingAllowed = true);
@@ -24,6 +23,10 @@ namespace CUI
 
         virtual void mouseScroll(EventMouse* event) override;
 
+        KeyboardModifierState _keyboardState;
+        std::function<void(KeyboardModifierState&, EventKeyboard::KeyCode)> _keyPressCallback;
+        void keyPress(EventKeyboard::KeyCode keyCode);
+        void keyRelease(EventKeyboard::KeyCode keyCode);
         bool hover(V2D mouseLocationInView, cocos2d::Camera* cam);
         bool press(V2D mouseLocationInView, cocos2d::Camera* cam);
         bool release(V2D mouseLocationInView, cocos2d::Camera* cam);
@@ -31,9 +34,13 @@ namespace CUI
         void calculateContentBoundaries() override;
         void updateLayoutManagers(bool recursive = false) override;
 
+        bool scrollIgnoreFirst = true;
+        U16 scrollToPromise = UINT16_MAX;
+        void scrollToIndex(U16 index);
+
         CUI::Label* setEmptyText(std::wstring _text);
 
-        const std::vector<Container*> getElements() { return elements; };
+        const std::vector<Container*>& getElements() { return elements; };
 
         V2D prefferredListSize = V2D::ZERO;
         V2D ePos = V2D::ZERO;
@@ -51,6 +58,7 @@ namespace CUI
         float deltaScroll2 = 0.0;
         std::vector<Container*> elements;
         bool isListDirty = false;
+        bool isElementListDirty = false;
         ChangeValue<bool> scrollEnableState;
     };
 }

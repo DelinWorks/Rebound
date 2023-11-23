@@ -42,7 +42,7 @@ void MapEditor::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     {
 
         for (int i = 0; i < 1000; i++)
-            _layersList->addElement(CUI::Functions::createLayerWidget(L"t = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO_" + std::to_wstring(i), [=](CUI::Button* target) {}));
+            _layerManager.layersList->addElement(CUI::Functions::createLayerWidget(L"t = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZERO = V2D::ZEROt = V2D::ZERO = V2D::ZERO = V2D::ZERO_" + std::to_wstring(i), [=](CUI::Button* target) {}));
     }
 
     if (keyCode == EventKeyboard::KeyCode::KEY_E)
@@ -195,8 +195,8 @@ void MapEditor::onMouseMove(ax::Event* event)
     if (!hasMouseMoved) { hasMouseMoved = true; return; }
     if (isEditorDragging)
     {
-        cameraLocation->setPositionX(cameraLocation->getPositionX() + (_input->_mouseLocationDelta.x * _camera->getScale()));
-        cameraLocation->setPositionY(cameraLocation->getPositionY() + (_input->_mouseLocationDelta.y * -1 * _camera->getScale()));
+        cameraPos.x += _input->_mouseLocationDelta.x * _camera->getScale();
+        cameraPos.y += _input->_mouseLocationDelta.y * -1 * _camera->getScale();
     }
 }
 
@@ -206,9 +206,9 @@ void MapEditor::onMouseScroll(ax::Event* event)
 
     if (isCtrlPressed) {
         if (isShiftPressed)
-            cameraLocation->setPositionX(cameraLocation->getPositionX() + e->getScrollY() * 50 * _camera->getScale());
+            cameraPos.x += e->getScrollY() * 50 * _camera->getScale();
         else
-            cameraLocation->setPositionY(cameraLocation->getPositionY() + e->getScrollY() * -50 * _camera->getScale());
+            cameraPos.y += e->getScrollY() * -50 * _camera->getScale();
     }
     else setCameraScaleIndex(e->getScrollY(), !isShiftPressed);
 
@@ -250,7 +250,7 @@ void MapEditor::onTouchMoved(ax::Touch* touch, ax::Event* event)
 void MapEditor::onTouchEnded(ax::Touch* touch, ax::Event* event)
 {
     isEditorDragging = true;
-    cameraLocation->setPosition(_camera->getPosition());
+    //cameraLocation->setPosition(_camera->getPosition());
 }
 
 void MapEditor::onTouchCancelled(ax::Touch* touch, ax::Event* event)

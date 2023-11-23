@@ -95,7 +95,7 @@ void CUI::Tabs::calculateContentBoundaries()
     setContentSize(V2D(getContentSize().x, 20 * ns.y));
     Container::recalculateChildDimensions();
     auto& c = getContentSize();
-    clipping->setClipRegion(Rect(c.x / -2 - 3 * ns.x, c.y * 8 / -2, c.x - 18 * ns.x, c.y * 8));
+    clipping->setClipRegion(Rect(c.x / -2 - 3 * ns.x, c.y * 8 / -2, c.x - 28 * ns.x, c.y * 8));
 }
 
 void CUI::Tabs::updateLayoutManagers(bool recursive)

@@ -19,6 +19,9 @@ void EditorToolbox::UndoRedoState::applyUndoState()
     case UNDOREDO_TILEMAP:
         applyUndoStateTilemapEdit();
         break;
+    case UNDOREDO_LAYER_MODIFY:
+        applyUndoStateLayerEdit();
+        break;
     }
 }
 
@@ -31,7 +34,17 @@ void EditorToolbox::UndoRedoState::applyRedoState()
     case UNDOREDO_TILEMAP:
         applyRedoStateTilemapEdit();
         break;
+    case UNDOREDO_LAYER_MODIFY:
+        applyRedoStateLayerEdit();
+        break;
     }
+}
+
+void EditorToolbox::UndoRedoState::releaseData()
+{
+    if (affectedLayers.action == UNDOREDO_LAYER_ADD ||
+        affectedLayers.action == UNDOREDO_LAYER_DELETE)
+        AX_SAFE_RELEASE(affectedLayers.layer.layer);
 }
 
 void EditorToolbox::UndoRedoState::applyUndoStateTilemapEdit()
@@ -46,6 +59,52 @@ void EditorToolbox::UndoRedoState::applyRedoStateTilemapEdit()
     affectedTiles.map->bindLayer(affectedTiles.layer_idx);
     for (auto& _ : affectedTiles.next_tiles)
         affectedTiles.map->setTileAt(Vec2(_.first.x, _.first.y), _.second);
+}
+
+void EditorToolbox::UndoRedoState::applyUndoStateLayerEdit()
+{
+    auto& m = affectedLayers;
+    switch (m.action)
+    {
+    case UNDOREDO_LAYER_ADD:
+        m.manager->removeLayer(m.prev_layer_idx);
+        break;
+    case UNDOREDO_LAYER_DELETE:
+        m.manager->layers.push_back(m.layer.name);
+        m.manager->tileMap->addLayer(m.layer.layer);
+        m.manager->addListElement(m.layer.name);
+        m.manager->moveLayer(m.manager->getLayerCount() - 1, m.prev_layer_idx);
+        break;
+    case UNDOREDO_LAYER_RENAME:
+        m.manager->renameGeneralLayer(m.prev_layer_idx, m.layer.name);
+        break;
+    case UNDOREDO_LAYER_MOVE:
+        m.manager->moveLayer(m.next_layer_idx, m.prev_layer_idx);
+        break;
+    }
+}
+
+void EditorToolbox::UndoRedoState::applyRedoStateLayerEdit()
+{
+    auto& m = affectedLayers;
+    switch (m.action)
+    {
+    case UNDOREDO_LAYER_ADD:
+        m.manager->layers.push_back(m.layer.name);
+        m.manager->tileMap->addLayer(m.layer.layer);
+        m.manager->addListElement(m.layer.name);
+        m.manager->moveLayer(m.manager->getLayerCount() - 1, m.prev_layer_idx);
+        break;
+    case UNDOREDO_LAYER_DELETE:
+        m.manager->removeLayer(m.prev_layer_idx);
+        break;
+    case UNDOREDO_LAYER_RENAME:
+        m.manager->renameGeneralLayer(m.prev_layer_idx, m.new_name);
+        break;
+    case UNDOREDO_LAYER_MOVE:
+        m.manager->moveLayer(m.prev_layer_idx, m.next_layer_idx);
+        break;
+    }
 }
 
 void EditorToolbox::UndoRedoState::applyUndoStateColorPaletteEdit()
@@ -81,10 +140,6 @@ void EditorToolbox::UndoRedoAffectedTiles::addOrIgnoreTileNext(ax::Vec2 pos, U32
 void EditorToolbox::UndoRedoAffectedColorPalette::setHSVWheelPointer(CUI::HSVWheel* wheel)
 {
     this->wheel = wheel;
-}
-
-EditorToolbox::UndoRedoAffectedColorPalette::~UndoRedoAffectedColorPalette()
-{
 }
 
 void EditorToolbox::UndoRedoAffectedColorPalette::setColorPrev(ColorChannel color)

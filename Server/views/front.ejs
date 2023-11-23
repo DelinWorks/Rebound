@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<head>
+    <title>Rebound</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <link rel="stylesheet" href="front.css"></script>
+    <script src="front.js"></script>
+    
+    <div class="general-box">
+        <% if (pageIndex == 0) { %>
+        <span class="pix">> Welcome to <span class="rainbow-text">Rebound</span> Online Server.</span><br>
+        <span class="pix">> Choose what to do.</span><br>
+        <br>
+        <form>
+            <center>
+                <a class="btn pix fixed-width" href="create_account">
+                    Create Account
+                </a>
+            </center>
+            <center>
+                <a class="btn pix fixed-width" href="reset_password">
+                    Enable Display Name
+                </a>
+            </center>
+            <center>
+                <a class="btn pix fixed-width" href="reset_password">
+                    Reset Password
+                </a>
+            </center>
+            <center>
+                <a class="btn pix fixed-width" href="email_2fa">
+                    Toggle Email 2FA
+                </a>
+            </center>
+            <center>
+                <a class="btn pix fixed-width" href="change_account_email">
+                    Change Email
+                </a>
+            </center>
+            <center>
+                <a class="btn pix fixed-width" href="delete_account">
+                    Delete Account
+                </a>
+            </center>
+            <center>
+                <a class="btn pix fixed-width" href="song_bucket">
+                    Song Upload Page
+                </a>
+            </center>
+        </form>
+        <% } else if (pageIndex == 1) { %>
+            <script>
+                async function customPostRequest(captcha_token) {
+                    let token = document.querySelector('#g-recaptcha-response');
+                    if (token !== undefined)
+                    {
+                        token = token.value;
+                        return await sendPostRequest('create_account',
+                        { 
+                            captcha_token: token,
+                            username: document.getElementById("username-input").value,
+                            email: document.getElementById("email-input").value,
+                        });
+                    }
+                }
+            </script>
+ 
+            <span class="pix">> Create a new <span class="rainbow-text">Rebound</span> Account.</span><br><br>
+            <br>
+            <form>
+                <div class="pix user-box">
+                    <input id="username-input" class="pix" type="text" name="" required="">
+                    <label>Username</label>
+                </div>
+                <div class="pix user-box">
+                    <input id="email-input" class="pix" type="text" name="" required="">
+                    <label>Email</label>
+                </div>
+                
+                <div id="response-container"></div>
+
+                <center><div class="g-recaptcha" data-sitekey="6LcHducoAAAAALhZdH-Iihg3L8rxO-TJQc70zFcl"></div><br></center>
+                <!-- https://techblogs.42gears.com/verify-google-recaptcha-with-node-js/ -->
+
+                <center><a class="btn pix" href="#" id="submit_element">Create Account</a></center>
+            </form>
+        <% } else if (pageIndex == 2) { %>
+            <span class="pix">> Reset password of an existing <span class="rainbow-text">Rebound</span> Account.</span><br><br>
+            <br>
+            <form>
+                <div class="pix user-box">
+                    <input class="pix" type="text" name="" required="">
+                    <label>Username or Email</label>
+                </div>
+                <!-- <div class="pix user-box">
+                    <input type="password" name="" required="">
+                    <label>Password</label>
+                </div> -->
+
+                <!-- <div id="captcha-container"></div>
+                <div id="response-container"></div> -->
+                <div id="response-container"></div>
+
+                <center><div class="g-recaptcha" data-sitekey="6LcHducoAAAAALhZdH-Iihg3L8rxO-TJQc70zFcl"></div><br></center>
+
+                <center><a class="btn pix" href="create_account">Send Reset Email</a></center>
+
+            </form>
+        <% } else if (pageIndex == 3) { %>
+            <span class="pix">> Enable or Disable 2-Factor Authentication.</span><br>
+            <span class="pix">> User will be sent a verification email when signing in-game.</span><br><br>
+            <br>
+            <form>
+                <div class="pix user-box">
+                    <input class="pix" type="text" name="" required="">
+                    <label>Username or Email</label>
+                </div>
+                <!-- <div class="pix user-box">
+                    <input type="password" name="" required="">
+                    <label>Password</label>
+                </div> -->
+
+                <!-- <div id="captcha-container"></div> -->
+                
+                <center><div class="g-recaptcha" data-sitekey="6LcHducoAAAAALhZdH-Iihg3L8rxO-TJQc70zFcl"></div><br></center>
+
+                <center><a class="btn pix" href="create_account">Send Enable Email</a></center>
+            </form>
+        <% } else if (pageIndex == 4) { %>
+            <span class="pix">> Change Email of an existing <span class="rainbow-text">Rebound</span> Account.</span><br>
+            <span class="pix">> Both old and new emails will be sent a verification code.</span><br><br>
+            <br>
+            <form>
+                <div class="pix user-box">
+                    <input class="pix" type="text" name="" required="">
+                    <label>Username or old Email</label>
+                </div>
+                
+                <div class="pix user-box">
+                    <input class="pix" type="text" name="" required="">
+                    <label>New Email</label>
+                </div>
+
+                <div id="captcha-container"></div>
+                
+                <center>
+                    <a class="btn pix" style="width: 630px" href="create_account">
+                        Send Verification Emails
+                    </a>
+                </center>
+            </form>
+        <% } else if (pageIndex == 5) { %>
+            <span class="pix">> <span style="color: red;">Delete and Purge</span> an existing <span class="rainbow-text">Rebound</span> Account.</span><br>
+            <span class="pix">> All progress and levels will be purged from the server after 30 days.</span><br>
+            <span class="pix">> Any future in-game login will cancel this process.</span><br><br>
+            <br>
+            <form>
+                <div class="pix user-box">
+                    <input class="pix" type="text" name="" required="">
+                    <label>Username or old Email</label>
+                </div>
+
+                <div id="captcha-container"></div>
+                
+                <center>
+                    <a class="btn pix" style="color:red; width: 830px" href="create_account">
+                        Remove Account After 30 Days
+                    </a>
+                </center>
+            </form>  
+        <% } else if (pageIndex == 6) { %>
+            <span class="pix">> S3 Storage Buckets must be reserved to upload Songs, which costs money.</span><br>
+            <span class="pix">> Level 20^ accounts will be able to upload 2 songs per month.</span><br>
+            <span class="pix">> Level 100^ accounts will be able to upload 8 songs per month.</span><br>
+            <span class="pix">> A song must not exceed 25MB in size, only mp3 format files are allowed.</span><br>
+            <span class="pix">> Songs will need to be verified which might take some time.</span><br>
+            <span class="pix">> Songs will be deleted if they get little to no downloads to save space.</span><br>
+            <span class="pix">> Duplicate songs will be removed, use search to see which songs exist.</span><br>
+            <span class="pix">> This system was put to prevent spam which could cost too much money.</span><br>
+            <br>
+            <form>
+                <center>
+                    <a class="btn pix" style="width: 830px" href="create_account">
+                        Go to Song Upload Page
+                    </a>
+                </center>
+            </form>
+        <% } %>
+        <script>
+            window.onload = function()
+            {
+                    // var cont = document.getElementById('captcha-container');
+                    // if (cont !== null)
+                    // {
+                    //     // cont.innerHTML =
+                    //     //     `<center>
+                    //     //         <svg id="captcha-svg" style="margin-left: 5px; margin-right: 20px;" width="100" height="30"><image xlink:href="/captcha" width="100" height="40"/></svg>
+                    //     //         <div class="pix user-box inline">
+                    //     //             <input id="captcha-input" class="pix" type="text" name="" required="" maxlength="5" size="5" oninput="convertToUppercase(this)">
+                    //     //             <label>Verify</label>
+                    //     //         </div>
+                    //     //     </center>`
+
+                    //     cont.innerHTML = ''
+                    // }
+
+                    var cont = document.getElementById('response-container');
+                    if (cont !== null)
+                    {
+                        cont.innerHTML =
+                            `<center>
+                                <span id="response-span" class="pix" style="font-size: smaller; color: red;"></span>
+                            </center><br>`
+                    }
+
+                    var link = document.getElementById('submit_element');
+                    if (link !== null)
+                    {
+                        link.addEventListener('click', async function(event) {
+                            event.preventDefault();
+
+                            var inputElement = document.getElementById("captcha-input");
+                            var inputValue = 0;
+
+                            const res = await customPostRequest(inputValue);
+                            console.log(res);
+                            document.getElementById('response-span').innerHTML = res.data.summary + ": " + res.data.result
+
+                            if (res.status == 201)
+                                window.location.href = "/";
+                            else
+                            {
+                                // var svg = document.getElementById("captcha-svg");
+                                // var image = svg.querySelector('image');
+                                // var timestamp = new Date().getTime();
+                                // var imageUrl = "/captcha?timestamp=" + timestamp;
+                                // image.setAttribute('xlink:href', imageUrl);
+                                // grecaptcha.reset();
+                            }
+                        });
+                    }
+                }
+        </script>
+        
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    </div>
+</body>
+</html>

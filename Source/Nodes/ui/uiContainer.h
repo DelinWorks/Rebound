@@ -32,6 +32,13 @@ namespace CUI
         int index;
     };
 
+    struct KeyboardModifierState
+    {
+        bool isCtrl = false;
+        bool isShift = false;
+        bool isAlt = false;
+    };
+
     enum Layout : U8 {
         LAYOUT_NONE = 0,
         LAYOUT_FLOW = 1,
@@ -188,6 +195,8 @@ namespace CUI
         V2D _backgroundPadding = V2D::ZERO;
         bool _closestStaticBorder = false;
         std::vector<CUI::GUI*> _allButtons;
+
+        std::function<void(Container*)> _onContainerLayoutUpdate = [](Container* self) {};
 
         std::function<void()> _onContainerDismiss = []() {};
 

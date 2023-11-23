@@ -43,13 +43,11 @@ bool WelcomeScene::init()
     if (textureCompanyLogo) textureCompanyLogo->setAliasTexParameters();
 
     auto cnnode = Node::create();
-    cnnode->addComponent((new UiRescaleComponent(visibleSize))
-        ->setVisibleSizeHints());
 
     cn = Sprite::createWithTexture(textureCompanyLogo);
     {
         // position the sprite on the center of the screen
-        cnnode->setPosition(Vec2::ZERO);
+        //cnnode->setPosition(Vec2::ZERO);
         cn->setOpacity(0);
         cn->setScale(0.5f);
         cnnode->addChild(cn, 0);
@@ -62,6 +60,9 @@ bool WelcomeScene::init()
 
     tex = Director::getInstance()->getTextureCache()->addImage("star.png");
     tex->setAliasTexParameters();
+
+    cnnode->addComponent((new UiRescaleComponent(visibleSize))
+        ->setVisibleSizeHints());
 
     return true;
 }
@@ -86,7 +87,7 @@ void WelcomeScene::update(F32 dt)
         //GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
-        auto scene = ReboundPhysicsTest::createScene();
+        auto scene = MapEditor::createScene();
         Director::getInstance()->pushScene(scene);
     }
 

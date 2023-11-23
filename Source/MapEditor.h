@@ -57,6 +57,7 @@ using namespace Math;
 #include "Helper/HAFStack.hpp"
 #include "ZEditorToolbox/SelectableObject.h"
 #include "Nodes/TileMapSystem.h"
+#include "ZEditorToolbox/LayerManager.h"
 
 #define GRID_COLOR Color4F::BLACK
 #define LAYER_BACKGROUND_COLOR Color4B(40, 47, 64, 255)
@@ -144,6 +145,7 @@ public:
     V2D selectionPlace;
     V2D chunkSelectionPlace;
     F32 cameraScale;
+    V2D cameraPos = V2D::ZERO;
     I32 cameraScaleIndex = 10;
     F32 possibleCameraScales[18] = { 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 8.0, 16.0, 32.0, 64.0 };
     CUI::Button* cameraScaleB;
@@ -220,6 +222,7 @@ public:
 
     bool isCtrlPressed = false;
     bool isShiftPressed = false;
+    void releaseUndoRedoStacks(bool keepUndo);
     HeapAllocatedFixedStack<EditorToolbox::UndoRedoState> _undo;
     HeapAllocatedFixedStack<EditorToolbox::UndoRedoState> _redo;
 
@@ -252,15 +255,18 @@ public:
     CUI::Button* moveLayerDownBtn;
     CUI::Button* renameLayerBtn;
     CUI::Button* removeLayerBtn;
-    U32 _boundLayer = UINT32_MAX;
-    CUI::Button* _boundLayerBtn = nullptr;
-    CUI::List* _layersList;
-    std::vector<std::wstring> _layers;
-    void bindLayer(U32 index);
-    void addGeneralLayer(std::wstring name);
-    void renameGeneralLayer(U32 index, std::wstring newName);
-    void removeLayer(U32 index);
-    void moveLayer(U32 index, U32 newIndex);
+
+    //U32 _boundLayer = UINT32_MAX;
+    //CUI::List* _layersList;
+    //std::vector<std::wstring> _layers;
+    //void bindLayer(U32 index);
+    //void addGeneralLayer(std::wstring name);
+    //void renameGeneralLayer(U32 index, std::wstring newName);
+    //void removeLayer(U32 index);
+    //void moveLayer(U32 index, U32 newIndex);
+
+    EditorToolbox::LayerManager _layerManager;
+
     void editorLayerControlsUpdateState();
 
     bool isSelectableHoveredLastFrame = false;

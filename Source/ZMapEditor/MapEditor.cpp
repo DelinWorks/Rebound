@@ -17,6 +17,7 @@ Scene* MapEditor::createScene()
 MapEditor::~MapEditor()
 {
     //RLOGE(true, "sqlite3_close result: {}", sqlite3_close(pdb));
+    releaseUndoRedoStacks(false);
     LOG_RELEASE;
 }
 
@@ -74,7 +75,7 @@ bool MapEditor::init()
 
     //_defaultCamera->setBackgroundBrush(ax::CameraBackgroundBrush::createColorBrush(Color4F::RED, 0));
 
-    VirtualWorldManager::resizeRenderTextures(this);
+    //VirtualWorldManager::resizeRenderTextures(this);
 
     TileSystem::tileMapVirtualCamera = _camera;
     map = TileSystem::Map::create(Vec2(16, 16), 2, Vec2(1024 * 16 * 4, 1024 * 16 * 4));
@@ -501,6 +502,10 @@ void MapEditor::onInitDone(F32 dt)
         //    }
         //BENCHMARK_SECTION_END();
 
+        //MeshMaterial::releaseBuiltInMaterial();
+        //Director::getInstance()->end();
+        //return;
+
         buildEntireUi();
 
         editorUndoRedoMax(0); // save 100 undo redo states maximum
@@ -509,11 +514,44 @@ void MapEditor::onInitDone(F32 dt)
 
         setTileMapEditMode(TileMapEditMode::SELECT);
 
-        addGeneralLayer(L"Test Layer ___ ");
-        addGeneralLayer(L"Test Layer ___ ");
-        addGeneralLayer(L"Test Layer ___ ");
-        addGeneralLayer(L"Test Layer ___ ");
-        addGeneralLayer(L"Test Layer ___ ");
+        _layerManager._updateStateCallback = [=]() { editorLayerControlsUpdateState(); };
+        _layerManager.tileMap = map;
+
+        _layerManager.layersList->_keyPressCallback = [&](CUI::KeyboardModifierState& state, EventKeyboard::KeyCode code)
+        {
+            if (code == EventKeyboard::KeyCode::KEY_DELETE || code == EventKeyboard::KeyCode::KEY_KP_DELETE)
+                removeLayerBtn->_callback(removeLayerBtn);
+            if (code == EventKeyboard::KeyCode::KEY_N)
+                createLayerBtn->_callback(createLayerBtn);
+            if (code == EventKeyboard::KeyCode::KEY_UP_ARROW && state.isShift)
+                moveLayerUpBtn->_callback(moveLayerUpBtn);
+            if (code == EventKeyboard::KeyCode::KEY_DOWN_ARROW && state.isShift)
+                moveLayerDownBtn->_callback(moveLayerDownBtn);
+            if (code == EventKeyboard::KeyCode::KEY_R)
+                renameLayerBtn->_callback(renameLayerBtn);
+        };
+
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
 
         isInitDone = true;
     }
@@ -534,11 +572,19 @@ void MapEditor::perSecondUpdate(F32 dt)
 
 void MapEditor::update(F32 dt)
 {
+    if (!isInitDone)
+        return;
+
+    _camera->setZoom(LERP(_camera->getScale(), cameraScale / map->_contentScale, 15 * dt));
+    cameraLocation->setPosition(LERP(cameraLocation->getPositionX(), cameraPos.x, 15 * dt),
+        LERP(cameraLocation->getPositionY(), cameraPos.y, 15 * dt));
+
     updateDirectorToStatsCount(map->_tileCount, 0);
     if (getContainer()) {
         bool cond = getContainer()->hover(_input->_mouseLocationInViewNoScene, _defaultCamera);
         selectionNode->setVisible(!(cond || isEditorDragging || isSelectableHovered));
-        map->_editorLayer->setVisible(!(cond || isEditorDragging || isSelectableHovered || isTileMapRect || TEditMode != TileMapEditMode::PLACE || modeDropdown->selectedIndex != TILE_MAP_MODE));
+        map->_editorLayer->setVisible(!(!_layerManager.getLayerCount() || cond || isEditorDragging || isSelectableHovered 
+            || isTileMapRect || TEditMode != TileMapEditMode::PLACE || modeDropdown->selectedIndex != TILE_MAP_MODE));
     }
     isSelectableHoveredLastFrame = false;
 }
@@ -584,11 +630,11 @@ void MapEditor::tick(F32 dt)
     auto WASDVec = Vec2(((editorWASDCamMoveRect.origin.x + editorWASDCamMoveRect.size.x) * _camera->getScale() * 500 * dt),
         ((editorWASDCamMoveRect.origin.y + editorWASDCamMoveRect.size.y) * _camera->getScale() * 500 * dt));
 
-    cameraLocation->setPosition(cameraLocation->getPosition() + WASDVec);
+    cameraPos += WASDVec;
 
-    cameraLocation->setPosition(Vec2(
-        clamp(cameraLocation->getPositionX(), (F32)(map->_mapSize.x * map->_tileSize.x) * -1, (F32)map->_mapSize.x * map->_tileSize.x),
-        clamp(cameraLocation->getPositionY(), (F32)(map->_mapSize.y * map->_tileSize.x) * -1, (F32)map->_mapSize.y * map->_tileSize.x)));
+    cameraPos = Vec2(
+        clamp(cameraPos.x, (F32)(map->_mapSize.x * map->_tileSize.x) * -1, (F32)map->_mapSize.x * map->_tileSize.x),
+        clamp(cameraPos.y, (F32)(map->_mapSize.y * map->_tileSize.x) * -1, (F32)map->_mapSize.y * map->_tileSize.x));
 
     _camera->setPosition(cameraLocation->getPosition());
 
@@ -599,7 +645,7 @@ void MapEditor::tick(F32 dt)
         _input->_newMouseLocationOnUpdate = _input->_mouseLocation;
         for (const auto i : uiNodeNonFollow->getChildren())
             i->setScale(_camera->getScale());
-        Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraLocation->getPositionX() - map->_chunkSize / 2, map->_chunkSize * 10), snap(cameraLocation->getPositionY() - map->_chunkSize / 2, map->_chunkSize * 10));
+        Vec2 clampedChunkSelectionPlaceToCamera = Vec2(snap(cameraPos.x - map->_chunkSize / 2, map->_chunkSize * 10), snap(cameraPos.y - map->_chunkSize / 2, map->_chunkSize * 10));
         grid->setPosition(clampedChunkSelectionPlaceToCamera.x, clampedChunkSelectionPlaceToCamera.y);
         //std::cout << convertFromSpaceToChunkSpace(selectionPlace).x << ", " << convertFromSpaceToChunkSpace(selectionPlace).y << "\n";
         selectionPlaceSquare->setPosition(selectionPlace);
@@ -632,13 +678,13 @@ void MapEditor::tick(F32 dt)
 void MapEditor::lateUpdate(F32 dt)
 {
     for (auto& i : grid->getChildren()) {
-        if (cameraScale < 5)
+        if (_camera->getScale() < 5)
         {
             i->setOpacity(60);
             i->setScale(1);
             worldCoordsLines->setOpacity(100);
         }
-        else if (cameraScale >= 5 && cameraScale < 13)
+        else if (_camera->getScale() >= 5 && _camera->getScale() < 13)
         {
             i->setOpacity(20);
             i->setScale(10);
@@ -662,6 +708,8 @@ void MapEditor::lateUpdate(F32 dt)
 
 void MapEditor::tileMapModifyRegion(F32 _x, F32 _y, F32 _width, F32 _height)
 {
+    if (map->_layerIdx == UINT32_MAX || map->_layerIdx >= _layerManager.getLayerCount() || !_layerManager.getLayerCount()) return;
+
     if (selectionPlace == selectionPosition) return;
     auto& undoCmd = editorTopUndoStateOrDefault();
     undoCmd.setAction(EditorToolbox::UNDOREDO_TILEMAP);
@@ -682,7 +730,7 @@ void MapEditor::tileMapModifyRegion(F32 _x, F32 _y, F32 _width, F32 _height)
 
 void MapEditor::tileMapEditUpdate(Vec2 prev, Vec2 next)
 {
-    if (map->_layerIdx == UINT32_MAX) return;
+    if (map->_layerIdx == UINT32_MAX || !_layerManager.getLayerCount()) return;
 
     if (isTileMapRect)
         createEditToolSelectionBox(removeSelectionStartPos, convertFromScreenToSpace(_input->_mouseLocationInView, _camera, false), map->_tileSize.x);
@@ -726,17 +774,18 @@ void MapEditor::setCameraScaleIndex(I32 dir, bool shiftTransform) {
     cameraScale = possibleCameraScales[cameraScaleIndex];
 
     Vec2 targetPos = convertFromScreenToSpace(_input->_mouseLocationInView, _camera);
-    Vec2 pos = cameraLocation->getPosition();
-    Vec2 newPos = pos.lerp(targetPos, 1.0F - (cameraScale / preCamScl));
+    Vec2 pos = cameraPos;
     if (shiftTransform)
-        cameraLocation->setPosition(newPos.x, newPos.y);
-    _camera->setZoom(cameraScale / map->_contentScale);
+        cameraPos = pos.lerp(targetPos, 1.0F - (cameraScale / preCamScl));
     setWorldBoundsLayerColorTransforms(_camera);
     setCameraScaleUiText(cameraScale);
 }
 
 void MapEditor::visit(Renderer* renderer, const Mat4& parentTransform, uint32_t parentFlags)
 {
+    //if (!isInitDone)
+    //    return;
+
     // we are updating in the visit function because axmol
     // calls visit before update which makes the game have
     // a one frame delay which can be frustration.

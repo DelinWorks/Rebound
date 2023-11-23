@@ -129,6 +129,7 @@ backend::ProgramState* GameUtils::createGPUProgram(std::string resources_frag_sh
     auto vertexFullPath = fileUtiles->fullPathForFilename("shaders/" + resources_vertex_shader_path);
     auto vertexSource = fileUtiles->getStringFromFile(vertexFullPath);
     auto program = backend::Device::getInstance()->newProgram(vertexSource.length() == 0 ? positionTextureColor_vert : vertexSource.c_str(), fragSource.length() == 0 ? positionTextureColor_frag : fragSource.c_str());
+    program->autorelease();
     auto theFuckingProgramState = new backend::ProgramState(program);
     return theFuckingProgramState;
 }

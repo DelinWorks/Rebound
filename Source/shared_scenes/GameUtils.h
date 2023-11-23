@@ -201,4 +201,13 @@ namespace GameUtils
 
         static void signalSceneRoot(std::string signal);
     };
+
+    template <typename T>
+    void moveElement(std::vector<T>& vec, size_t fromPos, size_t toPos) {
+        if (fromPos < vec.size() && toPos < vec.size() && fromPos != toPos) {
+            T item = vec[fromPos];
+            vec.erase(vec.begin() + fromPos);
+            vec.insert(vec.begin() + toPos, item);
+        }
+    }
 }

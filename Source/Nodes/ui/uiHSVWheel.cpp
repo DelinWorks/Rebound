@@ -27,7 +27,9 @@ bool CUI::HSVWheel::init(float scale)
     square = ax::Sprite::createWithSpriteFrameName("hsv_square");
     wheelHandle = ax::Sprite::createWithSpriteFrameName("hsv_handle");
     squareHandle = ax::Sprite::createWithSpriteFrameName("hsv_handle");
-    square->setProgramState(GameUtils::createGPUProgram("hsv_square.frag", "default.vert"));
+    auto squareP = GameUtils::createGPUProgram("hsv_square.frag", "default.vert");
+    squareP->autorelease();
+    square->setProgramState(squareP);
     wButton->setContentSize(wheel->getContentSize());
     sqButton->setContentSize({ 142,142 });
     addChild(button, -1);
@@ -39,6 +41,7 @@ bool CUI::HSVWheel::init(float scale)
     lp->addChild(wheelHandle);
     lp->addChild(squareHandle);
     auto colorP = GameUtils::createGPUProgram("hsv_distinct_alpha.frag", "default.vert");
+    colorP->autorelease();
     oldColor = ax::Sprite::create("pixel.png");
     oldColor->_forceBatching = true;
     oldColor->setProgramState(colorP);
