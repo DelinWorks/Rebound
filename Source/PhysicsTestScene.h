@@ -59,7 +59,12 @@ public:
     // a selector callback
     void menuCloseCallback(Ref* sender);
 
+    bool isPaused = false;
+
     V2D mouseLoc;
     PhysicsWorld* _pw;
 
+    ax::Sprite* test123;
+
+    ReboundPhysics::CollisionShape* fastShape;
 };

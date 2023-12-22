@@ -531,27 +531,27 @@ void MapEditor::onInitDone(F32 dt)
                 renameLayerBtn->_callback(renameLayerBtn);
         };
 
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
-        _layerManager.addGeneralLayer(L"Test Layer ___ ", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
+        _layerManager.addGeneralLayer(L"Test Layer", false);
 
         isInitDone = true;
     }

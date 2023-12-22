@@ -16,7 +16,7 @@
 * 
 */
 
-#define RENDER_SYMBOLS L".,<>(){}[]~`!@#$%^&*?\"':;\\"
+#define RENDER_SYMBOLS L".,<>(){}[]~`!@#$%^&*?\"':;\\\u200C"
 
 namespace ShapingEngine {
 
@@ -102,7 +102,8 @@ namespace ShapingEngine {
             if (asciiValue >= 1536 && asciiValue <= 1791
                 || asciiValue >= 64336 && asciiValue <= 65023
                 || asciiValue >= 65136 && asciiValue <= 65279 || asciiValue == ' ' && space
-                || (symbols && contains_wchar_t(RENDER_SYMBOLS, asciiValue))) {
+                || (symbols && contains_wchar_t(RENDER_SYMBOLS, asciiValue))
+                || asciiValue == '\u200C') {
                 return true;
             }
 
@@ -216,6 +217,7 @@ namespace ShapingEngine {
             glyphs.insert({ L'\uFEF7', Glyph(L"  \uFEF8") }); // لأ
             glyphs.insert({ L'\uFEF9', Glyph(L"  \uFEFA") }); // لإ
             glyphs.insert({ L'\uFEF5', Glyph(L"  \uFED6") }); // لآ
+            glyphs.insert({ L'\u200C' , Glyph(L"   ") }); //46 half-space
         }
     };
 

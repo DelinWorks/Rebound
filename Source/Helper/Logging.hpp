@@ -22,12 +22,12 @@ inline int _loggerCurrLine;
 
 #define LOG_RELEASE RLOGW("object {} release", typeid(this).name())
 
-//#ifdef NDEBUG
-//#define RLOG 
-//#define RLOGW
-//#define RLOGE
-//#define LOG_RELEASE
-//#endif
+#ifdef NDEBUG
+#define RLOG 
+#define RLOGW
+#define RLOGE
+#define LOG_RELEASE
+#endif
 
 #define RB_PROMISE_RELEASE(O) PoolManager::getInstance()->getCurrentPool()->addObject(O);
 

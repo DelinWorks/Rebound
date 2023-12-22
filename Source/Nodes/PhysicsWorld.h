@@ -9,19 +9,24 @@
 namespace ReboundPhysics
 {
 #define VERTICAL_RESOLUTION_LEEWAY 8
-#define CCD_MAX_TARGETS 1024
+#define CCD_MAX_TARGETS 65535
 #define MOVE_MAX_TARGETS 65535
-#define CHUNK_MAX_TARGETS UINT16_MAX
+#define CHUNK_MAX_TARGETS UINT8_MAX
 #define CCD_STEPS_TO_PERC(T) (1.0 / T)
 #define NUM_SIGN(N) (N/abs(N))
 #define FUZZYG(F, S, T) (F >= S - T)
 #define FUZZYL(F, S, T) (F <= S + T)
 #define FUZZY(F, S, T) (FUZZYG(F,S,T) && FUZZYL(F,S,T))
-#define PHYS_CHUNK_SIZE V2D(1024, 8192)
+
+#define PHYS_CHUNK_TIER0_SIZE V2D(512, 512)
+#define PHYS_CHUNK_TIER1_SIZE V2D(4096, 4096)
+#define PHYS_CHUNK_TIER2_SIZE V2D(8192, 8192)
+#define PHYS_CHUNK_TIER3_SIZE V2D(65535, 65535)
+#define PHYS_CHUNK_TIER4_SIZE V2D(67107840, 67107840)
 
     // A class used for physics that describes dynamic/static rectangles and slopes,
     // Might probably need to be divided to reduce memory consumption.
-    class CollisionShape : public ax::Ref {
+    class CollisionShape {
     public:
         CollisionShape() {}
         CollisionShape(F32 _x, F32 _y, F32 _w, F32 _h) : x(_x), y(_y), w(_w), h(_h) {}
@@ -40,6 +45,9 @@ namespace ReboundPhysics
         bool isMovable = false;
         bool hasObjectCollidedChunk = false;
 
+        U8 chunkTier = -1;
+        V2DH currentChunk;
+
         ax::Color4F debugColor = ax::Color4F::WHITE;
     };
 
@@ -54,7 +62,7 @@ namespace ReboundPhysics
         V2D lerp_vel = V2D::ZERO;
         F32 internalAngle = 0.0f;
         F32 internalAngleLerp = 0.0f;
-        bool isMovableLerpApplied = false;
+        V2D relativeMovableForce = V2D::ZERO;
         CollisionShape* movableGround = nullptr;
         V2D movableGroundPos = V2D::ZERO;
         V2D movableGroundMtv = V2D::ZERO;
@@ -63,10 +71,11 @@ namespace ReboundPhysics
         bool isSlopeGroundSteep = false;
         F32 hSpeed = 0.0f;
         bool isMtvXApplied = false;
+        float steepSlopeVelX = 0;
     };
 
-    typedef ax::Vector<CollisionShape*> CollisionVectorRef;
-    typedef ax::Vector<DynamicCollisionShape*> DynamicCollisionVectorRef;
+    typedef std::vector<CollisionShape*> CollisionVectorRef;
+    typedef std::vector<DynamicCollisionShape*> DynamicCollisionVectorRef;
     typedef MemPoolVector<CollisionShape*> CollisionMemPoolVector;
     typedef std::unordered_map<V2DH, CollisionMemPoolVector> CollisionChunkMap;
 
@@ -80,9 +89,13 @@ namespace ReboundPhysics
         bool isSlope = false;
         bool isSlopeOutsideH = false;
         bool isSlopeOutsideV = false;
+        bool isSlopeGroundSteep = false;
         F32 slopeAngle = 0.0f;
         F32 verticalMTV = 0.0f;
     };
+
+    void setChunkTier(CollisionShape* shape);
+    V2D getChunkTierSize(U8 tier);
 
     CollisionShape* createRect(V2D pos, V2D size);
 
@@ -110,7 +123,7 @@ namespace ReboundPhysics
 
     bool getCollisionTriangleIntersect(const CollisionShape& r, const CollisionShape& t);
 
-    ResolveResult resolveCollisionRect(DynamicCollisionShape& _, CollisionShape& __, const V2D& mtv, bool ignoreVL);
+    ResolveResult resolveCollisionRect(DynamicCollisionShape& _, CollisionShape& __, F32 delta, const V2D& mtv, bool ignoreVL);
 
     CollisionShape getTriangleEnvelop(const CollisionShape& triangle);
 
@@ -121,12 +134,12 @@ namespace ReboundPhysics
     // OBSOLETE
     I32 getCCDPrecessionSteps(F32 velocityMagnitude);
 
-    void stepDynamic(DynamicCollisionShape& s, F32 delta, F32 fraction);
+    void stepDynamic(DynamicCollisionShape& s, F32 fraction);
 
     void setBodyPosition(CollisionShape& s, V2D newPos, bool sweep);
 
     // static pre-allocated arrays are used for performance
-    I32 chunkGetCoverArea(V2DH* array, CollisionShape s);
+    I32 chunkGetCoverArea(V2DH* array, CollisionShape s, bool oneChunk);
 
     class PhysicsWorld : public ax::Node {
     private:
@@ -150,14 +163,16 @@ namespace ReboundPhysics
             delete[] _coveredChunksBuffers;
         }
 
-        F64 lastPhysicsDt = 0;
-        F64 currentPhysicsDt = 0;
-        void move(F64 delta);
+        void move(F64 subdt);
         void step(F64 delta);
 
         ax::DrawNode* _physicsDebugNode;
 
     public:
+        F64 lastPhysicsDt = 0;
+        F64 currentPhysicsDt = 0;
+        F64 stepElapsedDelta = 0;
+
         // ---------- HEAP ----------
         U32 _moveTargetCount = 0;
         CollisionShape** _moveTargets;
@@ -175,11 +190,29 @@ namespace ReboundPhysics
         CollisionShape* ground;
 
         CollisionVectorRef _staticShapes;
-        CollisionChunkMap _staticShapeChunks;
+
         DynamicCollisionVectorRef _dynamicShapes;
         std::map<void*, std::map<void*, uint32_t>> chunks;
 
         void partition();
+
+        CollisionShape envelope;
+
+        CollisionChunkMap _staticShapeChunksTier0;
+        CollisionChunkMap _staticShapeChunksTier1;
+        CollisionChunkMap _staticShapeChunksTier2;
+        CollisionChunkMap _staticShapeChunksTier3;
+        CollisionChunkMap _staticShapeChunksTier4;
+        CollisionChunkMap& getChunkTierMap(U8 tier);
+         
+        struct ExtraDrawData
+        {
+            ax::Vec2 orig;
+            ax::Vec2 dest;
+            ax::Color4B col;
+        };
+
+        std::vector<ExtraDrawData> _extraDraw;
 
         static PhysicsWorld* create();
         void update(F32 delta) override;
