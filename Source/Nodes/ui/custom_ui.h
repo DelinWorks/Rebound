@@ -154,10 +154,18 @@ namespace CUI
         virtual void onEnable();
         virtual void onDisable();
 
-        void setDynamic() { _isDynamic = true; }
-        void setStatic() { _isDynamic = false; }
+        void setDynamic() { _isDynamicX = _isDynamicY = true; }
+        void setStatic() { _isDynamicX = _isDynamicY = false; }
 
-        bool isContainerDynamic() { return _isDynamic; };
+        void setDynamicX() { _isDynamicX = true; }
+        void setStaticX() { _isDynamicX = false; }
+        
+        void setDynamicY() { _isDynamicY = true; }
+        void setStaticY() { _isDynamicY = false; }
+
+        bool isDynamic() { return _isDynamicX && _isDynamicY; };
+        bool isDynamicX() { return _isDynamicX; };
+        bool isDynamicY() { return _isDynamicY; };
 
         void setAsContainer() { _isContainer = true; }
         void setContainerFlow() { _containerFlow = true; }
@@ -224,7 +232,8 @@ namespace CUI
         ax::Vec2 _anchorPoint;
         ax::Vec2 _padding = Vec2::ZERO;
         bool _isContainer = false;
-        bool _isDynamic = false;
+        bool _isDynamicX = false;
+        bool _isDynamicY = false;
         bool _containerFlow = false;
         std::set<GUI*> _focusedElements;
 

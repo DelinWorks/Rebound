@@ -486,34 +486,38 @@ void CUI::Container::calculateContentBoundaries()
     auto ns = _rescalingAllowed ? GameUtils::getNodeIgnoreDesignScale() : V2D::ONE;
 
     V2D highestSize = V2D::ZERO;
-    V2D dominantSize = V2D::ZERO;
+
+    float prevX = INVALID_LOCATION.x;
+    float prevY = INVALID_LOCATION.y;
 
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        if (!isContainerDynamic()) continue;
+        //if (!isContainerDynamic()) continue;
+        float eqX = abs(_->getPositionX());
+        float eqY = abs(_->getPositionY());
         auto size = _->getScaledContentSize();
-        float eq = abs(_->getPositionX());
-        if (eq > highestX) {
-            highestX = eq;
+
+        if (eqX > highestX) {
+            highestX = eqX;
             highestSize.x = size.x * ns.x;
         }
 
-        eq = abs(_->getPositionY());
-        if (eq > highestY) {
-            highestY = eq;
+        if (eqY > highestY) {
+            highestY = eqY;
             highestSize.y = size.y * ns.y;
         }
 
-        if (size.x > dominantSize.x) {
-            highestSize.x = size.x * ns.x;
-            dominantSize.x = size.x;
-        }
+        if (prevX == eqX || !_isTightBoundaries)
+            if (size.x * ns.y > highestSize.x)
+                highestSize.x = size.x * ns.x;
 
-        if (size.y > dominantSize.y) {
-            highestSize.y = size.y * ns.y;
-            dominantSize.y = size.y;
-        }
+        if (prevY == eqY || !_isTightBoundaries)
+            if (size.y * ns.y > highestSize.y)
+                highestSize.y = size.y * ns.y;
+
+        prevX = eqX;
+        prevY = eqY;
     }
 
     auto scaledMargin = V2D(
@@ -521,9 +525,8 @@ void CUI::Container::calculateContentBoundaries()
         _margin.y * 2 * ns.y
     );
 
-    if (isContainerDynamic())
-        setContentSize((V2D(abs(highestX * 2 + highestSize.x + scaledMargin.x),
-                             abs(highestY * 2 + highestSize.y + scaledMargin.y))), false);
+    setContentSize((V2D(isDynamicX() ? abs(highestX * 2 + highestSize.x + scaledMargin.x) : getContentSize().x,
+        isDynamicY() ? abs(highestY * 2 + highestSize.y + scaledMargin.y) : getContentSize().y)), false);
 
     Container::recalculateChildDimensions();
 
@@ -632,13 +635,12 @@ void CUI::DependencyConstraint::build(CUI::GUI* element)
 }
 
 void CUI::ContentSizeConstraint::build(CUI::GUI* element) {
-    if (element->isContainerDynamic()) return;
     V2D s = parent->getContentSize() + offset;
     auto ns = V2D::ONE;
-    if (scale && element->_rescalingAllowed)
+    if (scaled && element->_rescalingAllowed)
         ns = GameUtils::getNodeIgnoreDesignScale();
-    s.x = lockX ? element->getPrefferedContentSize().x : s.x * ns.x;
-    s.y = lockY ? element->getPrefferedContentSize().y : s.y * ns.y;
+    if (!element->isDynamicX()) s.x = lockX ? element->getPrefferedContentSize().x : MAX(minSize.x * Rebound::getInstance()->gameWindow.guiScale, s.x) * ns.x;
+    if (!element->isDynamicY()) s.y = lockY ? element->getPrefferedContentSize().y : MAX(minSize.y * Rebound::getInstance()->gameWindow.guiScale, s.y) * ns.y;
     element->setContentSize(s);
 }
 

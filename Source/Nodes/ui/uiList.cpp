@@ -338,8 +338,9 @@ void CUI::List::mouseScroll(EventMouse* event)
     avg /= count;
     ePos = ePos + V2D(0, avg * (event->getScrollY() < 0 ? -1 : 1));
     ePos.y = Math::clamp(ePos.y, getContentSize().y / 2, elementCont->getContentSize().y / 2 - getContentSize().y / 2);
+    elementCont->getActionManager()->update(0.1);
     elementCont->stopAllActions();
-    elementCont->runAction(EaseCubicActionOut::create(MoveTo::create(0.4, ePos)));
+    elementCont->runAction(EaseCubicActionOut::create(MoveBy::create(0.4, ePos - elementCont->getPosition())));
     elemContPos = INVALID_LOCATION;
     update(0);
 }

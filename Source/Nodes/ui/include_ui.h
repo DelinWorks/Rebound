@@ -10,6 +10,7 @@
 #include "uiToggle.h"
 #include "uiModal.h"
 #include "uiDiscardPanel.h"
+#include "uiEmptyPanel.h"
 #include "uiImageView.h"
 #include "uiHSVWheel.h"
 #include "uiToolTip.h"

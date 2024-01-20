@@ -99,13 +99,14 @@ namespace CUI
 
     class ContentSizeConstraint {
     public:
-        ContentSizeConstraint(GUI* _parent = nullptr, V2D _offset = V2D::ZERO, bool _scale = false, bool _lockX = false, bool _lockY = false)
-            : parent(_parent), offset(_offset), scale(_scale), lockX(_lockX), lockY(_lockY) { }
+        ContentSizeConstraint(GUI* _parent = nullptr, const V2D& _offset = V2D::ZERO, bool _scaled = false, bool _lockX = false, bool _lockY = false, const V2D& _minSize = V2D::ZERO)
+            : parent(_parent), offset(_offset), scaled(_scaled), lockX(_lockX), lockY(_lockY), minSize(_minSize) { }
         GUI* parent;
         V2D offset;
-        bool scale;
+        bool scaled;
         bool lockX;
         bool lockY;
+        V2D minSize;
 
         void build(CUI::GUI* element);
     };
@@ -179,6 +180,8 @@ namespace CUI
         void setMargin(const V2D& margin) { _margin = margin; }
         const V2D& getMargin() { return _margin; }
 
+        void setTightBoundaries(bool isTight) { _isTightBoundaries = isTight; }
+
         void onEnable();
         void onDisable();
 
@@ -211,6 +214,7 @@ namespace CUI
         bool _isBlocking = false;
         bool _isDismissible = false;
         bool _isMinimized = true;
+        bool _isTightBoundaries = true;
         V2D _margin;
         Layout _layout;
         Constraint _constraint;

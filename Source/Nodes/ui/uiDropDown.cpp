@@ -20,6 +20,7 @@ void CUI::DropDown::init(std::vector<std::wstring>& _items, Size _contentsize)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     scheduleUpdate();
     cont = CUI::Container::create();
+    cont->setTightBoundaries(false);
     cont->DenyRescaling();
     cont->setCascadeOpacityEnabled(true);
     auto fl = FlowLayout();

@@ -20,6 +20,7 @@ void CUI::Toggle::init(std::wstring _text, S2D _contentsize)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     scheduleUpdate();
     cont = CUI::Container::create();
+    cont->setTightBoundaries(true);
     cont->DenyRescaling();
     auto fl = FlowLayout();
     fl.spacing = Math::getOdd(20);
@@ -46,9 +47,9 @@ void CUI::Toggle::update(F32 dt)
     auto dSize = (getDynamicContentSize() + _padding) * _UiScale;
     auto ns = FULL_HD_NODE_SCALING;
     //dSize = dSize / (_rescalingAllowed ? ns : 1.0 / ns);
-    if (setContentSize(dSize * Vec2(ns.x * 0.75, ns.y) + Vec2(35, 10))) {
+    if (setContentSize(dSize * Vec2(ns.x * 1.25, ns.y) + Vec2(35, 18))) {
         cont->updateLayoutManagers();
-        button->setContentSize(dSize * ns * 0.75 + Vec2(35, 10));
+        button->setContentSize(dSize * ns * 1.25 + Vec2(35, 18));
         HoverEffectGUI::update(dt, dSize * ns);
     }
 }

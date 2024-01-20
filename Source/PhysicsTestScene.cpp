@@ -262,6 +262,9 @@ void ReboundPhysicsTest::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         player->x = 10000000 / -2;
         player->y = -50000000 + 256;
     }
+
+    if (code == EventKeyboard::KeyCode::KEY_W)
+        gravDir = abs(gravDir);
 }
 
 void ReboundPhysicsTest::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
@@ -282,6 +285,9 @@ void ReboundPhysicsTest::onKeyReleased(EventKeyboard::KeyCode code, Event* event
         for (auto& _ : _pw->_dynamicShapes)
             _->pref_vel.x = 0;
     }
+
+    if (code == EventKeyboard::KeyCode::KEY_W)
+        gravDir = -abs(gravDir);
 }
 
 void ReboundPhysicsTest::update(float delta)
@@ -289,6 +295,8 @@ void ReboundPhysicsTest::update(float delta)
     _pw->_moveTargetCount = 0;
 
     //delta *= isPaused ? 10 : 1;
+
+    _pw->_dynamicShapes[0]->gravity = gravDir * 500;
 
     for (int i = 0; i < _pw->movingPlat.size(); i++)
         setShapePosition(_pw, *_pw->movingPlat[i], V2D(_pw->movingPlat[i]->x + delta * (isPaused ? 4010 : 512), _pw->movingPlat[i]->y) /*V2D(500 + 1000 * sin(_pw->lastPhysicsDt * 1), 0 + 100 * cos(_pw->lastPhysicsDt * 2))*/);

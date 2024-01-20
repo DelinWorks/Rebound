@@ -253,15 +253,68 @@ void MapEditor::buildEntireUi()
 
     topRightContainer->addChild(cont2);
 
+    auto tilesetContainer = CUI::Container::create();
+    tilesetContainer->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
+    tilesetContainer->setBorderLayoutAnchor(BorderLayout::BOTTOM_RIGHT);
+    tilesetContainer->setBackgroundSpriteCramped({ 0, 0 });
+    tilesetContainer->setBackgroundBlocking();
+    tilesetContainer->setElementBlocking();
+    tilesetContainer->setMargin({ 6, 6 });
+    tilesetContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 20));
+    container->addChild(tilesetContainer);
+
+    auto tilesetListButton = CUI::Button::create();
+    tilesetListButton->init(L"World سلام", TTFFS, { 394, 0});
+    tilesetContainer->addChild(tilesetListButton);
+    tilesetListButton->_callback = [=](CUI::Button*)
+        {
+            auto panel = EmptyPanel::create();
+            panel->init(L"Menu Test 123");
+            container->pushModal(panel);
+        };
+
     _tilesetPicker = CUI::ImageView::create({ 400, 400 }, ADD_IMAGE("maps/level1/textures/atlas_002.png"));
     _tilesetPicker->enableGridSelection(map->_tileSize);
-    auto c = TO_CONTAINER(_tilesetPicker);
-    c->setBorderLayout(BorderLayout::BOTTOM_RIGHT, BorderContext::PARENT);
-    c->setBorderLayoutAnchor(BorderLayout::BOTTOM_RIGHT);
-    c->setBackgroundSpriteCramped(V2D::ZERO);
-    c->setBackgroundBlocking();
-    c->setMargin({ 3, 3 });
-    container->addChild(c);
+    tilesetContainer->addChild(_tilesetPicker);
+
+    //cont2 = CUI::Container::create();
+    //cont2->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 25, 0, false));
+
+    //btnt2 = CUI::Button::create();
+    //btnt2->disableArtMul();
+    //btnt2->setUiPadding(V2D(10, 0));
+    //btnt2->initIcon("editor_new_layer");
+    //btnt2->hoverTooltip = L"Creates a new empty layer with a name. The layer can be used for both Tilemaps & Objects.\nThe position at which the layer is in determines rendering order, Top will render front.\nYou can modify whether a layer is visible or interactable or both.\nYou can access advanced options for a specific layer using the wrench icon.";
+    //cont2->addChild(btnt2);
+
+    //btnt2 = CUI::Button::create();
+    //btnt2->disableArtMul();
+    //btnt2->initIcon("editor_arrow_up_2");
+    //btnt2->hoverTooltip = L"Creates a new empty layer with a name. The layer can be used for both Tilemaps & Objects.\nThe position at which the layer is in determines rendering order, Top will render front.\nYou can modify whether a layer is visible or interactable or both.\nYou can access advanced options for a specific layer using the wrench icon.";
+    //cont2->addChild(btnt2);
+
+    //btnt2 = CUI::Button::create();
+    //btnt2->disableArtMul();
+    //btnt2->initIcon("editor_arrow_down_2");
+    //btnt2->hoverTooltip = L"Creates a new empty layer with a name. The layer can be used for both Tilemaps & Objects.\nThe position at which the layer is in determines rendering order, Top will render front.\nYou can modify whether a layer is visible or interactable or both.\nYou can access advanced options for a specific layer using the wrench icon.";
+    //cont2->addChild(btnt2);
+
+    //btnt2 = CUI::Button::create();
+    //btnt2->disableArtMul();
+    //btnt2->setUiPadding(V2D(10, 0));
+    //btnt2->initIcon("editor_rename");
+    //btnt2->hoverTooltip = L"Creates a new empty layer with a name. The layer can be used for both Tilemaps & Objects.\nThe position at which the layer is in determines rendering order, Top will render front.\nYou can modify whether a layer is visible or interactable or both.\nYou can access advanced options for a specific layer using the wrench icon.";
+    //cont2->addChild(btnt2);
+
+    //btnt2 = CUI::Button::create();
+    //btnt2->disableArtMul();
+    //btnt2->setUiPadding(V2D(10, 0));
+    //btnt2->initIcon("editor_trashbin");
+    //btnt2->hoverTooltip = L"Creates a new empty layer with a name. The layer can be used for both Tilemaps & Objects.\nThe position at which the layer is in determines rendering order, Top will render front.\nYou can modify whether a layer is visible or interactable or both.\nYou can access advanced options for a specific layer using the wrench icon.";
+    //cont2->addChild(btnt2);
+
+    //tilesetContainer->addChild(cont2);
+
 
     auto topLeftContainer = CUI::Container::create();
     topLeftContainer->setBorderLayout(BorderLayout::TOP_LEFT, BorderContext::PARENT);
@@ -598,9 +651,9 @@ void MapEditor::buildEntireUi()
     CONTAINER_MAKE_MINIMIZABLE(topLeftContainer);
 
     auto vis = Director::getInstance()->getVisibleSize();
-    ext2Container->setBorderLayoutAnchor(LEFT);
-    ext2Container->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
-        RIGHT, { -0, 1 }, false, V2D(-0.25, 0)));
+    ext2Container->setBorderLayoutAnchor(TOP_LEFT);
+    ext2Container->setConstraint(CUI::DependencyConstraint(topLeftContainer,
+        TOP_RIGHT, { -0, 0 }, false));
     ext2Container->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0));
     ext2Container->setBackgroundSpriteCramped(V2D::ZERO, { -1, -1 });
     ext2Container->setTag(GUI_ELEMENT_EXCLUDE);
@@ -617,7 +670,7 @@ void MapEditor::buildEntireUi()
     auto items = std::vector<std::wstring>{ L"Object Mode (UNIMPLEMENTED)",L"TileMap Mode" };
     modeDropdown->init(items);
     modeDropdown->_callback = [=](DropDown* target) {
-        target->showMenu(ext2Container, LEFT, TOP_LEFT, V2D(-0.55, 0.25));
+        target->showMenu(ext2Container, LEFT, TOP_LEFT, V2D(-0.55, 0.5));
     };
     rowContainer->addChild(modeDropdown);
 
@@ -716,8 +769,8 @@ void MapEditor::buildEntireUi()
     extContainer->addChild(rowContainer);
 
     editContainer->addChild(extContainer);
-    editContainer->addChild(ext2Container);
 
+    topLeftContainer->addChild(ext2Container);
     topLeftContainer->addChild(editContainer);
 
     auto cameraScaleContainer = CUI::Container::create();

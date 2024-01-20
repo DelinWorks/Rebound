@@ -15,7 +15,7 @@ CUI::ImageView* CUI::ImageView::create(Size _contentsize, ax::Texture2D* texture
 }
 
 bool CUI::ImageView::init(Size _contentsize, ax::Texture2D* texture, bool rescalingAllowed) {
-    if (rescalingAllowed)
+    if (_rescalingAllowed = rescalingAllowed)
         addComponent((new UiRescaleComponent(Director::getInstance()->getVisibleSize()))->enableDesignScaleIgnoring());
     button = createPlaceholderButton();
     auxButton = createPlaceholderButton();
@@ -140,6 +140,11 @@ void CUI::ImageView::onEnable()
 
 void CUI::ImageView::onDisable()
 {
+}
+
+V2D CUI::ImageView::getScaledContentSize()
+{
+    return _contentSize / (_rescalingAllowed ? V2D::ONE : GameUtils::getNodeIgnoreDesignScale());
 }
 
 CUI::ImageView::~ImageView()

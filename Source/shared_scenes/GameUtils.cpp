@@ -149,7 +149,7 @@ void GameUtils::addSpriteFramesFromJson(const std::string_view texture_path, con
 
     const rapidjson::Value& meta = d["meta"];
 
-    if (meta.IsObject() && meta.FindMember("alias")->value.GetBool())
+    if (meta.IsObject() && !meta.FindMember("filter")->value.GetBool())
         tex->setAliasTexParameters();
 
     const rapidjson::Value& frames = d["frames"];

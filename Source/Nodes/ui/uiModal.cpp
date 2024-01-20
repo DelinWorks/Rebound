@@ -12,9 +12,8 @@ void CUI::Modal::pushSelf()
 
 void CUI::Modal::popSelf()
 {
-	if (_modalStack.size() > 0)
-		if (_modalStack.top() == this)
-			_modalStack.pop();
+	if (_modalStack.size() > 0 && _modalStack.top() == this)
+		_modalStack.pop();
 }
 
 CUI::Modal::~Modal()

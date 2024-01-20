@@ -575,9 +575,9 @@ void MapEditor::update(F32 dt)
     if (!isInitDone)
         return;
 
-    _camera->setZoom(LERP(_camera->getScale(), cameraScale / map->_contentScale, 15 * dt));
-    cameraLocation->setPosition(LERP(cameraLocation->getPositionX(), cameraPos.x, 15 * dt),
-        LERP(cameraLocation->getPositionY(), cameraPos.y, 15 * dt));
+    _camera->setZoom(LERP(_camera->getScale(), cameraScale / map->_contentScale, MIN(1, 15 * dt)));
+    cameraLocation->setPosition(LERP(cameraLocation->getPositionX(), cameraPos.x, MIN(1, 15 * dt)),
+        LERP(cameraLocation->getPositionY(), cameraPos.y, MIN(1, 15 * dt)));
 
     updateDirectorToStatsCount(map->_tileCount, 0);
     if (getContainer()) {

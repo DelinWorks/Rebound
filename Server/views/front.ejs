@@ -3,7 +3,6 @@
     <title>Rebound</title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <link rel="stylesheet" href="front.css"></script>
@@ -53,17 +52,10 @@
         </form>
         <% } else if (pageIndex == 1) { %>
             <script>
-                async function customPostRequest(captcha_token) {
-                    let token = document.querySelector('#g-recaptcha-response');
-                    if (token !== undefined)
-                    {
-                        token = token.value;
-                        return await sendPostRequest('create_account',
-                        { 
-                            captcha_token: token,
-                            username: document.getElementById("username-input").value,
-                            email: document.getElementById("email-input").value,
-                        });
+                function getRequestForm() {
+                    return {
+                        username: document.getElementById("username-input").value,
+                        email: document.getElementById("email-input").value
                     }
                 }
             </script>
@@ -83,7 +75,6 @@
                 <div id="response-container"></div>
 
                 <center><div class="g-recaptcha" data-sitekey="6LcHducoAAAAALhZdH-Iihg3L8rxO-TJQc70zFcl"></div><br></center>
-                <!-- https://techblogs.42gears.com/verify-google-recaptcha-with-node-js/ -->
 
                 <center><a class="btn pix" href="#" id="submit_element">Create Account</a></center>
             </form>
@@ -188,25 +179,40 @@
                     </a>
                 </center>
             </form>
+        <% } else if (pageIndex == 7) { %>
+            
+            <span class="pix">> <span class="rainbow-text">Account Created!</span> Now, you'll need to verify that account.</span><br>
+            <span class="pix">> An <span style="color: blue;">email</span> containing a <span style="color: green;">link</span> for activation has been sent to you!</span><br>
+            <span class="pix">> Verify your account and setup a password and come back in here to login.</span><br>
+            <span class="pix">> You'll need to be logged in from this browser to access your account in-game.</span><br>
+        <% if (email_resent == "") { %>
+            <br><span class="pix" style="color: red;">> You did a second request and an email has been sent to you again.</span>
+            <br><span class="pix">> Your username is still the same as before, <span style="color: blue;"><%= username %></span> is the one you reserved.</span><br>
+        <% } %>
+            <br>
+            <form>
+                <center>
+                    <a class="btn pix" style="width: 830px" href="/">
+                        Go to Login Page
+                    </a>
+                </center>
+            </form>
         <% } %>
         <script>
+            async function customPostRequest(form) {
+                let token = document.querySelector('#g-recaptcha-response');
+                if (token !== undefined)
+                {
+                    token = token.value;
+                    return await sendPostRequest('create_account',
+                    { 
+                        response_key: token, form
+                    });
+                }
+            }
+
             window.onload = function()
             {
-                    // var cont = document.getElementById('captcha-container');
-                    // if (cont !== null)
-                    // {
-                    //     // cont.innerHTML =
-                    //     //     `<center>
-                    //     //         <svg id="captcha-svg" style="margin-left: 5px; margin-right: 20px;" width="100" height="30"><image xlink:href="/captcha" width="100" height="40"/></svg>
-                    //     //         <div class="pix user-box inline">
-                    //     //             <input id="captcha-input" class="pix" type="text" name="" required="" maxlength="5" size="5" oninput="convertToUppercase(this)">
-                    //     //             <label>Verify</label>
-                    //     //         </div>
-                    //     //     </center>`
-
-                    //     cont.innerHTML = ''
-                    // }
-
                     var cont = document.getElementById('response-container');
                     if (cont !== null)
                     {
@@ -225,14 +231,18 @@
                             var inputElement = document.getElementById("captcha-input");
                             var inputValue = 0;
 
-                            const res = await customPostRequest(inputValue);
+                            console.log(getRequestForm())
+
+                            const res = await customPostRequest(getRequestForm());
                             console.log(res);
-                            document.getElementById('response-span').innerHTML = res.data.summary + ": " + res.data.result
 
                             if (res.status == 201)
-                                window.location.href = "/";
+                            {
+                                window.location.href = "/account_created" + (res.data.result == "email_resent" ? ("?email_resent&u=" + res.data.seat) : "");
+                            }
                             else
                             {
+                                document.getElementById('response-span').innerHTML = res.data.summary + ": " + res.data.result
                                 // var svg = document.getElementById("captcha-svg");
                                 // var image = svg.querySelector('image');
                                 // var timestamp = new Date().getTime();

@@ -46,5 +46,7 @@ namespace CUI
         void onEnable() override;
 
         void onDisable() override;
+
+        V2D getScaledContentSize() override;
     };
 }

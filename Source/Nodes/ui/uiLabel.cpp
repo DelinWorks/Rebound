@@ -108,7 +108,7 @@ void CUI::Label::onFontScaleUpdate(float scale)
     //if (hasOutline || _ForceOutline)
     //    field->enableOutline(Color4B::BLACK, _PmtFontOutline * scale);
     //field->getFontAtlas()->setAliasTexParameters();
-    field->setBMFontSize(UINT16_MAX * _BMFontScale);
+    field->setBMFontSize(UINT16_MAX * _BMFontScale * (desc.fontSize / TTFFS));
     field->setColor(color);
     field->updateContent();
 }

@@ -66,5 +66,7 @@ public:
 
     ax::Sprite* test123;
 
+    F32 gravDir = 9.8;
+
     ReboundPhysics::CollisionShape* fastShape;
 };
