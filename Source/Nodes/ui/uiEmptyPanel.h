@@ -34,6 +34,9 @@ namespace CUI
 
         ButtonCallback discardCallback;
 
+        CUI::Container* cont;
+        CUI::Container* getContainer() { return cont; };
+
         CUI::Container* stack;
     };
 }

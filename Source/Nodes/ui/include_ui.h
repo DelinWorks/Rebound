@@ -106,6 +106,35 @@ namespace CUI {
             return cont;
         }
 
+        static CUI::Container* createTilesetWidget(std::wstring layer_name, CUI::ButtonCallback callback) {
+            auto main = CUI::Container::create();
+            main->DenyRescaling();
+            main->setStatic();
+            auto elem = CUI::Button::create();
+            elem->DenyRescaling();
+            elem->init(layer_name, TTFFS, { 260, 0 });
+            elem->setTag(kLayerNameButton);
+            elem->_callback = callback;
+            main->setContentSize(V2D(0, elem->preCalculatedHeight()), false);
+            main->setTag(kLayerMainContainer);
+            V2D hpadding = V2D(2, 0);
+            auto left = TO_CONTAINER(elem);
+            left->DenyRescaling();
+            left->setConstraint(CUI::DependencyConstraint(main, LEFT));
+            left->setBorderLayoutAnchor(LEFT);
+            auto right = CUI::Container::create();
+            right->DenyRescaling();
+            right->setLayout(CUI::FlowLayout(CUI::SORT_HORIZONTAL, CUI::STACK_LEFT, 0, 0, false));
+            right->setConstraint(CUI::DependencyConstraint(main, RIGHT));
+            main->setMargin({ 0, 10 });
+            main->addChild(left);
+            main->addChild(right);
+            left->disableRebuildOnEnter();
+            right->disableRebuildOnEnter();
+            main->disableRebuildOnEnter();
+            return main;
+        }
+
         static CUI::Container* createLayerWidget(std::wstring layer_name, CUI::ButtonCallback callback) {
             auto main = CUI::Container::create();
             main->DenyRescaling();

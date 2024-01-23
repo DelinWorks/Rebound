@@ -264,12 +264,57 @@ void MapEditor::buildEntireUi()
     container->addChild(tilesetContainer);
 
     auto tilesetListButton = CUI::Button::create();
-    tilesetListButton->init(L"World سلام", TTFFS, { 394, 0});
+    tilesetListButton->init(L"Select Tileset", TTFFS, { 394, 0});
     tilesetContainer->addChild(tilesetListButton);
     tilesetListButton->_callback = [=](CUI::Button*)
         {
             auto panel = EmptyPanel::create();
-            panel->init(L"Menu Test 123");
+            panel->init(L"Edit Tileset Panel");
+            auto cont = panel->getContainer();
+
+            auto horz = CUI::Container::create();
+            horz->setLayout(FlowLayout(SORT_HORIZONTAL, STACK_CENTER, 0, 0, false));
+
+            auto list = CUI::List::create({ 300, 300 }, false);
+            for (int i = 0; i < 100; i++)
+            {
+                list->addElement(CUI::Functions::createTilesetWidget(L"TestTestTestTestTestTest" + std::to_wstring(i), [](CUI::Button* target) {}));
+            }
+            auto cont2 = TO_CONTAINER(list);
+            cont2->setMargin(V2D(10, 10));
+            cont2->enableDesignScaleIgnoring(true);
+            cont2->setBackgroundSprite();
+            cont2->_contentSizeDebugColor = Color3B::GREEN;
+            cont2->setUnscaled(true);
+            horz->addChild(cont2);
+
+            auto cont3 = CUI::Container::create();
+            cont3->setBorderLayoutAnchor(BorderLayout::RIGHT);
+            cont3->setLayout(FlowLayout(SORT_VERTICAL, STACK_CENTER, 10));
+
+            auto addTilesetBtn = CUI::Button::create();
+            addTilesetBtn->init(L"Add Tileset", TTFFS);
+            addTilesetBtn->setAnchorPoint(V2D(-0.5, 0));
+            //addTilesetBtn->setAnchorPoint(V2D(1, 0));
+            cont3->addChild(addTilesetBtn);
+
+            auto setTilesetPropsBtn = CUI::Button::create();
+            setTilesetPropsBtn->init(L"Tileset Properties", TTFFS);
+            setTilesetPropsBtn->setAnchorPoint(V2D(-0.5, 0));
+            cont3->addChild(setTilesetPropsBtn);
+
+            auto sep = CUI::Separator::create(V2D{1, 30});
+            cont3->addChild(sep);
+
+            auto rmTilesetBtn = CUI::Button::create();
+            rmTilesetBtn->init(L"Remove Tileset", TTFFS);
+            rmTilesetBtn->setAnchorPoint(V2D(-0.5, 0));
+            rmTilesetBtn->enableIconHighlight(Color3B(255, 176, 188));
+            cont3->addChild(rmTilesetBtn);
+
+            horz->addChild(cont3);
+
+            cont->addChild(horz);
             container->pushModal(panel);
         };
 
@@ -677,8 +722,8 @@ void MapEditor::buildEntireUi()
     ext2Container->addChild(rowContainer);
 
     extContainer->setBorderLayoutAnchor(TOP_LEFT);
-    extContainer->setConstraint(CUI::DependencyConstraint(CUI::callbackAccess["edit_container"],
-        BOTTOM_LEFT, { -0, 0 }, false, V2D(-2, 0.25)));
+    extContainer->setConstraint(CUI::DependencyConstraint(topLeftContainer,
+        BOTTOM_LEFT, { 0, 0 }, false, V2D(0, 0)));
     extContainer->setLayout(CUI::FlowLayout(CUI::SORT_VERTICAL, CUI::STACK_CENTER, 0));
     extContainer->setBackgroundSpriteCramped(V2D::ZERO, { -1, -1 });
     extContainer->setTag(GUI_ELEMENT_EXCLUDE);
@@ -768,8 +813,7 @@ void MapEditor::buildEntireUi()
 
     extContainer->addChild(rowContainer);
 
-    editContainer->addChild(extContainer);
-
+    topLeftContainer->addChild(extContainer);
     topLeftContainer->addChild(ext2Container);
     topLeftContainer->addChild(editContainer);
 

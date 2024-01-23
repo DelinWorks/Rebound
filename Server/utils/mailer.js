@@ -11,7 +11,7 @@ class Mailer
             });
             
             const mailOptions = {
-            from: 'smtp@delingames.top',
+            from: '<Rebound> delingames.top',
             to: to,
             subject: subject,
             html: html,
@@ -24,12 +24,12 @@ class Mailer
             });
     }
 
-    static sendEmailActivation(email, uid, username, code, csrf)
+    static sendEmailActivation(email, uid, username, code)
     {
         Mailer.send(email, `Welcome To Rebound ${username}`,
         `<h2>Welcome To Rebound ${username} !</h2>
         <h3>Please Activate Your Account to get the most out of Rebound Game!<h3><br>
-        <h3>Here's Your Activation Link https://delingames.top/verify?uid=${uid}&usrnm=${username}&hash=${code}&csrf=${csrf}</h3><h4>You can set your password from there!</h4><br>
+        <h3>Here's Your Activation Link <a href="https://delingames.top/verify?uid=${uid}&usrnm=${username}&hash=${code}">https://delingames.top/verify</a></h3><h4>You can set your password from there!</h4><br>
         <h4>Much love ~ <3</h4>
         `);
     }

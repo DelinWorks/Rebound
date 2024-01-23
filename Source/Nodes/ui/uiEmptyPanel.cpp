@@ -83,6 +83,10 @@ void CUI::EmptyPanel::init(const std::wstring& header)
     stack->addChild(cc3);
     stack->addChild(cc4);
 
+    cont = CUI::Container::create();
+    //cont->_contentSizeDebugColor = Color3B::GREEN;
+    stack->addChild(cont);
+
     //cc1->setConstraint(ContentSizeConstraint(cc2, V2D::ZERO, false, false, false, V2D{180, 0}));
 
     cc3->setConstraint(DependencyConstraint(stack, BorderLayout::TOP_LEFT));

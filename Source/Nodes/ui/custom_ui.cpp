@@ -11,7 +11,7 @@ bool CUI::GUI::setContentSize(const V2D& size, bool recursive)
 #ifdef DRAW_NODE_DEBUG
 		_contentSizeDebug->clear();
 		if (_isContainer) {
-			_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::MAGENTA, 100));
+			_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(_contentSizeDebugColor, 100));
 			_contentSizeDebug->setGlobalZOrder(UINT16_MAX - 1);
 		} else {
 			_contentSizeDebug->drawRect(-getContentSize() / 2, getContentSize() / 2, Color4B(Color3B::ORANGE, 100));

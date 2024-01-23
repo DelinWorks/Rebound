@@ -211,6 +211,8 @@ namespace CUI
 
         std::wstring hoverTooltip;
 
+        Color3B _contentSizeDebugColor = Color3B::MAGENTA;
+
     protected:
         bool _UiScaleMul = true;
         bool _rebuildOnEnter = true;

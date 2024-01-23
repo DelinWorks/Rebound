@@ -27,18 +27,6 @@ bool WelcomeScene::init()
     visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    listener = EventListenerKeyboard::create();
-    listener->onKeyPressed = CALL2(WelcomeScene::onKeyPressed);
-    listener->onKeyReleased = CALL2(WelcomeScene::onKeyReleased);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-
-    _mouseListener = EventListenerMouse::create();
-    _mouseListener->onMouseMove = CALL1(WelcomeScene::onMouseMove);
-    _mouseListener->onMouseUp = CALL1(WelcomeScene::onMouseUp);
-    _mouseListener->onMouseDown = CALL1(WelcomeScene::onMouseDown);
-    _mouseListener->onMouseScroll = CALL1(WelcomeScene::onMouseScroll);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
-
     auto textureCompanyLogo = Director::getInstance()->getTextureCache()->addImage("c4417b4b-a526-466e-ae41-5c75a1cc0f02.png");
     if (textureCompanyLogo) textureCompanyLogo->setAliasTexParameters();
 
@@ -64,6 +52,8 @@ bool WelcomeScene::init()
     cnnode->addComponent((new UiRescaleComponent(visibleSize))
         ->setVisibleSizeHints());
 
+    SCENE_BUILD_UI;
+
     return true;
 }
 
@@ -81,12 +71,9 @@ void WelcomeScene::update(F32 dt)
 
     REBUILD_UI;
 
-    if (animTime > _maxTime && cnOpacity <= 0)
+    if (animTime > _maxTime && cnOpacity <= 0 || true)
     {
-        //GameUtils::addSpriteFramesFromJson("player/player_atlas.png", "player/player_atlas.json");
-        //GameUtils::addSpriteFramesFromJson("editor/editor_ui.png", "editor/editor_ui.json");
         GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
-        //GameUtils::addSpriteFramesFromJson("shared/shared_ui_shader_batch_1.png", "shared/shared_ui_shader_batch_1.json");
         auto scene = MapEditor::createScene();
         Director::getInstance()->pushScene(scene);
     }

@@ -17,12 +17,8 @@ void CUI::Container::setBorderLayout(BorderLayout border, BorderContext context,
     }
     rcomp = new UiRescaleComponent(Director::getInstance()->getVisibleSize());
     rcomp->setBorderLayout(_borderLayout = border);
-    if (designScaleIgnoring)
-    {
-        rcomp->enableDesignScaleIgnoring();
-        _ignoreDesignScale = true;
-    }
     addComponent(rcomp);
+    enableDesignScaleIgnoring(designScaleIgnoring);
 }
 
 CUI::Container* CUI::Container::create()
@@ -166,7 +162,7 @@ void CUI::Container::keyPress(EventKeyboard::KeyCode keyCode)
 V2D CUI::Container::getScaledContentSize()
 {
     auto ns = GameUtils::getNodeIgnoreDesignScale();
-    return getContentSize() / ns;
+    return getContentSize() / (_isContainerUnscaled ? V2D::ONE : ns);
 }
 
 void CUI::Container::keyRelease(EventKeyboard::KeyCode keyCode)
@@ -327,6 +323,24 @@ void CUI::Container::setBorderLayoutAnchor(BorderLayout border, V2D offset)
     }
 
     _onContainerLayoutUpdate(this);
+}
+
+void CUI::Container::enableDesignScaleIgnoring(bool designScaleIgnoring)
+{
+    auto rcomp = (UiRescaleComponent*)SELF getComponent("UiRescaleComponent");
+    bool isNew = false;
+    if (!rcomp)
+    {
+        rcomp = new UiRescaleComponent(Director::getInstance()->getVisibleSize());
+        isNew = true;
+    }
+    if (designScaleIgnoring)
+    {
+        rcomp->enableDesignScaleIgnoring();
+        _ignoreDesignScale = true;
+    }
+    if (isNew)
+        addComponent(rcomp);
 }
 
 void CUI::Container::setBackgroundSprite(V2D padding, BgSpriteType type)
@@ -493,7 +507,7 @@ void CUI::Container::calculateContentBoundaries()
     for (auto& n : list) {
         auto _ = DCAST(GUI, n);
         if (!_ || _->getTag() <= YOURE_NOT_WELCOME_HERE) continue;
-        //if (!isContainerDynamic()) continue;
+        if (!isDynamic()) continue;
         float eqX = abs(_->getPositionX());
         float eqY = abs(_->getPositionY());
         auto size = _->getScaledContentSize();

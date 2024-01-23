@@ -133,6 +133,7 @@ namespace CUI
 
         void setBorderLayoutAnchor(V2D offset = V2D::ONE);
         void setBorderLayoutAnchor(BorderLayout border, V2D offset = V2D::ONE);
+        void enableDesignScaleIgnoring(bool designScaleIgnoring);
 
         void setBackgroundSprite(V2D padding = {0, 0}, BgSpriteType type = BgSpriteType::BG_NORMAL);
         void setBackgroundSpriteCramped(V2D padding = { 0, 0 }, V2D scale = {1, 1});
@@ -181,6 +182,7 @@ namespace CUI
         const V2D& getMargin() { return _margin; }
 
         void setTightBoundaries(bool isTight) { _isTightBoundaries = isTight; }
+        void setUnscaled(bool unscaled) { _isContainerUnscaled = unscaled; }
 
         void onEnable();
         void onDisable();
@@ -200,9 +202,7 @@ namespace CUI
         std::vector<CUI::GUI*> _allButtons;
 
         std::function<void(Container*)> _onContainerLayoutUpdate = [](Container* self) {};
-
         std::function<void()> _onContainerDismiss = []() {};
-
         std::function<void(Container*)> _onContainerTabSelected = [](Container* self) {};
 
         UserData _userData;
@@ -215,6 +215,7 @@ namespace CUI
         bool _isDismissible = false;
         bool _isMinimized = true;
         bool _isTightBoundaries = true;
+        bool _isContainerUnscaled = false;
         V2D _margin;
         Layout _layout;
         Constraint _constraint;

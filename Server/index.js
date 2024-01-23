@@ -67,9 +67,6 @@ app.post('/create_account', async (req, res) =>
         let username = req.body.form.username;
         let email = req.body.form.email;
 
-        var csrf = CSRF.generateToken(req, CSRF.CSRF_ACCOUNT_VERIFICATION_SALT);
-        console.log(csrf);
-
         if (valid !== true)
         {
             res.status(406).send({ type: "input", summary:"error", result:"invalid captcha", seat:'' });
@@ -95,7 +92,7 @@ app.post('/create_account', async (req, res) =>
                 sql_result2 = result;
             });
 
-            Mailer.sendEmailActivation(email, uid, sql_result[0].username, sql_result2[0].code, csrf);
+            Mailer.sendEmailActivation(email, uid, sql_result[0].username, sql_result2[0].code);
 
             res.status(201).send({ type: "account_creation", summary:"success", result:"email_resent", seat:`${sql_result[0].username}` });
             return;
@@ -171,7 +168,7 @@ app.post('/create_account', async (req, res) =>
             return;
         }
 
-        Mailer.sendEmailActivation(email, uid, username, code, csrf);
+        Mailer.sendEmailActivation(email, uid, username, code);
 
         res.status(201).send({ type: "account_creation", summary:"success", result:"redirect", seat:'' });
     }, req, res);
@@ -206,9 +203,7 @@ app.get('/account_created', (req, res) => {
 })
 
 app.get('/verify', (req, res) => {
-    if (!CSRF.compareToken(req, req.query.csrf, CSRF.CSRF_ACCOUNT_VERIFICATION_SALT))
-        res.send("CSRF Invalid")
-    res.send("CSRF Valid");
+
 })
 
 app.listen(port, () => console.log(`worker ${cluster.worker.id} webapp: listening on port ${port}`))
