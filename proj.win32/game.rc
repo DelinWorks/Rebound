@@ -67,7 +67,7 @@ BEGIN
         BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "Dark Dimensions\0"
+            VALUE "FileDescription", "game Module\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "game\0"
             VALUE "LegalCopyright", "Copyright \0"
