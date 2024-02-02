@@ -1,0 +1,216 @@
+{
+  "meta": {
+    "version": "0.6.7"
+  },
+  "savePath": "",
+  "images": [
+    {
+      "name": "editor_add.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_add.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_add_text.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_add_text.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_bl.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_bl.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_br.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_br.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_down.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_down.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_left.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_left.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_right.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_right.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_tl.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_tl.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_tr.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_tr.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_arrow_up.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_arrow_up.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_bucket_fill.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_bucket_fill.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_file.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_file.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_flip_h.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_flip_h.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_flip_v.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_flip_v.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_import.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_import.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_invisible.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_invisible.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_lock.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_lock.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_move.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_move.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_place.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_place.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_random.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_random.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_rectangle_fill.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rectangle_fill.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_redo.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_redo.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_remove.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_remove.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_rotate_l.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rotate_l.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_rotate_r.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_rotate_r.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_select.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_select.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_settings.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_settings.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_sub.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_sub.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_trashbin.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_trashbin.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_undo.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_undo.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_unlock.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_unlock.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_visible.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_visible.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_zoom_aligned.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_zoom_aligned.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_zoomed_in.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_zoomed_in.png",
+      "folder": ""
+    },
+    {
+      "name": "editor_zoomed_out.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/editor_zoomed_out.png",
+      "folder": ""
+    },
+    {
+      "name": "new_layer.png",
+      "path": "C:/dev/Rebound/Content/editor/unready/new_layer.png",
+      "folder": ""
+    }
+  ],
+  "folders": [],
+  "packOptions": {
+    "textureName": "editor_ui",
+    "textureFormat": "png",
+    "removeFileExtension": true,
+    "prependFolderName": true,
+    "base64Export": false,
+    "tinify": false,
+    "tinifyKey": "",
+    "scale": 1,
+    "filter": "none",
+    "exporter": "JSON (array)",
+    "fileName": "pack-result",
+    "savePath": "",
+    "width": 2048,
+    "height": 2048,
+    "fixedSize": false,
+    "powerOfTwo": false,
+    "padding": 0,
+    "extrude": 1,
+    "allowRotation": false,
+    "allowTrim": false,
+    "trimMode": "trim",
+    "alphaThreshold": "0",
+    "detectIdentical": true,
+    "packer": "MaxRectsPacker",
+    "packerMethod": "Smart"
+  }
+}

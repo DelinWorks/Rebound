@@ -1,0 +1,183 @@
+
+@font-face {
+    font-family: "bitsy";
+    src: url("bitsy-font-with-arabic.ttf");
+}
+
+.pix {
+    font-family: "bitsy";
+    white-space: nowrap;
+}
+
+html {
+    height: 100%;
+  }
+  body {
+    margin:0;
+    padding:0;
+    font-family: sans-serif;
+    background: black;
+  }
+  
+  .general-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 40px;
+    transform: translate(-50%, -50%);
+    background: white;
+  }
+  
+  .general-box h1 {
+    margin: 0 0 50px;
+    padding: 0;
+    color: #000;
+    text-align: center;
+  }
+  
+  .general-box .user-box {
+    position: relative;
+  }
+  
+  .general-box .user-box input {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 20px;
+    color: #000;
+    margin-bottom: 30px;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    outline: none;
+    background: transparent;
+  }
+
+  @keyframes rainbow {
+    0% { color: red; }
+    28% { color: rgb(139, 90, 0); }
+    42% { color: green; }
+    56% { color: blue; }
+    70% { color: indigo; }
+    84% { color: violet; }
+    100% { color: red; }
+  }
+
+  .rainbow-text {
+    animation: rainbow 5s linear infinite;
+  }
+
+  .general-box .user-box label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px 0;
+    font-size: 20px;
+    color: #000;
+    pointer-events: none;
+    transition: 0s;
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
+    text-decoration-color: rgb(210, 210, 210);
+  }
+  
+  .general-box .user-box input:focus ~ label,
+  .general-box .user-box input:valid ~ label {
+    top: -24px;
+    left: 0;
+    color: gray;
+    font-size: 14px;
+    text-decoration-line: none;
+  }
+
+  .inline {
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+  } 
+
+  .content {
+    margin-bottom: 10px
+  }
+  
+  img { 
+    image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
+    image-rendering: -moz-crisp-edges;          /* Firefox                        */
+    image-rendering: -o-crisp-edges;            /* Opera                          */
+    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+    image-rendering: pixelated;                 /* Universal support since 2021   */
+    image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE8+                           */
+  }
+
+  .btn {
+    position: relative;
+    display: inline-block;
+    padding: 5px 10px;
+    color: black;
+    font-size: 18px;
+    text-decoration: none;
+    text-transform: uppercase;
+    overflow: hidden;
+    transition: .25s;
+    margin-top: 0px;
+    letter-spacing: 3px
+  }
+  
+  .btn {
+    transition: none;
+    border: 1px solid #000; /* Add a border for clarity */
+  }
+
+  .btn:hover {
+    transition: 0s;
+    background: black;
+    color: #fff;
+    box-shadow: 0 0 5px #03e9f410,
+                0 0 25px #03e9f410,
+                0 0 50px #03e9f410,
+                0 0 100px #03e9f410;
+  }
+  
+  .general-box a span {
+    position: absolute;
+    display: block;
+  }
+  
+  .general-box a span:nth-child(1) {
+    top: 0;
+    left: 0%;
+    width: 100%;
+    height: 0px;
+    background: rgba(0, 0, 0, 0);
+    border-top: 1px dotted #000
+  }
+  
+  .general-box a span:nth-child(2) {
+    top: 0%;
+    right: 0;
+    width: 0px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    border-right: 1px dotted #000
+  }
+  
+  .general-box a span:nth-child(3) {
+    bottom: 0;
+    right: 0%;
+    width: 100%;
+    height: 0px;
+    background: rgba(0, 0, 0, 0);
+    border-bottom: 1px dotted #000
+  }
+  
+  .general-box a span:nth-child(4) {
+    bottom: 0%;
+    left: 0;
+    width: 0px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    border-left: 1px dotted #000
+  }
+
+  .fixed-width {
+    width: 430px; /* Set the width to your desired fixed width */
+  }

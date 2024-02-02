@@ -2,7 +2,7 @@
 Copyright (c) 2015-2016 Chukong Technologies Inc.
 Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  
-http://www.cocos2d-x.org
+https://axmolengine.github.io/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,6 @@ public class AppActivity extends AxmolActivity {
             // Don't need to finish it again since it's finished in super.onCreate .
             return;
         }
-
         // Make sure we're running on Pie or higher to change cutout mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             // Enable rendering into the cutout area
@@ -57,20 +56,8 @@ public class AppActivity extends AxmolActivity {
             lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
             getWindow().setAttributes(lp);
         }
-
         // DO OTHER INITIALIZATION BELOW
-        org.fmod.FMOD.init(this);
+        
     }
-
-    @Override
-    protected void onDestroy() {
-        org.fmod.FMOD.close();
-        super.onDestroy();
-    }
-
-    //static
-    //{
-    //    System.loadLibrary("fmod");
-    //}
 
 }
