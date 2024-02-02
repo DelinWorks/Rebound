@@ -74,7 +74,7 @@ void WelcomeScene::update(F32 dt)
     if (animTime > _maxTime && cnOpacity <= 0 || true)
     {
         GameUtils::addSpriteFramesFromJson("shared/shared_ui.png", "shared/shared_ui.json");
-        auto scene = MapEditor::createScene();
+        auto scene = GameplayScene::createScene();
         Director::getInstance()->pushScene(scene);
     }
 

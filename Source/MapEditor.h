@@ -1,4 +1,5 @@
 /****************************************************************************
+* 
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.ax-x.org
@@ -86,6 +87,14 @@ class MapEditor : public ax::Scene,
 public:
     static ax::Scene* createScene();
     CREATE_FUNC(MapEditor);
+
+    struct Tileset {
+        std::string tilesetName;
+        V2D tileSize;
+        std::string texture_id;
+    };
+
+    std::vector<MapEditor::Tileset> _tilesets;
 
     ~MapEditor();
 
@@ -245,6 +254,7 @@ public:
     void editorUndo();
     void editorRedo();
     void editorPushUndoState();
+
     EditorToolbox::UndoRedoState& editorTopUndoStateOrDefault();
     EditorToolbox::UndoRedoState* editorTopUndoStateOrNull();
     CUI::Button* undoB;

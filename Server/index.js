@@ -13,7 +13,7 @@ require('dotenv').config();
 
 const {checkCaptchaRequestValid} = require('./utils/captcha.js');
 const Mailer = require('./utils/mailer.js');
-const Argon2 = require('./utils/argon2.js');
+const Utils = require('./utils/misc.js');
 
 const CSRF = require('./utils/csrf_dealer.js');
 
@@ -150,7 +150,7 @@ app.post('/create_account', async (req, res) =>
         })
 
         let uid = sql_result.insertId;
-        let code = await Argon2.generateHash(email + username + process.env.ACCOUNT_CREATION_TOKEN_HASH_SALT);
+        let code = Utils.makeid(64);
 
         data = {
             uid: uid,
@@ -202,8 +202,19 @@ app.get('/account_created', (req, res) => {
     res.render('front', { pageIndex: 7, email_resent: (req.query.email_resent === undefined), username: req.query.u }); 
 })
 
-app.get('/verify', (req, res) => {
+app.get('/verify', async (req, res) => {
+    let uid = req.query.uid;
+    let code = req.query.code;
 
+    var sql_result;
+
+    console.log(code);
+
+    await Database.selectFromTable("user_activations", "COUNT(uid) as count", "uid = ? AND code like ?", [uid, code]).then(result => {
+        sql_result = result
+    })
+
+    console.log(sql_result);
 })
 
 app.listen(port, () => console.log(`worker ${cluster.worker.id} webapp: listening on port ${port}`))
